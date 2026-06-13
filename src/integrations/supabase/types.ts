@@ -134,7 +134,7 @@ export type Database = {
           lat: number | null
           lng: number | null
           name: string
-          owner_id: string
+          owner_id: string | null
           slug: string
           star_rating: number | null
           status: Database["public"]["Enums"]["hotel_status"]
@@ -154,7 +154,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           name: string
-          owner_id: string
+          owner_id?: string | null
           slug: string
           star_rating?: number | null
           status?: Database["public"]["Enums"]["hotel_status"]
@@ -174,7 +174,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           name?: string
-          owner_id?: string
+          owner_id?: string | null
           slug?: string
           star_rating?: number | null
           status?: Database["public"]["Enums"]["hotel_status"]
