@@ -69,7 +69,7 @@ function Page() {
   });
 
   const updateQuote = useMutation({
-    mutationFn: async ({ qid, status }: { qid: string; status: string }) => {
+    mutationFn: async ({ qid, status }: { qid: string; status: "shortlisted" | "rejected" }) => {
       const { error } = await supabase.from("quotes").update({ status }).eq("id", qid);
       if (error) throw error;
     },
