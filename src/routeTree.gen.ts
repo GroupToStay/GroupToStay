@@ -9,38 +9,300 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RequestQuoteRouteImport } from './routes/request-quote'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as HotelsRouteImport } from './routes/hotels'
+import { Route as ForHotelsRouteImport } from './routes/for-hotels'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HotelsIdRouteImport } from './routes/hotels.$id'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDashboardRfqsRouteImport } from './routes/_authenticated/dashboard.rfqs'
+import { Route as AuthenticatedDashboardRfqsNewRouteImport } from './routes/_authenticated/dashboard.rfqs.new'
+import { Route as AuthenticatedDashboardRfqsIdRouteImport } from './routes/_authenticated/dashboard.rfqs.$id'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequestQuoteRoute = RequestQuoteRouteImport.update({
+  id: '/request-quote',
+  path: '/request-quote',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HotelsRoute = HotelsRouteImport.update({
+  id: '/hotels',
+  path: '/hotels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForHotelsRoute = ForHotelsRouteImport.update({
+  id: '/for-hotels',
+  path: '/for-hotels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HotelsIdRoute = HotelsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => HotelsRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRfqsRoute =
+  AuthenticatedDashboardRfqsRouteImport.update({
+    id: '/rfqs',
+    path: '/rfqs',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardRfqsNewRoute =
+  AuthenticatedDashboardRfqsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedDashboardRfqsRoute,
+  } as any)
+const AuthenticatedDashboardRfqsIdRoute =
+  AuthenticatedDashboardRfqsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedDashboardRfqsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/for-hotels': typeof ForHotelsRoute
+  '/hotels': typeof HotelsRouteWithChildren
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/request-quote': typeof RequestQuoteRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/hotels/$id': typeof HotelsIdRoute
+  '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
+  '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
+  '/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/for-hotels': typeof ForHotelsRoute
+  '/hotels': typeof HotelsRouteWithChildren
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/request-quote': typeof RequestQuoteRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/hotels/$id': typeof HotelsIdRoute
+  '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
+  '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
+  '/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/for-hotels': typeof ForHotelsRoute
+  '/hotels': typeof HotelsRouteWithChildren
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/request-quote': typeof RequestQuoteRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/hotels/$id': typeof HotelsIdRoute
+  '/_authenticated/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
+  '/_authenticated/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
+  '/_authenticated/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/for-hotels'
+    | '/hotels'
+    | '/how-it-works'
+    | '/pricing'
+    | '/request-quote'
+    | '/sitemap.xml'
+    | '/dashboard'
+    | '/hotels/$id'
+    | '/dashboard/rfqs'
+    | '/dashboard/rfqs/$id'
+    | '/dashboard/rfqs/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/for-hotels'
+    | '/hotels'
+    | '/how-it-works'
+    | '/pricing'
+    | '/request-quote'
+    | '/sitemap.xml'
+    | '/dashboard'
+    | '/hotels/$id'
+    | '/dashboard/rfqs'
+    | '/dashboard/rfqs/$id'
+    | '/dashboard/rfqs/new'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/for-hotels'
+    | '/hotels'
+    | '/how-it-works'
+    | '/pricing'
+    | '/request-quote'
+    | '/sitemap.xml'
+    | '/_authenticated/dashboard'
+    | '/hotels/$id'
+    | '/_authenticated/dashboard/rfqs'
+    | '/_authenticated/dashboard/rfqs/$id'
+    | '/_authenticated/dashboard/rfqs/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AboutRoute: typeof AboutRoute
+  AuthRoute: typeof AuthRoute
+  ContactRoute: typeof ContactRoute
+  ForHotelsRoute: typeof ForHotelsRoute
+  HotelsRoute: typeof HotelsRouteWithChildren
+  HowItWorksRoute: typeof HowItWorksRoute
+  PricingRoute: typeof PricingRoute
+  RequestQuoteRoute: typeof RequestQuoteRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/request-quote': {
+      id: '/request-quote'
+      path: '/request-quote'
+      fullPath: '/request-quote'
+      preLoaderRoute: typeof RequestQuoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hotels': {
+      id: '/hotels'
+      path: '/hotels'
+      fullPath: '/hotels'
+      preLoaderRoute: typeof HotelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for-hotels': {
+      id: '/for-hotels'
+      path: '/for-hotels'
+      fullPath: '/for-hotels'
+      preLoaderRoute: typeof ForHotelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +310,109 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hotels/$id': {
+      id: '/hotels/$id'
+      path: '/$id'
+      fullPath: '/hotels/$id'
+      preLoaderRoute: typeof HotelsIdRouteImport
+      parentRoute: typeof HotelsRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard/rfqs': {
+      id: '/_authenticated/dashboard/rfqs'
+      path: '/rfqs'
+      fullPath: '/dashboard/rfqs'
+      preLoaderRoute: typeof AuthenticatedDashboardRfqsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/rfqs/new': {
+      id: '/_authenticated/dashboard/rfqs/new'
+      path: '/new'
+      fullPath: '/dashboard/rfqs/new'
+      preLoaderRoute: typeof AuthenticatedDashboardRfqsNewRouteImport
+      parentRoute: typeof AuthenticatedDashboardRfqsRoute
+    }
+    '/_authenticated/dashboard/rfqs/$id': {
+      id: '/_authenticated/dashboard/rfqs/$id'
+      path: '/$id'
+      fullPath: '/dashboard/rfqs/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardRfqsIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardRfqsRoute
+    }
   }
 }
 
+interface AuthenticatedDashboardRfqsRouteChildren {
+  AuthenticatedDashboardRfqsIdRoute: typeof AuthenticatedDashboardRfqsIdRoute
+  AuthenticatedDashboardRfqsNewRoute: typeof AuthenticatedDashboardRfqsNewRoute
+}
+
+const AuthenticatedDashboardRfqsRouteChildren: AuthenticatedDashboardRfqsRouteChildren =
+  {
+    AuthenticatedDashboardRfqsIdRoute: AuthenticatedDashboardRfqsIdRoute,
+    AuthenticatedDashboardRfqsNewRoute: AuthenticatedDashboardRfqsNewRoute,
+  }
+
+const AuthenticatedDashboardRfqsRouteWithChildren =
+  AuthenticatedDashboardRfqsRoute._addFileChildren(
+    AuthenticatedDashboardRfqsRouteChildren,
+  )
+
+interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardRfqsRoute: typeof AuthenticatedDashboardRfqsRouteWithChildren
+}
+
+const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
+  {
+    AuthenticatedDashboardRfqsRoute:
+      AuthenticatedDashboardRfqsRouteWithChildren,
+  }
+
+const AuthenticatedDashboardRouteWithChildren =
+  AuthenticatedDashboardRoute._addFileChildren(
+    AuthenticatedDashboardRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface HotelsRouteChildren {
+  HotelsIdRoute: typeof HotelsIdRoute
+}
+
+const HotelsRouteChildren: HotelsRouteChildren = {
+  HotelsIdRoute: HotelsIdRoute,
+}
+
+const HotelsRouteWithChildren =
+  HotelsRoute._addFileChildren(HotelsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AboutRoute: AboutRoute,
+  AuthRoute: AuthRoute,
+  ContactRoute: ContactRoute,
+  ForHotelsRoute: ForHotelsRoute,
+  HotelsRoute: HotelsRouteWithChildren,
+  HowItWorksRoute: HowItWorksRoute,
+  PricingRoute: PricingRoute,
+  RequestQuoteRoute: RequestQuoteRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
