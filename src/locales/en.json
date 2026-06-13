@@ -1,0 +1,207 @@
+{
+  "brand": "GroupToStay",
+  "tagline": "Group accommodation, on your terms.",
+  "nav": {
+    "howItWorks": "How it works",
+    "hotels": "Hotels",
+    "forHotels": "For hotels",
+    "pricing": "Pricing",
+    "about": "About",
+    "contact": "Contact",
+    "signIn": "Sign in",
+    "getQuote": "Request a quote",
+    "dashboard": "Dashboard",
+    "signOut": "Sign out"
+  },
+  "hero": {
+    "eyebrow": "B2B group hospitality marketplace",
+    "title": "One request. Multiple hotels. The best group rate.",
+    "subtitle": "Built for Umrah & Hajj operators, tourism agencies, corporates, governments, sports teams, schools and event organizers. Submit one RFQ — receive competing quotations from matching hotels.",
+    "ctaPrimary": "Request a group quote",
+    "ctaSecondary": "Browse hotels",
+    "trust": "Trusted by group operators across MENA, Europe and Asia."
+  },
+  "audiences": {
+    "title": "Built for serious group buyers",
+    "subtitle": "GroupToStay does not serve individual travelers. Every workflow is designed for groups of 10 to 10,000.",
+    "list": {
+      "umrah": "Umrah operators",
+      "hajj": "Hajj missions",
+      "tourism": "Tourism agencies",
+      "corporate": "Corporate travel",
+      "government": "Government delegations",
+      "sports": "Sports teams",
+      "education": "Schools & universities",
+      "event": "Event organizers"
+    }
+  },
+  "how": {
+    "title": "How it works",
+    "subtitle": "Three steps from request to confirmed group booking.",
+    "step1Title": "Submit one request",
+    "step1Body": "Describe your group, destination, dates, board and budget. One form replaces dozens of emails.",
+    "step2Title": "Hotels compete",
+    "step2Body": "Approved hotels in your destination submit quotations within hours, not days.",
+    "step3Title": "Compare, negotiate, award",
+    "step3Body": "Side-by-side quote comparison, in-platform messaging, then a confirmed booking with a clear contract."
+  },
+  "stats": {
+    "rooms": "Rooms quoted",
+    "destinations": "Destinations",
+    "responseTime": "Avg. response",
+    "save": "Avg. savings"
+  },
+  "featured": { "title": "Featured group hotels", "subtitle": "A sample of approved properties on the platform.", "viewAll": "View all hotels" },
+  "footer": {
+    "rights": "All rights reserved.",
+    "platform": "Platform",
+    "company": "Company",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "hotels": {
+    "title": "Group-ready hotels",
+    "subtitle": "Approved properties accepting group RFQs.",
+    "searchPlaceholder": "Search by city or hotel name…",
+    "filterCity": "City",
+    "filterStars": "Stars",
+    "any": "Any",
+    "empty": "No hotels match these filters yet.",
+    "viewDetails": "View details",
+    "rooms": "rooms",
+    "from": "from",
+    "perNight": "/night",
+    "amenities": "Amenities"
+  },
+  "rfq": {
+    "title": "Request a group quote",
+    "subtitle": "Tell us about your group — matching hotels will respond directly.",
+    "step": "Step",
+    "of": "of",
+    "fields": {
+      "title": "Request title",
+      "titlePh": "e.g. 120 pax Umrah group — March 2026",
+      "groupType": "Group type",
+      "destCity": "Destination city",
+      "destCountry": "Destination country",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "guests": "Total guests",
+      "rooms": "Rooms needed",
+      "roomPref": "Room type preference",
+      "roomPrefPh": "e.g. Quad rooms preferred",
+      "board": "Board",
+      "budgetMin": "Budget min (per night)",
+      "budgetMax": "Budget max (per night)",
+      "currency": "Currency",
+      "deadline": "Quote deadline (optional)",
+      "notes": "Special requirements",
+      "notesPh": "Halal meals, female-only floor, coach parking, etc."
+    },
+    "groupTypes": {
+      "umrah": "Umrah", "hajj": "Hajj", "tourism": "Tourism", "corporate": "Corporate",
+      "government": "Government", "sports": "Sports team", "education": "Education", "event": "Event", "other": "Other"
+    },
+    "boards": { "room_only": "Room only", "breakfast": "Breakfast", "half_board": "Half board", "full_board": "Full board" },
+    "next": "Next",
+    "back": "Back",
+    "submit": "Submit request",
+    "submitting": "Submitting…",
+    "authRequired": "Sign in or create an account to submit your request.",
+    "createdToast": "Request submitted. Matching hotels are being notified.",
+    "anonymous": "No account yet? You'll be asked to create one (free) when you submit."
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "signUpTitle": "Create an organizer account",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full name",
+    "orgName": "Organization",
+    "phone": "Phone",
+    "country": "Country",
+    "haveAccount": "Have an account? Sign in",
+    "noAccount": "Need an account? Sign up",
+    "submitSignIn": "Sign in",
+    "submitSignUp": "Create account",
+    "signOut": "Sign out",
+    "checkEmail": "Check your email to confirm your account, then sign in."
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "myRfqs": "My requests",
+    "newRfq": "New request",
+    "messages": "Messages",
+    "settings": "Settings",
+    "noRfqs": "You haven't submitted any group requests yet.",
+    "createFirst": "Create your first request",
+    "status": {
+      "draft": "Draft", "open": "Open", "closed": "Closed", "awarded": "Awarded", "cancelled": "Cancelled",
+      "submitted": "Submitted", "shortlisted": "Shortlisted", "accepted": "Accepted", "rejected": "Rejected", "withdrawn": "Withdrawn"
+    },
+    "guests": "guests",
+    "nights": "nights",
+    "rooms": "rooms",
+    "quotesReceived": "quotes received",
+    "deadline": "Deadline",
+    "viewQuotes": "View quotes",
+    "details": "Details",
+    "noQuotesYet": "No quotes received yet. Hotels are reviewing your request.",
+    "shortlist": "Shortlist",
+    "accept": "Accept",
+    "reject": "Reject",
+    "acceptedToast": "Quote accepted. Booking created.",
+    "close": "Close request",
+    "closedToast": "Request closed.",
+    "deleteConfirm": "Delete this request? This cannot be undone.",
+    "sendMessage": "Send",
+    "messagePh": "Send a message to this hotel…",
+    "noMessages": "No messages yet."
+  },
+  "pricing": {
+    "title": "Simple pricing",
+    "subtitle": "Free for organizers. Hotels pay only when they win business.",
+    "organizer": "For organizers",
+    "organizerPrice": "Free",
+    "organizerDesc": "Unlimited group requests. Receive competing quotes. No fees, ever.",
+    "hotelBasic": "Hotel — Pay per win",
+    "hotelBasicPrice": "10% commission",
+    "hotelBasicDesc": "List your hotel, receive matching RFQs, pay commission only on awarded bookings.",
+    "hotelPremium": "Hotel — Featured",
+    "hotelPremiumPrice": "$199 / month",
+    "hotelPremiumDesc": "Top placement on browse and search results plus everything in pay-per-win."
+  },
+  "forHotels": {
+    "title": "Win more group business",
+    "subtitle": "Receive pre-qualified group RFQs from operators in your city. No upfront cost.",
+    "ctaList": "List your hotel",
+    "benefit1Title": "Qualified demand",
+    "benefit1Body": "Only verified buyers — Umrah, Hajj, corporate, tourism — never individual travelers.",
+    "benefit2Title": "Pay only when you win",
+    "benefit2Body": "10% commission on confirmed bookings. Featured placement available.",
+    "benefit3Title": "Faster decisions",
+    "benefit3Body": "Quote in minutes, message the organizer directly, close the deal in days not weeks."
+  },
+  "about": {
+    "title": "About GroupToStay",
+    "body": "GroupToStay is a B2B marketplace built exclusively for group accommodation. We connect operators who book at scale with hotels that specialize in serving them. Our mission is to remove the friction from group hotel sourcing — replacing dozens of emails and phone calls with a single, transparent workflow."
+  },
+  "contact": {
+    "title": "Contact us",
+    "subtitle": "Tell us about your group sourcing needs.",
+    "name": "Your name",
+    "email": "Email",
+    "message": "Message",
+    "send": "Send message",
+    "sent": "Thanks — we'll get back to you shortly."
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong.",
+    "retry": "Try again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "language": "Language"
+  }
+}
