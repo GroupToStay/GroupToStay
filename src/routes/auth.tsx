@@ -25,6 +25,7 @@ function Page() {
   const search = useSearch({ from: "/auth" });
   const { user } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [role, setRole] = useState<"organizer" | "hotel">("organizer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -46,7 +47,7 @@ function Page() {
           email, password,
           options: {
             emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
-            data: { full_name: fullName, org_name: orgName, phone, country, role: "organizer" },
+            data: { full_name: fullName, org_name: orgName, phone, country, role },
           },
         });
         if (error) throw error;
