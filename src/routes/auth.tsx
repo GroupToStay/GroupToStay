@@ -72,6 +72,18 @@ function Page() {
           <h1 className="font-display text-2xl text-primary">{mode === "signin" ? t("auth.signInTitle") : t("auth.signUpTitle")}</h1>
           <form onSubmit={onSubmit} className="mt-4 space-y-3">
             {mode === "signup" && (<>
+              <div>
+                <Label>{t("auth.accountType")}</Label>
+                <div className="mt-1 grid grid-cols-2 gap-2">
+                  {(["organizer","hotel"] as const).map(r => (
+                    <button type="button" key={r} onClick={() => setRole(r)}
+                      className={`rounded-md border px-3 py-2 text-sm text-start ${role === r ? "border-gold bg-gold/10 text-foreground" : "border-input bg-background text-muted-foreground"}`}>
+                      <div className="font-medium text-foreground">{t(`auth.role.${r}`)}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{t(`auth.roleDesc.${r}`)}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
               <div><Label>{t("auth.fullName")}</Label><Input required value={fullName} onChange={e => setFullName(e.target.value)} maxLength={120} /></div>
               <div><Label>{t("auth.orgName")}</Label><Input required value={orgName} onChange={e => setOrgName(e.target.value)} maxLength={160} /></div>
               <div className="grid grid-cols-2 gap-3">
