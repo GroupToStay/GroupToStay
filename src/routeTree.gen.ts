@@ -23,6 +23,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as HotelsIdRouteImport } from './routes/hotels.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDashboardRfqsRouteImport } from './routes/_authenticated/dashboard.rfqs'
+import { Route as AuthenticatedDashboardInvitationsRouteImport } from './routes/_authenticated/dashboard.invitations'
+import { Route as AuthenticatedDashboardHotelRouteImport } from './routes/_authenticated/dashboard.hotel'
 import { Route as AuthenticatedDashboardRfqsNewRouteImport } from './routes/_authenticated/dashboard.rfqs.new'
 import { Route as AuthenticatedDashboardRfqsIdRouteImport } from './routes/_authenticated/dashboard.rfqs.$id'
 
@@ -96,6 +98,18 @@ const AuthenticatedDashboardRfqsRoute =
     path: '/rfqs',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardInvitationsRoute =
+  AuthenticatedDashboardInvitationsRouteImport.update({
+    id: '/invitations',
+    path: '/invitations',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardHotelRoute =
+  AuthenticatedDashboardHotelRouteImport.update({
+    id: '/hotel',
+    path: '/hotel',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardRfqsNewRoute =
   AuthenticatedDashboardRfqsNewRouteImport.update({
     id: '/new',
@@ -122,6 +136,8 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
+  '/dashboard/hotel': typeof AuthenticatedDashboardHotelRoute
+  '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
   '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
   '/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
@@ -139,6 +155,8 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
+  '/dashboard/hotel': typeof AuthenticatedDashboardHotelRoute
+  '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
   '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
   '/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
@@ -158,6 +176,8 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
+  '/_authenticated/dashboard/hotel': typeof AuthenticatedDashboardHotelRoute
+  '/_authenticated/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/_authenticated/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
   '/_authenticated/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
   '/_authenticated/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
@@ -177,6 +197,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/dashboard'
     | '/hotels/$id'
+    | '/dashboard/hotel'
+    | '/dashboard/invitations'
     | '/dashboard/rfqs'
     | '/dashboard/rfqs/$id'
     | '/dashboard/rfqs/new'
@@ -194,6 +216,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/dashboard'
     | '/hotels/$id'
+    | '/dashboard/hotel'
+    | '/dashboard/invitations'
     | '/dashboard/rfqs'
     | '/dashboard/rfqs/$id'
     | '/dashboard/rfqs/new'
@@ -212,6 +236,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/_authenticated/dashboard'
     | '/hotels/$id'
+    | '/_authenticated/dashboard/hotel'
+    | '/_authenticated/dashboard/invitations'
     | '/_authenticated/dashboard/rfqs'
     | '/_authenticated/dashboard/rfqs/$id'
     | '/_authenticated/dashboard/rfqs/new'
@@ -331,6 +357,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRfqsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/invitations': {
+      id: '/_authenticated/dashboard/invitations'
+      path: '/invitations'
+      fullPath: '/dashboard/invitations'
+      preLoaderRoute: typeof AuthenticatedDashboardInvitationsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/hotel': {
+      id: '/_authenticated/dashboard/hotel'
+      path: '/hotel'
+      fullPath: '/dashboard/hotel'
+      preLoaderRoute: typeof AuthenticatedDashboardHotelRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/rfqs/new': {
       id: '/_authenticated/dashboard/rfqs/new'
       path: '/new'
@@ -365,11 +405,16 @@ const AuthenticatedDashboardRfqsRouteWithChildren =
   )
 
 interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardHotelRoute: typeof AuthenticatedDashboardHotelRoute
+  AuthenticatedDashboardInvitationsRoute: typeof AuthenticatedDashboardInvitationsRoute
   AuthenticatedDashboardRfqsRoute: typeof AuthenticatedDashboardRfqsRouteWithChildren
 }
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
+    AuthenticatedDashboardHotelRoute: AuthenticatedDashboardHotelRoute,
+    AuthenticatedDashboardInvitationsRoute:
+      AuthenticatedDashboardInvitationsRoute,
     AuthenticatedDashboardRfqsRoute:
       AuthenticatedDashboardRfqsRouteWithChildren,
   }
@@ -417,13 +462,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
