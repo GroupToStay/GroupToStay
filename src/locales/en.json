@@ -188,6 +188,8 @@
     "fileTooLarge": "file is larger than 5 MB",
     "setCover": "Set as cover",
     "coverBadge": "Cover",
+    "fields": {
+      "name": "Hotel name", "city": "City", "country": "Country", "address": "Address",
       "stars": "Star rating", "coverImage": "Cover image URL", "description": "Description",
       "amenities": "Amenities (comma separated)", "amenitiesPh": "Prayer hall, Coach parking, Wi-Fi…",
       "roomType": "Room type", "capacity": "Capacity", "count": "Available", "price": "Base price/night",
