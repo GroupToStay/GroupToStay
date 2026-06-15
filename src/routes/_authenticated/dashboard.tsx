@@ -71,23 +71,26 @@ function HotelHome() {
   const { t } = useTranslation();
   const { user } = useAuth();
 
-  const { data: hotel } = useQuery({
-    queryKey: ["my-hotel", user?.id],
+  const { data: hotels = [] } = useQuery({
+    queryKey: ["my-hotels-summary", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("hotels").select("id, name, status").eq("owner_id", user!.id).maybeSingle();
-      return data;
+      const { data } = await supabase.from("hotels").select("id, name, status").eq("owner_id", user!.id);
+      return data ?? [];
     },
   });
 
+  const hotelIds = hotels.map((h: any) => h.id);
+  const hasHotels = hotelIds.length > 0;
+
   const { data: stats } = useQuery({
-    queryKey: ["hotel-stats", hotel?.id],
-    enabled: !!hotel?.id,
+    queryKey: ["hotel-stats", hotelIds.join(",")],
+    enabled: hasHotels,
     queryFn: async () => {
       const [{ count: invites }, { count: quotes }, { count: wins }] = await Promise.all([
-        supabase.from("rfq_invitations").select("*", { count: "exact", head: true }).eq("hotel_id", hotel!.id),
-        supabase.from("quotes").select("*", { count: "exact", head: true }).eq("hotel_id", hotel!.id),
-        supabase.from("bookings").select("*", { count: "exact", head: true }).eq("hotel_id", hotel!.id),
+        supabase.from("rfq_invitations").select("*", { count: "exact", head: true }).in("hotel_id", hotelIds),
+        supabase.from("quotes").select("*", { count: "exact", head: true }).in("hotel_id", hotelIds),
+        supabase.from("bookings").select("*", { count: "exact", head: true }).in("hotel_id", hotelIds),
       ]);
       return { invites: invites ?? 0, quotes: quotes ?? 0, wins: wins ?? 0 };
     },
