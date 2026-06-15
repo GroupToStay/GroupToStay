@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthLayout() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { isHotel } = useRoles();
+  const { isHotel, isAdmin } = useRoles();
 
   const navItem = "flex items-center gap-2 px-3 py-2 rounded-md text-sm hover:bg-accent [&.active]:bg-primary [&.active]:text-primary-foreground";
 
@@ -53,6 +53,11 @@ function AuthLayout() {
                     <Plus className="h-4 w-4" /> {t("dashboard.newRfq")}
                   </Link>
                 </>
+              )}
+              {isAdmin && (
+                <Link to="/dashboard/admin" className={navItem} activeProps={{ className: "active" }}>
+                  <ShieldCheck className="h-4 w-4" /> {t("admin.title")}
+                </Link>
               )}
             </nav>
           </div>

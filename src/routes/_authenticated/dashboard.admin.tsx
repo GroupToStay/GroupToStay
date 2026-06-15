@@ -126,7 +126,7 @@ function CompanyRow({ row, onDecide }: { row: any; onDecide: (decision: "approve
 function HotelsPanel() {
   const { t } = useTranslation();
   const qc = useQueryClient();
-  const [status, setStatus] = useState<"pending" | "approved" | "rejected">("pending");
+  const [status, setStatus] = useState<"pending" | "approved" | "suspended">("pending");
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["admin-hotels", status],
@@ -142,7 +142,7 @@ function HotelsPanel() {
   });
 
   const setStatusFor = useMutation({
-    mutationFn: async ({ id, next }: { id: string; next: "approved" | "rejected" | "pending" }) => {
+    mutationFn: async ({ id, next }: { id: string; next: "approved" | "suspended" | "pending" }) => {
       const { error } = await supabase.from("hotels").update({ status: next }).eq("id", id);
       if (error) throw error;
     },
@@ -153,7 +153,7 @@ function HotelsPanel() {
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        {(["pending", "approved", "rejected"] as const).map(s => (
+        {(["pending", "approved", "suspended"] as const).map(s => (
           <button key={s} onClick={() => setStatus(s)}
             className={`rounded-md border px-3 py-1 text-xs ${status === s ? "border-gold bg-gold/10 text-foreground" : "border-input text-muted-foreground"}`}>
             {t(`hotelDash.statuses.${s}`)}
@@ -172,7 +172,7 @@ function HotelsPanel() {
           <Badge>{t(`hotelDash.statuses.${h.status}`)}</Badge>
           <div className="flex gap-2">
             <Button size="sm" variant="gold" onClick={() => setStatusFor.mutate({ id: h.id, next: "approved" })}>{t("admin.approve")}</Button>
-            <Button size="sm" variant="destructive" onClick={() => setStatusFor.mutate({ id: h.id, next: "rejected" })}>{t("admin.reject")}</Button>
+            <Button size="sm" variant="destructive" onClick={() => setStatusFor.mutate({ id: h.id, next: "suspended" })}>{t("admin.suspend")}</Button>
           </div>
         </CardContent></Card>
       ))}
