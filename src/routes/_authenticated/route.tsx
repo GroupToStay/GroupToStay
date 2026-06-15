@@ -35,7 +35,7 @@ function AuthLayout() {
               <Link to="/dashboard" activeOptions={{ exact: true }} className={navItem} activeProps={{ className: "active" }}>
                 <LayoutDashboard className="h-4 w-4" /> {t("dashboard.welcome")}
               </Link>
-              {isHotel ? (
+              {!isAdmin && isHotel && (
                 <>
                   <Link to="/dashboard/hotel" className={navItem} activeProps={{ className: "active" }}>
                     <Building2 className="h-4 w-4" /> {t("hotelDash.myHotel")}
@@ -44,7 +44,8 @@ function AuthLayout() {
                     <Inbox className="h-4 w-4" /> {t("hotelDash.invitations")}
                   </Link>
                 </>
-              ) : (
+              )}
+              {!isAdmin && !isHotel && (
                 <>
                   <Link to="/dashboard/rfqs" className={navItem} activeProps={{ className: "active" }}>
                     <FileText className="h-4 w-4" /> {t("dashboard.myRfqs")}
