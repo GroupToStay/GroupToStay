@@ -40,6 +40,9 @@ function AuthLayout() {
                   <Link to="/dashboard/hotel" className={navItem} activeProps={{ className: "active" }}>
                     <Building2 className="h-4 w-4" /> {t("hotelDash.myHotel")}
                   </Link>
+                  <Link to="/requests" className={navItem} activeProps={{ className: "active" }}>
+                    <Globe className="h-4 w-4" /> {t("hotelDash.browseRequests", "Browse requests")}
+                  </Link>
                   <Link to="/dashboard/invitations" className={navItem} activeProps={{ className: "active" }}>
                     <Inbox className="h-4 w-4" /> {t("hotelDash.invitations")}
                   </Link>
