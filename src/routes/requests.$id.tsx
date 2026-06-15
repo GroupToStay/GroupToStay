@@ -63,6 +63,9 @@ function Page() {
               <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" /> {rfq.guests_count} guests · {rfq.rooms_needed} rooms</span>
             </div>
           </div>
+          {user && isHotel && rfq.status === "open" && (
+            <SubmitQuoteForHotel rfq={rfq} userId={user.id} />
+          )}
         </div>
 
         <Card>
