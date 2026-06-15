@@ -166,6 +166,9 @@ function Landing() {
         </section>
       )}
 
+      {/* OPEN REQUESTS (public) */}
+      <OpenRequestsSection />
+
       {/* MESSAGES bar (authenticated users) */}
       {user && <MessagesBar userId={user.id} />}
 
