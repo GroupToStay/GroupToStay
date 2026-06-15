@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
+import { useRoles } from "@/hooks/use-role";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Building2, Menu, X } from "lucide-react";
@@ -9,6 +10,8 @@ import { useState } from "react";
 export function SiteHeader() {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
+  const { isHotel } = useRoles();
+  const showQuoteCta = !user || !isHotel;
   const [open, setOpen] = useState(false);
 
   const navLinks = (
