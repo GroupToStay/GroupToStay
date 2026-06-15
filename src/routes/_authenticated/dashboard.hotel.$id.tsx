@@ -81,7 +81,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
         address: address.trim() || null,
         star_rating: Number(starRating),
         description: description.trim() || null,
-        amenities: amenities.split(",").map((s) => s.trim()).filter(Boolean),
+        amenities: amenities.split(",").map((s: string) => s.trim()).filter(Boolean),
       }).eq("id", hotel.id);
       if (error) throw error;
       toast.success(t("hotelDash.infoSaved"));

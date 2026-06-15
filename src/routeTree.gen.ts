@@ -30,6 +30,7 @@ import { Route as AuthenticatedDashboardHotelRouteImport } from './routes/_authe
 import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard.admin'
 import { Route as AuthenticatedDashboardRfqsNewRouteImport } from './routes/_authenticated/dashboard.rfqs.new'
 import { Route as AuthenticatedDashboardRfqsIdRouteImport } from './routes/_authenticated/dashboard.rfqs.$id'
+import { Route as AuthenticatedDashboardHotelIdRouteImport } from './routes/_authenticated/dashboard.hotel.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -142,6 +143,12 @@ const AuthenticatedDashboardRfqsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedDashboardRfqsRoute,
   } as any)
+const AuthenticatedDashboardHotelIdRoute =
+  AuthenticatedDashboardHotelIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedDashboardHotelRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -158,10 +165,11 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
-  '/dashboard/hotel': typeof AuthenticatedDashboardHotelRoute
+  '/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
+  '/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
   '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
   '/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
 }
@@ -180,10 +188,11 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
-  '/dashboard/hotel': typeof AuthenticatedDashboardHotelRoute
+  '/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
+  '/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
   '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
   '/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
 }
@@ -204,10 +213,11 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
   '/_authenticated/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
-  '/_authenticated/dashboard/hotel': typeof AuthenticatedDashboardHotelRoute
+  '/_authenticated/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
   '/_authenticated/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/_authenticated/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
+  '/_authenticated/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
   '/_authenticated/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
   '/_authenticated/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
 }
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/dashboard/invitations'
     | '/dashboard/profile'
     | '/dashboard/rfqs'
+    | '/dashboard/hotel/$id'
     | '/dashboard/rfqs/$id'
     | '/dashboard/rfqs/new'
   fileRoutesByTo: FileRoutesByTo
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/dashboard/invitations'
     | '/dashboard/profile'
     | '/dashboard/rfqs'
+    | '/dashboard/hotel/$id'
     | '/dashboard/rfqs/$id'
     | '/dashboard/rfqs/new'
   id:
@@ -277,6 +289,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/invitations'
     | '/_authenticated/dashboard/profile'
     | '/_authenticated/dashboard/rfqs'
+    | '/_authenticated/dashboard/hotel/$id'
     | '/_authenticated/dashboard/rfqs/$id'
     | '/_authenticated/dashboard/rfqs/new'
   fileRoutesById: FileRoutesById
@@ -445,8 +458,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRfqsIdRouteImport
       parentRoute: typeof AuthenticatedDashboardRfqsRoute
     }
+    '/_authenticated/dashboard/hotel/$id': {
+      id: '/_authenticated/dashboard/hotel/$id'
+      path: '/$id'
+      fullPath: '/dashboard/hotel/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardHotelIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardHotelRoute
+    }
   }
 }
+
+interface AuthenticatedDashboardHotelRouteChildren {
+  AuthenticatedDashboardHotelIdRoute: typeof AuthenticatedDashboardHotelIdRoute
+}
+
+const AuthenticatedDashboardHotelRouteChildren: AuthenticatedDashboardHotelRouteChildren =
+  {
+    AuthenticatedDashboardHotelIdRoute: AuthenticatedDashboardHotelIdRoute,
+  }
+
+const AuthenticatedDashboardHotelRouteWithChildren =
+  AuthenticatedDashboardHotelRoute._addFileChildren(
+    AuthenticatedDashboardHotelRouteChildren,
+  )
 
 interface AuthenticatedDashboardRfqsRouteChildren {
   AuthenticatedDashboardRfqsIdRoute: typeof AuthenticatedDashboardRfqsIdRoute
@@ -466,7 +500,7 @@ const AuthenticatedDashboardRfqsRouteWithChildren =
 
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAdminRoute: typeof AuthenticatedDashboardAdminRoute
-  AuthenticatedDashboardHotelRoute: typeof AuthenticatedDashboardHotelRoute
+  AuthenticatedDashboardHotelRoute: typeof AuthenticatedDashboardHotelRouteWithChildren
   AuthenticatedDashboardInvitationsRoute: typeof AuthenticatedDashboardInvitationsRoute
   AuthenticatedDashboardProfileRoute: typeof AuthenticatedDashboardProfileRoute
   AuthenticatedDashboardRfqsRoute: typeof AuthenticatedDashboardRfqsRouteWithChildren
@@ -475,7 +509,8 @@ interface AuthenticatedDashboardRouteChildren {
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
     AuthenticatedDashboardAdminRoute: AuthenticatedDashboardAdminRoute,
-    AuthenticatedDashboardHotelRoute: AuthenticatedDashboardHotelRoute,
+    AuthenticatedDashboardHotelRoute:
+      AuthenticatedDashboardHotelRouteWithChildren,
     AuthenticatedDashboardInvitationsRoute:
       AuthenticatedDashboardInvitationsRoute,
     AuthenticatedDashboardProfileRoute: AuthenticatedDashboardProfileRoute,
