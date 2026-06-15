@@ -7,8 +7,11 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Building2, Users, Globe2, Clock, Percent, ShieldCheck, Star } from "lucide-react";
+import { ArrowRight, Building2, Users, Globe2, Clock, Percent, ShieldCheck, Star, MessageSquare, Inbox } from "lucide-react";
 import heroImg from "@/assets/hero-lobby.jpg";
+import { useAuth } from "@/hooks/use-auth";
+import { useRoles } from "@/hooks/use-role";
+import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/")({
   head: () => ({
