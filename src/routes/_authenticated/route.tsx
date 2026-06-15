@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { SiteHeader } from "@/components/site-header";
-import { LayoutDashboard, FileText, Plus, Building2, Inbox, ShieldCheck, User, Globe } from "lucide-react";
+import { useUnreadMessageCount } from "@/hooks/use-unread-messages";
+import { LayoutDashboard, FileText, Plus, Building2, Inbox, ShieldCheck, User, Globe, MessageSquare } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
