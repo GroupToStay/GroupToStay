@@ -33,9 +33,11 @@ import { Route as AuthenticatedDashboardInvitationsRouteImport } from './routes/
 import { Route as AuthenticatedDashboardHotelRouteImport } from './routes/_authenticated/dashboard.hotel'
 import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard.admin'
 import { Route as AuthenticatedDashboardRfqsIndexRouteImport } from './routes/_authenticated/dashboard.rfqs.index'
+import { Route as AuthenticatedDashboardMessagesIndexRouteImport } from './routes/_authenticated/dashboard.messages.index'
 import { Route as AuthenticatedDashboardHotelIndexRouteImport } from './routes/_authenticated/dashboard.hotel.index'
 import { Route as AuthenticatedDashboardRfqsNewRouteImport } from './routes/_authenticated/dashboard.rfqs.new'
 import { Route as AuthenticatedDashboardRfqsIdRouteImport } from './routes/_authenticated/dashboard.rfqs.$id'
+import { Route as AuthenticatedDashboardMessagesIdRouteImport } from './routes/_authenticated/dashboard.messages.$id'
 import { Route as AuthenticatedDashboardHotelIdRouteImport } from './routes/_authenticated/dashboard.hotel.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -165,6 +167,12 @@ const AuthenticatedDashboardRfqsIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedDashboardRfqsRoute,
   } as any)
+const AuthenticatedDashboardMessagesIndexRoute =
+  AuthenticatedDashboardMessagesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDashboardMessagesRoute,
+  } as any)
 const AuthenticatedDashboardHotelIndexRoute =
   AuthenticatedDashboardHotelIndexRouteImport.update({
     id: '/',
@@ -182,6 +190,12 @@ const AuthenticatedDashboardRfqsIdRoute =
     id: '/$id',
     path: '/$id',
     getParentRoute: () => AuthenticatedDashboardRfqsRoute,
+  } as any)
+const AuthenticatedDashboardMessagesIdRoute =
+  AuthenticatedDashboardMessagesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedDashboardMessagesRoute,
   } as any)
 const AuthenticatedDashboardHotelIdRoute =
   AuthenticatedDashboardHotelIdRouteImport.update({
@@ -209,14 +223,16 @@ export interface FileRoutesByFullPath {
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
-  '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
+  '/dashboard/messages': typeof AuthenticatedDashboardMessagesRouteWithChildren
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
+  '/dashboard/messages/$id': typeof AuthenticatedDashboardMessagesIdRoute
   '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
   '/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
   '/dashboard/hotel/': typeof AuthenticatedDashboardHotelIndexRoute
+  '/dashboard/messages/': typeof AuthenticatedDashboardMessagesIndexRoute
   '/dashboard/rfqs/': typeof AuthenticatedDashboardRfqsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -236,13 +252,14 @@ export interface FileRoutesByTo {
   '/requests': typeof RequestsIndexRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
-  '/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
+  '/dashboard/messages/$id': typeof AuthenticatedDashboardMessagesIdRoute
   '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
   '/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
   '/dashboard/hotel': typeof AuthenticatedDashboardHotelIndexRoute
+  '/dashboard/messages': typeof AuthenticatedDashboardMessagesIndexRoute
   '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsIndexRoute
 }
 export interface FileRoutesById {
@@ -266,14 +283,16 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/_authenticated/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
   '/_authenticated/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
-  '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRoute
+  '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRouteWithChildren
   '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/_authenticated/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
+  '/_authenticated/dashboard/messages/$id': typeof AuthenticatedDashboardMessagesIdRoute
   '/_authenticated/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
   '/_authenticated/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
   '/_authenticated/dashboard/hotel/': typeof AuthenticatedDashboardHotelIndexRoute
+  '/_authenticated/dashboard/messages/': typeof AuthenticatedDashboardMessagesIndexRoute
   '/_authenticated/dashboard/rfqs/': typeof AuthenticatedDashboardRfqsIndexRoute
 }
 export interface FileRouteTypes {
@@ -302,9 +321,11 @@ export interface FileRouteTypes {
     | '/dashboard/rfqs'
     | '/dashboard/'
     | '/dashboard/hotel/$id'
+    | '/dashboard/messages/$id'
     | '/dashboard/rfqs/$id'
     | '/dashboard/rfqs/new'
     | '/dashboard/hotel/'
+    | '/dashboard/messages/'
     | '/dashboard/rfqs/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -324,13 +345,14 @@ export interface FileRouteTypes {
     | '/requests'
     | '/dashboard/admin'
     | '/dashboard/invitations'
-    | '/dashboard/messages'
     | '/dashboard/profile'
     | '/dashboard'
     | '/dashboard/hotel/$id'
+    | '/dashboard/messages/$id'
     | '/dashboard/rfqs/$id'
     | '/dashboard/rfqs/new'
     | '/dashboard/hotel'
+    | '/dashboard/messages'
     | '/dashboard/rfqs'
   id:
     | '__root__'
@@ -358,9 +380,11 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/rfqs'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/hotel/$id'
+    | '/_authenticated/dashboard/messages/$id'
     | '/_authenticated/dashboard/rfqs/$id'
     | '/_authenticated/dashboard/rfqs/new'
     | '/_authenticated/dashboard/hotel/'
+    | '/_authenticated/dashboard/messages/'
     | '/_authenticated/dashboard/rfqs/'
   fileRoutesById: FileRoutesById
 }
@@ -551,6 +575,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRfqsIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRfqsRoute
     }
+    '/_authenticated/dashboard/messages/': {
+      id: '/_authenticated/dashboard/messages/'
+      path: '/'
+      fullPath: '/dashboard/messages/'
+      preLoaderRoute: typeof AuthenticatedDashboardMessagesIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardMessagesRoute
+    }
     '/_authenticated/dashboard/hotel/': {
       id: '/_authenticated/dashboard/hotel/'
       path: '/'
@@ -571,6 +602,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/rfqs/$id'
       preLoaderRoute: typeof AuthenticatedDashboardRfqsIdRouteImport
       parentRoute: typeof AuthenticatedDashboardRfqsRoute
+    }
+    '/_authenticated/dashboard/messages/$id': {
+      id: '/_authenticated/dashboard/messages/$id'
+      path: '/$id'
+      fullPath: '/dashboard/messages/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardMessagesIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardMessagesRoute
     }
     '/_authenticated/dashboard/hotel/$id': {
       id: '/_authenticated/dashboard/hotel/$id'
@@ -599,6 +637,24 @@ const AuthenticatedDashboardHotelRouteWithChildren =
     AuthenticatedDashboardHotelRouteChildren,
   )
 
+interface AuthenticatedDashboardMessagesRouteChildren {
+  AuthenticatedDashboardMessagesIdRoute: typeof AuthenticatedDashboardMessagesIdRoute
+  AuthenticatedDashboardMessagesIndexRoute: typeof AuthenticatedDashboardMessagesIndexRoute
+}
+
+const AuthenticatedDashboardMessagesRouteChildren: AuthenticatedDashboardMessagesRouteChildren =
+  {
+    AuthenticatedDashboardMessagesIdRoute:
+      AuthenticatedDashboardMessagesIdRoute,
+    AuthenticatedDashboardMessagesIndexRoute:
+      AuthenticatedDashboardMessagesIndexRoute,
+  }
+
+const AuthenticatedDashboardMessagesRouteWithChildren =
+  AuthenticatedDashboardMessagesRoute._addFileChildren(
+    AuthenticatedDashboardMessagesRouteChildren,
+  )
+
 interface AuthenticatedDashboardRfqsRouteChildren {
   AuthenticatedDashboardRfqsIdRoute: typeof AuthenticatedDashboardRfqsIdRoute
   AuthenticatedDashboardRfqsNewRoute: typeof AuthenticatedDashboardRfqsNewRoute
@@ -621,7 +677,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAdminRoute: typeof AuthenticatedDashboardAdminRoute
   AuthenticatedDashboardHotelRoute: typeof AuthenticatedDashboardHotelRouteWithChildren
   AuthenticatedDashboardInvitationsRoute: typeof AuthenticatedDashboardInvitationsRoute
-  AuthenticatedDashboardMessagesRoute: typeof AuthenticatedDashboardMessagesRoute
+  AuthenticatedDashboardMessagesRoute: typeof AuthenticatedDashboardMessagesRouteWithChildren
   AuthenticatedDashboardProfileRoute: typeof AuthenticatedDashboardProfileRoute
   AuthenticatedDashboardRfqsRoute: typeof AuthenticatedDashboardRfqsRouteWithChildren
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
@@ -634,7 +690,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardHotelRouteWithChildren,
     AuthenticatedDashboardInvitationsRoute:
       AuthenticatedDashboardInvitationsRoute,
-    AuthenticatedDashboardMessagesRoute: AuthenticatedDashboardMessagesRoute,
+    AuthenticatedDashboardMessagesRoute:
+      AuthenticatedDashboardMessagesRouteWithChildren,
     AuthenticatedDashboardProfileRoute: AuthenticatedDashboardProfileRoute,
     AuthenticatedDashboardRfqsRoute:
       AuthenticatedDashboardRfqsRouteWithChildren,
