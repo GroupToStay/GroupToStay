@@ -48,9 +48,11 @@ export function SiteHeader() {
               <Link to="/auth">{t("nav.signIn")}</Link>
             </Button>
           )}
-          <Button asChild variant="gold" size="sm" className="hidden sm:inline-flex">
-            <Link to="/request-quote">{t("nav.getQuote")}</Link>
-          </Button>
+          {showQuoteCta && (
+            <Button asChild variant="gold" size="sm" className="hidden sm:inline-flex">
+              <Link to="/request-quote">{t("nav.getQuote")}</Link>
+            </Button>
+          )}
           <button className="md:hidden p-2" onClick={() => setOpen(v => !v)} aria-label="Menu">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
