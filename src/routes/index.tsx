@@ -27,6 +27,8 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const { isHotel } = useRoles();
   const { data: featured } = useQuery({
     queryKey: ["featured-hotels"],
     queryFn: async () => {
