@@ -49,8 +49,16 @@ function Page() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/request-quote" });
   const { user, loading: authLoading } = useAuth();
+  const { isHotel, loading: rolesLoading } = useRoles();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !rolesLoading && user && isHotel) {
+      toast.info(t("rfq.hotelCannotRequest", { defaultValue: "Hotel accounts cannot submit quote requests." }));
+      navigate({ to: "/dashboard" });
+    }
+  }, [authLoading, rolesLoading, user, isHotel, navigate, t]);
   const [form, setForm] = useState({
     title: "",
     group_type: "umrah" as const,
