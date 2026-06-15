@@ -21,6 +21,7 @@ function AuthLayout() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { isHotel, isAdmin } = useRoles();
+  const unread = useUnreadMessageCount();
 
   const navItem = "flex items-center gap-2 px-3 py-2 rounded-md text-sm hover:bg-accent [&.active]:bg-primary [&.active]:text-primary-foreground";
 
