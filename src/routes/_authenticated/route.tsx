@@ -59,6 +59,9 @@ function AuthLayout() {
                   <ShieldCheck className="h-4 w-4" /> {t("admin.title")}
                 </Link>
               )}
+              <Link to="/dashboard/profile" className={navItem} activeProps={{ className: "active" }}>
+                <User className="h-4 w-4" /> {t("profile.title")}
+              </Link>
             </nav>
           </div>
         </aside>
