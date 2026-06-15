@@ -192,7 +192,7 @@ function Landing() {
                 <h3 className="font-display text-3xl">{t("hero.ctaBrowseRequests")}</h3>
                 <p className="mt-2 text-primary-foreground/80 max-w-xl">{t("hero.hotelCtaSubtitle")}</p>
               </div>
-              <Button asChild variant="hero" size="lg"><Link to="/dashboard/invitations">{t("hero.ctaBrowseRequests")}</Link></Button>
+              <Button asChild variant="hero" size="lg"><Link to="/requests">{t("hero.ctaBrowseRequests")}</Link></Button>
             </div>
           </div>
         </section>
