@@ -56,7 +56,14 @@ function Page() {
     e.preventDefault();
     setLoading(true);
     try {
-      if (mode === "signup") {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success(t("auth.resetLinkSent"));
+        setMode("signin");
+      } else if (mode === "signup") {
         // Basic validation
         if (role === "hotel" && (!companyName.trim() || !vatNumber.trim() || !crNumber.trim())) {
           throw new Error(t("auth.errors.companyRequired"));
