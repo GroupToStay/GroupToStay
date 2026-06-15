@@ -100,24 +100,24 @@ function Landing() {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section className="container-page py-20">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="font-display text-3xl md:text-4xl text-primary">{t("how.title")}</h2>
-          <p className="mt-3 text-muted-foreground">{t("how.subtitle")}</p>
-        </div>
-        <div className="mt-12 grid md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((n) => (
-            <Card key={n} className="border-border">
-              <CardContent className="p-6">
-                <div className="grid h-10 w-10 place-items-center rounded-md bg-primary text-gold font-display text-lg">{n}</div>
-                <h3 className="mt-4 font-display text-xl text-primary">{t(`how.step${n}Title`)}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{t(`how.step${n}Body`)}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+      {/* MESSAGES — bridge between hotels and organizers */}
+      {user ? (
+        <MessagesBar userId={user.id} />
+      ) : (
+        <section className="container-page py-20">
+          <div className="rounded-2xl border border-border bg-card p-8 md:p-12 grid md:grid-cols-[auto_1fr_auto] items-center gap-6">
+            <span className="grid h-14 w-14 place-items-center rounded-lg bg-primary text-gold">
+              <MessageSquare className="h-6 w-6" />
+            </span>
+            <div>
+              <h2 className="font-display text-2xl md:text-3xl text-primary">{t("home.messages.title")}</h2>
+              <p className="mt-2 text-muted-foreground max-w-2xl">{t("home.messages.subtitle")}</p>
+            </div>
+            <Button asChild variant="gold" size="lg"><Link to="/auth">{t("nav.signIn")} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link></Button>
+          </div>
+        </section>
+      )}
+
 
       {/* AUDIENCES */}
       <section className="bg-surface border-y border-border">
@@ -169,8 +169,7 @@ function Landing() {
       {/* OPEN REQUESTS (public) */}
       <OpenRequestsSection />
 
-      {/* MESSAGES bar (authenticated users) */}
-      {user && <MessagesBar userId={user.id} />}
+
 
       {/* CTA banner */}
       {!isHotel ? (
