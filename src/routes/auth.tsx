@@ -45,6 +45,7 @@ function Page() {
   const [idType, setIdType] = useState<"saudi_id" | "iqama">("saudi_id");
   const [idNumber, setIdNumber] = useState("");
 
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
