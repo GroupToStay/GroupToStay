@@ -66,7 +66,7 @@ function Landing() {
           <div className="mt-8 flex flex-wrap gap-3">
             {isHotel ? (
               <Button asChild variant="hero" size="lg">
-                <Link to="/dashboard/invitations">{t("hero.ctaBrowseRequests")} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+                <Link to="/requests">{t("hero.ctaBrowseRequests")} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
               </Button>
             ) : (
               <>
@@ -166,6 +166,9 @@ function Landing() {
         </section>
       )}
 
+      {/* OPEN REQUESTS (public) */}
+      <OpenRequestsSection />
+
       {/* MESSAGES bar (authenticated users) */}
       {user && <MessagesBar userId={user.id} />}
 
@@ -192,7 +195,7 @@ function Landing() {
                 <h3 className="font-display text-3xl">{t("hero.ctaBrowseRequests")}</h3>
                 <p className="mt-2 text-primary-foreground/80 max-w-xl">{t("hero.hotelCtaSubtitle")}</p>
               </div>
-              <Button asChild variant="hero" size="lg"><Link to="/dashboard/invitations">{t("hero.ctaBrowseRequests")}</Link></Button>
+              <Button asChild variant="hero" size="lg"><Link to="/requests">{t("hero.ctaBrowseRequests")}</Link></Button>
             </div>
           </div>
         </section>
@@ -272,6 +275,49 @@ function MessagesBar({ userId }: { userId: string }) {
             })
           )}
         </div>
+      </div>
+    </section>
+  );
+}
+
+function OpenRequestsSection() {
+  const { data: rfqs = [] } = useQuery({
+    queryKey: ["home-open-requests"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("rfqs")
+        .select("id,title,group_type,destination_city,destination_country,check_in,check_out,nights,guests_count,rooms_needed,currency,budget_max")
+        .eq("status", "open")
+        .order("created_at", { ascending: false })
+        .limit(6);
+      return data ?? [];
+    },
+  });
+
+  if (rfqs.length === 0) return null;
+
+  return (
+    <section className="container-page py-20">
+      <div className="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <h2 className="font-display text-3xl md:text-4xl text-primary">Open group requests</h2>
+          <p className="mt-2 text-muted-foreground">Live RFQs from organizers — hotels can review and reply directly.</p>
+        </div>
+        <Button asChild variant="ghost"><Link to="/requests">View all <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link></Button>
+      </div>
+      <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {rfqs.map((r) => (
+          <Link key={r.id} to="/requests/$id" params={{ id: r.id }}>
+            <Card className="h-full hover:shadow-[var(--shadow-elevated)] transition border-border">
+              <CardContent className="p-5 space-y-2">
+                <Badge className="bg-success/15 text-success border-0 uppercase tracking-wide">{r.group_type}</Badge>
+                <h3 className="font-display text-lg text-primary line-clamp-2">{r.title}</h3>
+                <div className="text-sm text-muted-foreground">{r.destination_city}, {r.destination_country}</div>
+                <div className="text-sm text-muted-foreground">{r.check_in} → {r.check_out} · {r.guests_count} guests · {r.rooms_needed} rooms</div>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
       </div>
     </section>
   );
