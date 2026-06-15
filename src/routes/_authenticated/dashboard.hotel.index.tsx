@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { toast } from "sonner";
 import { Building2, Plus, Star, MapPin } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/dashboard/hotel")({
+export const Route = createFileRoute("/_authenticated/dashboard/hotel/")({
   head: () => ({ meta: [{ title: "My hotels — GroupToStay" }] }),
   component: Page,
 });

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, MapPin, Users, Calendar } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/dashboard/rfqs")({
+export const Route = createFileRoute("/_authenticated/dashboard/rfqs/")({
   head: () => ({ meta: [{ title: "My requests — GroupToStay" }] }),
   component: Page,
 });
