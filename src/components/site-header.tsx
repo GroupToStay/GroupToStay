@@ -18,6 +18,7 @@ export function SiteHeader() {
     <>
       <Link to="/how-it-works" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.howItWorks")}</Link>
       <Link to="/hotels" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.hotels")}</Link>
+      <Link to="/requests" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.browseRequests")}</Link>
       <Link to="/for-hotels" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.forHotels")}</Link>
       <Link to="/pricing" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.pricing")}</Link>
       <Link to="/about" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.about")}</Link>
