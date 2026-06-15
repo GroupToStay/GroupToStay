@@ -169,8 +169,7 @@ function Landing() {
       {/* OPEN REQUESTS (public) */}
       <OpenRequestsSection />
 
-      {/* MESSAGES bar (authenticated users) */}
-      {user && <MessagesBar userId={user.id} />}
+
 
       {/* CTA banner */}
       {!isHotel ? (
