@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Calendar, Users, ArrowRight } from "lucide-react";
 
-export const Route = createFileRoute("/requests")({
+export const Route = createFileRoute("/requests/")({
   head: () => ({
     meta: [
       { title: "Open group requests — GroupToStay" },
