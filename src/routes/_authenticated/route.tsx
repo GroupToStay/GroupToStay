@@ -65,6 +65,17 @@ function AuthLayout() {
                   <ShieldCheck className="h-4 w-4" /> {t("admin.title")}
                 </Link>
               )}
+              {!isAdmin && (
+                <Link to="/dashboard/messages" className={navItem} activeProps={{ className: "active" }}>
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="flex-1">Messages</span>
+                  {unread > 0 && (
+                    <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-gold text-primary text-[11px] font-semibold">
+                      {unread}
+                    </span>
+                  )}
+                </Link>
+              )}
               <Link to="/dashboard/profile" className={navItem} activeProps={{ className: "active" }}>
                 <User className="h-4 w-4" /> {t("profile.title")}
               </Link>
