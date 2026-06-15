@@ -15,11 +15,12 @@ export function useRoles() {
     },
   });
   const roles = q.data ?? [];
+  const isAdmin = roles.includes("admin");
   return {
     roles,
-    isHotel: roles.includes("hotel"),
-    isAdmin: roles.includes("admin"),
-    isOrganizer: roles.includes("organizer") || roles.length === 0,
+    isHotel: !isAdmin && roles.includes("hotel"),
+    isAdmin,
+    isOrganizer: !isAdmin && (roles.includes("organizer") || roles.length === 0),
     loading: q.isLoading,
   };
 }
