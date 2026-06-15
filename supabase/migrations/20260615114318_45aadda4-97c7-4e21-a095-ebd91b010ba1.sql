@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.restrict_profile_company_fields() FROM PUBLIC, anon, authenticated;

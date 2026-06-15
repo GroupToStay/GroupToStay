@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,11 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Building2, Plus, Trash2, Star, Upload, Image as ImageIcon } from "lucide-react";
+import { Building2, Plus, Star, MapPin } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel")({
-  head: () => ({ meta: [{ title: "My hotel — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: "My hotels — GroupToStay" }] }),
   component: Page,
 });
 
@@ -31,23 +32,27 @@ function Page() {
     queryKey: ["my-profile", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("hotel_approval_status, approval_notes, company_name").eq("id", user!.id).maybeSingle();
+      const { data } = await supabase.from("profiles")
+        .select("hotel_approval_status, approval_notes, company_name")
+        .eq("id", user!.id).maybeSingle();
       return data;
     },
   });
 
-  const { data: hotel, isLoading } = useQuery({
-    queryKey: ["my-hotel", user?.id],
+  const { data: hotels = [], isLoading } = useQuery({
+    queryKey: ["my-hotels", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("hotels").select("*").eq("owner_id", user!.id).maybeSingle();
-      return data;
+      const { data } = await supabase.from("hotels")
+        .select("*")
+        .eq("owner_id", user!.id)
+        .order("created_at", { ascending: false });
+      return data ?? [];
     },
   });
 
   if (isLoading || profileLoading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
 
-  // Gate: company must be approved before hotel can be created/managed
   if (profile?.hotel_approval_status !== "approved") {
     return (
       <div className="space-y-6">
@@ -77,13 +82,74 @@ function Page() {
     );
   }
 
-  if (!hotel) return <CreateHotelForm onCreated={() => qc.invalidateQueries({ queryKey: ["my-hotel", user?.id] })} />;
-  return <ManageHotel hotel={hotel} />;
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="font-display text-3xl text-primary flex items-center gap-2">
+            <Building2 className="h-7 w-7" /> {t("hotelDash.myHotels")}
+          </h1>
+          <p className="mt-1 text-muted-foreground">{t("hotelDash.myHotelsSubtitle")}</p>
+        </div>
+        <AddHotelDialog onCreated={() => qc.invalidateQueries({ queryKey: ["my-hotels", user?.id] })} />
+      </div>
+
+      {hotels.length === 0 ? (
+        <Card><CardContent className="p-10 text-center">
+          <Building2 className="h-10 w-10 mx-auto text-muted-foreground" />
+          <p className="mt-3 text-muted-foreground">{t("hotelDash.noHotels")}</p>
+          <div className="mt-4">
+            <AddHotelDialog onCreated={() => qc.invalidateQueries({ queryKey: ["my-hotels", user?.id] })} />
+          </div>
+        </CardContent></Card>
+      ) : (
+        <div className="grid sm:grid-cols-2 gap-4">
+          {hotels.map((h: any) => (
+            <Card key={h.id} className="overflow-hidden">
+              {h.cover_image ? (
+                <div className="aspect-video bg-surface">
+                  <img src={h.cover_image} alt={h.name} className="h-full w-full object-cover" />
+                </div>
+              ) : (
+                <div className="aspect-video bg-surface grid place-items-center text-muted-foreground">
+                  <Building2 className="h-8 w-8" />
+                </div>
+              )}
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-display text-lg text-primary">{h.name}</h3>
+                    <div className="mt-1 text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
+                      <MapPin className="h-3 w-3" /> {h.city}, {h.country}
+                      <span className="flex text-gold">
+                        {Array.from({ length: h.star_rating ?? 0 }).map((_, i) => (
+                          <Star key={i} className="h-3 w-3 fill-current" />
+                        ))}
+                      </span>
+                    </div>
+                  </div>
+                  <Badge className={h.status === "approved" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}>
+                    {t(`hotelDash.statuses.${h.status}`)}
+                  </Badge>
+                </div>
+                <div className="mt-4">
+                  <Button asChild variant="default" size="sm">
+                    <Link to="/dashboard/hotel/$id" params={{ id: h.id }}>{t("hotelDash.manage")}</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
-function CreateHotelForm({ onCreated }: { onCreated: () => void }) {
+function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
@@ -100,28 +166,36 @@ function CreateHotelForm({ onCreated }: { onCreated: () => void }) {
     try {
       const { error } = await supabase.from("hotels").insert({
         owner_id: user.id,
-        name, city, country, address: address || null,
+        name: name.trim(),
+        city: city.trim(),
+        country: country.trim(),
+        address: address.trim() || null,
         slug: `${slugify(name)}-${Date.now().toString(36)}`,
         star_rating: Number(starRating),
-        description: description || null,
+        description: description.trim() || null,
         amenities: amenities.split(",").map(s => s.trim()).filter(Boolean),
         status: "pending",
       });
       if (error) throw error;
       toast.success(t("hotelDash.createdToast"));
+      setOpen(false);
+      setName(""); setCity(""); setCountry(""); setAddress("");
+      setStarRating("4"); setDescription(""); setAmenities("");
       onCreated();
-    } catch (e: any) {
-      toast.error(e.message);
+    } catch (err: any) {
+      toast.error(err.message);
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div>
-      <h1 className="font-display text-3xl text-primary">{t("hotelDash.createTitle")}</h1>
-      <p className="mt-1 text-muted-foreground">{t("hotelDash.createSubtitle")}</p>
-      <Card className="mt-6"><CardContent className="p-6">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="gold"><Plus className="h-4 w-4" /> {t("hotelDash.addHotel")}</Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>{t("hotelDash.createTitle")}</DialogTitle></DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div><Label>{t("hotelDash.fields.name")}</Label><Input required value={name} onChange={e => setName(e.target.value)} maxLength={160} /></div>
           <div className="grid sm:grid-cols-2 gap-4">
@@ -137,197 +211,13 @@ function CreateHotelForm({ onCreated }: { onCreated: () => void }) {
           <div><Label>{t("hotelDash.fields.description")}</Label><Textarea rows={3} value={description} onChange={e => setDescription(e.target.value)} maxLength={1000} /></div>
           <div><Label>{t("hotelDash.fields.amenities")}</Label><Input value={amenities} onChange={e => setAmenities(e.target.value)} placeholder={t("hotelDash.fields.amenitiesPh")} /></div>
           <p className="text-xs text-muted-foreground">{t("hotelDash.photosAfterCreate")}</p>
-          <Button type="submit" variant="gold" disabled={submitting}>{submitting ? t("rfq.submitting") : t("hotelDash.createSubmit")}</Button>
-        </form>
-      </CardContent></Card>
-    </div>
-  );
-}
-
-function ManageHotel({ hotel }: { hotel: any }) {
-  const { t } = useTranslation();
-  const { user } = useAuth();
-  const qc = useQueryClient();
-  const fileInput = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-
-  const { data: rooms = [] } = useQuery({
-    queryKey: ["my-hotel-rooms", hotel.id],
-    queryFn: async () => {
-      const { data } = await supabase.from("hotel_rooms").select("*").eq("hotel_id", hotel.id).order("created_at");
-      return data ?? [];
-    },
-  });
-
-  const [roomType, setRoomType] = useState("");
-  const [capacity, setCapacity] = useState("2");
-  const [count, setCount] = useState("10");
-  const [price, setPrice] = useState("");
-  const [currency, setCurrency] = useState("USD");
-
-  const addRoom = useMutation({
-    mutationFn: async () => {
-      const { error } = await supabase.from("hotel_rooms").insert({
-        hotel_id: hotel.id, room_type: roomType, capacity: Number(capacity),
-        count_available: Number(count), base_price: Number(price), currency,
-      });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success(t("hotelDash.roomAdded"));
-      setRoomType(""); setPrice("");
-      qc.invalidateQueries({ queryKey: ["my-hotel-rooms", hotel.id] });
-    },
-    onError: (e: any) => toast.error(e.message),
-  });
-
-  const delRoom = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("hotel_rooms").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["my-hotel-rooms", hotel.id] }),
-  });
-
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = e.target.files;
-    if (!files?.length || !user) return;
-    setUploading(true);
-    try {
-      const newGallery: string[] = [...(hotel.gallery ?? [])];
-      let newCover = hotel.cover_image as string | null;
-      for (const file of Array.from(files)) {
-        if (file.size > 5 * 1024 * 1024) {
-          toast.error(`${file.name}: ${t("hotelDash.fileTooLarge")}`);
-          continue;
-        }
-        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-        const path = `${user.id}/${hotel.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("hotel-photos").upload(path, file, {
-          contentType: file.type, upsert: false,
-        });
-        if (upErr) throw upErr;
-        const { data: pub } = supabase.storage.from("hotel-photos").getPublicUrl(path);
-        newGallery.push(pub.publicUrl);
-        if (!newCover) newCover = pub.publicUrl;
-      }
-      const { error: updErr } = await supabase.from("hotels")
-        .update({ gallery: newGallery, cover_image: newCover })
-        .eq("id", hotel.id);
-      if (updErr) throw updErr;
-      toast.success(t("hotelDash.photosUploaded"));
-      qc.invalidateQueries({ queryKey: ["my-hotel", user.id] });
-    } catch (err: any) {
-      toast.error(err.message ?? t("common.error"));
-    } finally {
-      setUploading(false);
-      if (fileInput.current) fileInput.current.value = "";
-    }
-  }
-
-  async function removePhoto(url: string) {
-    const newGallery = (hotel.gallery ?? []).filter((u: string) => u !== url);
-    const newCover = hotel.cover_image === url ? (newGallery[0] ?? null) : hotel.cover_image;
-    const { error } = await supabase.from("hotels").update({ gallery: newGallery, cover_image: newCover }).eq("id", hotel.id);
-    if (error) { toast.error(error.message); return; }
-    // Try to remove file from storage (best effort)
-    const marker = "/hotel-photos/";
-    const idx = url.indexOf(marker);
-    if (idx >= 0) {
-      const path = url.substring(idx + marker.length);
-      await supabase.storage.from("hotel-photos").remove([path]);
-    }
-    qc.invalidateQueries({ queryKey: ["my-hotel", user!.id] });
-  }
-
-  async function setAsCover(url: string) {
-    const { error } = await supabase.from("hotels").update({ cover_image: url }).eq("id", hotel.id);
-    if (error) { toast.error(error.message); return; }
-    qc.invalidateQueries({ queryKey: ["my-hotel", user!.id] });
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="font-display text-3xl text-primary flex items-center gap-2"><Building2 className="h-7 w-7" /> {hotel.name}</h1>
-            <Badge className={hotel.status === "approved" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}>
-              {t(`hotelDash.statuses.${hotel.status}`)}
-            </Badge>
-          </div>
-          <div className="mt-1 text-sm text-muted-foreground flex items-center gap-3 flex-wrap">
-            <span>{hotel.city}, {hotel.country}</span>
-            <span className="flex text-gold">{Array.from({ length: hotel.star_rating ?? 0 }).map((_, i) => <Star key={i} className="h-3 w-3 fill-current" />)}</span>
-          </div>
-        </div>
-      </div>
-
-      {hotel.status === "pending" && (
-        <Card><CardContent className="p-5 bg-accent/40 text-sm">{t("hotelDash.pendingNotice")}</CardContent></Card>
-      )}
-
-      <Card><CardContent className="p-5">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <h2 className="font-display text-xl text-primary flex items-center gap-2"><ImageIcon className="h-5 w-5" /> {t("hotelDash.photos")}</h2>
-          <div>
-            <input ref={fileInput} type="file" accept="image/*" multiple hidden onChange={handleUpload} />
-            <Button variant="gold" size="sm" onClick={() => fileInput.current?.click()} disabled={uploading}>
-              <Upload className="h-4 w-4" /> {uploading ? t("common.loading") : t("hotelDash.uploadPhotos")}
+          <DialogFooter>
+            <Button type="submit" variant="gold" disabled={submitting}>
+              {submitting ? t("rfq.submitting") : t("hotelDash.createSubmit")}
             </Button>
-          </div>
-        </div>
-        {(hotel.gallery?.length ?? 0) === 0 ? (
-          <div className="mt-4 text-sm text-muted-foreground">{t("hotelDash.noPhotos")}</div>
-        ) : (
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {(hotel.gallery as string[]).map((url) => (
-              <div key={url} className="group relative aspect-video overflow-hidden rounded-md border border-border bg-surface">
-                <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />
-                <div className="absolute inset-0 hidden group-hover:flex items-end justify-between p-2 bg-gradient-to-t from-black/70 to-transparent">
-                  <Button size="sm" variant="secondary" onClick={() => setAsCover(url)} disabled={hotel.cover_image === url}>
-                    {hotel.cover_image === url ? t("hotelDash.coverBadge") : t("hotelDash.setCover")}
-                  </Button>
-                  <Button size="icon" variant="destructive" onClick={() => removePhoto(url)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-                {hotel.cover_image === url && (
-                  <div className="absolute top-1 left-1"><Badge className="bg-gold text-primary">{t("hotelDash.coverBadge")}</Badge></div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent></Card>
-
-      <Card><CardContent className="p-5">
-        <h2 className="font-display text-xl text-primary">{t("hotelDash.rooms")}</h2>
-        <div className="mt-4 grid sm:grid-cols-5 gap-2 items-end">
-          <div className="sm:col-span-2"><Label>{t("hotelDash.fields.roomType")}</Label><Input value={roomType} onChange={e => setRoomType(e.target.value)} placeholder="Quad room" /></div>
-          <div><Label>{t("hotelDash.fields.capacity")}</Label><Input type="number" min={1} max={20} value={capacity} onChange={e => setCapacity(e.target.value)} /></div>
-          <div><Label>{t("hotelDash.fields.count")}</Label><Input type="number" min={0} value={count} onChange={e => setCount(e.target.value)} /></div>
-          <div><Label>{t("hotelDash.fields.price")}</Label><Input type="number" min={0} value={price} onChange={e => setPrice(e.target.value)} /></div>
-        </div>
-        <div className="mt-3 flex items-center gap-2">
-          <select className="flex h-9 rounded-md border border-input bg-background px-3 text-sm" value={currency} onChange={e => setCurrency(e.target.value)}>
-            {["USD","EUR","SAR","AED","GBP"].map(c => <option key={c}>{c}</option>)}
-          </select>
-          <Button variant="gold" size="sm" onClick={() => addRoom.mutate()} disabled={!roomType || !price}>
-            <Plus className="h-4 w-4" /> {t("hotelDash.addRoom")}
-          </Button>
-        </div>
-        <div className="mt-5 space-y-2">
-          {rooms.length === 0 ? <div className="text-sm text-muted-foreground">{t("hotelDash.noRooms")}</div> :
-            rooms.map((r: any) => (
-              <div key={r.id} className="flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm">
-                <div>
-                  <span className="font-medium">{r.room_type}</span>
-                  <span className="text-muted-foreground"> · {r.capacity} pax · {r.count_available} avail · {r.currency} {Number(r.base_price).toLocaleString()}{t("hotels.perNight")}</span>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => delRoom.mutate(r.id)}><Trash2 className="h-4 w-4 text-error" /></Button>
-              </div>
-            ))}
-        </div>
-      </CardContent></Card>
-    </div>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

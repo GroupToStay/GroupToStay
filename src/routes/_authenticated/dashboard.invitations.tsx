@@ -23,33 +23,35 @@ function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
 
-  const { data: hotel } = useQuery({
-    queryKey: ["my-hotel", user?.id],
+  const { data: hotels = [] } = useQuery({
+    queryKey: ["my-hotels-min", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("hotels").select("id, name, status").eq("owner_id", user!.id).maybeSingle();
-      return data;
+      const { data } = await supabase.from("hotels").select("id, name, status").eq("owner_id", user!.id);
+      return data ?? [];
     },
   });
 
+  const hotelIds = hotels.map((h: any) => h.id);
+  const hotelById = Object.fromEntries(hotels.map((h: any) => [h.id, h]));
+
   const { data: invitations = [], isLoading } = useQuery({
-    queryKey: ["hotel-invitations", hotel?.id],
-    enabled: !!hotel?.id,
+    queryKey: ["hotel-invitations", hotelIds.join(",")],
+    enabled: hotelIds.length > 0,
     queryFn: async () => {
       const { data } = await supabase
         .from("rfq_invitations")
         .select("*, rfqs(*), quotes:quotes!quotes_rfq_id_fkey(id, status, hotel_id, total_price, currency)")
-        .eq("hotel_id", hotel!.id)
+        .in("hotel_id", hotelIds)
         .order("created_at", { ascending: false });
-      // attach this hotel's quote (if any) per invitation
       return (data ?? []).map((inv: any) => ({
         ...inv,
-        myQuote: (inv.quotes ?? []).find((q: any) => q.hotel_id === hotel!.id) ?? null,
+        myQuote: (inv.quotes ?? []).find((q: any) => q.hotel_id === inv.hotel_id) ?? null,
       }));
     },
   });
 
-  if (!hotel) {
+  if (hotels.length === 0) {
     return (
       <Card><CardContent className="p-10 text-center">
         <Inbox className="h-8 w-8 mx-auto text-muted-foreground" />
@@ -68,7 +70,9 @@ function Page() {
           <Card className="mt-6"><CardContent className="p-10 text-center text-muted-foreground">{t("hotelDash.noInvitations")}</CardContent></Card>
         ) : (
           <div className="mt-6 space-y-3">
-            {invitations.map((inv: any) => <InvitationCard key={inv.id} inv={inv} hotelId={hotel.id} />)}
+            {invitations.map((inv: any) => (
+              <InvitationCard key={inv.id} inv={inv} hotelName={hotelById[inv.hotel_id]?.name ?? ""} />
+            ))}
           </div>
         )
       }
@@ -76,7 +80,7 @@ function Page() {
   );
 }
 
-function InvitationCard({ inv, hotelId }: { inv: any; hotelId: string }) {
+function InvitationCard({ inv, hotelName }: { inv: any; hotelName: string }) {
   const { t } = useTranslation();
   const rfq = inv.rfqs;
   if (!rfq) return null;
@@ -89,6 +93,7 @@ function InvitationCard({ inv, hotelId }: { inv: any; hotelId: string }) {
             <Badge className={rfq.status === "open" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}>{t(`dashboard.status.${rfq.status}`)}</Badge>
             {inv.myQuote && <Badge className="bg-gold/20 text-gold-foreground border border-gold/30">{t(`dashboard.status.${inv.myQuote.status}`)}</Badge>}
           </div>
+          {hotelName && <div className="mt-1 text-xs text-muted-foreground">{t("hotelDash.forHotel")}: <span className="font-medium text-foreground">{hotelName}</span></div>}
           <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {rfq.destination_city}, {rfq.destination_country}</span>
             <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {rfq.check_in} → {rfq.check_out} ({rfq.nights} {t("dashboard.nights")})</span>
@@ -107,7 +112,7 @@ function InvitationCard({ inv, hotelId }: { inv: any; hotelId: string }) {
               <div className="text-xs text-muted-foreground mt-1">{t("hotelDash.quoteSubmitted")}</div>
             </div>
           ) : rfq.status === "open" ? (
-            <QuoteDialog rfq={rfq} hotelId={hotelId} />
+            <QuoteDialog rfq={rfq} hotelId={inv.hotel_id} />
           ) : null}
         </div>
       </div>

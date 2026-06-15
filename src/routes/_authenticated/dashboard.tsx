@@ -71,23 +71,26 @@ function HotelHome() {
   const { t } = useTranslation();
   const { user } = useAuth();
 
-  const { data: hotel } = useQuery({
-    queryKey: ["my-hotel", user?.id],
+  const { data: hotels = [] } = useQuery({
+    queryKey: ["my-hotels-summary", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("hotels").select("id, name, status").eq("owner_id", user!.id).maybeSingle();
-      return data;
+      const { data } = await supabase.from("hotels").select("id, name, status").eq("owner_id", user!.id);
+      return data ?? [];
     },
   });
 
+  const hotelIds = hotels.map((h: any) => h.id);
+  const hasHotels = hotelIds.length > 0;
+
   const { data: stats } = useQuery({
-    queryKey: ["hotel-stats", hotel?.id],
-    enabled: !!hotel?.id,
+    queryKey: ["hotel-stats", hotelIds.join(",")],
+    enabled: hasHotels,
     queryFn: async () => {
       const [{ count: invites }, { count: quotes }, { count: wins }] = await Promise.all([
-        supabase.from("rfq_invitations").select("*", { count: "exact", head: true }).eq("hotel_id", hotel!.id),
-        supabase.from("quotes").select("*", { count: "exact", head: true }).eq("hotel_id", hotel!.id),
-        supabase.from("bookings").select("*", { count: "exact", head: true }).eq("hotel_id", hotel!.id),
+        supabase.from("rfq_invitations").select("*", { count: "exact", head: true }).in("hotel_id", hotelIds),
+        supabase.from("quotes").select("*", { count: "exact", head: true }).in("hotel_id", hotelIds),
+        supabase.from("bookings").select("*", { count: "exact", head: true }).in("hotel_id", hotelIds),
       ]);
       return { invites: invites ?? 0, quotes: quotes ?? 0, wins: wins ?? 0 };
     },
@@ -98,8 +101,8 @@ function HotelHome() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="font-display text-3xl text-primary">{t("dashboard.welcome")}</h1>
         <Button asChild variant="gold">
-          <Link to={hotel ? "/dashboard/invitations" : "/dashboard/hotel"}>
-            {hotel ? t("hotelDash.invitations") : t("hotelDash.createTitle")}
+          <Link to={hasHotels ? "/dashboard/invitations" : "/dashboard/hotel"}>
+            {hasHotels ? t("hotelDash.invitations") : t("hotelDash.addHotel")}
           </Link>
         </Button>
       </div>
@@ -121,11 +124,13 @@ function HotelHome() {
       </div>
 
       <Card className="mt-6"><CardContent className="p-6">
-        <h2 className="font-display text-xl text-primary flex items-center gap-2"><Building2 className="h-5 w-5" /> {t("hotelDash.myHotel")}</h2>
+        <h2 className="font-display text-xl text-primary flex items-center gap-2"><Building2 className="h-5 w-5" /> {t("hotelDash.myHotels")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {hotel ? `${hotel.name} — ${t(`hotelDash.statuses.${hotel.status}`)}` : t("hotelDash.needsHotel")}
+          {hasHotels
+            ? hotels.map((h: any) => `${h.name} (${t(`hotelDash.statuses.${h.status}`)})`).join(" · ")
+            : t("hotelDash.needsHotel")}
         </p>
-        <div className="mt-4"><Button asChild variant="default"><Link to="/dashboard/hotel">{t("hotelDash.myHotel")}</Link></Button></div>
+        <div className="mt-4"><Button asChild variant="default"><Link to="/dashboard/hotel">{t("hotelDash.myHotels")}</Link></Button></div>
       </CardContent></Card>
     </div>
   );
