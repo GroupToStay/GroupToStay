@@ -26,12 +26,24 @@ function Page() {
   const { user } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [role, setRole] = useState<"organizer" | "hotel">("organizer");
+
+  // Shared
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [orgName, setOrgName] = useState("");
   const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("");
+
+  // Hotel-only
+  const [companyName, setCompanyName] = useState("");
+  const [vatNumber, setVatNumber] = useState("");
+  const [crNumber, setCrNumber] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+
+  // Organizer-only
+  const [idType, setIdType] = useState<"saudi_id" | "iqama">("saudi_id");
+  const [idNumber, setIdNumber] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -43,15 +55,35 @@ function Page() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        // Basic validation
+        if (role === "hotel" && (!companyName.trim() || !vatNumber.trim() || !crNumber.trim())) {
+          throw new Error(t("auth.errors.companyRequired"));
+        }
+        if (role === "organizer" && !idNumber.trim()) {
+          throw new Error(t("auth.errors.idRequired"));
+        }
+        const orgName = role === "hotel" ? companyName : fullName;
+        const data: Record<string, string> = {
+          full_name: fullName, org_name: orgName, phone, country, role,
+        };
+        if (role === "hotel") {
+          data.company_name = companyName;
+          data.vat_number = vatNumber;
+          data.cr_number = crNumber;
+          data.contact_email = contactEmail || email;
+        } else {
+          data.id_type = idType;
+          data.id_number = idNumber;
+        }
         const { error } = await supabase.auth.signUp({
           email, password,
           options: {
             emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
-            data: { full_name: fullName, org_name: orgName, phone, country, role },
+            data,
           },
         });
         if (error) throw error;
-        toast.success(t("auth.checkEmail"));
+        toast.success(role === "hotel" ? t("auth.hotelPendingNotice") : t("auth.checkEmail"));
         setMode("signin");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -85,11 +117,40 @@ function Page() {
                 </div>
               </div>
               <div><Label>{t("auth.fullName")}</Label><Input required value={fullName} onChange={e => setFullName(e.target.value)} maxLength={120} /></div>
-              <div><Label>{t("auth.orgName")}</Label><Input required value={orgName} onChange={e => setOrgName(e.target.value)} maxLength={160} /></div>
               <div className="grid grid-cols-2 gap-3">
                 <div><Label>{t("auth.phone")}</Label><Input value={phone} onChange={e => setPhone(e.target.value)} maxLength={40} /></div>
                 <div><Label>{t("auth.country")}</Label><Input value={country} onChange={e => setCountry(e.target.value)} maxLength={80} /></div>
               </div>
+
+              {role === "hotel" && (
+                <div className="rounded-md border border-border bg-accent/30 p-3 space-y-3">
+                  <div className="text-xs text-muted-foreground">{t("auth.hotelExtraIntro")}</div>
+                  <div><Label>{t("auth.companyName")}</Label><Input required value={companyName} onChange={e => setCompanyName(e.target.value)} maxLength={160} /></div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div><Label>{t("auth.vatNumber")}</Label><Input required value={vatNumber} onChange={e => setVatNumber(e.target.value)} maxLength={40} /></div>
+                    <div><Label>{t("auth.crNumber")}</Label><Input required value={crNumber} onChange={e => setCrNumber(e.target.value)} maxLength={40} /></div>
+                  </div>
+                  <div><Label>{t("auth.contactEmail")}</Label><Input type="email" value={contactEmail} onChange={e => setContactEmail(e.target.value)} placeholder={t("auth.contactEmailPh")} /></div>
+                </div>
+              )}
+
+              {role === "organizer" && (
+                <div className="rounded-md border border-border bg-accent/30 p-3 space-y-3">
+                  <div className="text-xs text-muted-foreground">{t("auth.organizerIdIntro")}</div>
+                  <div>
+                    <Label>{t("auth.idType")}</Label>
+                    <div className="mt-1 grid grid-cols-2 gap-2">
+                      {(["saudi_id","iqama"] as const).map(it => (
+                        <button type="button" key={it} onClick={() => setIdType(it)}
+                          className={`rounded-md border px-3 py-2 text-sm ${idType === it ? "border-gold bg-gold/10 text-foreground" : "border-input bg-background text-muted-foreground"}`}>
+                          {t(`auth.idTypes.${it}`)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div><Label>{t(`auth.idNumberLabel.${idType}`)}</Label><Input required value={idNumber} onChange={e => setIdNumber(e.target.value.replace(/\D/g, ""))} maxLength={20} inputMode="numeric" /></div>
+                </div>
+              )}
             </>)}
             <div><Label>{t("auth.email")}</Label><Input type="email" required value={email} onChange={e => setEmail(e.target.value)} /></div>
             <div><Label>{t("auth.password")}</Label><Input type="password" required minLength={8} value={password} onChange={e => setPassword(e.target.value)} /></div>
