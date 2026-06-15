@@ -25,7 +25,7 @@ function Page() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth" });
   const { user } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [role, setRole] = useState<"organizer" | "hotel">("organizer");
 
   // Shared
