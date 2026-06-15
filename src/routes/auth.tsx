@@ -112,6 +112,10 @@ function Page() {
         <Card><CardContent className="p-6">
           <h1 className="font-display text-2xl text-primary">{mode === "signin" ? t("auth.signInTitle") : t("auth.signUpTitle")}</h1>
           <form onSubmit={onSubmit} className="mt-4 space-y-3">
+            {mode === "forgot" && (
+              <p className="text-sm text-muted-foreground">{t("auth.forgotIntro")}</p>
+            )}
+
             {mode === "signup" && (<>
               <div>
                 <Label>{t("auth.accountType")}</Label>
