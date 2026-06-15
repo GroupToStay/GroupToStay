@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 type Search = { redirect?: string };
 
@@ -24,7 +25,7 @@ function Page() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth" });
   const { user } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [role, setRole] = useState<"organizer" | "hotel">("organizer");
 
   // Shared
@@ -44,6 +45,7 @@ function Page() {
   const [idType, setIdType] = useState<"saudi_id" | "iqama">("saudi_id");
   const [idNumber, setIdNumber] = useState("");
 
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -54,7 +56,14 @@ function Page() {
     e.preventDefault();
     setLoading(true);
     try {
-      if (mode === "signup") {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success(t("auth.resetLinkSent"));
+        setMode("signin");
+      } else if (mode === "signup") {
         // Basic validation
         if (role === "hotel" && (!companyName.trim() || !vatNumber.trim() || !crNumber.trim())) {
           throw new Error(t("auth.errors.companyRequired"));
@@ -96,13 +105,19 @@ function Page() {
     }
   }
 
+  const title = mode === "signin" ? t("auth.signInTitle") : mode === "signup" ? t("auth.signUpTitle") : t("auth.resetPasswordTitle");
+
   return (
     <div className="min-h-screen flex flex-col bg-surface">
       <SiteHeader />
       <main className="flex-1 container-page py-16 max-w-md w-full mx-auto">
         <Card><CardContent className="p-6">
-          <h1 className="font-display text-2xl text-primary">{mode === "signin" ? t("auth.signInTitle") : t("auth.signUpTitle")}</h1>
+          <h1 className="font-display text-2xl text-primary">{title}</h1>
           <form onSubmit={onSubmit} className="mt-4 space-y-3">
+            {mode === "forgot" && (
+              <p className="text-sm text-muted-foreground">{t("auth.forgotIntro")}</p>
+            )}
+
             {mode === "signup" && (<>
               <div>
                 <Label>{t("auth.accountType")}</Label>
@@ -152,10 +167,39 @@ function Page() {
                 </div>
               )}
             </>)}
-            <div><Label>{t("auth.email")}</Label><Input type="email" required value={email} onChange={e => setEmail(e.target.value)} /></div>
-            <div><Label>{t("auth.password")}</Label><Input type="password" required minLength={8} value={password} onChange={e => setPassword(e.target.value)} /></div>
+            <div><Label>{t("auth.email")}</Label><Input type="email" required={mode !== "signup"} value={email} onChange={e => setEmail(e.target.value)} /></div>
+            {mode !== "forgot" && (
+              <div>
+                <Label>{t("auth.password")}</Label>
+                <div className="relative mt-1">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={8}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-muted-foreground hover:text-foreground"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+            )}
+            {mode === "signin" && (
+              <div className="text-right">
+                <button type="button" className="text-sm text-muted-foreground hover:text-foreground" onClick={() => setMode("forgot")}>
+                  {t("auth.forgotPassword")}
+                </button>
+              </div>
+            )}
             <Button type="submit" variant="gold" className="w-full" disabled={loading}>
-              {mode === "signin" ? t("auth.submitSignIn") : t("auth.submitSignUp")}
+              {mode === "signin" ? t("auth.submitSignIn") : mode === "signup" ? t("auth.submitSignUp") : t("auth.sendResetLink")}
             </Button>
           </form>
           <button type="button" className="mt-4 text-sm text-muted-foreground hover:text-foreground w-full text-center" onClick={() => setMode(m => m === "signin" ? "signup" : "signin")}>
