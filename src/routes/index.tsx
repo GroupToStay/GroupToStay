@@ -66,7 +66,7 @@ function Landing() {
           <div className="mt-8 flex flex-wrap gap-3">
             {isHotel ? (
               <Button asChild variant="hero" size="lg">
-                <Link to="/dashboard/invitations">{t("hero.ctaBrowseRequests")} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+                <Link to="/requests">{t("hero.ctaBrowseRequests")} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
               </Button>
             ) : (
               <>
