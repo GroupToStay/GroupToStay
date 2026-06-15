@@ -10,7 +10,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { MapPin, Calendar, Users, ArrowLeft, MessageSquare, LogIn } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { MapPin, Calendar, Users, ArrowLeft, MessageSquare, LogIn, Send } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/requests/$id")({
@@ -60,6 +63,9 @@ function Page() {
               <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" /> {rfq.guests_count} guests · {rfq.rooms_needed} rooms</span>
             </div>
           </div>
+          {user && isHotel && rfq.status === "open" && (
+            <SubmitQuoteForHotel rfq={rfq} userId={user.id} />
+          )}
         </div>
 
         <Card>
@@ -187,5 +193,117 @@ function Conversation({ rfqId, rfqOrganizerId, viewerId, isOwner }: { rfqId: str
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [hotelId, setHotelId] = useState<string>("");
+  const [totalPrice, setTotalPrice] = useState("");
+  const [perNight, setPerNight] = useState("");
+  const [board, setBoard] = useState<string>(rfq.board_type);
+  const [validUntil, setValidUntil] = useState("");
+  const [inclusions, setInclusions] = useState("");
+  const [notes, setNotes] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const { data: hotels = [] } = useQuery({
+    queryKey: ["my-approved-hotels", userId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("hotels")
+        .select("id, name, status")
+        .eq("owner_id", userId)
+        .eq("status", "approved");
+      return data ?? [];
+    },
+  });
+
+  const { data: existingQuote } = useQuery({
+    queryKey: ["my-quote-for-rfq", rfq.id, userId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("quotes")
+        .select("id, hotel_id, total_price, currency, status, hotels!inner(owner_id)")
+        .eq("rfq_id", rfq.id)
+        .eq("hotels.owner_id", userId)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  useEffect(() => { if (!hotelId && hotels[0]) setHotelId(hotels[0].id); }, [hotels, hotelId]);
+
+  async function submit() {
+    if (!hotelId) { toast.error("Select a hotel"); return; }
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("quotes").insert({
+        rfq_id: rfq.id, hotel_id: hotelId,
+        total_price: Number(totalPrice),
+        price_per_room_night: perNight ? Number(perNight) : null,
+        currency: rfq.currency,
+        board_included: board as any,
+        valid_until: validUntil || null,
+        inclusions: inclusions || null,
+        notes: notes || null,
+      });
+      if (error) throw error;
+      toast.success("Quote sent to the organizer");
+      setOpen(false);
+      qc.invalidateQueries({ queryKey: ["my-quote-for-rfq", rfq.id, userId] });
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (existingQuote) {
+    return (
+      <div className="text-end">
+        <Badge className="bg-gold/20 text-gold-foreground border border-gold/30">Quote submitted</Badge>
+        <div className="mt-1 font-display text-lg text-primary">{existingQuote.currency} {Number(existingQuote.total_price).toLocaleString()}</div>
+      </div>
+    );
+  }
+
+  if (hotels.length === 0) {
+    return <div className="text-xs text-muted-foreground max-w-[220px] text-end">Add and get your hotel approved to send a quote.</div>;
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild><Button variant="gold"><Send className="h-4 w-4" /> Submit quote</Button></DialogTrigger>
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle>Submit a quote</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          {hotels.length > 1 && (
+            <div>
+              <Label>Hotel</Label>
+              <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={hotelId} onChange={e => setHotelId(e.target.value)}>
+                {hotels.map((h: any) => <option key={h.id} value={h.id}>{h.name}</option>)}
+              </select>
+            </div>
+          )}
+          <div><Label>Total price ({rfq.currency})</Label><Input type="number" min={0} value={totalPrice} onChange={e => setTotalPrice(e.target.value)} /></div>
+          <div><Label>Per room / night ({rfq.currency})</Label><Input type="number" min={0} value={perNight} onChange={e => setPerNight(e.target.value)} /></div>
+          <div><Label>Board</Label>
+            <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={board} onChange={e => setBoard(e.target.value)}>
+              {["room_only","breakfast","half_board","full_board"].map(b => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </div>
+          <div><Label>Valid until</Label><Input type="date" value={validUntil} onChange={e => setValidUntil(e.target.value)} /></div>
+          <div><Label>Inclusions</Label><Input value={inclusions} onChange={e => setInclusions(e.target.value)} maxLength={500} /></div>
+          <div><Label>Notes</Label><Textarea rows={3} value={notes} onChange={e => setNotes(e.target.value)} maxLength={1000} /></div>
+        </div>
+        <DialogFooter>
+          <Button variant="gold" onClick={submit} disabled={!totalPrice || submitting}>
+            {submitting ? "Submitting…" : "Send quote"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

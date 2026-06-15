@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { SiteHeader } from "@/components/site-header";
-import { LayoutDashboard, FileText, Plus, Building2, Inbox, ShieldCheck, User } from "lucide-react";
+import { LayoutDashboard, FileText, Plus, Building2, Inbox, ShieldCheck, User, Globe } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -39,6 +39,9 @@ function AuthLayout() {
                 <>
                   <Link to="/dashboard/hotel" className={navItem} activeProps={{ className: "active" }}>
                     <Building2 className="h-4 w-4" /> {t("hotelDash.myHotel")}
+                  </Link>
+                  <Link to="/requests" className={navItem} activeProps={{ className: "active" }}>
+                    <Globe className="h-4 w-4" /> {t("hotelDash.browseRequests", "Browse requests")}
                   </Link>
                   <Link to="/dashboard/invitations" className={navItem} activeProps={{ className: "active" }}>
                     <Inbox className="h-4 w-4" /> {t("hotelDash.invitations")}
