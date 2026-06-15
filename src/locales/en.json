@@ -51,7 +51,11 @@
     "responseTime": "Avg. response",
     "save": "Avg. savings"
   },
-  "featured": { "title": "Featured group hotels", "subtitle": "A sample of approved properties on the platform.", "viewAll": "View all hotels" },
+  "featured": {
+    "title": "Featured group hotels",
+    "subtitle": "A sample of approved properties on the platform.",
+    "viewAll": "View all hotels"
+  },
   "footer": {
     "rights": "All rights reserved.",
     "platform": "Platform",
@@ -100,10 +104,22 @@
       "notesPh": "Halal meals, female-only floor, coach parking, etc."
     },
     "groupTypes": {
-      "umrah": "Umrah", "hajj": "Hajj", "tourism": "Tourism", "corporate": "Corporate",
-      "government": "Government", "sports": "Sports team", "education": "Education", "event": "Event", "other": "Other"
+      "umrah": "Umrah",
+      "hajj": "Hajj",
+      "tourism": "Tourism",
+      "corporate": "Corporate",
+      "government": "Government",
+      "sports": "Sports team",
+      "education": "Education",
+      "event": "Event",
+      "other": "Other"
     },
-    "boards": { "room_only": "Room only", "breakfast": "Breakfast", "half_board": "Half board", "full_board": "Full board" },
+    "boards": {
+      "room_only": "Room only",
+      "breakfast": "Breakfast",
+      "half_board": "Half board",
+      "full_board": "Full board"
+    },
     "next": "Next",
     "back": "Back",
     "submit": "Submit request",
@@ -122,8 +138,14 @@
     "phone": "Phone",
     "country": "Country",
     "accountType": "Account type",
-    "role": { "organizer": "Group organizer", "hotel": "Hotel" },
-    "roleDesc": { "organizer": "Submit group RFQs and receive quotes.", "hotel": "List your hotel and respond to RFQs." },
+    "role": {
+      "organizer": "Group organizer",
+      "hotel": "Hotel"
+    },
+    "roleDesc": {
+      "organizer": "Submit group RFQs and receive quotes.",
+      "hotel": "List your hotel and respond to RFQs."
+    },
     "haveAccount": "Have an account? Sign in",
     "noAccount": "Need an account? Sign up",
     "submitSignIn": "Sign in",
@@ -139,8 +161,14 @@
     "contactEmailPh": "Leave blank to use your account email",
     "organizerIdIntro": "Identity required to publish group requests.",
     "idType": "Identity type",
-    "idTypes": { "saudi_id": "Saudi National ID", "iqama": "Iqama" },
-    "idNumberLabel": { "saudi_id": "National ID number", "iqama": "Iqama number" },
+    "idTypes": {
+      "saudi_id": "Saudi National ID",
+      "iqama": "Iqama"
+    },
+    "idNumberLabel": {
+      "saudi_id": "National ID number",
+      "iqama": "Iqama number"
+    },
     "forgotPassword": "Forgot password?",
     "forgotIntro": "Enter your email and we'll send you a reset link.",
     "resetPasswordTitle": "Reset password",
@@ -157,7 +185,10 @@
   },
   "admin": {
     "title": "Admin review",
-    "tabs": { "companies": "Hotel companies", "hotels": "Hotel listings" },
+    "tabs": {
+      "companies": "Hotel companies",
+      "hotels": "Hotel listings"
+    },
     "approve": "Approve",
     "reject": "Reject",
     "suspend": "Suspend",
@@ -183,8 +214,17 @@
     "submitQuote": "Submit quote",
     "quoteSentToast": "Quote sent to organizer.",
     "quoteSubmitted": "Quote submitted",
-    "statuses": { "pending": "Pending review", "approved": "Approved", "rejected": "Rejected", "suspended": "Suspended" },
-    "companyStatus": { "pending": "Company pending review", "approved": "Company approved", "rejected": "Company rejected" },
+    "statuses": {
+      "pending": "Pending review",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "suspended": "Suspended"
+    },
+    "companyStatus": {
+      "pending": "Company pending review",
+      "approved": "Company approved",
+      "rejected": "Company rejected"
+    },
     "companyReviewTitle": "Company verification in progress",
     "companyPending": "Your hotel account is awaiting admin verification of your company details (VAT, CR). You'll be able to add your hotel, rooms, and photos once approved.",
     "companyRejected": "Your company verification was not approved. See the notes below and contact support to resolve.",
@@ -198,13 +238,35 @@
     "setCover": "Set as cover",
     "coverBadge": "Cover",
     "fields": {
-      "name": "Hotel name", "city": "City", "country": "Country", "address": "Address",
-      "stars": "Star rating", "coverImage": "Cover image URL", "description": "Description",
-      "amenities": "Amenities (comma separated)", "amenitiesPh": "Prayer hall, Coach parking, Wi-Fi…",
-      "roomType": "Room type", "capacity": "Capacity", "count": "Available", "price": "Base price/night",
-      "totalPrice": "Total price for the stay", "perNight": "Per room / night",
-      "validUntil": "Valid until", "inclusions": "Inclusions", "notes": "Notes for organizer"
-    }
+      "name": "Hotel name",
+      "city": "City",
+      "country": "Country",
+      "address": "Address",
+      "stars": "Star rating",
+      "coverImage": "Cover image URL",
+      "description": "Description",
+      "amenities": "Amenities (comma separated)",
+      "amenitiesPh": "Prayer hall, Coach parking, Wi-Fi…",
+      "roomType": "Room type",
+      "capacity": "Capacity",
+      "count": "Available",
+      "price": "Base price/night",
+      "totalPrice": "Total price for the stay",
+      "perNight": "Per room / night",
+      "validUntil": "Valid until",
+      "inclusions": "Inclusions",
+      "notes": "Notes for organizer"
+    },
+    "myHotels": "My hotels",
+    "myHotelsSubtitle": "Manage all your hotel listings, photos, rooms, and rates.",
+    "addHotel": "Add hotel",
+    "noHotels": "You haven't added any hotels yet.",
+    "manage": "Manage",
+    "backToHotels": "Back to my hotels",
+    "editInfo": "Hotel information",
+    "saveInfo": "Save changes",
+    "infoSaved": "Hotel information updated.",
+    "forHotel": "For hotel"
   },
   "dashboard": {
     "welcome": "Welcome",
@@ -215,8 +277,16 @@
     "noRfqs": "You haven't submitted any group requests yet.",
     "createFirst": "Create your first request",
     "status": {
-      "draft": "Draft", "open": "Open", "closed": "Closed", "awarded": "Awarded", "cancelled": "Cancelled",
-      "submitted": "Submitted", "shortlisted": "Shortlisted", "accepted": "Accepted", "rejected": "Rejected", "withdrawn": "Withdrawn"
+      "draft": "Draft",
+      "open": "Open",
+      "closed": "Closed",
+      "awarded": "Awarded",
+      "cancelled": "Cancelled",
+      "submitted": "Submitted",
+      "shortlisted": "Shortlisted",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "withdrawn": "Withdrawn"
     },
     "guests": "guests",
     "nights": "nights",
@@ -281,5 +351,29 @@
     "save": "Save",
     "cancel": "Cancel",
     "language": "Language"
+  },
+  "profile": {
+    "title": "My profile",
+    "subtitle": "Manage your personal contact details and account email.",
+    "personalInfo": "Personal information",
+    "fullName": "Full name",
+    "phone": "Phone",
+    "country": "Country",
+    "contactEmail": "Contact email",
+    "contactEmailHint": "Public-facing email shown to organizers.",
+    "orgName": "Display name / brand",
+    "email": "Email",
+    "save": "Save",
+    "savedToast": "Profile updated.",
+    "loginEmail": "Login email",
+    "loginEmailHint": "Changing this will send a confirmation link to the new address.",
+    "changeEmail": "Change email",
+    "emailChangeSent": "Confirmation email sent. Check your new inbox.",
+    "companyInfo": "Company details (read-only)",
+    "companyLockedHint": "Company name, VAT, and CR numbers are locked after verification. Contact support to request a change.",
+    "companyName": "Company name",
+    "vatNumber": "VAT number",
+    "crNumber": "Commercial registration",
+    "idNumber": "ID number"
   }
 }
