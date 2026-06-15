@@ -166,19 +166,37 @@ function Landing() {
         </section>
       )}
 
+      {/* MESSAGES bar (authenticated users) */}
+      {user && <MessagesBar userId={user.id} />}
+
       {/* CTA banner */}
-      <section className="container-page py-16">
-        <div className="relative overflow-hidden rounded-2xl bg-primary p-10 md:p-14 text-primary-foreground">
-          <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/20 blur-3xl" />
-          <div className="relative grid md:grid-cols-[1fr_auto] items-center gap-6">
-            <div>
-              <h3 className="font-display text-3xl">{t("hero.ctaPrimary")}</h3>
-              <p className="mt-2 text-primary-foreground/80 max-w-xl">{t("hero.subtitle")}</p>
+      {!isHotel ? (
+        <section className="container-page py-16">
+          <div className="relative overflow-hidden rounded-2xl bg-primary p-10 md:p-14 text-primary-foreground">
+            <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/20 blur-3xl" />
+            <div className="relative grid md:grid-cols-[1fr_auto] items-center gap-6">
+              <div>
+                <h3 className="font-display text-3xl">{t("hero.ctaPrimary")}</h3>
+                <p className="mt-2 text-primary-foreground/80 max-w-xl">{t("hero.subtitle")}</p>
+              </div>
+              <Button asChild variant="hero" size="lg"><Link to="/request-quote">{t("hero.ctaPrimary")}</Link></Button>
             </div>
-            <Button asChild variant="hero" size="lg"><Link to="/request-quote">{t("hero.ctaPrimary")}</Link></Button>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : (
+        <section className="container-page py-16">
+          <div className="relative overflow-hidden rounded-2xl bg-primary p-10 md:p-14 text-primary-foreground">
+            <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/20 blur-3xl" />
+            <div className="relative grid md:grid-cols-[1fr_auto] items-center gap-6">
+              <div>
+                <h3 className="font-display text-3xl">{t("hero.ctaBrowseRequests")}</h3>
+                <p className="mt-2 text-primary-foreground/80 max-w-xl">{t("hero.hotelCtaSubtitle")}</p>
+              </div>
+              <Button asChild variant="hero" size="lg"><Link to="/dashboard/invitations">{t("hero.ctaBrowseRequests")}</Link></Button>
+            </div>
+          </div>
+        </section>
+      )}
 
       <SiteFooter />
     </div>
