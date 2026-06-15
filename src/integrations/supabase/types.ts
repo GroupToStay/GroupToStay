@@ -511,8 +511,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_hotel_invited_to_rfq: {
+        Args: { _rfq_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_hotel_profile_approved: {
         Args: { _user_id: string }
+        Returns: boolean
+      }
+      is_rfq_organizer: {
+        Args: { _rfq_id: string; _user_id: string }
         Returns: boolean
       }
     }
