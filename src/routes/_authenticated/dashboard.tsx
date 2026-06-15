@@ -101,8 +101,8 @@ function HotelHome() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="font-display text-3xl text-primary">{t("dashboard.welcome")}</h1>
         <Button asChild variant="gold">
-          <Link to={hotel ? "/dashboard/invitations" : "/dashboard/hotel"}>
-            {hotel ? t("hotelDash.invitations") : t("hotelDash.createTitle")}
+          <Link to={hasHotels ? "/dashboard/invitations" : "/dashboard/hotel"}>
+            {hasHotels ? t("hotelDash.invitations") : t("hotelDash.addHotel")}
           </Link>
         </Button>
       </div>
@@ -124,11 +124,13 @@ function HotelHome() {
       </div>
 
       <Card className="mt-6"><CardContent className="p-6">
-        <h2 className="font-display text-xl text-primary flex items-center gap-2"><Building2 className="h-5 w-5" /> {t("hotelDash.myHotel")}</h2>
+        <h2 className="font-display text-xl text-primary flex items-center gap-2"><Building2 className="h-5 w-5" /> {t("hotelDash.myHotels")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {hotel ? `${hotel.name} — ${t(`hotelDash.statuses.${hotel.status}`)}` : t("hotelDash.needsHotel")}
+          {hasHotels
+            ? hotels.map((h: any) => `${h.name} (${t(`hotelDash.statuses.${h.status}`)})`).join(" · ")
+            : t("hotelDash.needsHotel")}
         </p>
-        <div className="mt-4"><Button asChild variant="default"><Link to="/dashboard/hotel">{t("hotelDash.myHotel")}</Link></Button></div>
+        <div className="mt-4"><Button asChild variant="default"><Link to="/dashboard/hotel">{t("hotelDash.myHotels")}</Link></Button></div>
       </CardContent></Card>
     </div>
   );
