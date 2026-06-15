@@ -19,7 +19,19 @@
     "subtitle": "Built for Umrah & Hajj operators, tourism agencies, corporates, governments, sports teams, schools and event organizers. Submit one RFQ — receive competing quotations from matching hotels.",
     "ctaPrimary": "Request a group quote",
     "ctaSecondary": "Browse hotels",
+    "ctaBrowseRequests": "Browse requests",
+    "hotelCtaSubtitle": "See open group requests that match your hotel and respond with a quote.",
     "trust": "Trusted by group operators across MENA, Europe and Asia."
+  },
+  "home": {
+    "messages": {
+      "title": "Messages",
+      "subtitle": "Stay in touch with hotels and organizers about your active requests.",
+      "openInbox": "Open inbox",
+      "empty": "No messages yet. Conversations from your requests will appear here.",
+      "thread": "Conversation",
+      "youPrefix": "You:"
+    }
   },
   "audiences": {
     "title": "Built for serious group buyers",
