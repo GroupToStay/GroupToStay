@@ -202,3 +202,77 @@ function Landing() {
     </div>
   );
 }
+
+function MessagesBar({ userId }: { userId: string }) {
+  const { t } = useTranslation();
+  const { data: messages = [] } = useQuery({
+    queryKey: ["home-messages", userId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("messages")
+        .select("id, body, created_at, sender_id, recipient_id, rfq_id, rfqs(id, group_name)")
+        .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      return data ?? [];
+    },
+  });
+
+  return (
+    <section className="container-page py-12">
+      <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-md bg-primary/5 text-primary">
+              <MessageSquare className="h-5 w-5" />
+            </span>
+            <div>
+              <h3 className="font-display text-xl text-primary">{t("home.messages.title")}</h3>
+              <p className="text-sm text-muted-foreground">{t("home.messages.subtitle")}</p>
+            </div>
+          </div>
+          <Button asChild variant="ghost">
+            <Link to="/dashboard">{t("home.messages.openInbox")} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+          </Button>
+        </div>
+
+        <div className="mt-5 divide-y divide-border">
+          {messages.length === 0 ? (
+            <div className="py-8 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
+              <Inbox className="h-6 w-6 opacity-50" />
+              {t("home.messages.empty")}
+            </div>
+          ) : (
+            messages.map((m: any) => {
+              const incoming = m.recipient_id === userId;
+              const rfqId = m.rfq_id;
+              return (
+                <Link
+                  key={m.id}
+                  to="/dashboard/rfqs/$id"
+                  params={{ id: rfqId }}
+                  className="flex items-start gap-3 py-3 hover:bg-muted/40 -mx-2 px-2 rounded-md transition"
+                >
+                  <span className={`mt-1 h-2 w-2 rounded-full ${incoming ? "bg-gold" : "bg-muted-foreground/40"}`} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-sm font-medium text-foreground truncate">
+                        {m.rfqs?.group_name ?? t("home.messages.thread")}
+                      </div>
+                      <div className="text-xs text-muted-foreground whitespace-nowrap">
+                        {formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}
+                      </div>
+                    </div>
+                    <div className="text-sm text-muted-foreground truncate">
+                      {incoming ? "" : t("home.messages.youPrefix") + " "}{m.body}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
