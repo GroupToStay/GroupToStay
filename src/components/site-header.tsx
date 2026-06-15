@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
+import { useRoles } from "@/hooks/use-role";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Building2, Menu, X } from "lucide-react";
@@ -9,6 +10,8 @@ import { useState } from "react";
 export function SiteHeader() {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
+  const { isHotel } = useRoles();
+  const showQuoteCta = !user || !isHotel;
   const [open, setOpen] = useState(false);
 
   const navLinks = (
@@ -45,9 +48,11 @@ export function SiteHeader() {
               <Link to="/auth">{t("nav.signIn")}</Link>
             </Button>
           )}
-          <Button asChild variant="gold" size="sm" className="hidden sm:inline-flex">
-            <Link to="/request-quote">{t("nav.getQuote")}</Link>
-          </Button>
+          {showQuoteCta && (
+            <Button asChild variant="gold" size="sm" className="hidden sm:inline-flex">
+              <Link to="/request-quote">{t("nav.getQuote")}</Link>
+            </Button>
+          )}
           <button className="md:hidden p-2" onClick={() => setOpen(v => !v)} aria-label="Menu">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -58,7 +63,7 @@ export function SiteHeader() {
           <div className="container-page py-4 flex flex-col gap-3" onClick={() => setOpen(false)}>
             {navLinks}
             {!user && <Link to="/auth" className="text-sm font-medium">{t("nav.signIn")}</Link>}
-            <Button asChild variant="gold" size="sm" className="w-full"><Link to="/request-quote">{t("nav.getQuote")}</Link></Button>
+            {showQuoteCta && <Button asChild variant="gold" size="sm" className="w-full"><Link to="/request-quote">{t("nav.getQuote")}</Link></Button>}
           </div>
         </div>
       )}
