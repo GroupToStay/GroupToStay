@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { SiteHeader } from "@/components/site-header";
-import { LayoutDashboard, FileText, Plus, Building2, Inbox, ShieldCheck, User, Globe } from "lucide-react";
+import { useUnreadMessageCount } from "@/hooks/use-unread-messages";
+import { LayoutDashboard, FileText, Plus, Building2, Inbox, ShieldCheck, User, Globe, MessageSquare } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -20,6 +21,7 @@ function AuthLayout() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { isHotel, isAdmin } = useRoles();
+  const unread = useUnreadMessageCount();
 
   const navItem = "flex items-center gap-2 px-3 py-2 rounded-md text-sm hover:bg-accent [&.active]:bg-primary [&.active]:text-primary-foreground";
 
@@ -61,6 +63,17 @@ function AuthLayout() {
               {isAdmin && (
                 <Link to="/dashboard/admin" className={navItem} activeProps={{ className: "active" }}>
                   <ShieldCheck className="h-4 w-4" /> {t("admin.title")}
+                </Link>
+              )}
+              {!isAdmin && (
+                <Link to="/dashboard/messages" className={navItem} activeProps={{ className: "active" }}>
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="flex-1">Messages</span>
+                  {unread > 0 && (
+                    <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-gold text-primary text-[11px] font-semibold">
+                      {unread}
+                    </span>
+                  )}
                 </Link>
               )}
               <Link to="/dashboard/profile" className={navItem} activeProps={{ className: "active" }}>
