@@ -237,34 +237,70 @@ export type Database = {
       }
       profiles: {
         Row: {
+          approval_notes: string | null
+          approved_at: string | null
+          approved_by: string | null
+          company_name: string | null
+          contact_email: string | null
           country: string | null
+          cr_number: string | null
           created_at: string
           full_name: string | null
+          hotel_approval_status:
+            | Database["public"]["Enums"]["hotel_approval_status"]
+            | null
           id: string
+          id_number: string | null
+          id_type: Database["public"]["Enums"]["id_doc_type"] | null
           locale: string
           org_name: string | null
           phone: string | null
           updated_at: string
+          vat_number: string | null
         }
         Insert: {
+          approval_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          company_name?: string | null
+          contact_email?: string | null
           country?: string | null
+          cr_number?: string | null
           created_at?: string
           full_name?: string | null
+          hotel_approval_status?:
+            | Database["public"]["Enums"]["hotel_approval_status"]
+            | null
           id: string
+          id_number?: string | null
+          id_type?: Database["public"]["Enums"]["id_doc_type"] | null
           locale?: string
           org_name?: string | null
           phone?: string | null
           updated_at?: string
+          vat_number?: string | null
         }
         Update: {
+          approval_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          company_name?: string | null
+          contact_email?: string | null
           country?: string | null
+          cr_number?: string | null
           created_at?: string
           full_name?: string | null
+          hotel_approval_status?:
+            | Database["public"]["Enums"]["hotel_approval_status"]
+            | null
           id?: string
+          id_number?: string | null
+          id_type?: Database["public"]["Enums"]["id_doc_type"] | null
           locale?: string
           org_name?: string | null
           phone?: string | null
           updated_at?: string
+          vat_number?: string | null
         }
         Relationships: []
       }
@@ -475,6 +511,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_hotel_profile_approved: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "organizer" | "hotel" | "admin"
@@ -490,7 +530,9 @@ export type Database = {
         | "education"
         | "event"
         | "other"
+      hotel_approval_status: "pending" | "approved" | "rejected"
       hotel_status: "pending" | "approved" | "suspended"
+      id_doc_type: "saudi_id" | "iqama"
       invitation_status: "pending" | "viewed" | "quoted" | "declined"
       quote_status:
         | "submitted"
@@ -640,7 +682,9 @@ export const Constants = {
         "event",
         "other",
       ],
+      hotel_approval_status: ["pending", "approved", "rejected"],
       hotel_status: ["pending", "approved", "suspended"],
+      id_doc_type: ["saudi_id", "iqama"],
       invitation_status: ["pending", "viewed", "quoted", "declined"],
       quote_status: [
         "submitted",
