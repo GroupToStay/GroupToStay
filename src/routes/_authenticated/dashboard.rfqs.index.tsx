@@ -27,16 +27,16 @@ function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { isOrganizer, loading: rolesLoading } = useRoles();
-  if (rolesLoading) return <div className="text-muted-foreground">Loading…</div>;
-  if (!isOrganizer) return <AccessDenied message="Only organizers can view group requests." />;
   const { data: rfqs = [], isLoading } = useQuery({
     queryKey: ["my-rfqs", user?.id],
-    enabled: !!user,
+    enabled: !!user && isOrganizer,
     queryFn: async () => {
       const { data } = await supabase.from("rfqs").select("*").eq("organizer_id", user!.id).order("created_at", { ascending: false });
       return data ?? [];
     },
   });
+  if (rolesLoading) return <div className="text-muted-foreground">Loading…</div>;
+  if (!isOrganizer) return <AccessDenied message="Only organizers can view group requests." />;
 
   return (
     <div>
