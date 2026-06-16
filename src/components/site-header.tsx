@@ -13,6 +13,8 @@ export function SiteHeader() {
   const { user, signOut } = useAuth();
   const { isHotel, isOrganizer } = useRoles();
   const showQuoteCta = !user || isOrganizer;
+  // Pricing visible to: public visitors and hotel users only. Hidden for organizers & admins.
+  const showPricing = !user || isHotel;
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -22,8 +24,10 @@ export function SiteHeader() {
       queryClient.clear();
       await signOut();
     } finally {
-      // Hard redirect to the public homepage to clear all in-memory state
-      // and prevent the back button from restoring protected pages.
+      try {
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+      } catch {}
       window.location.replace("/");
     }
   };
@@ -32,10 +36,12 @@ export function SiteHeader() {
     <>
       <Link to="/how-it-works" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.howItWorks")}</Link>
       <Link to="/hotels" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.hotels")}</Link>
-      <Link to="/requests" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.browseRequests")}</Link>
       <Link to="/for-hotels" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.forHotels")}</Link>
-      <Link to="/pricing" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.pricing")}</Link>
+      {showPricing && (
+        <Link to="/pricing" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.pricing")}</Link>
+      )}
       <Link to="/about" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.about")}</Link>
+      <Link to="/contact" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.contact")}</Link>
     </>
   );
 

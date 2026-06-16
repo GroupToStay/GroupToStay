@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
 
 export const Route = createFileRoute("/hotels")({
-  head: () => ({ meta: [{ title: "Group-ready hotels — GroupToStay" }, { name: "description", content: "Browse approved hotels accepting group RFQs across MENA, Europe and Asia." }] }),
+  head: () => ({ meta: [{ title: "Group-ready hotels — GroupToStay" }, { name: "description", content: "Browse approved hotels accepting Group Requests across MENA, Europe and Asia." }] }),
   component: Page,
 });
 

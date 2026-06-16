@@ -92,7 +92,7 @@ function MessagesIndex() {
                         <div className="font-medium text-primary truncate">{counterpart ?? "Conversation"}</div>
                         {unread && <Badge variant="default" className="bg-gold text-primary-foreground">New</Badge>}
                       </div>
-                      <div className="text-xs text-muted-foreground truncate">RFQ: {c.rfqs?.title ?? c.rfq_id.slice(0, 8)}</div>
+                      <div className="text-xs text-muted-foreground truncate">Group Request: {c.rfqs?.title ?? c.rfq_id.slice(0, 8)}</div>
                       <div className="text-sm text-muted-foreground truncate mt-1">{c.last_message_preview ?? "—"}</div>
                     </div>
                     <div className="text-xs text-muted-foreground whitespace-nowrap">

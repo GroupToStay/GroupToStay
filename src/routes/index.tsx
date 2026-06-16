@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "GroupToStay — Group accommodation marketplace" },
-      { name: "description", content: "Submit one RFQ, receive competing hotel quotations. The B2B platform for group hotel sourcing — Umrah, Hajj, tourism, corporate, sports and events." },
+      { name: "description", content: "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing — Umrah, Hajj, tourism, corporate, sports and events." },
       { property: "og:title", content: "GroupToStay — Group accommodation marketplace" },
       { property: "og:description", content: "One request. Multiple hotels. The best group rate." },
     ],
@@ -300,7 +300,7 @@ function OpenRequestsSection() {
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <h2 className="font-display text-3xl md:text-4xl text-primary">Open group requests</h2>
-          <p className="mt-2 text-muted-foreground">Live RFQs from organizers — hotels can review and reply directly.</p>
+          <p className="mt-2 text-muted-foreground">Live Group Requests from organizers — hotels can review and reply directly.</p>
         </div>
         <Button asChild variant="ghost"><Link to="/requests">View all <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link></Button>
       </div>
