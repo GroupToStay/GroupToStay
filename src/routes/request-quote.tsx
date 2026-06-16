@@ -49,16 +49,20 @@ function Page() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/request-quote" });
   const { user, loading: authLoading } = useAuth();
-  const { isHotel, loading: rolesLoading } = useRoles();
+  const { isHotel, isAdmin, isOrganizer, loading: rolesLoading } = useRoles();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
 
+  const blocked = !!user && !rolesLoading && !isOrganizer;
   useEffect(() => {
-    if (!authLoading && !rolesLoading && user && isHotel) {
-      toast.info(t("rfq.hotelCannotRequest", { defaultValue: "Hotel accounts cannot submit quote requests." }));
-      navigate({ to: "/dashboard" });
+    if (blocked) {
+      toast.info(
+        isAdmin
+          ? "Admins cannot submit quote requests."
+          : t("rfq.hotelCannotRequest", { defaultValue: "Hotel accounts cannot submit quote requests." })
+      );
     }
-  }, [authLoading, rolesLoading, user, isHotel, navigate, t]);
+  }, [blocked, isAdmin, isHotel, t]);
   const [form, setForm] = useState({
     title: "",
     group_type: "umrah" as const,
