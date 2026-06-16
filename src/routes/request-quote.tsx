@@ -63,7 +63,7 @@ function Page() {
           : t("rfq.hotelCannotRequest", { defaultValue: "Hotel accounts cannot submit quote requests." })
       );
     }
-  }, [blocked, isAdmin, isHotel, t]);
+  }, [blocked, isAdmin, t]);
   const [form, setForm] = useState({
     title: "",
     group_type: "umrah" as const,
