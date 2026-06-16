@@ -26,6 +26,9 @@ const statusColor: Record<string, string> = {
 function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { isOrganizer, loading: rolesLoading } = useRoles();
+  if (rolesLoading) return <div className="text-muted-foreground">Loading…</div>;
+  if (!isOrganizer) return <AccessDenied message="Only organizers can view group requests." />;
   const { data: rfqs = [], isLoading } = useQuery({
     queryKey: ["my-rfqs", user?.id],
     enabled: !!user,
