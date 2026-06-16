@@ -146,10 +146,10 @@
     },
     "next": "Next",
     "back": "Back",
-    "submit": "Submit request",
+    "submit": "Submit Group Request",
     "submitting": "Submitting…",
-    "authRequired": "Sign in or create an account to submit your request.",
-    "createdToast": "Request submitted. Matching hotels are being notified.",
+    "authRequired": "Sign in or create an account to submit your Group Request.",
+    "createdToast": "Group Request submitted. Matching hotels are being notified.",
     "anonymous": "No account yet? You'll be asked to create one (free) when you submit."
   },
   "auth": {
