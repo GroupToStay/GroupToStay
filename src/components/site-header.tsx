@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { Button } from "@/components/ui/button";
@@ -10,9 +11,22 @@ import { useState } from "react";
 export function SiteHeader() {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
-  const { isHotel } = useRoles();
-  const showQuoteCta = !user || !isHotel;
+  const { isHotel, isOrganizer } = useRoles();
+  const showQuoteCta = !user || isOrganizer;
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleSignOut = async () => {
+    try {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      await signOut();
+    } finally {
+      // Hard redirect to the public homepage to clear all in-memory state
+      // and prevent the back button from restoring protected pages.
+      window.location.replace("/");
+    }
+  };
 
   const navLinks = (
     <>
