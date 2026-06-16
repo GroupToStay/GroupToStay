@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useRoles } from "@/hooks/use-role";
+import { AccessDenied } from "@/components/access-denied";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,14 +26,17 @@ const statusColor: Record<string, string> = {
 function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { isOrganizer, loading: rolesLoading } = useRoles();
   const { data: rfqs = [], isLoading } = useQuery({
     queryKey: ["my-rfqs", user?.id],
-    enabled: !!user,
+    enabled: !!user && isOrganizer,
     queryFn: async () => {
       const { data } = await supabase.from("rfqs").select("*").eq("organizer_id", user!.id).order("created_at", { ascending: false });
       return data ?? [];
     },
   });
+  if (rolesLoading) return <div className="text-muted-foreground">Loading…</div>;
+  if (!isOrganizer) return <AccessDenied message="Only organizers can view group requests." />;
 
   return (
     <div>
