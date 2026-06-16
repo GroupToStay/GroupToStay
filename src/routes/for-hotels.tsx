@@ -10,7 +10,7 @@ export const Route = createFileRoute("/for-hotels")({
   head: () => ({
     meta: [
       { title: "For hotels — GroupToStay" },
-      { name: "description", content: "List your hotel and receive pre-qualified group RFQs. Pay only when you win." },
+      { name: "description", content: "List your hotel and receive pre-qualified Group Requests. Pay only when you win." },
       { property: "og:title", content: "Win more group business with GroupToStay" },
     ],
   }),

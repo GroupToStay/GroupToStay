@@ -79,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "GroupToStay — Group accommodation marketplace" },
-      { name: "description", content: "B2B group hospitality marketplace. Submit one RFQ, receive competing hotel quotations. Built for Umrah, Hajj, tourism, corporate, government, sports and event groups." },
+      { name: "description", content: "B2B group hospitality marketplace. Submit one Group Request, receive competing hotel quotations. Built for Umrah, Hajj, tourism, corporate, government, sports and event groups." },
       { name: "author", content: "GroupToStay" },
       { property: "og:title", content: "GroupToStay — Group accommodation marketplace" },
       { property: "og:description", content: "Submit one request, receive competing hotel quotations from approved group-ready hotels." },

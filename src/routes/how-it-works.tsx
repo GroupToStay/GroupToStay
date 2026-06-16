@@ -8,7 +8,7 @@ export const Route = createFileRoute("/how-it-works")({
   head: () => ({
     meta: [
       { title: "How it works — GroupToStay" },
-      { name: "description", content: "From RFQ to confirmed group booking in three steps." },
+      { name: "description", content: "From Group Request to confirmed group booking in three steps." },
     ],
   }),
   component: Page,
