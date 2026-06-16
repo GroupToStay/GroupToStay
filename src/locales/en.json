@@ -103,12 +103,12 @@
     "amenities": "Amenities"
   },
   "rfq": {
-    "title": "Request a group quote",
+    "title": "Create Group Request",
     "subtitle": "Tell us about your group — matching hotels will respond directly.",
     "step": "Step",
     "of": "of",
     "fields": {
-      "title": "Request title",
+      "title": "Group Request title",
       "titlePh": "e.g. 120 pax Umrah group — March 2026",
       "groupType": "Group type",
       "destCity": "Destination city",
