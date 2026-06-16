@@ -26,13 +26,13 @@
     "settings": "Settings"
   },
   "hero": {
-    "eyebrow": "B2B group hospitality marketplace",
-    "title": "One request. Multiple hotels. The best group rate.",
-    "subtitle": "Built for Umrah & Hajj operators, tourism agencies, corporates, governments, sports teams, schools and event organizers. Submit one RFQ — receive competing quotations from matching hotels.",
-    "ctaPrimary": "Request a group quote",
+    "eyebrow": "The Professional Marketplace for Group Hotel Bookings",
+    "title": "One Group Request. Multiple hotels. The best group rate.",
+    "subtitle": "Built for Umrah & Hajj operators, tourism agencies, corporates, governments, sports teams, schools and event organizers. Submit one Group Request — receive competing quotations from matching hotels.",
+    "ctaPrimary": "Create Group Request",
     "ctaSecondary": "Browse hotels",
-    "ctaBrowseRequests": "Browse requests",
-    "hotelCtaSubtitle": "See open group requests that match your hotel and respond with a quote.",
+    "ctaBrowseRequests": "Create Group Request",
+    "hotelCtaSubtitle": "See open Group Requests that match your hotel and respond with a quote.",
     "trust": "Trusted by group operators across MENA, Europe and Asia."
   },
   "home": {
