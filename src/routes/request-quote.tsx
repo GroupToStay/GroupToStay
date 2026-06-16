@@ -50,7 +50,7 @@ function Page() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/request-quote" });
   const { user, loading: authLoading } = useAuth();
-  const { isHotel, isAdmin, isOrganizer, loading: rolesLoading } = useRoles();
+  const { isAdmin, isOrganizer, loading: rolesLoading } = useRoles();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
 
