@@ -11,7 +11,7 @@ import { useState } from "react";
 export function SiteHeader() {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
-  const { isHotel, isOrganizer, isAdmin } = useRoles();
+  const { isHotel, isOrganizer } = useRoles();
   const showQuoteCta = !user || isOrganizer;
   // Pricing visible to: public visitors and hotel users only. Hidden for organizers & admins.
   const showPricing = !user || isHotel;
