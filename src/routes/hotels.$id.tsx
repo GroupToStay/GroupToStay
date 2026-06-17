@@ -25,9 +25,12 @@ function Page() {
   const { data, isLoading } = useQuery({
     queryKey: ["hotel", id],
     queryFn: async () => {
-      const { data: h } = await supabase.from("hotels").select("*").eq("id", id).eq("status", "approved").maybeSingle();
+      // Look up by slug first, then by id as fallback (back-compat for old links).
+      const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const lookupColumn = uuidRe.test(id) ? "id" : "slug";
+      const { data: h } = await supabase.from("hotels").select("*").eq(lookupColumn, id).eq("status", "approved").maybeSingle();
       if (!h) return null;
-      const { data: rooms } = await supabase.from("hotel_rooms").select("*").eq("hotel_id", id);
+      const { data: rooms } = await supabase.from("hotel_rooms").select("*").eq("hotel_id", h.id);
       return { hotel: h, rooms: rooms ?? [] };
     },
   });
