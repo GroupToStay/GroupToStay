@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
 
-export const Route = createFileRoute("/hotels")({
+export const Route = createFileRoute("/hotels/")({
   head: () => ({ meta: [{ title: "Group-ready hotels — GroupToStay" }, { name: "description", content: "Browse approved hotels accepting Group Requests across MENA, Europe and Asia." }] }),
   component: Page,
 });
