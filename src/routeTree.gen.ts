@@ -14,7 +14,6 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RequestQuoteRouteImport } from './routes/request-quote'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
-import { Route as HotelsRouteImport } from './routes/hotels'
 import { Route as ForHotelsRouteImport } from './routes/for-hotels'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -22,6 +21,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RequestsIndexRouteImport } from './routes/requests.index'
+import { Route as HotelsIndexRouteImport } from './routes/hotels.index'
 import { Route as RequestsIdRouteImport } from './routes/requests.$id'
 import { Route as HotelsIdRouteImport } from './routes/hotels.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -65,11 +65,6 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
   path: '/how-it-works',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HotelsRoute = HotelsRouteImport.update({
-  id: '/hotels',
-  path: '/hotels',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ForHotelsRoute = ForHotelsRouteImport.update({
   id: '/for-hotels',
   path: '/for-hotels',
@@ -104,15 +99,20 @@ const RequestsIndexRoute = RequestsIndexRouteImport.update({
   path: '/requests/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HotelsIndexRoute = HotelsIndexRouteImport.update({
+  id: '/hotels/',
+  path: '/hotels/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RequestsIdRoute = RequestsIdRouteImport.update({
   id: '/requests/$id',
   path: '/requests/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HotelsIdRoute = HotelsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => HotelsRoute,
+  id: '/hotels/$id',
+  path: '/hotels/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
@@ -210,7 +210,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/for-hotels': typeof ForHotelsRoute
-  '/hotels': typeof HotelsRouteWithChildren
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
   '/request-quote': typeof RequestQuoteRoute
@@ -219,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
+  '/hotels/': typeof HotelsIndexRoute
   '/requests/': typeof RequestsIndexRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
@@ -241,7 +241,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/for-hotels': typeof ForHotelsRoute
-  '/hotels': typeof HotelsRouteWithChildren
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
   '/request-quote': typeof RequestQuoteRoute
@@ -249,6 +248,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
+  '/hotels': typeof HotelsIndexRoute
   '/requests': typeof RequestsIndexRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
@@ -270,7 +270,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/for-hotels': typeof ForHotelsRoute
-  '/hotels': typeof HotelsRouteWithChildren
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
   '/request-quote': typeof RequestQuoteRoute
@@ -279,6 +278,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
+  '/hotels/': typeof HotelsIndexRoute
   '/requests/': typeof RequestsIndexRoute
   '/_authenticated/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/_authenticated/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
@@ -303,7 +303,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/for-hotels'
-    | '/hotels'
     | '/how-it-works'
     | '/pricing'
     | '/request-quote'
@@ -312,6 +311,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/hotels/$id'
     | '/requests/$id'
+    | '/hotels/'
     | '/requests/'
     | '/dashboard/admin'
     | '/dashboard/hotel'
@@ -334,7 +334,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/for-hotels'
-    | '/hotels'
     | '/how-it-works'
     | '/pricing'
     | '/request-quote'
@@ -342,6 +341,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/hotels/$id'
     | '/requests/$id'
+    | '/hotels'
     | '/requests'
     | '/dashboard/admin'
     | '/dashboard/invitations'
@@ -362,7 +362,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/contact'
     | '/for-hotels'
-    | '/hotels'
     | '/how-it-works'
     | '/pricing'
     | '/request-quote'
@@ -371,6 +370,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/hotels/$id'
     | '/requests/$id'
+    | '/hotels/'
     | '/requests/'
     | '/_authenticated/dashboard/admin'
     | '/_authenticated/dashboard/hotel'
@@ -395,13 +395,14 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   ForHotelsRoute: typeof ForHotelsRoute
-  HotelsRoute: typeof HotelsRouteWithChildren
   HowItWorksRoute: typeof HowItWorksRoute
   PricingRoute: typeof PricingRoute
   RequestQuoteRoute: typeof RequestQuoteRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  HotelsIdRoute: typeof HotelsIdRoute
   RequestsIdRoute: typeof RequestsIdRoute
+  HotelsIndexRoute: typeof HotelsIndexRoute
   RequestsIndexRoute: typeof RequestsIndexRoute
 }
 
@@ -440,13 +441,6 @@ declare module '@tanstack/react-router' {
       path: '/how-it-works'
       fullPath: '/how-it-works'
       preLoaderRoute: typeof HowItWorksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/hotels': {
-      id: '/hotels'
-      path: '/hotels'
-      fullPath: '/hotels'
-      preLoaderRoute: typeof HotelsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/for-hotels': {
@@ -498,6 +492,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RequestsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hotels/': {
+      id: '/hotels/'
+      path: '/hotels'
+      fullPath: '/hotels/'
+      preLoaderRoute: typeof HotelsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/requests/$id': {
       id: '/requests/$id'
       path: '/requests/$id'
@@ -507,10 +508,10 @@ declare module '@tanstack/react-router' {
     }
     '/hotels/$id': {
       id: '/hotels/$id'
-      path: '/$id'
+      path: '/hotels/$id'
       fullPath: '/hotels/$id'
       preLoaderRoute: typeof HotelsIdRouteImport
-      parentRoute: typeof HotelsRoute
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
@@ -714,17 +715,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface HotelsRouteChildren {
-  HotelsIdRoute: typeof HotelsIdRoute
-}
-
-const HotelsRouteChildren: HotelsRouteChildren = {
-  HotelsIdRoute: HotelsIdRoute,
-}
-
-const HotelsRouteWithChildren =
-  HotelsRoute._addFileChildren(HotelsRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -732,13 +722,14 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   ForHotelsRoute: ForHotelsRoute,
-  HotelsRoute: HotelsRouteWithChildren,
   HowItWorksRoute: HowItWorksRoute,
   PricingRoute: PricingRoute,
   RequestQuoteRoute: RequestQuoteRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  HotelsIdRoute: HotelsIdRoute,
   RequestsIdRoute: RequestsIdRoute,
+  HotelsIndexRoute: HotelsIndexRoute,
   RequestsIndexRoute: RequestsIndexRoute,
 }
 export const routeTree = rootRouteImport
