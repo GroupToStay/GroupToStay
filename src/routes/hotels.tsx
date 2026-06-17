@@ -77,7 +77,7 @@ function Page() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map(h => (
-                <Link key={h.id} to="/hotels/$id" params={{ id: h.id }} className="group rounded-lg overflow-hidden border border-border bg-card hover:shadow-[var(--shadow-elevated)] transition">
+                <Link key={h.id} to="/hotels/$id" params={{ id: h.slug ?? h.id }} className="group rounded-lg overflow-hidden border border-border bg-card hover:shadow-[var(--shadow-elevated)] transition">
                   <div className="aspect-[4/3] overflow-hidden bg-muted relative">
                     {h.cover_image && <img loading="lazy" src={h.cover_image} alt={h.name} className="h-full w-full object-cover group-hover:scale-105 transition" />}
                     {h.featured && <Badge className="absolute top-3 start-3 bg-gold text-gold-foreground border-0">Featured</Badge>}

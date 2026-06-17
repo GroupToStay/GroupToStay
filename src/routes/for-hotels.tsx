@@ -5,6 +5,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useRoles } from "@/hooks/use-role";
 
 export const Route = createFileRoute("/for-hotels")({
   head: () => ({
@@ -19,6 +21,11 @@ export const Route = createFileRoute("/for-hotels")({
 
 function Page() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const { isHotel, isAdmin, isOrganizer } = useRoles();
+  // Show hotel signup / list-your-hotel CTAs only to public visitors and hotel users.
+  const showHotelCta = !user || (isHotel && !isAdmin && !isOrganizer);
+
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
@@ -27,7 +34,11 @@ function Page() {
           <div className="container-page py-20">
             <h1 className="font-display text-4xl md:text-5xl">{t("forHotels.title")}</h1>
             <p className="mt-3 text-primary-foreground/80 max-w-2xl">{t("forHotels.subtitle")}</p>
-            <Button asChild variant="hero" size="lg" className="mt-6"><Link to="/contact">{t("forHotels.ctaList")}</Link></Button>
+            {showHotelCta && (
+              <Button asChild variant="hero" size="lg" className="mt-6">
+                <Link to={user ? "/dashboard/hotel" : "/auth"}>{t("forHotels.ctaList")}</Link>
+              </Button>
+            )}
           </div>
         </section>
         <section className="container-page py-16 grid md:grid-cols-3 gap-6">

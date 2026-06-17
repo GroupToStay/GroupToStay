@@ -11,10 +11,12 @@ import { useState } from "react";
 export function SiteHeader() {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
-  const { isHotel, isOrganizer } = useRoles();
+  const { isHotel, isOrganizer, isAdmin } = useRoles();
   const showQuoteCta = !user || isOrganizer;
   // Pricing visible to: public visitors and hotel users only. Hidden for organizers & admins.
   const showPricing = !user || isHotel;
+  // For Hotels page visible to: public visitors and hotel users only. Hidden for organizers & admins.
+  const showForHotels = !user || (isHotel && !isAdmin && !isOrganizer);
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -36,7 +38,9 @@ export function SiteHeader() {
     <>
       <Link to="/how-it-works" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.howItWorks")}</Link>
       <Link to="/hotels" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.hotels")}</Link>
-      <Link to="/for-hotels" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.forHotels")}</Link>
+      {showForHotels && (
+        <Link to="/for-hotels" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.forHotels")}</Link>
+      )}
       {showPricing && (
         <Link to="/pricing" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.pricing")}</Link>
       )}
