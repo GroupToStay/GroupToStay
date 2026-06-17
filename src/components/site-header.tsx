@@ -11,10 +11,12 @@ import { useState } from "react";
 export function SiteHeader() {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
-  const { isHotel, isOrganizer } = useRoles();
+  const { isHotel, isOrganizer, isAdmin } = useRoles();
   const showQuoteCta = !user || isOrganizer;
   // Pricing visible to: public visitors and hotel users only. Hidden for organizers & admins.
   const showPricing = !user || isHotel;
+  // For Hotels page visible to: public visitors and hotel users only. Hidden for organizers & admins.
+  const showForHotels = !user || (isHotel && !isAdmin && !isOrganizer);
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
