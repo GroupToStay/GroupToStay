@@ -82,66 +82,101 @@ function Page() {
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+  const hotel = hotels[0];
+
+  // Single hotel per account. If none exists yet, prompt to complete the profile.
+  if (!hotel) {
+    return (
+      <div className="space-y-6">
         <div>
           <h1 className="font-display text-3xl text-primary flex items-center gap-2">
-            <Building2 className="h-7 w-7" /> {t("hotelDash.myHotels")}
+            <Building2 className="h-7 w-7" /> {t("hotelDash.completeProfileTitle", "Complete Your Hotel Profile")}
           </h1>
-          <p className="mt-1 text-muted-foreground">{t("hotelDash.myHotelsSubtitle")}</p>
+          <p className="mt-1 text-muted-foreground">
+            {t("hotelDash.completeProfileSubtitle", "Add your hotel details so organizers can find you. Group Requests appear here after your profile is approved.")}
+          </p>
         </div>
-        <AddHotelDialog onCreated={() => qc.invalidateQueries({ queryKey: ["my-hotels", user?.id] })} />
-      </div>
-
-      {hotels.length === 0 ? (
         <Card><CardContent className="p-10 text-center">
           <Building2 className="h-10 w-10 mx-auto text-muted-foreground" />
-          <p className="mt-3 text-muted-foreground">{t("hotelDash.noHotels")}</p>
+          <p className="mt-3 text-muted-foreground">
+            {t("hotelDash.noProfileYet", "You haven't created your hotel profile yet.")}
+          </p>
           <div className="mt-4">
             <AddHotelDialog onCreated={() => qc.invalidateQueries({ queryKey: ["my-hotels", user?.id] })} />
           </div>
         </CardContent></Card>
-      ) : (
-        <div className="grid sm:grid-cols-2 gap-4">
-          {hotels.map((h: any) => (
-            <Card key={h.id} className="overflow-hidden">
-              {h.cover_image ? (
-                <div className="aspect-video bg-surface">
-                  <img src={h.cover_image} alt={h.name} className="h-full w-full object-cover" />
-                </div>
-              ) : (
-                <div className="aspect-video bg-surface grid place-items-center text-muted-foreground">
-                  <Building2 className="h-8 w-8" />
-                </div>
-              )}
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-display text-lg text-primary">{h.name}</h3>
-                    <div className="mt-1 text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
-                      <MapPin className="h-3 w-3" /> {h.city}, {h.country}
-                      <span className="flex text-gold">
-                        {Array.from({ length: h.star_rating ?? 0 }).map((_, i) => (
-                          <Star key={i} className="h-3 w-3 fill-current" />
-                        ))}
-                      </span>
-                    </div>
-                  </div>
-                  <Badge className={h.status === "approved" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}>
-                    {t(`hotelDash.statuses.${h.status}`)}
-                  </Badge>
-                </div>
-                <div className="mt-4">
-                  <Button asChild variant="default" size="sm">
-                    <Link to="/dashboard/hotel/$id" params={{ id: h.id }}>{t("hotelDash.manage")}</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+      </div>
+    );
+  }
+
+  // Profile completion %
+  const fields: Array<[string, any]> = [
+    ["name", hotel.name],
+    ["description", hotel.description],
+    ["city", hotel.city],
+    ["country", hotel.country],
+    ["address", hotel.address],
+    ["star_rating", hotel.star_rating],
+    ["cover_image", hotel.cover_image],
+    ["amenities", hotel.amenities && hotel.amenities.length > 0 ? "y" : null],
+  ];
+  const filled = fields.filter(([, v]) => v != null && v !== "").length;
+  const completion = Math.round((filled / fields.length) * 100);
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-display text-3xl text-primary flex items-center gap-2">
+          <Building2 className="h-7 w-7" /> {t("hotelDash.myHotel", "My Hotel Profile")}
+        </h1>
+      </div>
+
+      <Card><CardContent className="p-5">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="text-sm font-medium">
+            {t("hotelDash.profileCompletion", "Profile completion")}: {completion}%
+          </div>
+          <Badge className={hotel.status === "approved" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}>
+            {t(`hotelDash.statuses.${hotel.status}`)}
+          </Badge>
         </div>
-      )}
+        <div className="mt-3 h-2 rounded-full bg-muted overflow-hidden">
+          <div className="h-full bg-gold transition-all" style={{ width: `${completion}%` }} />
+        </div>
+        {completion < 80 && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            {t("hotelDash.completionHint", "Reach 80% completion to unlock subscription upgrades and featured placement.")}
+          </p>
+        )}
+      </CardContent></Card>
+
+      <Card className="overflow-hidden">
+        {hotel.cover_image ? (
+          <div className="aspect-video bg-surface">
+            <img src={hotel.cover_image} alt={hotel.name} className="h-full w-full object-cover" />
+          </div>
+        ) : (
+          <div className="aspect-video bg-surface grid place-items-center text-muted-foreground">
+            <Building2 className="h-8 w-8" />
+          </div>
+        )}
+        <CardContent className="p-5">
+          <h3 className="font-display text-lg text-primary">{hotel.name}</h3>
+          <div className="mt-1 text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
+            <MapPin className="h-3 w-3" /> {hotel.city}, {hotel.country}
+            <span className="flex text-gold">
+              {Array.from({ length: hotel.star_rating ?? 0 }).map((_, i) => (
+                <Star key={i} className="h-3 w-3 fill-current" />
+              ))}
+            </span>
+          </div>
+          <div className="mt-4">
+            <Button asChild variant="default" size="sm">
+              <Link to="/dashboard/hotel/$id" params={{ id: hotel.id }}>{t("hotelDash.manage")}</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
