@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useRoles } from "@/hooks/use-role";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/profile")({
 function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { isHotel } = useRoles();
   const qc = useQueryClient();
 
   const { data: profile, isLoading } = useQuery({
@@ -158,6 +160,7 @@ function Page() {
         </form>
       </CardContent></Card>
 
+      {isHotel && (
       <Card><CardContent className="p-6">
         <h2 className="font-display text-xl text-primary flex items-center gap-2">
           <Lock className="h-5 w-5" /> {t("profile.companyInfo")}
@@ -182,6 +185,7 @@ function Page() {
           </div>
         </div>
       </CardContent></Card>
+      )}
     </div>
   );
 }
