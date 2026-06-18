@@ -43,12 +43,6 @@ function AuthLayout() {
                   <Link to="/dashboard/admin" className={navItem} activeProps={{ className: "active" }}>
                     <ShieldCheck className="h-4 w-4" /> {t("admin.title")}
                   </Link>
-                  <Link to="/dashboard/hotel" className={navItem} activeProps={{ className: "active" }}>
-                    <Building2 className="h-4 w-4" /> {t("nav.hotels")}
-                  </Link>
-                  <Link to="/dashboard/rfqs" className={navItem} activeProps={{ className: "active" }}>
-                    <FileText className="h-4 w-4" /> {t("nav.groupRequests")}
-                  </Link>
                   <Link to="/dashboard/profile" className={navItem} activeProps={{ className: "active" }}>
                     <SettingsIcon className="h-4 w-4" /> {t("nav.settings")}
                   </Link>
