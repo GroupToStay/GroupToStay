@@ -160,6 +160,7 @@ function Page() {
         </form>
       </CardContent></Card>
 
+      {isHotel && (
       <Card><CardContent className="p-6">
         <h2 className="font-display text-xl text-primary flex items-center gap-2">
           <Lock className="h-5 w-5" /> {t("profile.companyInfo")}
@@ -184,6 +185,7 @@ function Page() {
           </div>
         </div>
       </CardContent></Card>
+      )}
     </div>
   );
 }
