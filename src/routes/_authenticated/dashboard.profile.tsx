@@ -20,6 +20,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/profile")({
 function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { isHotel } = useRoles();
   const qc = useQueryClient();
 
   const { data: profile, isLoading } = useQuery({
