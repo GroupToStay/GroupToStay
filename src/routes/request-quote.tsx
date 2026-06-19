@@ -32,8 +32,8 @@ export const Route = createFileRoute("/request-quote")({
 const Schema = z.object({
   title: z.string().min(3).max(160),
   group_type: z.enum(["umrah","hajj","tourism","corporate","government","sports","education","event","other"]),
-  destination_city: z.string().min(1).max(120),
-  destination_country: z.string().min(1).max(120),
+  destination_country_id: z.string().uuid({ message: "Please select a country." }),
+  destination_city_id: z.string().uuid({ message: "Please select a city." }),
   check_in: z.string().min(1),
   check_out: z.string().min(1),
   guests_count: z.number().int().min(1).max(100000),
