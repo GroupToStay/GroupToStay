@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
+import { useCities, useLocalizedName } from "@/hooks/use-master-data";
 
 export const Route = createFileRoute("/hotels/")({
   head: () => ({ meta: [{ title: "Group-ready hotels — GroupToStay" }, { name: "description", content: "Browse approved hotels accepting Group Requests across MENA, Europe and Asia." }] }),
@@ -17,8 +18,9 @@ export const Route = createFileRoute("/hotels/")({
 
 function Page() {
   const { t } = useTranslation();
+  const localized = useLocalizedName();
   const [q, setQ] = useState("");
-  const [city, setCity] = useState<string>("__any");
+  const [cityId, setCityId] = useState<string>("__any");
   const [stars, setStars] = useState<string>("__any");
 
   const { data: hotels = [] } = useQuery({
@@ -26,7 +28,7 @@ function Page() {
     queryFn: async () => {
       const { data } = await supabase
         .from("hotels")
-        .select("id,slug,name,city,country,star_rating,cover_image,description,amenities,featured")
+        .select("id,slug,name,city,country,city_id,country_id,star_rating,cover_image,description,amenities,featured")
         .eq("status", "approved")
         .order("featured", { ascending: false })
         .order("name");
@@ -34,9 +36,9 @@ function Page() {
     },
   });
 
-  const cities = useMemo(() => Array.from(new Set(hotels.map(h => h.city))).sort(), [hotels]);
+  const { data: cities = [] } = useCities();
   const filtered = hotels.filter(h => {
-    if (city !== "__any" && h.city !== city) return false;
+    if (cityId !== "__any" && h.city_id !== cityId) return false;
     if (stars !== "__any" && h.star_rating !== Number(stars)) return false;
     if (q && !(`${h.name} ${h.city}`.toLowerCase().includes(q.toLowerCase()))) return false;
     return true;
