@@ -112,6 +112,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
     try {
       const country = allCountries.find(c => c.id === countryId);
       const city = allCities.find(c => c.id === cityId);
+      const amenityNames = allAmenities.filter(a => amenityIds.includes(a.id)).map(a => a.name_en);
       const { error } = await supabase.from("hotels").update({
         name: name.trim(),
         country_id: countryId,
@@ -123,9 +124,17 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
         address: address.trim() || null,
         star_rating: Number(starRating),
         description: description.trim() || null,
-        amenities: amenities.split(",").map((s: string) => s.trim()).filter(Boolean),
+        amenities: amenityNames,
       }).eq("id", hotel.id);
       if (error) throw error;
+      // Sync hotel_amenities join table
+      await supabase.from("hotel_amenities").delete().eq("hotel_id", hotel.id);
+      if (amenityIds.length > 0) {
+        const { error: insErr } = await supabase.from("hotel_amenities")
+          .insert(amenityIds.map(amenity_id => ({ hotel_id: hotel.id, amenity_id })));
+        if (insErr) throw insErr;
+      }
+      qc.invalidateQueries({ queryKey: ["hotel-amenities", hotel.id] });
       toast.success(t("hotelDash.infoSaved"));
       onChanged();
     } catch (err: any) {
