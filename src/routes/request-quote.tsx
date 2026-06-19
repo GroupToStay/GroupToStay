@@ -107,12 +107,13 @@ function Page() {
       });
       const country = countries.find(c => c.id === parsed.destination_country_id);
       const city = citiesOfCountry.find(c => c.id === parsed.destination_city_id);
+      const roomType = roomTypes.find(r => r.id === parsed.room_type_id);
       const { data, error } = await supabase.from("rfqs").insert({
         ...parsed,
         // keep legacy text columns populated for back-compat
         destination_country: country?.name_en ?? "",
         destination_city: city?.name_en ?? "",
-        room_type_pref: parsed.room_type_pref || null,
+        room_type_pref: roomType?.name_en ?? null,
         special_requirements: parsed.special_requirements || null,
         deadline: parsed.deadline || null,
         organizer_id: user.id,
