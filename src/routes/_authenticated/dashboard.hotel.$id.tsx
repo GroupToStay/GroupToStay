@@ -352,8 +352,25 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
 
       <Card><CardContent className="p-5">
         <h2 className="font-display text-xl text-primary">{t("hotelDash.rooms")}</h2>
-        <div className="mt-4 grid sm:grid-cols-5 gap-2 items-end">
-          <div className="sm:col-span-2"><Label>{t("hotelDash.fields.roomType")}</Label><Input value={roomType} onChange={e => setRoomType(e.target.value)} placeholder="Quad room" /></div>
+        <div className="mt-4 grid sm:grid-cols-6 gap-2 items-end">
+          <div className="sm:col-span-2">
+            <Label>{t("hotelDash.fields.roomType")}</Label>
+            <Select value={roomTypeId} onValueChange={v => setRoomTypeId(v)}>
+              <SelectTrigger><SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} /></SelectTrigger>
+              <SelectContent>
+                {roomTypes.map(rt => <SelectItem key={rt.id} value={rt.id}>{localized(rt)}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="sm:col-span-2">
+            <Label>{t("hotelDash.fields.mealPlan", { defaultValue: "Meal plan" })}</Label>
+            <Select value={mealPlanId} onValueChange={v => setMealPlanId(v)}>
+              <SelectTrigger><SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} /></SelectTrigger>
+              <SelectContent>
+                {mealPlans.map(mp => <SelectItem key={mp.id} value={mp.id}>{localized(mp)}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
           <div><Label>{t("hotelDash.fields.capacity")}</Label><Input type="number" min={1} max={20} value={capacity} onChange={e => setCapacity(e.target.value)} /></div>
           <div><Label>{t("hotelDash.fields.count")}</Label><Input type="number" min={0} value={count} onChange={e => setCount(e.target.value)} /></div>
           <div><Label>{t("hotelDash.fields.price")}</Label><Input type="number" min={0} value={price} onChange={e => setPrice(e.target.value)} /></div>
@@ -362,7 +379,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
           <select className="flex h-9 rounded-md border border-input bg-background px-3 text-sm" value={currency} onChange={e => setCurrency(e.target.value)}>
             {["USD","EUR","SAR","AED","GBP"].map(c => <option key={c}>{c}</option>)}
           </select>
-          <Button variant="gold" size="sm" onClick={() => addRoom.mutate()} disabled={!roomType || !price}>
+          <Button variant="gold" size="sm" onClick={() => addRoom.mutate()} disabled={!roomTypeId || !price}>
             <Plus className="h-4 w-4" /> {t("hotelDash.addRoom")}
           </Button>
         </div>
