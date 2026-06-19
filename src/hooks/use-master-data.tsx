@@ -43,14 +43,19 @@ export function useCities(countryId?: string | null) {
   });
 }
 
-export function useHotelTypes() {
-  return useQuery({
-    queryKey: ["master-hotel-types"],
+function makeLookupHook(table: "hotel_types" | "room_types" | "meal_plans" | "amenities", key: string) {
+  return () => useQuery({
+    queryKey: [key],
     staleTime: 1000 * 60 * 10,
     queryFn: async (): Promise<LookupRow[]> => {
-      const { data, error } = await supabase.from("hotel_types").select("id,name_en,name_ar").eq("is_active", true).order("name_en");
+      const { data, error } = await supabase.from(table).select("id,name_en,name_ar").eq("is_active", true).order("name_en");
       if (error) throw error;
       return data ?? [];
     },
   });
 }
+
+export const useHotelTypes = makeLookupHook("hotel_types", "master-hotel-types");
+export const useRoomTypes = makeLookupHook("room_types", "master-room-types");
+export const useMealPlans = makeLookupHook("meal_plans", "master-meal-plans");
+export const useAmenities = makeLookupHook("amenities", "master-amenities");
