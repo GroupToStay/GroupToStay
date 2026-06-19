@@ -62,7 +62,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
   const [address, setAddress] = useState(hotel.address ?? "");
   const [starRating, setStarRating] = useState(String(hotel.star_rating ?? 4));
   const [description, setDescription] = useState(hotel.description ?? "");
-  const [amenities, setAmenities] = useState((hotel.amenities ?? []).join(", "));
+  // amenities now managed via hotel_amenities join table (see selectedAmenityIds below)
   const [savingInfo, setSavingInfo] = useState(false);
 
   const localized = useLocalizedName();
