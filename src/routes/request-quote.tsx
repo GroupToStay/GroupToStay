@@ -88,6 +88,8 @@ function Page() {
 
   const { data: countries = [] } = useCountries();
   const { data: citiesOfCountry = [] } = useCities(form.destination_country_id);
+  const { data: roomTypes = [] } = useRoomTypes();
+  const localized = useLocalizedName();
 
   async function submit() {
     if (!user) {
