@@ -181,10 +181,14 @@ function Page() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>{t("rfq.fields.destCity")}</Label><Input value={form.destination_city} onChange={e => update("destination_city", e.target.value)} maxLength={120} /></div>
-              <div><Label>{t("rfq.fields.destCountry")}</Label><Input value={form.destination_country} onChange={e => update("destination_country", e.target.value)} maxLength={120} /></div>
-            </div>
+            <CountryCitySelect
+              countryId={form.destination_country_id}
+              cityId={form.destination_city_id}
+              onChange={({ countryId, cityId }) => setForm(f => ({ ...f, destination_country_id: countryId, destination_city_id: cityId }))}
+              labelCountry={t("rfq.fields.destCountry")}
+              labelCity={t("rfq.fields.destCity")}
+              required
+            />
           </>)}
 
           {step === 2 && (<>
