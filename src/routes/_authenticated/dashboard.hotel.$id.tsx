@@ -12,6 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Building2, Plus, Trash2, Star, Upload, Image as ImageIcon, ChevronLeft, Save } from "lucide-react";
+import { CountryCitySelect } from "@/components/country-city-select";
+import { useHotelTypes, useLocalizedName, useCities, useCountries } from "@/hooks/use-master-data";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/$id")({
   head: () => ({ meta: [{ title: "Manage hotel — GroupToStay" }] }),
@@ -52,18 +55,25 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
 
   // Edit hotel info
   const [name, setName] = useState(hotel.name);
-  const [city, setCity] = useState(hotel.city);
-  const [country, setCountry] = useState(hotel.country);
+  const [countryId, setCountryId] = useState<string | null>(hotel.country_id ?? null);
+  const [cityId, setCityId] = useState<string | null>(hotel.city_id ?? null);
+  const [hotelTypeId, setHotelTypeId] = useState<string | null>(hotel.hotel_type_id ?? null);
   const [address, setAddress] = useState(hotel.address ?? "");
   const [starRating, setStarRating] = useState(String(hotel.star_rating ?? 4));
   const [description, setDescription] = useState(hotel.description ?? "");
   const [amenities, setAmenities] = useState((hotel.amenities ?? []).join(", "));
   const [savingInfo, setSavingInfo] = useState(false);
 
+  const localized = useLocalizedName();
+  const { data: hotelTypes = [] } = useHotelTypes();
+  const { data: allCountries = [] } = useCountries();
+  const { data: allCities = [] } = useCities(countryId);
+
   useEffect(() => {
     setName(hotel.name);
-    setCity(hotel.city);
-    setCountry(hotel.country);
+    setCountryId(hotel.country_id ?? null);
+    setCityId(hotel.city_id ?? null);
+    setHotelTypeId(hotel.hotel_type_id ?? null);
     setAddress(hotel.address ?? "");
     setStarRating(String(hotel.star_rating ?? 4));
     setDescription(hotel.description ?? "");
@@ -72,12 +82,26 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
 
   async function saveInfo(e: React.FormEvent) {
     e.preventDefault();
+    if (!countryId || !cityId) {
+      toast.error(t("common.selectCountryCity", { defaultValue: "Please select a country and city." }));
+      return;
+    }
+    if (!hotelTypeId) {
+      toast.error(t("common.selectHotelType", { defaultValue: "Please select a hotel type." }));
+      return;
+    }
     setSavingInfo(true);
     try {
+      const country = allCountries.find(c => c.id === countryId);
+      const city = allCities.find(c => c.id === cityId);
       const { error } = await supabase.from("hotels").update({
         name: name.trim(),
-        city: city.trim(),
-        country: country.trim(),
+        country_id: countryId,
+        city_id: cityId,
+        hotel_type_id: hotelTypeId,
+        // keep legacy text columns in sync for back-compat
+        city: city?.name_en ?? hotel.city,
+        country: country?.name_en ?? hotel.country,
         address: address.trim() || null,
         star_rating: Number(starRating),
         description: description.trim() || null,
@@ -218,15 +242,28 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
         <h2 className="font-display text-xl text-primary">{t("hotelDash.editInfo")}</h2>
         <form onSubmit={saveInfo} className="mt-4 space-y-4">
           <div><Label>{t("hotelDash.fields.name")}</Label><Input required value={name} onChange={e => setName(e.target.value)} maxLength={160} /></div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div><Label>{t("hotelDash.fields.city")}</Label><Input required value={city} onChange={e => setCity(e.target.value)} maxLength={80} /></div>
-            <div><Label>{t("hotelDash.fields.country")}</Label><Input required value={country} onChange={e => setCountry(e.target.value)} maxLength={80} /></div>
-          </div>
+          <CountryCitySelect
+            countryId={countryId}
+            cityId={cityId}
+            onChange={({ countryId: c, cityId: ci }) => { setCountryId(c); setCityId(ci); }}
+            required
+          />
           <div><Label>{t("hotelDash.fields.address")}</Label><Input value={address} onChange={e => setAddress(e.target.value)} maxLength={240} /></div>
-          <div><Label>{t("hotelDash.fields.stars")}</Label>
-            <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={starRating} onChange={e => setStarRating(e.target.value)}>
-              {[3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
-            </select>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <Label>{t("hotelDash.fields.hotelType", { defaultValue: "Hotel type" })} *</Label>
+              <Select value={hotelTypeId ?? ""} onValueChange={v => setHotelTypeId(v || null)}>
+                <SelectTrigger><SelectValue placeholder={t("common.selectHotelType", { defaultValue: "Select hotel type" })} /></SelectTrigger>
+                <SelectContent>
+                  {hotelTypes.map(ht => <SelectItem key={ht.id} value={ht.id}>{localized(ht)}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>{t("hotelDash.fields.stars")}</Label>
+              <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={starRating} onChange={e => setStarRating(e.target.value)}>
+                {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
           </div>
           <div><Label>{t("hotelDash.fields.description")}</Label><Textarea rows={3} value={description} onChange={e => setDescription(e.target.value)} maxLength={1000} /></div>
           <div><Label>{t("hotelDash.fields.amenities")}</Label><Input value={amenities} onChange={e => setAmenities(e.target.value)} placeholder={t("hotelDash.fields.amenitiesPh")} /></div>

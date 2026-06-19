@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
+import { useCities, useLocalizedName } from "@/hooks/use-master-data";
 
 export const Route = createFileRoute("/hotels/")({
   head: () => ({ meta: [{ title: "Group-ready hotels — GroupToStay" }, { name: "description", content: "Browse approved hotels accepting Group Requests across MENA, Europe and Asia." }] }),
@@ -17,8 +18,9 @@ export const Route = createFileRoute("/hotels/")({
 
 function Page() {
   const { t } = useTranslation();
+  const localized = useLocalizedName();
   const [q, setQ] = useState("");
-  const [city, setCity] = useState<string>("__any");
+  const [cityId, setCityId] = useState<string>("__any");
   const [stars, setStars] = useState<string>("__any");
 
   const { data: hotels = [] } = useQuery({
@@ -26,7 +28,7 @@ function Page() {
     queryFn: async () => {
       const { data } = await supabase
         .from("hotels")
-        .select("id,slug,name,city,country,star_rating,cover_image,description,amenities,featured")
+        .select("id,slug,name,city,country,city_id,country_id,star_rating,cover_image,description,amenities,featured")
         .eq("status", "approved")
         .order("featured", { ascending: false })
         .order("name");
@@ -34,9 +36,9 @@ function Page() {
     },
   });
 
-  const cities = useMemo(() => Array.from(new Set(hotels.map(h => h.city))).sort(), [hotels]);
+  const { data: cities = [] } = useCities();
   const filtered = hotels.filter(h => {
-    if (city !== "__any" && h.city !== city) return false;
+    if (cityId !== "__any" && h.city_id !== cityId) return false;
     if (stars !== "__any" && h.star_rating !== Number(stars)) return false;
     if (q && !(`${h.name} ${h.city}`.toLowerCase().includes(q.toLowerCase()))) return false;
     return true;
@@ -55,18 +57,18 @@ function Page() {
 
         <div className="container-page py-6 grid md:grid-cols-[1fr_200px_140px] gap-3 sticky top-16 bg-background z-30 border-b border-border">
           <Input placeholder={t("hotels.searchPlaceholder")} value={q} onChange={e => setQ(e.target.value)} />
-          <Select value={city} onValueChange={setCity}>
+          <Select value={cityId} onValueChange={setCityId}>
             <SelectTrigger><SelectValue placeholder={t("hotels.filterCity")} /></SelectTrigger>
             <SelectContent>
               <SelectItem value="__any">{t("hotels.any")}</SelectItem>
-              {cities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              {cities.map(c => <SelectItem key={c.id} value={c.id}>{localized(c)}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={stars} onValueChange={setStars}>
             <SelectTrigger><SelectValue placeholder={t("hotels.filterStars")} /></SelectTrigger>
             <SelectContent>
               <SelectItem value="__any">{t("hotels.any")}</SelectItem>
-              {[5,4,3].map(n => <SelectItem key={n} value={String(n)}>{n}★</SelectItem>)}
+              {[5,4,3,2,1].map(n => <SelectItem key={n} value={String(n)}>{n}★</SelectItem>)}
             </SelectContent>
           </Select>
         </div>

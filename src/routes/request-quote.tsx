@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { z } from "zod";
+import { CountryCitySelect } from "@/components/country-city-select";
+import { useCities, useCountries } from "@/hooks/use-master-data";
 
 type Search = { city?: string; country?: string };
 
@@ -30,8 +32,8 @@ export const Route = createFileRoute("/request-quote")({
 const Schema = z.object({
   title: z.string().min(3).max(160),
   group_type: z.enum(["umrah","hajj","tourism","corporate","government","sports","education","event","other"]),
-  destination_city: z.string().min(1).max(120),
-  destination_country: z.string().min(1).max(120),
+  destination_country_id: z.string().uuid({ message: "Please select a country." }),
+  destination_city_id: z.string().uuid({ message: "Please select a city." }),
   check_in: z.string().min(1),
   check_out: z.string().min(1),
   guests_count: z.number().int().min(1).max(100000),
@@ -67,8 +69,8 @@ function Page() {
   const [form, setForm] = useState({
     title: "",
     group_type: "umrah" as const,
-    destination_city: search.city ?? "",
-    destination_country: search.country ?? "",
+    destination_country_id: null as string | null,
+    destination_city_id: null as string | null,
     check_in: "",
     check_out: "",
     guests_count: 30,
@@ -83,6 +85,9 @@ function Page() {
   });
 
   const update = (k: keyof typeof form, v: unknown) => setForm(f => ({ ...f, [k]: v }));
+
+  const { data: countries = [] } = useCountries();
+  const { data: citiesOfCountry = [] } = useCities(form.destination_country_id);
 
   async function submit() {
     if (!user) {
@@ -100,8 +105,13 @@ function Page() {
         budget_min: form.budget_min === "" ? undefined : Number(form.budget_min),
         budget_max: form.budget_max === "" ? undefined : Number(form.budget_max),
       });
+      const country = countries.find(c => c.id === parsed.destination_country_id);
+      const city = citiesOfCountry.find(c => c.id === parsed.destination_city_id);
       const { data, error } = await supabase.from("rfqs").insert({
         ...parsed,
+        // keep legacy text columns populated for back-compat
+        destination_country: country?.name_en ?? "",
+        destination_city: city?.name_en ?? "",
         room_type_pref: parsed.room_type_pref || null,
         special_requirements: parsed.special_requirements || null,
         deadline: parsed.deadline || null,
@@ -171,10 +181,14 @@ function Page() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>{t("rfq.fields.destCity")}</Label><Input value={form.destination_city} onChange={e => update("destination_city", e.target.value)} maxLength={120} /></div>
-              <div><Label>{t("rfq.fields.destCountry")}</Label><Input value={form.destination_country} onChange={e => update("destination_country", e.target.value)} maxLength={120} /></div>
-            </div>
+            <CountryCitySelect
+              countryId={form.destination_country_id}
+              cityId={form.destination_city_id}
+              onChange={({ countryId, cityId }) => setForm(f => ({ ...f, destination_country_id: countryId, destination_city_id: cityId }))}
+              labelCountry={t("rfq.fields.destCountry")}
+              labelCity={t("rfq.fields.destCity")}
+              required
+            />
           </>)}
 
           {step === 2 && (<>
