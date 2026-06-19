@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS hotels_owner_id_unique ON public.hotels(owner_id);
