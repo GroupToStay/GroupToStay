@@ -57,11 +57,18 @@ function Page() {
 
         <div className="container-page py-6 grid md:grid-cols-[1fr_200px_140px] gap-3 sticky top-16 bg-background z-30 border-b border-border">
           <Input placeholder={t("hotels.searchPlaceholder")} value={q} onChange={e => setQ(e.target.value)} />
-          <Select value={city} onValueChange={setCity}>
+          <Select value={cityId} onValueChange={setCityId}>
             <SelectTrigger><SelectValue placeholder={t("hotels.filterCity")} /></SelectTrigger>
             <SelectContent>
               <SelectItem value="__any">{t("hotels.any")}</SelectItem>
-              {cities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              {cities.map(c => <SelectItem key={c.id} value={c.id}>{localized(c)}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={stars} onValueChange={setStars}>
+            <SelectTrigger><SelectValue placeholder={t("hotels.filterStars")} /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__any">{t("hotels.any")}</SelectItem>
+              {[5,4,3,2,1].map(n => <SelectItem key={n} value={String(n)}>{n}★</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={stars} onValueChange={setStars}>
