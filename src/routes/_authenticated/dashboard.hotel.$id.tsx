@@ -152,7 +152,8 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
     },
   });
 
-  const [roomType, setRoomType] = useState("");
+  const [roomTypeId, setRoomTypeId] = useState<string | "">("");
+  const [mealPlanId, setMealPlanId] = useState<string | "">("");
   const [capacity, setCapacity] = useState("2");
   const [count, setCount] = useState("10");
   const [price, setPrice] = useState("");
@@ -160,15 +161,22 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
 
   const addRoom = useMutation({
     mutationFn: async () => {
+      const rt = roomTypes.find(r => r.id === roomTypeId);
       const { error } = await supabase.from("hotel_rooms").insert({
-        hotel_id: hotel.id, room_type: roomType, capacity: Number(capacity),
-        count_available: Number(count), base_price: Number(price), currency,
+        hotel_id: hotel.id,
+        room_type: rt?.name_en ?? "",
+        room_type_id: roomTypeId || null,
+        meal_plan_id: mealPlanId || null,
+        capacity: Number(capacity),
+        count_available: Number(count),
+        base_price: Number(price),
+        currency,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(t("hotelDash.roomAdded"));
-      setRoomType(""); setPrice("");
+      setRoomTypeId(""); setMealPlanId(""); setPrice("");
       qc.invalidateQueries({ queryKey: ["my-hotel-rooms", hotel.id] });
     },
     onError: (e: any) => toast.error(e.message),
