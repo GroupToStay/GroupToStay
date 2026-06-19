@@ -304,6 +304,39 @@ export type Database = {
         }
         Relationships: []
       }
+      hotel_amenities: {
+        Row: {
+          amenity_id: string
+          created_at: string
+          hotel_id: string
+        }
+        Insert: {
+          amenity_id: string
+          created_at?: string
+          hotel_id: string
+        }
+        Update: {
+          amenity_id?: string
+          created_at?: string
+          hotel_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_amenities_amenity_id_fkey"
+            columns: ["amenity_id"]
+            isOneToOne: false
+            referencedRelation: "amenities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_amenities_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hotel_rooms: {
         Row: {
           base_price: number
@@ -313,7 +346,9 @@ export type Database = {
           currency: string
           hotel_id: string
           id: string
+          meal_plan_id: string | null
           room_type: string
+          room_type_id: string | null
         }
         Insert: {
           base_price?: number
@@ -323,7 +358,9 @@ export type Database = {
           currency?: string
           hotel_id: string
           id?: string
+          meal_plan_id?: string | null
           room_type: string
+          room_type_id?: string | null
         }
         Update: {
           base_price?: number
@@ -333,7 +370,9 @@ export type Database = {
           currency?: string
           hotel_id?: string
           id?: string
+          meal_plan_id?: string | null
           room_type?: string
+          room_type_id?: string | null
         }
         Relationships: [
           {
@@ -341,6 +380,20 @@ export type Database = {
             columns: ["hotel_id"]
             isOneToOne: false
             referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_rooms_meal_plan_id_fkey"
+            columns: ["meal_plan_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_rooms_room_type_id_fkey"
+            columns: ["room_type_id"]
+            isOneToOne: false
+            referencedRelation: "room_types"
             referencedColumns: ["id"]
           },
         ]
@@ -763,6 +816,7 @@ export type Database = {
           id: string
           nights: number | null
           organizer_id: string
+          room_type_id: string | null
           room_type_pref: string | null
           rooms_needed: number
           special_requirements: string | null
@@ -788,6 +842,7 @@ export type Database = {
           id?: string
           nights?: number | null
           organizer_id: string
+          room_type_id?: string | null
           room_type_pref?: string | null
           rooms_needed?: number
           special_requirements?: string | null
@@ -813,6 +868,7 @@ export type Database = {
           id?: string
           nights?: number | null
           organizer_id?: string
+          room_type_id?: string | null
           room_type_pref?: string | null
           rooms_needed?: number
           special_requirements?: string | null
@@ -833,6 +889,13 @@ export type Database = {
             columns: ["destination_country_id"]
             isOneToOne: false
             referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rfqs_room_type_id_fkey"
+            columns: ["room_type_id"]
+            isOneToOne: false
+            referencedRelation: "room_types"
             referencedColumns: ["id"]
           },
         ]
@@ -891,14 +954,18 @@ export type Database = {
         Row: {
           city_text: string | null
           country_text: string | null
+          destination_city: string | null
+          destination_country: string | null
           label: string | null
           record_id: string | null
           record_type: string | null
+          room_text: string | null
         }
         Relationships: []
       }
     }
     Functions: {
+      _norm: { Args: { t: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
