@@ -96,7 +96,6 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
     setAddress(hotel.address ?? "");
     setStarRating(String(hotel.star_rating ?? 4));
     setDescription(hotel.description ?? "");
-    setAmenities((hotel.amenities ?? []).join(", "));
   }, [hotel]);
 
   async function saveInfo(e: React.FormEvent) {
