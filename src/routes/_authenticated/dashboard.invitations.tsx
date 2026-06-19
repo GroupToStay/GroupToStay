@@ -60,6 +60,18 @@ function Page() {
     );
   }
 
+  const approvedHotels = hotels.filter((h: any) => h.status === "approved");
+  if (approvedHotels.length === 0) {
+    return (
+      <Card><CardContent className="p-10 text-center">
+        <Inbox className="h-8 w-8 mx-auto text-muted-foreground" />
+        <p className="mt-3 text-muted-foreground">
+          {t("hotelDash.profileNotApprovedYet", "Complete and verify your hotel profile before participating in Group Requests. Only approved hotels may receive Group Requests and submit quotations.")}
+        </p>
+      </CardContent></Card>
+    );
+  }
+
   return (
     <div>
       <h1 className="font-display text-3xl text-primary">{t("hotelDash.invitations")}</h1>
