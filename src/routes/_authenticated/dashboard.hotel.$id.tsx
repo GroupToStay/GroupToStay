@@ -55,18 +55,25 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
 
   // Edit hotel info
   const [name, setName] = useState(hotel.name);
-  const [city, setCity] = useState(hotel.city);
-  const [country, setCountry] = useState(hotel.country);
+  const [countryId, setCountryId] = useState<string | null>(hotel.country_id ?? null);
+  const [cityId, setCityId] = useState<string | null>(hotel.city_id ?? null);
+  const [hotelTypeId, setHotelTypeId] = useState<string | null>(hotel.hotel_type_id ?? null);
   const [address, setAddress] = useState(hotel.address ?? "");
   const [starRating, setStarRating] = useState(String(hotel.star_rating ?? 4));
   const [description, setDescription] = useState(hotel.description ?? "");
   const [amenities, setAmenities] = useState((hotel.amenities ?? []).join(", "));
   const [savingInfo, setSavingInfo] = useState(false);
 
+  const localized = useLocalizedName();
+  const { data: hotelTypes = [] } = useHotelTypes();
+  const { data: allCountries = [] } = useCountries();
+  const { data: allCities = [] } = useCities(countryId);
+
   useEffect(() => {
     setName(hotel.name);
-    setCity(hotel.city);
-    setCountry(hotel.country);
+    setCountryId(hotel.country_id ?? null);
+    setCityId(hotel.city_id ?? null);
+    setHotelTypeId(hotel.hotel_type_id ?? null);
     setAddress(hotel.address ?? "");
     setStarRating(String(hotel.star_rating ?? 4));
     setDescription(hotel.description ?? "");
@@ -75,12 +82,26 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
 
   async function saveInfo(e: React.FormEvent) {
     e.preventDefault();
+    if (!countryId || !cityId) {
+      toast.error(t("common.selectCountryCity", { defaultValue: "Please select a country and city." }));
+      return;
+    }
+    if (!hotelTypeId) {
+      toast.error(t("common.selectHotelType", { defaultValue: "Please select a hotel type." }));
+      return;
+    }
     setSavingInfo(true);
     try {
+      const country = allCountries.find(c => c.id === countryId);
+      const city = allCities.find(c => c.id === cityId);
       const { error } = await supabase.from("hotels").update({
         name: name.trim(),
-        city: city.trim(),
-        country: country.trim(),
+        country_id: countryId,
+        city_id: cityId,
+        hotel_type_id: hotelTypeId,
+        // keep legacy text columns in sync for back-compat
+        city: city?.name_en ?? hotel.city,
+        country: country?.name_en ?? hotel.country,
         address: address.trim() || null,
         star_rating: Number(starRating),
         description: description.trim() || null,
