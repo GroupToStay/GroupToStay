@@ -71,13 +71,6 @@ function Page() {
               {[5,4,3,2,1].map(n => <SelectItem key={n} value={String(n)}>{n}★</SelectItem>)}
             </SelectContent>
           </Select>
-          <Select value={stars} onValueChange={setStars}>
-            <SelectTrigger><SelectValue placeholder={t("hotels.filterStars")} /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__any">{t("hotels.any")}</SelectItem>
-              {[5,4,3].map(n => <SelectItem key={n} value={String(n)}>{n}★</SelectItem>)}
-            </SelectContent>
-          </Select>
         </div>
 
         <div className="container-page py-10">
