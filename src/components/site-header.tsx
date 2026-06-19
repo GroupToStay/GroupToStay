@@ -15,8 +15,10 @@ export function SiteHeader() {
   const showQuoteCta = !user || isOrganizer;
   // Pricing visible to: public visitors and hotel users only. Hidden for organizers & admins.
   const showPricing = !user || isHotel;
-  // For Hotels page visible to: public visitors and hotel users only. Hidden for organizers & admins.
-  const showForHotels = !user || (isHotel && !isAdmin && !isOrganizer);
+  // For Hotels page is acquisition/onboarding only — show only to public visitors.
+  // Hidden for all logged-in users (hotel, organizer, admin).
+  void isHotel; void isAdmin; void isOrganizer;
+  const showForHotels = !user;
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
