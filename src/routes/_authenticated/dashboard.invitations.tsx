@@ -32,7 +32,7 @@ function Page() {
     },
   });
 
-  const hotelIds = hotels.map((h: any) => h.id);
+  const hotelIds = hotels.filter((h: any) => h.status === "approved").map((h: any) => h.id);
   const hotelById = Object.fromEntries(hotels.map((h: any) => [h.id, h]));
 
   const { data: invitations = [], isLoading } = useQuery({
