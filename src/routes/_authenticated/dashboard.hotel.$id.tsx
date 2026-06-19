@@ -12,6 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Building2, Plus, Trash2, Star, Upload, Image as ImageIcon, ChevronLeft, Save } from "lucide-react";
+import { CountryCitySelect } from "@/components/country-city-select";
+import { useHotelTypes, useLocalizedName, useCities, useCountries } from "@/hooks/use-master-data";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/$id")({
   head: () => ({ meta: [{ title: "Manage hotel — GroupToStay" }] }),
