@@ -69,6 +69,24 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
   const { data: hotelTypes = [] } = useHotelTypes();
   const { data: allCountries = [] } = useCountries();
   const { data: allCities = [] } = useCities(countryId);
+  const { data: allAmenities = [] } = useAmenities();
+  const { data: roomTypes = [] } = useRoomTypes();
+  const { data: mealPlans = [] } = useMealPlans();
+
+  // Selected amenity IDs (master-data driven)
+  const { data: selectedAmenityIds = [] } = useQuery({
+    queryKey: ["hotel-amenities", hotel.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("hotel_amenities").select("amenity_id").eq("hotel_id", hotel.id);
+      if (error) throw error;
+      return (data ?? []).map((r: any) => r.amenity_id as string);
+    },
+  });
+  const [amenityIds, setAmenityIds] = useState<string[]>([]);
+  useEffect(() => { setAmenityIds(selectedAmenityIds); }, [selectedAmenityIds]);
+  const toggleAmenity = (id: string) =>
+    setAmenityIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
 
   useEffect(() => {
     setName(hotel.name);
