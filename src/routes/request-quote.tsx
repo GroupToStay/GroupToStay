@@ -203,7 +203,14 @@ function Page() {
               <div><Label>{t("rfq.fields.guests")}</Label><Input type="number" min={1} value={form.guests_count} onChange={e => update("guests_count", e.target.value)} /></div>
               <div><Label>{t("rfq.fields.rooms")}</Label><Input type="number" min={1} value={form.rooms_needed} onChange={e => update("rooms_needed", e.target.value)} /></div>
             </div>
-            <div><Label>{t("rfq.fields.roomPref")}</Label><Input value={form.room_type_pref} onChange={e => update("room_type_pref", e.target.value)} placeholder={t("rfq.fields.roomPrefPh")} /></div>
+            <div><Label>{t("rfq.fields.roomPref")}</Label>
+              <Select value={form.room_type_id ?? ""} onValueChange={v => update("room_type_id", v || null)}>
+                <SelectTrigger><SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} /></SelectTrigger>
+                <SelectContent>
+                  {roomTypes.map(rt => <SelectItem key={rt.id} value={rt.id}>{localized(rt)}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
             <div><Label>{t("rfq.fields.board")}</Label>
               <Select value={form.board_type} onValueChange={v => update("board_type", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
