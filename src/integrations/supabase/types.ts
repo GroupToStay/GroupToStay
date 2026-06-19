@@ -377,12 +377,15 @@ export type Database = {
           address: string | null
           amenities: string[]
           city: string
+          city_id: string | null
           country: string
+          country_id: string | null
           cover_image: string | null
           created_at: string
           description: string | null
           featured: boolean
           gallery: string[]
+          hotel_type_id: string | null
           id: string
           lat: number | null
           lng: number | null
@@ -397,12 +400,15 @@ export type Database = {
           address?: string | null
           amenities?: string[]
           city: string
+          city_id?: string | null
           country: string
+          country_id?: string | null
           cover_image?: string | null
           created_at?: string
           description?: string | null
           featured?: boolean
           gallery?: string[]
+          hotel_type_id?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
@@ -417,12 +423,15 @@ export type Database = {
           address?: string | null
           amenities?: string[]
           city?: string
+          city_id?: string | null
           country?: string
+          country_id?: string | null
           cover_image?: string | null
           created_at?: string
           description?: string | null
           featured?: boolean
           gallery?: string[]
+          hotel_type_id?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
@@ -433,7 +442,29 @@ export type Database = {
           status?: Database["public"]["Enums"]["hotel_status"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "hotels_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotels_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotels_hotel_type_id_fkey"
+            columns: ["hotel_type_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_types"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       meal_plans: {
         Row: {
@@ -724,7 +755,9 @@ export type Database = {
           currency: string
           deadline: string | null
           destination_city: string
+          destination_city_id: string | null
           destination_country: string
+          destination_country_id: string | null
           group_type: Database["public"]["Enums"]["group_type"]
           guests_count: number
           id: string
@@ -747,7 +780,9 @@ export type Database = {
           currency?: string
           deadline?: string | null
           destination_city: string
+          destination_city_id?: string | null
           destination_country: string
+          destination_country_id?: string | null
           group_type?: Database["public"]["Enums"]["group_type"]
           guests_count?: number
           id?: string
@@ -770,7 +805,9 @@ export type Database = {
           currency?: string
           deadline?: string | null
           destination_city?: string
+          destination_city_id?: string | null
           destination_country?: string
+          destination_country_id?: string | null
           group_type?: Database["public"]["Enums"]["group_type"]
           guests_count?: number
           id?: string
@@ -783,7 +820,22 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "rfqs_destination_city_id_fkey"
+            columns: ["destination_city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rfqs_destination_country_id_fkey"
+            columns: ["destination_country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       room_types: {
         Row: {
@@ -835,7 +887,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      unmapped_locations: {
+        Row: {
+          city_text: string | null
+          country_text: string | null
+          label: string | null
+          record_id: string | null
+          record_type: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
