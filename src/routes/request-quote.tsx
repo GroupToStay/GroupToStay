@@ -38,7 +38,7 @@ const Schema = z.object({
   check_out: z.string().min(1),
   guests_count: z.number().int().min(1).max(100000),
   rooms_needed: z.number().int().min(1).max(10000),
-  room_type_pref: z.string().max(120).optional().or(z.literal("")),
+  room_type_id: z.string().uuid().optional().nullable(),
   board_type: z.enum(["room_only","breakfast","half_board","full_board"]),
   budget_min: z.number().optional(),
   budget_max: z.number().optional(),
