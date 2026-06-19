@@ -75,7 +75,7 @@ function Page() {
     check_out: "",
     guests_count: 30,
     rooms_needed: 10,
-    room_type_pref: "",
+    room_type_id: null as string | null,
     board_type: "breakfast" as const,
     budget_min: "" as string | number,
     budget_max: "" as string | number,
