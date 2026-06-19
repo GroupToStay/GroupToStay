@@ -32,7 +32,7 @@ function Page() {
     },
   });
 
-  const hotelIds = hotels.map((h: any) => h.id);
+  const hotelIds = hotels.filter((h: any) => h.status === "approved").map((h: any) => h.id);
   const hotelById = Object.fromEntries(hotels.map((h: any) => [h.id, h]));
 
   const { data: invitations = [], isLoading } = useQuery({
@@ -56,6 +56,18 @@ function Page() {
       <Card><CardContent className="p-10 text-center">
         <Inbox className="h-8 w-8 mx-auto text-muted-foreground" />
         <p className="mt-3 text-muted-foreground">{t("hotelDash.needsHotel")}</p>
+      </CardContent></Card>
+    );
+  }
+
+  const approvedHotels = hotels.filter((h: any) => h.status === "approved");
+  if (approvedHotels.length === 0) {
+    return (
+      <Card><CardContent className="p-10 text-center">
+        <Inbox className="h-8 w-8 mx-auto text-muted-foreground" />
+        <p className="mt-3 text-muted-foreground">
+          {t("hotelDash.profileNotApprovedYet", "Complete and verify your hotel profile before participating in Group Requests. Only approved hotels may receive Group Requests and submit quotations.")}
+        </p>
       </CardContent></Card>
     );
   }
