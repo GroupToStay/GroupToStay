@@ -293,7 +293,17 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
             </div>
           </div>
           <div><Label>{t("hotelDash.fields.description")}</Label><Textarea rows={3} value={description} onChange={e => setDescription(e.target.value)} maxLength={1000} /></div>
-          <div><Label>{t("hotelDash.fields.amenities")}</Label><Input value={amenities} onChange={e => setAmenities(e.target.value)} placeholder={t("hotelDash.fields.amenitiesPh")} /></div>
+          <div>
+            <Label>{t("hotelDash.fields.amenities")}</Label>
+            <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {allAmenities.map(a => (
+                <label key={a.id} className="flex items-center gap-2 text-sm rounded-md border border-border px-3 py-2 cursor-pointer hover:bg-accent/30">
+                  <Checkbox checked={amenityIds.includes(a.id)} onCheckedChange={() => toggleAmenity(a.id)} />
+                  <span>{localized(a)}</span>
+                </label>
+              ))}
+            </div>
+          </div>
           <Button type="submit" variant="gold" disabled={savingInfo}>
             <Save className="h-4 w-4" /> {savingInfo ? t("common.loading") : t("hotelDash.saveInfo")}
           </Button>
