@@ -16,7 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { z } from "zod";
 import { CountryCitySelect } from "@/components/country-city-select";
-import { useCities, useCountries } from "@/hooks/use-master-data";
+import { useCities, useCountries, useRoomTypes, useLocalizedName } from "@/hooks/use-master-data";
 
 type Search = { city?: string; country?: string };
 
@@ -38,7 +38,7 @@ const Schema = z.object({
   check_out: z.string().min(1),
   guests_count: z.number().int().min(1).max(100000),
   rooms_needed: z.number().int().min(1).max(10000),
-  room_type_pref: z.string().max(120).optional().or(z.literal("")),
+  room_type_id: z.string().uuid().optional().nullable(),
   board_type: z.enum(["room_only","breakfast","half_board","full_board"]),
   budget_min: z.number().optional(),
   budget_max: z.number().optional(),
@@ -75,7 +75,7 @@ function Page() {
     check_out: "",
     guests_count: 30,
     rooms_needed: 10,
-    room_type_pref: "",
+    room_type_id: null as string | null,
     board_type: "breakfast" as const,
     budget_min: "" as string | number,
     budget_max: "" as string | number,
@@ -88,6 +88,8 @@ function Page() {
 
   const { data: countries = [] } = useCountries();
   const { data: citiesOfCountry = [] } = useCities(form.destination_country_id);
+  const { data: roomTypes = [] } = useRoomTypes();
+  const localized = useLocalizedName();
 
   async function submit() {
     if (!user) {
@@ -107,12 +109,13 @@ function Page() {
       });
       const country = countries.find(c => c.id === parsed.destination_country_id);
       const city = citiesOfCountry.find(c => c.id === parsed.destination_city_id);
+      const roomType = roomTypes.find(r => r.id === parsed.room_type_id);
       const { data, error } = await supabase.from("rfqs").insert({
         ...parsed,
         // keep legacy text columns populated for back-compat
         destination_country: country?.name_en ?? "",
         destination_city: city?.name_en ?? "",
-        room_type_pref: parsed.room_type_pref || null,
+        room_type_pref: roomType?.name_en ?? null,
         special_requirements: parsed.special_requirements || null,
         deadline: parsed.deadline || null,
         organizer_id: user.id,
@@ -200,7 +203,14 @@ function Page() {
               <div><Label>{t("rfq.fields.guests")}</Label><Input type="number" min={1} value={form.guests_count} onChange={e => update("guests_count", e.target.value)} /></div>
               <div><Label>{t("rfq.fields.rooms")}</Label><Input type="number" min={1} value={form.rooms_needed} onChange={e => update("rooms_needed", e.target.value)} /></div>
             </div>
-            <div><Label>{t("rfq.fields.roomPref")}</Label><Input value={form.room_type_pref} onChange={e => update("room_type_pref", e.target.value)} placeholder={t("rfq.fields.roomPrefPh")} /></div>
+            <div><Label>{t("rfq.fields.roomPref")}</Label>
+              <Select value={form.room_type_id ?? ""} onValueChange={v => update("room_type_id", v || null)}>
+                <SelectTrigger><SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} /></SelectTrigger>
+                <SelectContent>
+                  {roomTypes.map(rt => <SelectItem key={rt.id} value={rt.id}>{localized(rt)}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
             <div><Label>{t("rfq.fields.board")}</Label>
               <Select value={form.board_type} onValueChange={v => update("board_type", v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>

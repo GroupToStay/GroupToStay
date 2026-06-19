@@ -13,8 +13,9 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Building2, Plus, Trash2, Star, Upload, Image as ImageIcon, ChevronLeft, Save } from "lucide-react";
 import { CountryCitySelect } from "@/components/country-city-select";
-import { useHotelTypes, useLocalizedName, useCities, useCountries } from "@/hooks/use-master-data";
+import { useHotelTypes, useLocalizedName, useCities, useCountries, useAmenities, useRoomTypes, useMealPlans } from "@/hooks/use-master-data";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/$id")({
   head: () => ({ meta: [{ title: "Manage hotel — GroupToStay" }] }),
@@ -61,13 +62,31 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
   const [address, setAddress] = useState(hotel.address ?? "");
   const [starRating, setStarRating] = useState(String(hotel.star_rating ?? 4));
   const [description, setDescription] = useState(hotel.description ?? "");
-  const [amenities, setAmenities] = useState((hotel.amenities ?? []).join(", "));
+  // amenities now managed via hotel_amenities join table (see selectedAmenityIds below)
   const [savingInfo, setSavingInfo] = useState(false);
 
   const localized = useLocalizedName();
   const { data: hotelTypes = [] } = useHotelTypes();
   const { data: allCountries = [] } = useCountries();
   const { data: allCities = [] } = useCities(countryId);
+  const { data: allAmenities = [] } = useAmenities();
+  const { data: roomTypes = [] } = useRoomTypes();
+  const { data: mealPlans = [] } = useMealPlans();
+
+  // Selected amenity IDs (master-data driven)
+  const { data: selectedAmenityIds = [] } = useQuery({
+    queryKey: ["hotel-amenities", hotel.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("hotel_amenities").select("amenity_id").eq("hotel_id", hotel.id);
+      if (error) throw error;
+      return (data ?? []).map((r: any) => r.amenity_id as string);
+    },
+  });
+  const [amenityIds, setAmenityIds] = useState<string[]>([]);
+  useEffect(() => { setAmenityIds(selectedAmenityIds); }, [selectedAmenityIds]);
+  const toggleAmenity = (id: string) =>
+    setAmenityIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+
 
   useEffect(() => {
     setName(hotel.name);
@@ -77,7 +96,6 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
     setAddress(hotel.address ?? "");
     setStarRating(String(hotel.star_rating ?? 4));
     setDescription(hotel.description ?? "");
-    setAmenities((hotel.amenities ?? []).join(", "));
   }, [hotel]);
 
   async function saveInfo(e: React.FormEvent) {
@@ -94,6 +112,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
     try {
       const country = allCountries.find(c => c.id === countryId);
       const city = allCities.find(c => c.id === cityId);
+      const amenityNames = allAmenities.filter(a => amenityIds.includes(a.id)).map(a => a.name_en);
       const { error } = await supabase.from("hotels").update({
         name: name.trim(),
         country_id: countryId,
@@ -105,9 +124,17 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
         address: address.trim() || null,
         star_rating: Number(starRating),
         description: description.trim() || null,
-        amenities: amenities.split(",").map((s: string) => s.trim()).filter(Boolean),
+        amenities: amenityNames,
       }).eq("id", hotel.id);
       if (error) throw error;
+      // Sync hotel_amenities join table
+      await supabase.from("hotel_amenities").delete().eq("hotel_id", hotel.id);
+      if (amenityIds.length > 0) {
+        const { error: insErr } = await supabase.from("hotel_amenities")
+          .insert(amenityIds.map(amenity_id => ({ hotel_id: hotel.id, amenity_id })));
+        if (insErr) throw insErr;
+      }
+      qc.invalidateQueries({ queryKey: ["hotel-amenities", hotel.id] });
       toast.success(t("hotelDash.infoSaved"));
       onChanged();
     } catch (err: any) {
@@ -125,7 +152,8 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
     },
   });
 
-  const [roomType, setRoomType] = useState("");
+  const [roomTypeId, setRoomTypeId] = useState<string | "">("");
+  const [mealPlanId, setMealPlanId] = useState<string | "">("");
   const [capacity, setCapacity] = useState("2");
   const [count, setCount] = useState("10");
   const [price, setPrice] = useState("");
@@ -133,15 +161,22 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
 
   const addRoom = useMutation({
     mutationFn: async () => {
+      const rt = roomTypes.find(r => r.id === roomTypeId);
       const { error } = await supabase.from("hotel_rooms").insert({
-        hotel_id: hotel.id, room_type: roomType, capacity: Number(capacity),
-        count_available: Number(count), base_price: Number(price), currency,
+        hotel_id: hotel.id,
+        room_type: rt?.name_en ?? "",
+        room_type_id: roomTypeId || null,
+        meal_plan_id: mealPlanId || null,
+        capacity: Number(capacity),
+        count_available: Number(count),
+        base_price: Number(price),
+        currency,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success(t("hotelDash.roomAdded"));
-      setRoomType(""); setPrice("");
+      setRoomTypeId(""); setMealPlanId(""); setPrice("");
       qc.invalidateQueries({ queryKey: ["my-hotel-rooms", hotel.id] });
     },
     onError: (e: any) => toast.error(e.message),
@@ -266,7 +301,17 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
             </div>
           </div>
           <div><Label>{t("hotelDash.fields.description")}</Label><Textarea rows={3} value={description} onChange={e => setDescription(e.target.value)} maxLength={1000} /></div>
-          <div><Label>{t("hotelDash.fields.amenities")}</Label><Input value={amenities} onChange={e => setAmenities(e.target.value)} placeholder={t("hotelDash.fields.amenitiesPh")} /></div>
+          <div>
+            <Label>{t("hotelDash.fields.amenities")}</Label>
+            <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {allAmenities.map(a => (
+                <label key={a.id} className="flex items-center gap-2 text-sm rounded-md border border-border px-3 py-2 cursor-pointer hover:bg-accent/30">
+                  <Checkbox checked={amenityIds.includes(a.id)} onCheckedChange={() => toggleAmenity(a.id)} />
+                  <span>{localized(a)}</span>
+                </label>
+              ))}
+            </div>
+          </div>
           <Button type="submit" variant="gold" disabled={savingInfo}>
             <Save className="h-4 w-4" /> {savingInfo ? t("common.loading") : t("hotelDash.saveInfo")}
           </Button>
@@ -307,8 +352,25 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
 
       <Card><CardContent className="p-5">
         <h2 className="font-display text-xl text-primary">{t("hotelDash.rooms")}</h2>
-        <div className="mt-4 grid sm:grid-cols-5 gap-2 items-end">
-          <div className="sm:col-span-2"><Label>{t("hotelDash.fields.roomType")}</Label><Input value={roomType} onChange={e => setRoomType(e.target.value)} placeholder="Quad room" /></div>
+        <div className="mt-4 grid sm:grid-cols-6 gap-2 items-end">
+          <div className="sm:col-span-2">
+            <Label>{t("hotelDash.fields.roomType")}</Label>
+            <Select value={roomTypeId} onValueChange={v => setRoomTypeId(v)}>
+              <SelectTrigger><SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} /></SelectTrigger>
+              <SelectContent>
+                {roomTypes.map(rt => <SelectItem key={rt.id} value={rt.id}>{localized(rt)}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="sm:col-span-2">
+            <Label>{t("hotelDash.fields.mealPlan", { defaultValue: "Meal plan" })}</Label>
+            <Select value={mealPlanId} onValueChange={v => setMealPlanId(v)}>
+              <SelectTrigger><SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} /></SelectTrigger>
+              <SelectContent>
+                {mealPlans.map(mp => <SelectItem key={mp.id} value={mp.id}>{localized(mp)}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
           <div><Label>{t("hotelDash.fields.capacity")}</Label><Input type="number" min={1} max={20} value={capacity} onChange={e => setCapacity(e.target.value)} /></div>
           <div><Label>{t("hotelDash.fields.count")}</Label><Input type="number" min={0} value={count} onChange={e => setCount(e.target.value)} /></div>
           <div><Label>{t("hotelDash.fields.price")}</Label><Input type="number" min={0} value={price} onChange={e => setPrice(e.target.value)} /></div>
@@ -317,7 +379,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
           <select className="flex h-9 rounded-md border border-input bg-background px-3 text-sm" value={currency} onChange={e => setCurrency(e.target.value)}>
             {["USD","EUR","SAR","AED","GBP"].map(c => <option key={c}>{c}</option>)}
           </select>
-          <Button variant="gold" size="sm" onClick={() => addRoom.mutate()} disabled={!roomType || !price}>
+          <Button variant="gold" size="sm" onClick={() => addRoom.mutate()} disabled={!roomTypeId || !price}>
             <Plus className="h-4 w-4" /> {t("hotelDash.addRoom")}
           </Button>
         </div>
