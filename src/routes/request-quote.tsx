@@ -69,8 +69,8 @@ function Page() {
   const [form, setForm] = useState({
     title: "",
     group_type: "umrah" as const,
-    destination_city: search.city ?? "",
-    destination_country: search.country ?? "",
+    destination_country_id: null as string | null,
+    destination_city_id: null as string | null,
     check_in: "",
     check_out: "",
     guests_count: 30,
@@ -85,6 +85,9 @@ function Page() {
   });
 
   const update = (k: keyof typeof form, v: unknown) => setForm(f => ({ ...f, [k]: v }));
+
+  const { data: countries = [] } = useCountries();
+  const { data: citiesOfCountry = [] } = useCities(form.destination_country_id);
 
   async function submit() {
     if (!user) {
@@ -102,8 +105,13 @@ function Page() {
         budget_min: form.budget_min === "" ? undefined : Number(form.budget_min),
         budget_max: form.budget_max === "" ? undefined : Number(form.budget_max),
       });
+      const country = countries.find(c => c.id === parsed.destination_country_id);
+      const city = citiesOfCountry.find(c => c.id === parsed.destination_city_id);
       const { data, error } = await supabase.from("rfqs").insert({
         ...parsed,
+        // keep legacy text columns populated for back-compat
+        destination_country: country?.name_en ?? "",
+        destination_city: city?.name_en ?? "",
         room_type_pref: parsed.room_type_pref || null,
         special_requirements: parsed.special_requirements || null,
         deadline: parsed.deadline || null,
