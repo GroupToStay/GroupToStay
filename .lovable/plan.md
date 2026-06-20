@@ -1,65 +1,149 @@
+# Phase 4 — Platform Overhaul
 
-# GroupToStay — Full MVP Build Plan
+A large multi-part change spanning registration UX, dashboards, hotel management, subscriptions (Coming Soon + waitlist), admin review workflows, and role-based security. Scope is large so I'm grouping by part with the concrete files and DB changes.
 
-A B2B group-accommodation marketplace. Organizers post one RFQ, matched hotels submit quotes, organizer compares, negotiates, and accepts. Bilingual EN/AR with RTL.
+---
 
-Given the size, I'll build it across several turns in this order. Each turn is shippable and testable.
+## Part 1 — Registration Improvements (Organizer + Hotel signup)
 
-## Roles (Supabase auth + `user_roles` table)
-- **organizer** — submits RFQs, reviews quotes, messages hotels, accepts/declines.
-- **hotel** — manages hotel profile + rooms, sees matching RFQs, submits/edits quotes.
-- **admin** — manages users, hotels, RFQs, featured listings, commission %.
-- **guest (public)** — browses hotels, reads how-it-works, submits an RFQ (prompted to register on submit).
+**Files:** `src/routes/auth.tsx` (and any shared signup form components)
 
-## Routes (TanStack Start, file-based)
-Public (top-level): `/`, `/how-it-works`, `/for-hotels`, `/pricing`, `/hotels` (browse), `/hotels/$id`, `/request-quote` (guest-friendly RFQ wizard), `/auth`, `/auth/callback`, `/about`, `/contact`.
+- Replace free-text phone with **CountryCode dropdown + phone input** component (new: `src/components/phone-input.tsx`). Codes: SA +966, EG +20, AE +971, QA +974, KW +965, BH +973, OM +968 (+ a longer GCC/MENA list).
+- Store `country_code` and `phone_number` separately on `profiles`; compute `full_phone` on submit.
+- Remove free-text country; use existing `useCountries()` master data → store `country_id` on `profiles`.
+- Organizer ID Type select: **Saudi National ID | Iqama**. Number input: digits only, hard cap 10 chars (no helper text shown).
 
-Protected (`_authenticated/`): `/dashboard` (role-routed), `/dashboard/rfqs`, `/dashboard/rfqs/$id`, `/dashboard/rfqs/new`, `/dashboard/quotes`, `/dashboard/quotes/$id`, `/dashboard/messages`, `/dashboard/hotel` (hotel role: my hotel + rooms), `/dashboard/admin/*` (admin only — users, hotels, rfqs, settings).
+**DB:** add `profiles.country_code text`, `profiles.phone_number text`, `profiles.country_id uuid references countries(id)`. Keep existing `phone`/`country` for back-compat (populated from new fields).
 
-## Data model (Supabase, all with RLS + GRANTs)
-- `profiles` (id=auth.users, full_name, org_name, phone, country, locale, role-cache)
-- `user_roles` (user_id, role enum: organizer|hotel|admin) + `has_role()` SECURITY DEFINER fn
-- `hotels` (owner_id, name, slug, city, country, address, lat/lng, star_rating, description, amenities[], cover_image, gallery[], status: pending|approved|suspended, featured boolean)
-- `hotel_rooms` (hotel_id, room_type, capacity, count_available, base_price, currency)
-- `rfqs` (organizer_id, title, group_type enum: umrah|hajj|tourism|corporate|government|sports|education|event|other, destination_city, destination_country, check_in, check_out, nights, guests_count, rooms_needed, room_type_pref, board_type enum: room_only|breakfast|half_board|full_board, budget_min, budget_max, currency, special_requirements, status enum: draft|open|closed|awarded|cancelled, deadline)
-- `rfq_invitations` (rfq_id, hotel_id, status: pending|viewed|quoted|declined) — auto-created by matching
-- `quotes` (rfq_id, hotel_id, total_price, price_per_room_night, currency, board_included, inclusions, valid_until, notes, status: submitted|shortlisted|accepted|rejected|withdrawn)
-- `messages` (rfq_id, sender_id, recipient_id, body, created_at) — direct negotiation thread per RFQ↔hotel pair
-- `bookings` (rfq_id, quote_id, organizer_id, hotel_id, total_amount, commission_amount, status: confirmed|cancelled|completed, contract_url)
-- `platform_settings` (key, value json) — commission %, featured price, etc.
+---
 
-Matching: when an RFQ is created with status `open`, a trigger inserts `rfq_invitations` for every approved hotel where `city = rfq.destination_city`. Hotels then see them in their dashboard.
+## Part 2 — Organizer Dashboard
 
-## Server functions (`src/lib/*.functions.ts`)
-- `rfqs.functions.ts`: createRfq, listMyRfqs, getRfq, closeRfq, awardQuote
-- `quotes.functions.ts`: submitQuote, listQuotesForRfq, listMyQuotes, updateQuoteStatus
-- `hotels.functions.ts`: listHotels (public, filterable), getHotel, upsertMyHotel, listInvitations
-- `messages.functions.ts`: sendMessage, listThread
-- `admin.functions.ts`: listUsers, setRole, approveHotel, suspendHotel, setFeatured, updateSettings
-All authenticated fns use `requireSupabaseAuth`; admin fns also check `has_role`.
+**Files:** `src/routes/_authenticated/dashboard.tsx` (sidebar), `src/routes/_authenticated/dashboard.profile.tsx`
 
-## Design system
-Tokens in `src/styles.css` using the brand palette (oklch equivalents of #0F172A primary, #D4AF37 gold secondary, slate neutrals, semantic success/warning/error). Inter for UI + Playfair Display for hero/display. Custom shadcn variants: `Button` (default, gold, outline, ghost, hero), `Badge` (status colors), `Card` (elevated, premium). Generated hero image of a luxury hotel lobby + group meeting.
+- Sidebar label: "Organization Settings" → **"My Profile"** for organizers.
+- Profile page: editable Name, Email, Phone (country code + number). Remove editable country field (display-only, derived from signup).
 
-## i18n / RTL
-- `react-i18next` with `en` and `ar` resource bundles.
-- Locale persisted in `profiles.locale` (or `localStorage` for guests).
-- `<html lang>` + `dir="ltr|rtl"` toggled at the root route.
-- Language switcher in header.
-- All UI strings come from translation keys from day one.
+---
 
-## Build order (turn-by-turn)
-1. **This turn**: design system + landing page + how-it-works + for-hotels + pricing + i18n scaffolding + EN/AR + RTL toggle + auth page wired to Supabase + hero imagery. Schema migration (all tables, RLS, grants, trigger). Public hotels browse page (reads approved hotels). Guest RFQ wizard (saves to DB, requires auth on submit).
-2. **Next**: organizer dashboard (RFQ list, detail, quotes comparison, messaging, accept/award).
-3. **Next**: hotel dashboard (profile + rooms, invitations inbox, submit quote, my quotes, messages).
-4. **Next**: admin dashboard (users, hotels approval, featured, settings, RFQ oversight).
-5. **Polish**: notifications (toasts + in-app), full Arabic copy pass, empty states, loading, error boundaries on every route, SEO meta per route, sitemap.xml, robots.txt.
+## Part 3 — Hotel User Dashboard
 
-## Out of scope for v1 (called out so expectations are clear)
-- Real payments / Stripe — bookings record commission but no charge.
-- File uploads for contracts — placeholder URL field (can wire Supabase Storage next).
-- Email notifications — toasts only in v1.
-- Mobile native app — web only, fully responsive.
+### 3a. Hotel Profile Management (approved hotels editable)
+**Files:** `src/routes/_authenticated/dashboard.hotel.$id.tsx`
 
-## Approve to proceed
-On approval I'll execute turn 1 (design system, schema migration, public site, auth, guest RFQ flow, i18n+RTL). Each subsequent turn builds the next dashboard. Tell me if you want any reordering, role removed, or features cut.
+- Allow approved hotel owners to edit: name, description, city/country, contact, amenities (multi-select), rooms (CRUD via `hotel_rooms`), images (upload/replace/delete via `hotel-photos` bucket).
+- All writes go to Supabase; respect RLS (owner_id = auth.uid()).
+
+### 3b. Subscription (Coming Soon + Waitlist) — per UPDATE block
+**Files:**
+- New `src/routes/subscription.coming-soon.tsx` (public route under `/subscription/coming-soon`)
+- New `src/routes/subscription.checkout.tsx` → redirects to coming-soon while flag off
+- New `src/components/waitlist-modal.tsx`
+- Update `src/routes/_authenticated/dashboard.hotel.index.tsx` (subscription cards)
+- Update `src/routes/pricing.tsx` (hide organizer plan from hotel users; CTA = Coming Soon + Notify Me)
+
+Behavior:
+- Hide "Hotel Free Listing" if hotel exists; show "Create Hotel Profile" if not.
+- Replace all Upgrade/Pay buttons with **Coming Soon** (primary) + **Notify Me** (secondary).
+- "Notify Me" opens modal → inserts into `subscription_interest` with `requested_plan` = professional|featured.
+- Display "Payment Services Launching Soon" badge.
+- Feature flag `subscriptions_enabled` in `platform_settings` (default false). When false → checkout redirects to coming-soon. Payment gateway code stubs prepared but not invoked.
+
+**DB:**
+```sql
+CREATE TABLE public.subscription_interest (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete set null,
+  hotel_id uuid references public.hotels(id) on delete set null,
+  full_name text not null,
+  email text not null,
+  hotel_name text,
+  requested_plan text not null check (requested_plan in ('professional','featured')),
+  status text not null default 'waiting' check (status in ('waiting','notified')),
+  created_at timestamptz not null default now(),
+  notified_at timestamptz
+);
+-- GRANTs + RLS: authenticated insert (own user_id or null), admin select/update all.
+-- Insert seed row: platform_settings('subscriptions_enabled','false').
+```
+
+---
+
+## Part 4 — Hotel User Profile
+Same as Part 2 profile rules (no editable country, phone uses country-code component).
+
+---
+
+## Part 5 — Admin Main Navigation
+**Files:** `src/components/site-header.tsx`
+
+- When current user has admin role: hide public links (Hotels, Contact, For Hotels, How It Works, Pricing, About). Show only Dashboard, Admin Functions, Sign Out.
+
+---
+
+## Part 6 — Admin Review: Hotel Companies
+**Files:** `src/routes/_authenticated/dashboard.admin.tsx` + new `src/routes/_authenticated/dashboard.admin.company.$id.tsx`
+
+- Tabs: Pending / Approved / Rejected.
+- "View Company" button → review page (CR, VAT, contact, docs).
+- **Approve** → status `approved` (locked: trigger blocks further status changes).
+- **Reject** → status `rejected` (allow "Reconsider" → back to pending → approve allowed).
+
+**DB:** trigger on `profiles.hotel_approval_status` rejecting transitions away from `approved`.
+
+---
+
+## Part 7 — Admin Review: Hotel Listings
+**Files:** existing admin hotel tab + new `src/routes/_authenticated/dashboard.admin.hotel.$id.tsx`
+
+- Tabs: Pending / Approved / Suspended.
+- **Approve** → status `approved` (locked).
+- **Reject** → status `suspended` (final). Detach from owner so owner may create a new hotel (set `owner_id = null` and `archived = true`), previous hotel remains visible in admin archive.
+
+**DB:** add `hotels.archived boolean default false`; trigger preventing leaving `approved`; allow null owner_id transition on suspend.
+
+---
+
+## Part 8 — Admin Review Pages
+Covered by the new dedicated review routes in Parts 6 & 7 with "View Company" / "View Hotel" buttons in admin lists.
+
+---
+
+## Part 9 — Admin Settings
+**Files:** `dashboard.profile.tsx`
+
+- If user has `admin` role: render read-only view (Name, Email, Country, Phone). No edit controls.
+
+---
+
+## Part 10 — Security & Role Enforcement
+
+**Files:** `src/routes/_authenticated/route.tsx` (or per-route `beforeLoad`), `src/components/access-denied.tsx`
+
+- Add role gates on every dashboard route:
+  - Organizer-only: `dashboard.rfqs.*`, `dashboard.invitations`
+  - Hotel-only: `dashboard.hotel.*`
+  - Admin-only: `dashboard.admin.*`
+- Hide unauthorized sidebar items.
+- Backstop with RLS (already in place via `has_role`).
+
+---
+
+## Technical notes
+
+- One Supabase migration covers: new profile columns, `subscription_interest` table + GRANTs/RLS, `platform_settings` seed for `subscriptions_enabled`, `hotels.archived` column, status-lock triggers for company + hotel approval.
+- Phone component + country-code list shared between signup and profile pages.
+- Payment gateway integration kept as type-only stub (`src/lib/payments/`) with no network calls until feature flag is on.
+- All new tables/columns: timestamps + update triggers; RLS scoped to `auth.uid()` and `has_role`.
+
+---
+
+## Order of execution
+1. DB migration (one batch).
+2. Shared components: `PhoneInput`, `WaitlistModal`, payment stub module.
+3. Registration + profile pages.
+4. Hotel dashboard management editing + subscription cards.
+5. Coming-Soon route + checkout redirect.
+6. Admin review pages + status-lock UI.
+7. Site header role-aware nav + per-route role guards.
+8. QA pass: build + manual smoke of each flow.
