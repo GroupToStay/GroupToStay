@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 
-export type LookupRow = { id: string; name_en: string; name_ar: string };
+export type LookupRow = { id: string; name_en: string; name_ar: string; code?: string };
 export type CityRow = LookupRow & { country_id: string };
 
 export function useLocalizedName() {
@@ -19,7 +19,7 @@ export function useCountries() {
     queryFn: async (): Promise<LookupRow[]> => {
       const { data, error } = await supabase
         .from("countries")
-        .select("id,name_en,name_ar")
+        .select("id,name_en,name_ar,code")
         .eq("is_active", true)
         .order("name_en");
       if (error) throw error;

@@ -151,8 +151,12 @@ function Page() {
                 <PhoneInput code={phoneCode} number={phoneNumber} onCodeChange={setPhoneCode} onNumberChange={setPhoneNumber} required />
               </div>
               <div>
-                <Label>{t("auth.country")}</Label>
-                <CountrySelect value={countryId} onChange={setCountryId} />
+                <Label>{t("auth.country")} <span className="text-destructive">*</span></Label>
+                <CountrySelect
+                  value={countryId}
+                  onChange={setCountryId}
+                  filterCodes={role === "hotel" ? ["SA","EG","AE","KW","BH","OM","QA","JO","MA","TR"] : undefined}
+                />
               </div>
 
               {role === "hotel" && (
