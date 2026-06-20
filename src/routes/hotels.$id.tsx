@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin } from "lucide-react";
+import { useRoles } from "@/hooks/use-role";
 
 export const Route = createFileRoute("/hotels/$id")({
   head: () => ({ meta: [{ title: "Hotel — GroupToStay" }] }),
