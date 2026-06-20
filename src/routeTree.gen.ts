@@ -22,6 +22,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RequestsIndexRouteImport } from './routes/requests.index'
 import { Route as HotelsIndexRouteImport } from './routes/hotels.index'
+import { Route as SubscriptionComingSoonRouteImport } from './routes/subscription.coming-soon'
+import { Route as SubscriptionCheckoutRouteImport } from './routes/subscription.checkout'
 import { Route as RequestsIdRouteImport } from './routes/requests.$id'
 import { Route as HotelsIdRouteImport } from './routes/hotels.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -102,6 +104,16 @@ const RequestsIndexRoute = RequestsIndexRouteImport.update({
 const HotelsIndexRoute = HotelsIndexRouteImport.update({
   id: '/hotels/',
   path: '/hotels/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubscriptionComingSoonRoute = SubscriptionComingSoonRouteImport.update({
+  id: '/subscription/coming-soon',
+  path: '/subscription/coming-soon',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubscriptionCheckoutRoute = SubscriptionCheckoutRouteImport.update({
+  id: '/subscription/checkout',
+  path: '/subscription/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RequestsIdRoute = RequestsIdRouteImport.update({
@@ -218,6 +230,8 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
+  '/subscription/checkout': typeof SubscriptionCheckoutRoute
+  '/subscription/coming-soon': typeof SubscriptionComingSoonRoute
   '/hotels/': typeof HotelsIndexRoute
   '/requests/': typeof RequestsIndexRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
@@ -248,6 +262,8 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
+  '/subscription/checkout': typeof SubscriptionCheckoutRoute
+  '/subscription/coming-soon': typeof SubscriptionComingSoonRoute
   '/hotels': typeof HotelsIndexRoute
   '/requests': typeof RequestsIndexRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
@@ -278,6 +294,8 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
+  '/subscription/checkout': typeof SubscriptionCheckoutRoute
+  '/subscription/coming-soon': typeof SubscriptionComingSoonRoute
   '/hotels/': typeof HotelsIndexRoute
   '/requests/': typeof RequestsIndexRoute
   '/_authenticated/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
@@ -311,6 +329,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/hotels/$id'
     | '/requests/$id'
+    | '/subscription/checkout'
+    | '/subscription/coming-soon'
     | '/hotels/'
     | '/requests/'
     | '/dashboard/admin'
@@ -341,6 +361,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/hotels/$id'
     | '/requests/$id'
+    | '/subscription/checkout'
+    | '/subscription/coming-soon'
     | '/hotels'
     | '/requests'
     | '/dashboard/admin'
@@ -370,6 +392,8 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/hotels/$id'
     | '/requests/$id'
+    | '/subscription/checkout'
+    | '/subscription/coming-soon'
     | '/hotels/'
     | '/requests/'
     | '/_authenticated/dashboard/admin'
@@ -402,6 +426,8 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   HotelsIdRoute: typeof HotelsIdRoute
   RequestsIdRoute: typeof RequestsIdRoute
+  SubscriptionCheckoutRoute: typeof SubscriptionCheckoutRoute
+  SubscriptionComingSoonRoute: typeof SubscriptionComingSoonRoute
   HotelsIndexRoute: typeof HotelsIndexRoute
   RequestsIndexRoute: typeof RequestsIndexRoute
 }
@@ -497,6 +523,20 @@ declare module '@tanstack/react-router' {
       path: '/hotels'
       fullPath: '/hotels/'
       preLoaderRoute: typeof HotelsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subscription/coming-soon': {
+      id: '/subscription/coming-soon'
+      path: '/subscription/coming-soon'
+      fullPath: '/subscription/coming-soon'
+      preLoaderRoute: typeof SubscriptionComingSoonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subscription/checkout': {
+      id: '/subscription/checkout'
+      path: '/subscription/checkout'
+      fullPath: '/subscription/checkout'
+      preLoaderRoute: typeof SubscriptionCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/requests/$id': {
@@ -729,6 +769,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   HotelsIdRoute: HotelsIdRoute,
   RequestsIdRoute: RequestsIdRoute,
+  SubscriptionCheckoutRoute: SubscriptionCheckoutRoute,
+  SubscriptionComingSoonRoute: SubscriptionComingSoonRoute,
   HotelsIndexRoute: HotelsIndexRoute,
   RequestsIndexRoute: RequestsIndexRoute,
 }
