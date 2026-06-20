@@ -429,6 +429,7 @@ export type Database = {
         Row: {
           address: string | null
           amenities: string[]
+          archived: boolean
           city: string
           city_id: string | null
           country: string
@@ -452,6 +453,7 @@ export type Database = {
         Insert: {
           address?: string | null
           amenities?: string[]
+          archived?: boolean
           city: string
           city_id?: string | null
           country: string
@@ -475,6 +477,7 @@ export type Database = {
         Update: {
           address?: string | null
           amenities?: string[]
+          archived?: boolean
           city?: string
           city_id?: string | null
           country?: string
@@ -634,6 +637,8 @@ export type Database = {
           company_name: string | null
           contact_email: string | null
           country: string | null
+          country_code: string | null
+          country_id: string | null
           cr_number: string | null
           created_at: string
           full_name: string | null
@@ -646,6 +651,7 @@ export type Database = {
           locale: string
           org_name: string | null
           phone: string | null
+          phone_number: string | null
           updated_at: string
           vat_number: string | null
         }
@@ -656,6 +662,8 @@ export type Database = {
           company_name?: string | null
           contact_email?: string | null
           country?: string | null
+          country_code?: string | null
+          country_id?: string | null
           cr_number?: string | null
           created_at?: string
           full_name?: string | null
@@ -668,6 +676,7 @@ export type Database = {
           locale?: string
           org_name?: string | null
           phone?: string | null
+          phone_number?: string | null
           updated_at?: string
           vat_number?: string | null
         }
@@ -678,6 +687,8 @@ export type Database = {
           company_name?: string | null
           contact_email?: string | null
           country?: string | null
+          country_code?: string | null
+          country_id?: string | null
           cr_number?: string | null
           created_at?: string
           full_name?: string | null
@@ -690,10 +701,19 @@ export type Database = {
           locale?: string
           org_name?: string | null
           phone?: string | null
+          phone_number?: string | null
           updated_at?: string
           vat_number?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quotes: {
         Row: {
@@ -926,6 +946,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      subscription_interest: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          hotel_id: string | null
+          hotel_name: string | null
+          id: string
+          notified_at: string | null
+          requested_plan: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          hotel_id?: string | null
+          hotel_name?: string | null
+          id?: string
+          notified_at?: string | null
+          requested_plan: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          hotel_id?: string | null
+          hotel_name?: string | null
+          id?: string
+          notified_at?: string | null
+          requested_plan?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_interest_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
