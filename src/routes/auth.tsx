@@ -11,6 +11,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
+import { PhoneInput } from "@/components/phone-input";
+import { CountrySelect } from "@/components/country-select";
+import { useCountries } from "@/hooks/use-master-data";
+import { DEFAULT_PHONE_CODE } from "@/lib/phone-codes";
 
 type Search = { redirect?: string };
 
@@ -25,23 +29,22 @@ function Page() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth" });
   const { user } = useAuth();
+  const { data: countries = [] } = useCountries();
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [role, setRole] = useState<"organizer" | "hotel">("organizer");
 
-  // Shared
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [country, setCountry] = useState("");
+  const [phoneCode, setPhoneCode] = useState(DEFAULT_PHONE_CODE);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [countryId, setCountryId] = useState<string | null>(null);
 
-  // Hotel-only
   const [companyName, setCompanyName] = useState("");
   const [vatNumber, setVatNumber] = useState("");
   const [crNumber, setCrNumber] = useState("");
   const [contactEmail, setContactEmail] = useState("");
 
-  // Organizer-only
   const [idType, setIdType] = useState<"saudi_id" | "iqama">("saudi_id");
   const [idNumber, setIdNumber] = useState("");
 
@@ -64,16 +67,27 @@ function Page() {
         toast.success(t("auth.resetLinkSent"));
         setMode("signin");
       } else if (mode === "signup") {
-        // Basic validation
         if (role === "hotel" && (!companyName.trim() || !vatNumber.trim() || !crNumber.trim())) {
           throw new Error(t("auth.errors.companyRequired"));
         }
-        if (role === "organizer" && !idNumber.trim()) {
-          throw new Error(t("auth.errors.idRequired"));
+        if (role === "organizer" && idNumber.length !== 10) {
+          throw new Error("ID number must be 10 digits");
         }
+        if (!countryId) throw new Error("Please select your country");
+        if (!phoneNumber.trim()) throw new Error("Please enter your phone number");
+
+        const country = countries.find(c => c.id === countryId);
+        const fullPhone = `${phoneCode}${phoneNumber}`;
         const orgName = role === "hotel" ? companyName : fullName;
         const data: Record<string, string> = {
-          full_name: fullName, org_name: orgName, phone, country, role,
+          full_name: fullName,
+          org_name: orgName,
+          phone: fullPhone,
+          country_code: phoneCode,
+          phone_number: phoneNumber,
+          country_id: countryId,
+          country: country?.name_en ?? "",
+          role,
         };
         if (role === "hotel") {
           data.company_name = companyName;
@@ -132,9 +146,13 @@ function Page() {
                 </div>
               </div>
               <div><Label>{t("auth.fullName")}</Label><Input required value={fullName} onChange={e => setFullName(e.target.value)} maxLength={120} /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><Label>{t("auth.phone")}</Label><Input value={phone} onChange={e => setPhone(e.target.value)} maxLength={40} /></div>
-                <div><Label>{t("auth.country")}</Label><Input value={country} onChange={e => setCountry(e.target.value)} maxLength={80} /></div>
+              <div>
+                <Label>{t("auth.phone")}</Label>
+                <PhoneInput code={phoneCode} number={phoneNumber} onCodeChange={setPhoneCode} onNumberChange={setPhoneNumber} required />
+              </div>
+              <div>
+                <Label>{t("auth.country")}</Label>
+                <CountrySelect value={countryId} onChange={setCountryId} />
               </div>
 
               {role === "hotel" && (
@@ -163,7 +181,16 @@ function Page() {
                       ))}
                     </div>
                   </div>
-                  <div><Label>{t(`auth.idNumberLabel.${idType}`)}</Label><Input required value={idNumber} onChange={e => setIdNumber(e.target.value.replace(/\D/g, ""))} maxLength={20} inputMode="numeric" /></div>
+                  <div>
+                    <Label>{t(`auth.idNumberLabel.${idType}`)}</Label>
+                    <Input
+                      required
+                      value={idNumber}
+                      onChange={e => setIdNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      maxLength={10}
+                      inputMode="numeric"
+                    />
+                  </div>
                 </div>
               )}
             </>)}
