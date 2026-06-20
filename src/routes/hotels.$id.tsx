@@ -23,6 +23,7 @@ function ErrorView() {
 function Page() {
   const { id } = Route.useParams();
   const { t } = useTranslation();
+  const { isAdmin, isHotel } = useRoles();
   const { data, isLoading } = useQuery({
     queryKey: ["hotel", id],
     queryFn: async () => {
