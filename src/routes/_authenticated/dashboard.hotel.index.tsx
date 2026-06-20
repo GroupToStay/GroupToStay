@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Building2, Plus, Star, MapPin } from "lucide-react";
+import { SubscriptionCards } from "@/components/subscription-cards";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/")({
   head: () => ({ meta: [{ title: "My hotels — GroupToStay" }] }),
@@ -177,6 +178,8 @@ function Page() {
           </div>
         </CardContent>
       </Card>
+
+      <SubscriptionCards />
     </div>
   );
 }

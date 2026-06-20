@@ -93,7 +93,7 @@ function AuthLayout() {
                     )}
                   </Link>
                   <Link to="/dashboard/profile" className={navItem} activeProps={{ className: "active" }}>
-                    <User className="h-4 w-4" /> {t("nav.organization")}
+                    <User className="h-4 w-4" /> My Profile
                   </Link>
                 </>
               )}
