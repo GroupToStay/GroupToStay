@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin } from "lucide-react";
+import { useRoles } from "@/hooks/use-role";
 
 export const Route = createFileRoute("/hotels/$id")({
   head: () => ({ meta: [{ title: "Hotel — GroupToStay" }] }),
@@ -22,6 +23,7 @@ function ErrorView() {
 function Page() {
   const { id } = Route.useParams();
   const { t } = useTranslation();
+  const { isAdmin, isHotel } = useRoles();
   const { data, isLoading } = useQuery({
     queryKey: ["hotel", id],
     queryFn: async () => {
@@ -77,11 +79,22 @@ function Page() {
               </>
             )}
           </div>
-          <aside className="rounded-xl border border-border bg-surface p-6 h-fit sticky top-24">
-            <h3 className="font-display text-lg text-primary">{t("nav.getQuote")}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">Get competing offers from {hotel.city} hotels including this one.</p>
-            <Button asChild variant="gold" className="w-full mt-4"><Link to="/request-quote" search={{ city: hotel.city, country: hotel.country }}>{t("nav.getQuote")}</Link></Button>
-          </aside>
+          {isAdmin ? (
+            <aside className="rounded-xl border border-border bg-surface p-6 h-fit sticky top-24">
+              <h3 className="font-display text-lg text-primary">Admin Review</h3>
+              <p className="mt-2 text-sm text-muted-foreground">Read-only view. Approval status:</p>
+              <Badge className="mt-3 bg-success/15 text-success">{hotel.status}</Badge>
+              <Button asChild variant="outline" className="w-full mt-4">
+                <Link to="/dashboard/admin">Back to Admin Review</Link>
+              </Button>
+            </aside>
+          ) : isHotel ? null : (
+            <aside className="rounded-xl border border-border bg-surface p-6 h-fit sticky top-24">
+              <h3 className="font-display text-lg text-primary">{t("nav.getQuote")}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">Get competing offers from {hotel.city} hotels including this one.</p>
+              <Button asChild variant="gold" className="w-full mt-4"><Link to="/request-quote" search={{ city: hotel.city, country: hotel.country }}>{t("nav.getQuote")}</Link></Button>
+            </aside>
+          )}
         </div>
       </main>
       <SiteFooter />

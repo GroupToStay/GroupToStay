@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,6 +34,15 @@ function Page() {
   const { user } = useAuth();
   const { isOrganizer, isHotel, isAdmin, loading } = useRoles();
   const navigate = useNavigate();
+
+  const { data: hotelCount = 0 } = useQuery({
+    queryKey: ["my-hotel-count", user?.id],
+    enabled: !!user && isHotel,
+    queryFn: async () => {
+      const { count } = await supabase.from("hotels").select("id", { count: "exact", head: true }).eq("owner_id", user!.id);
+      return count ?? 0;
+    },
+  });
 
   // Organizers don't need pricing — redirect to their dashboard.
   useEffect(() => {
@@ -129,6 +140,8 @@ function Page() {
           {plans
             // Hotel users never see the organizer plan
             .filter(p => !(isHotel && p.audience === "organizer"))
+            // Hotel users with an existing hotel don't see the Free Listing plan
+            .filter(p => !(isHotel && hotelCount > 0 && p.key === "hotelBasic"))
             .map((p) => {
               const price = t(`pricing.${p.key}Price`);
               const showMonthly = p.key === "hotelPro" || p.key === "hotelPremium";

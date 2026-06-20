@@ -14,6 +14,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { toast } from "sonner";
 import { Building2, Plus, Star, MapPin } from "lucide-react";
 import { SubscriptionCards } from "@/components/subscription-cards";
+import { CountryCitySelect } from "@/components/country-city-select";
+import { useCountries, useCities } from "@/hooks/use-master-data";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/")({
   head: () => ({ meta: [{ title: "My hotels — GroupToStay" }] }),
@@ -189,24 +191,34 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
+  const [countryId, setCountryId] = useState<string | null>(null);
+  const [cityId, setCityId] = useState<string | null>(null);
   const [address, setAddress] = useState("");
   const [starRating, setStarRating] = useState("4");
   const [description, setDescription] = useState("");
   const [amenities, setAmenities] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const { data: countries = [] } = useCountries();
+  const { data: cities = [] } = useCities(countryId);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
+    if (!countryId || !cityId) {
+      toast.error("Please select country and city");
+      return;
+    }
     setSubmitting(true);
     try {
+      const country = countries.find(c => c.id === countryId);
+      const city = cities.find(c => c.id === cityId);
       const { error } = await supabase.from("hotels").insert({
         owner_id: user.id,
         name: name.trim(),
-        city: city.trim(),
-        country: country.trim(),
+        country_id: countryId,
+        city_id: cityId,
+        city: city?.name_en ?? "",
+        country: country?.name_en ?? "",
         address: address.trim() || null,
         slug: `${slugify(name)}-${Date.now().toString(36)}`,
         star_rating: Number(starRating),
@@ -217,7 +229,7 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
       if (error) throw error;
       toast.success(t("hotelDash.createdToast"));
       setOpen(false);
-      setName(""); setCity(""); setCountry(""); setAddress("");
+      setName(""); setCountryId(null); setCityId(null); setAddress("");
       setStarRating("4"); setDescription(""); setAmenities("");
       onCreated();
     } catch (err: any) {
@@ -236,10 +248,12 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
         <DialogHeader><DialogTitle>{t("hotelDash.createTitle")}</DialogTitle></DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div><Label>{t("hotelDash.fields.name")}</Label><Input required value={name} onChange={e => setName(e.target.value)} maxLength={160} /></div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div><Label>{t("hotelDash.fields.city")}</Label><Input required value={city} onChange={e => setCity(e.target.value)} maxLength={80} /></div>
-            <div><Label>{t("hotelDash.fields.country")}</Label><Input required value={country} onChange={e => setCountry(e.target.value)} maxLength={80} /></div>
-          </div>
+          <CountryCitySelect
+            countryId={countryId}
+            cityId={cityId}
+            onChange={({ countryId: c, cityId: ci }) => { setCountryId(c); setCityId(ci); }}
+            required
+          />
           <div><Label>{t("hotelDash.fields.address")}</Label><Input value={address} onChange={e => setAddress(e.target.value)} maxLength={240} /></div>
           <div><Label>{t("hotelDash.fields.stars")}</Label>
             <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={starRating} onChange={e => setStarRating(e.target.value)}>
