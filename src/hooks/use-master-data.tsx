@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 
-export type LookupRow = { id: string; name_en: string; name_ar: string };
+export type LookupRow = { id: string; name_en: string; name_ar: string; code?: string };
 export type CityRow = LookupRow & { country_id: string };
 
 export function useLocalizedName() {
