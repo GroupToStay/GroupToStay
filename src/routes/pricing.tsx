@@ -140,6 +140,8 @@ function Page() {
           {plans
             // Hotel users never see the organizer plan
             .filter(p => !(isHotel && p.audience === "organizer"))
+            // Hotel users with an existing hotel don't see the Free Listing plan
+            .filter(p => !(isHotel && hotelCount > 0 && p.key === "hotelBasic"))
             .map((p) => {
               const price = t(`pricing.${p.key}Price`);
               const showMonthly = p.key === "hotelPro" || p.key === "hotelPremium";
