@@ -35,6 +35,15 @@ function Page() {
   const { isOrganizer, isHotel, isAdmin, loading } = useRoles();
   const navigate = useNavigate();
 
+  const { data: hotelCount = 0 } = useQuery({
+    queryKey: ["my-hotel-count", user?.id],
+    enabled: !!user && isHotel,
+    queryFn: async () => {
+      const { count } = await supabase.from("hotels").select("id", { count: "exact", head: true }).eq("owner_id", user!.id);
+      return count ?? 0;
+    },
+  });
+
   // Organizers don't need pricing — redirect to their dashboard.
   useEffect(() => {
     if (!loading && user && isOrganizer) {
