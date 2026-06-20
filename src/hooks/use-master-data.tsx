@@ -19,7 +19,7 @@ export function useCountries() {
     queryFn: async (): Promise<LookupRow[]> => {
       const { data, error } = await supabase
         .from("countries")
-        .select("id,name_en,name_ar")
+        .select("id,name_en,name_ar,code")
         .eq("is_active", true)
         .order("name_en");
       if (error) throw error;
