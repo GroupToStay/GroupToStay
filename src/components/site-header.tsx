@@ -35,7 +35,13 @@ export function SiteHeader() {
     }
   };
 
-  const navLinks = (
+  // Admin users only see Dashboard / Admin Functions / Sign Out — hide all public nav items.
+  const navLinks = isAdmin ? (
+    <>
+      <Link to="/dashboard" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.dashboard")}</Link>
+      <Link to="/dashboard/admin" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">Admin Functions</Link>
+    </>
+  ) : (
     <>
       <Link to="/how-it-works" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.howItWorks")}</Link>
       <Link to="/hotels" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.hotels")}</Link>

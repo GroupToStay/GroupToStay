@@ -16,6 +16,16 @@ import { Inbox, MapPin, Calendar, Users } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invitations")({
   head: () => ({ meta: [{ title: "Invitations — GroupToStay" }] }),
+  beforeLoad: async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", user.id);
+    const list = (roles ?? []).map(r => r.role);
+    if (list.includes("admin") || !list.includes("hotel")) {
+      const { redirect } = await import("@tanstack/react-router");
+      throw redirect({ to: "/dashboard" });
+    }
+  },
   component: Page,
 });
 

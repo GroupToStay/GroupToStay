@@ -126,34 +126,49 @@ function Page() {
           <p className="mt-3 text-muted-foreground">{t("pricing.subtitle")}</p>
         </div>
         <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {plans.map((p) => {
-            const price = t(`pricing.${p.key}Price`);
-            const showMonthly = p.key === "hotelPro" || p.key === "hotelPremium";
-            return (
-              <Card key={p.key} className={p.featured ? "border-gold shadow-[var(--shadow-gold)]" : ""}>
-                <CardContent className="p-6 flex flex-col h-full">
-                  <div className="text-sm font-medium text-muted-foreground">{t(`pricing.${p.key}`)}</div>
-                  <div className="font-display text-4xl text-primary mt-2">
-                    {price}
-                    {showMonthly && <span className="text-base text-muted-foreground"> {t("pricing.perMonth")}</span>}
-                  </div>
-                  <p className="mt-3 text-sm text-muted-foreground">{t(`pricing.${p.key}Desc`)}</p>
-                  <ul className="mt-5 space-y-2 text-sm flex-1">
-                    {p.items.map((i) => (
-                      <li key={i} className="flex gap-2">
-                        <Check className="h-4 w-4 text-success mt-0.5 shrink-0" /> {i}
-                      </li>
-                    ))}
-                  </ul>
-                  {!hideUpgradeCtas && (
-                    <Button asChild className="mt-6" variant={p.featured ? "gold" : "default"}>
-                      <Link to={p.cta}>{t(`pricing.${p.key}Cta`)}</Link>
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
+          {plans
+            // Hotel users never see the organizer plan
+            .filter(p => !(isHotel && p.audience === "organizer"))
+            .map((p) => {
+              const price = t(`pricing.${p.key}Price`);
+              const showMonthly = p.key === "hotelPro" || p.key === "hotelPremium";
+              const isPaidHotelPlan = p.key === "hotelPro" || p.key === "hotelPremium";
+              return (
+                <Card key={p.key} className={p.featured ? "border-gold shadow-[var(--shadow-gold)]" : ""}>
+                  <CardContent className="p-6 flex flex-col h-full">
+                    <div className="text-sm font-medium text-muted-foreground">{t(`pricing.${p.key}`)}</div>
+                    <div className="font-display text-4xl text-primary mt-2">
+                      {price}
+                      {showMonthly && <span className="text-base text-muted-foreground"> {t("pricing.perMonth")}</span>}
+                    </div>
+                    <p className="mt-3 text-sm text-muted-foreground">{t(`pricing.${p.key}Desc`)}</p>
+                    <ul className="mt-5 space-y-2 text-sm flex-1">
+                      {p.items.map((i) => (
+                        <li key={i} className="flex gap-2">
+                          <Check className="h-4 w-4 text-success mt-0.5 shrink-0" /> {i}
+                        </li>
+                      ))}
+                    </ul>
+                    {!hideUpgradeCtas && (
+                      isPaidHotelPlan ? (
+                        <Button asChild className="mt-6" variant={p.featured ? "gold" : "default"}>
+                          <Link
+                            to="/subscription/coming-soon"
+                            search={{ plan: p.key === "hotelPro" ? "professional" : "featured" }}
+                          >
+                            Coming Soon
+                          </Link>
+                        </Button>
+                      ) : (
+                        <Button asChild className="mt-6" variant={p.featured ? "gold" : "default"}>
+                          <Link to={p.cta}>{t(`pricing.${p.key}Cta`)}</Link>
+                        </Button>
+                      )
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
         </div>
         {isHotel && (
           <p className="mt-8 text-center text-sm text-muted-foreground">
