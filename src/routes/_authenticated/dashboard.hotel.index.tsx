@@ -248,10 +248,12 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
         <DialogHeader><DialogTitle>{t("hotelDash.createTitle")}</DialogTitle></DialogHeader>
         <form onSubmit={submit} className="space-y-4">
           <div><Label>{t("hotelDash.fields.name")}</Label><Input required value={name} onChange={e => setName(e.target.value)} maxLength={160} /></div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div><Label>{t("hotelDash.fields.city")}</Label><Input required value={city} onChange={e => setCity(e.target.value)} maxLength={80} /></div>
-            <div><Label>{t("hotelDash.fields.country")}</Label><Input required value={country} onChange={e => setCountry(e.target.value)} maxLength={80} /></div>
-          </div>
+          <CountryCitySelect
+            countryId={countryId}
+            cityId={cityId}
+            onChange={({ countryId: c, cityId: ci }) => { setCountryId(c); setCityId(ci); }}
+            required
+          />
           <div><Label>{t("hotelDash.fields.address")}</Label><Input value={address} onChange={e => setAddress(e.target.value)} maxLength={240} /></div>
           <div><Label>{t("hotelDash.fields.stars")}</Label>
             <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={starRating} onChange={e => setStarRating(e.target.value)}>
