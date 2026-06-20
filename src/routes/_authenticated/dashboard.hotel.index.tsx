@@ -191,24 +191,34 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
+  const [countryId, setCountryId] = useState<string | null>(null);
+  const [cityId, setCityId] = useState<string | null>(null);
   const [address, setAddress] = useState("");
   const [starRating, setStarRating] = useState("4");
   const [description, setDescription] = useState("");
   const [amenities, setAmenities] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const { data: countries = [] } = useCountries();
+  const { data: cities = [] } = useCities(countryId);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
+    if (!countryId || !cityId) {
+      toast.error("Please select country and city");
+      return;
+    }
     setSubmitting(true);
     try {
+      const country = countries.find(c => c.id === countryId);
+      const city = cities.find(c => c.id === cityId);
       const { error } = await supabase.from("hotels").insert({
         owner_id: user.id,
         name: name.trim(),
-        city: city.trim(),
-        country: country.trim(),
+        country_id: countryId,
+        city_id: cityId,
+        city: city?.name_en ?? "",
+        country: country?.name_en ?? "",
         address: address.trim() || null,
         slug: `${slugify(name)}-${Date.now().toString(36)}`,
         star_rating: Number(starRating),
@@ -219,7 +229,7 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
       if (error) throw error;
       toast.success(t("hotelDash.createdToast"));
       setOpen(false);
-      setName(""); setCity(""); setCountry(""); setAddress("");
+      setName(""); setCountryId(null); setCityId(null); setAddress("");
       setStarRating("4"); setDescription(""); setAmenities("");
       onCreated();
     } catch (err: any) {
