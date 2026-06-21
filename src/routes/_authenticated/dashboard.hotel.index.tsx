@@ -20,6 +20,15 @@ import { useCountries, useCities } from "@/hooks/use-master-data";
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/")({
   head: () => ({ meta: [{ title: "My hotels — GroupToStay" }] }),
   component: Page,
+  errorComponent: ({ error, reset }) => (
+    <div className="space-y-3">
+      <h2 className="font-display text-xl text-primary">Unable to load hotel profile.</h2>
+      <p className="text-sm text-muted-foreground">Please refresh or contact support.</p>
+      <pre className="text-xs text-error whitespace-pre-wrap">{error?.message}</pre>
+      <button className="text-sm underline" onClick={() => reset()}>Try again</button>
+    </div>
+  ),
+  notFoundComponent: () => <div className="text-muted-foreground">Not found</div>,
 });
 
 function slugify(s: string) {
