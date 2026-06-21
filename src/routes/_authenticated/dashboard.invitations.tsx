@@ -45,21 +45,37 @@ function Page() {
   const hotelIds = hotels.filter((h: any) => h.status === "approved").map((h: any) => h.id);
   const hotelById = Object.fromEntries(hotels.map((h: any) => [h.id, h]));
 
-  const { data: invitations = [], isLoading } = useQuery({
+  const { data: invitations = [], isLoading, error } = useQuery({
     queryKey: ["hotel-invitations", hotelIds.join(",")],
     enabled: hotelIds.length > 0,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data: invs, error: invErr } = await supabase
         .from("rfq_invitations")
-        .select("*, rfqs(*), quotes:quotes!quotes_rfq_id_fkey(id, status, hotel_id, total_price, currency)")
+        .select("*, rfqs(*)")
         .in("hotel_id", hotelIds)
         .order("created_at", { ascending: false });
-      return (data ?? []).map((inv: any) => ({
+      if (invErr) throw invErr;
+      const rows = invs ?? [];
+      const rfqIds = rows.map((r: any) => r.rfq_id).filter(Boolean);
+      let quotes: any[] = [];
+      if (rfqIds.length > 0) {
+        const { data: qs } = await supabase
+          .from("quotes")
+          .select("id, rfq_id, status, hotel_id, total_price, currency")
+          .in("rfq_id", rfqIds)
+          .in("hotel_id", hotelIds);
+        quotes = qs ?? [];
+      }
+      return rows.map((inv: any) => ({
         ...inv,
-        myQuote: (inv.quotes ?? []).find((q: any) => q.hotel_id === inv.hotel_id) ?? null,
+        myQuote: quotes.find((q) => q.rfq_id === inv.rfq_id && q.hotel_id === inv.hotel_id) ?? null,
       }));
     },
   });
+
+  if (error) {
+    console.error("Group Requests load error:", error);
+  }
 
   if (hotels.length === 0) {
     return (
