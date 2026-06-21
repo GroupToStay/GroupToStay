@@ -28,6 +28,7 @@ import { Route as RequestsIdRouteImport } from './routes/requests.$id'
 import { Route as HotelsIdRouteImport } from './routes/hotels.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
+import { Route as ApiAdminMakeChatPrivateRouteImport } from './routes/api/admin.make-chat-private'
 import { Route as AuthenticatedDashboardRfqsRouteImport } from './routes/_authenticated/dashboard.rfqs'
 import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_authenticated/dashboard.profile'
 import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_authenticated/dashboard.messages'
@@ -137,6 +138,11 @@ const AuthenticatedDashboardIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const ApiAdminMakeChatPrivateRoute = ApiAdminMakeChatPrivateRouteImport.update({
+  id: '/api/admin/make-chat-private',
+  path: '/api/admin/make-chat-private',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDashboardRfqsRoute =
   AuthenticatedDashboardRfqsRouteImport.update({
     id: '/rfqs',
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRouteWithChildren
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
+  '/api/admin/make-chat-private': typeof ApiAdminMakeChatPrivateRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
   '/dashboard/messages/$id': typeof AuthenticatedDashboardMessagesIdRoute
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
+  '/api/admin/make-chat-private': typeof ApiAdminMakeChatPrivateRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
   '/dashboard/messages/$id': typeof AuthenticatedDashboardMessagesIdRoute
@@ -304,6 +312,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRouteWithChildren
   '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/_authenticated/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
+  '/api/admin/make-chat-private': typeof ApiAdminMakeChatPrivateRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
   '/_authenticated/dashboard/messages/$id': typeof AuthenticatedDashboardMessagesIdRoute
@@ -339,6 +348,7 @@ export interface FileRouteTypes {
     | '/dashboard/messages'
     | '/dashboard/profile'
     | '/dashboard/rfqs'
+    | '/api/admin/make-chat-private'
     | '/dashboard/'
     | '/dashboard/hotel/$id'
     | '/dashboard/messages/$id'
@@ -368,6 +378,7 @@ export interface FileRouteTypes {
     | '/dashboard/admin'
     | '/dashboard/invitations'
     | '/dashboard/profile'
+    | '/api/admin/make-chat-private'
     | '/dashboard'
     | '/dashboard/hotel/$id'
     | '/dashboard/messages/$id'
@@ -402,6 +413,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/messages'
     | '/_authenticated/dashboard/profile'
     | '/_authenticated/dashboard/rfqs'
+    | '/api/admin/make-chat-private'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/hotel/$id'
     | '/_authenticated/dashboard/messages/$id'
@@ -430,6 +442,7 @@ export interface RootRouteChildren {
   SubscriptionComingSoonRoute: typeof SubscriptionComingSoonRoute
   HotelsIndexRoute: typeof HotelsIndexRoute
   RequestsIndexRoute: typeof RequestsIndexRoute
+  ApiAdminMakeChatPrivateRoute: typeof ApiAdminMakeChatPrivateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -566,6 +579,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/'
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/api/admin/make-chat-private': {
+      id: '/api/admin/make-chat-private'
+      path: '/api/admin/make-chat-private'
+      fullPath: '/api/admin/make-chat-private'
+      preLoaderRoute: typeof ApiAdminMakeChatPrivateRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dashboard/rfqs': {
       id: '/_authenticated/dashboard/rfqs'
@@ -773,6 +793,7 @@ const rootRouteChildren: RootRouteChildren = {
   SubscriptionComingSoonRoute: SubscriptionComingSoonRoute,
   HotelsIndexRoute: HotelsIndexRoute,
   RequestsIndexRoute: RequestsIndexRoute,
+  ApiAdminMakeChatPrivateRoute: ApiAdminMakeChatPrivateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
