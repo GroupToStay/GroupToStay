@@ -20,6 +20,15 @@ import { useCountries, useCities } from "@/hooks/use-master-data";
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/")({
   head: () => ({ meta: [{ title: "My hotels — GroupToStay" }] }),
   component: Page,
+  errorComponent: ({ error, reset }) => (
+    <div className="space-y-3">
+      <h2 className="font-display text-xl text-primary">Unable to load hotel profile.</h2>
+      <p className="text-sm text-muted-foreground">Please refresh or contact support.</p>
+      <pre className="text-xs text-error whitespace-pre-wrap">{error?.message}</pre>
+      <button className="text-sm underline" onClick={() => reset()}>Try again</button>
+    </div>
+  ),
+  notFoundComponent: () => <div className="text-muted-foreground">Not found</div>,
 });
 
 function slugify(s: string) {
@@ -156,7 +165,7 @@ function Page() {
       <Card className="overflow-hidden">
         {hotel.cover_image ? (
           <div className="aspect-video bg-surface">
-            <img src={hotel.cover_image} alt={hotel.name} className="h-full w-full object-cover" />
+            <img src={hotel.cover_image} alt={hotel.name ?? ""} className="h-full w-full object-cover" />
           </div>
         ) : (
           <div className="aspect-video bg-surface grid place-items-center text-muted-foreground">
@@ -164,11 +173,11 @@ function Page() {
           </div>
         )}
         <CardContent className="p-5">
-          <h3 className="font-display text-lg text-primary">{hotel.name}</h3>
+          <h3 className="font-display text-lg text-primary">{hotel.name ?? ""}</h3>
           <div className="mt-1 text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
-            <MapPin className="h-3 w-3" /> {hotel.city}, {hotel.country}
+            <MapPin className="h-3 w-3" /> {hotel.city ?? ""}{hotel.city && hotel.country ? ", " : ""}{hotel.country ?? ""}
             <span className="flex text-gold">
-              {Array.from({ length: hotel.star_rating ?? 0 }).map((_, i) => (
+              {Array.from({ length: Math.max(0, Number(hotel.star_rating) || 0) }).map((_, i) => (
                 <Star key={i} className="h-3 w-3 fill-current" />
               ))}
             </span>

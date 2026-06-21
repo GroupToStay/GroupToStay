@@ -74,7 +74,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
   const { data: mealPlans = [] } = useMealPlans();
 
   // Selected amenity IDs (master-data driven)
-  const { data: selectedAmenityIds = [] } = useQuery({
+  const { data: selectedAmenityIds } = useQuery({
     queryKey: ["hotel-amenities", hotel.id],
     queryFn: async () => {
       const { data, error } = await supabase.from("hotel_amenities").select("amenity_id").eq("hotel_id", hotel.id);
@@ -83,7 +83,9 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
     },
   });
   const [amenityIds, setAmenityIds] = useState<string[]>([]);
-  useEffect(() => { setAmenityIds(selectedAmenityIds); }, [selectedAmenityIds]);
+  useEffect(() => {
+    if (selectedAmenityIds) setAmenityIds(selectedAmenityIds);
+  }, [selectedAmenityIds]);
   const toggleAmenity = (id: string) =>
     setAmenityIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
