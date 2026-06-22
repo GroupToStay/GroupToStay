@@ -584,6 +584,42 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          link: string | null
+          metadata: Json
+          read_at: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          metadata?: Json
+          read_at?: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          metadata?: Json
+          read_at?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       organizer_types: {
         Row: {
           created_at: string
@@ -1033,6 +1069,17 @@ export type Database = {
     }
     Functions: {
       _norm: { Args: { t: string }; Returns: string }
+      create_notification: {
+        Args: {
+          _body?: string
+          _link?: string
+          _metadata?: Json
+          _title: string
+          _type: Database["public"]["Enums"]["notification_type"]
+          _user_id: string
+        }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1075,6 +1122,21 @@ export type Database = {
       hotel_status: "pending" | "approved" | "suspended"
       id_doc_type: "saudi_id" | "iqama"
       invitation_status: "pending" | "viewed" | "quoted" | "declined"
+      notification_type:
+        | "rfq_new"
+        | "rfq_invitation"
+        | "quote_received"
+        | "quote_accepted"
+        | "quote_rejected"
+        | "message_new"
+        | "hotel_approved"
+        | "hotel_rejected"
+        | "company_approved"
+        | "company_rejected"
+        | "subscription_activated"
+        | "subscription_expiring"
+        | "rfq_awarded"
+        | "rfq_closed"
       quote_status:
         | "submitted"
         | "shortlisted"
@@ -1227,6 +1289,22 @@ export const Constants = {
       hotel_status: ["pending", "approved", "suspended"],
       id_doc_type: ["saudi_id", "iqama"],
       invitation_status: ["pending", "viewed", "quoted", "declined"],
+      notification_type: [
+        "rfq_new",
+        "rfq_invitation",
+        "quote_received",
+        "quote_accepted",
+        "quote_rejected",
+        "message_new",
+        "hotel_approved",
+        "hotel_rejected",
+        "company_approved",
+        "company_rejected",
+        "subscription_activated",
+        "subscription_expiring",
+        "rfq_awarded",
+        "rfq_closed",
+      ],
       quote_status: [
         "submitted",
         "shortlisted",
