@@ -38,6 +38,10 @@
   --color-ring: var(--ring);
   --color-gold: var(--gold);
   --color-gold-foreground: var(--gold-foreground);
+  --color-premium: var(--premium);
+  --color-premium-foreground: var(--premium-foreground);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-foreground: var(--brand-blue-foreground);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-error: var(--error);
@@ -86,6 +90,10 @@
 
   --gold: oklch(0.78 0.13 85);                /* #D4AF37 */
   --gold-foreground: oklch(0.21 0.04 265);
+  --premium: oklch(0.79 0.135 84);            /* #D4A937 */
+  --premium-foreground: oklch(0.21 0.04 265);
+  --brand-blue: oklch(0.38 0.16 264);         /* #003B95 */
+  --brand-blue-foreground: oklch(0.985 0.003 248);
 
   --success: oklch(0.72 0.17 156);            /* #10B981 */
   --warning: oklch(0.78 0.17 75);             /* #F59E0B */
