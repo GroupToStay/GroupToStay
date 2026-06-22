@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Inbox, CheckCircle2, Building2, Send } from "lucide-react";
+import { Plus, FileText, Inbox, CheckCircle2, Building2, Send, CreditCard } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({ meta: [{ title: "Dashboard — GroupToStay" }] }),
