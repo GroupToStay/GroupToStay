@@ -64,7 +64,7 @@ function Hero({ isHotel }: { isHotel: boolean }) {
     queryKey: ["hero-counts"],
     queryFn: async () => {
       const [hotels, openRfqs, rooms, countries] = await Promise.all([
-        supabase.from("hotels").select("*", { count: "exact", head: true }).eq("status", "approved"),
+        supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "approved"),
         supabase.from("rfqs").select("*", { count: "exact", head: true }).eq("status", "open"),
         supabase.from("hotel_rooms").select("count"),
         supabase.from("countries").select("*", { count: "exact", head: true }).eq("is_active", true),
@@ -251,7 +251,7 @@ function LiveStatsSection() {
       const [openToday, hotelsOnline, quotesToday] = await Promise.all([
         supabase.from("rfqs").select("*", { count: "exact", head: true })
           .eq("status", "open").gte("created_at", since.toISOString()),
-        supabase.from("hotels").select("*", { count: "exact", head: true }).eq("status", "approved"),
+        supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "approved"),
         supabase.from("quotes").select("*", { count: "exact", head: true })
           .gte("created_at", since.toISOString()),
       ]);
