@@ -330,3 +330,47 @@ function OpenRequestsSection() {
     </section>
   );
 }
+
+function HotelStatsStrip({ userId }: { userId: string }) {
+  const { data: stats } = useQuery({
+    queryKey: ["home-hotel-stats", userId],
+    queryFn: async () => {
+      const { data: hotels } = await supabase.from("hotels").select("id").eq("owner_id", userId);
+      const hotelIds = (hotels ?? []).map((h: any) => h.id);
+      if (hotelIds.length === 0) {
+        return { open: 0, quotes: 0, awarded: 0, sub: "Free" };
+      }
+      const [openRes, quotesRes, awardedRes] = await Promise.all([
+        supabase.from("rfqs").select("*", { count: "exact", head: true }).eq("status", "open"),
+        supabase.from("quotes").select("*", { count: "exact", head: true }).in("hotel_id", hotelIds),
+        supabase.from("bookings").select("*", { count: "exact", head: true }).in("hotel_id", hotelIds),
+      ]);
+      return {
+        open: openRes.count ?? 0,
+        quotes: quotesRes.count ?? 0,
+        awarded: awardedRes.count ?? 0,
+        sub: "Free",
+      };
+    },
+  });
+
+  const items = [
+    { k: stats?.open ?? 0, l: "Available Group Requests" },
+    { k: stats?.quotes ?? 0, l: "Submitted Quotations" },
+    { k: stats?.awarded ?? 0, l: "Awarded Requests" },
+    { k: stats?.sub ?? "Free", l: "Active Subscription" },
+  ];
+
+  return (
+    <section className="border-y border-border bg-surface">
+      <div className="container-page py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        {items.map((s) => (
+          <div key={s.l}>
+            <div className="font-display text-3xl md:text-4xl text-primary">{s.k}</div>
+            <div className="text-sm text-muted-foreground mt-1">{s.l}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
