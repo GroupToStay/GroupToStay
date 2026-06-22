@@ -89,21 +89,25 @@ function Landing() {
       </section>
 
       {/* STATS strip */}
-      <section className="border-y border-border bg-surface">
-        <div className="container-page py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {[
-            { k: "50k+", l: t("stats.rooms") },
-            { k: "120+", l: t("stats.destinations") },
-            { k: "<4h", l: t("stats.responseTime") },
-            { k: "18%", l: t("stats.save") },
-          ].map((s) => (
-            <div key={s.l}>
-              <div className="font-display text-3xl md:text-4xl text-primary">{s.k}</div>
-              <div className="text-sm text-muted-foreground mt-1">{s.l}</div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {isHotel && user ? (
+        <HotelStatsStrip userId={user.id} />
+      ) : (
+        <section className="border-y border-border bg-surface">
+          <div className="container-page py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {[
+              { k: "50k+", l: t("stats.rooms") },
+              { k: "120+", l: t("stats.destinations") },
+              { k: "<4h", l: t("stats.responseTime") },
+              { k: "18%", l: t("stats.save") },
+            ].map((s) => (
+              <div key={s.l}>
+                <div className="font-display text-3xl md:text-4xl text-primary">{s.k}</div>
+                <div className="text-sm text-muted-foreground mt-1">{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* MESSAGES — bridge between hotels and organizers */}
       {user ? (
