@@ -65,9 +65,14 @@ function Landing() {
           <p className="mt-5 max-w-2xl text-lg text-primary-foreground/85">{t("hero.subtitle")}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             {isHotel ? (
-              <Button asChild variant="hero" size="lg">
-                <Link to="/requests">{t("hero.ctaBrowseRequests")} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
-              </Button>
+              <>
+                <Button asChild variant="hero" size="lg">
+                  <Link to="/requests">{t("hero.ctaBrowseRequests")} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+                  <Link to="/dashboard/hotel">{t("nav.hotelProfile")}</Link>
+                </Button>
+              </>
             ) : (
               <>
                 <Button asChild variant="hero" size="lg">
