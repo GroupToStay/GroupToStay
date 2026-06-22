@@ -30,7 +30,12 @@ function Page() {
       // Look up by slug first, then by id as fallback (back-compat for old links).
       const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       const lookupColumn = uuidRe.test(id) ? "id" : "slug";
-      const { data: h } = await supabase.from("hotels").select("*").eq(lookupColumn, id).eq("status", "approved").maybeSingle();
+      const { data: h } = await supabase
+        .from("hotels")
+        .select("id,name,slug,city,country,address,lat,lng,star_rating,description,amenities,cover_image,gallery,status,featured,created_at,updated_at,country_id,city_id,hotel_type_id,archived")
+        .eq(lookupColumn, id)
+        .eq("status", "approved")
+        .maybeSingle();
       if (!h) return null;
       const { data: rooms } = await supabase.from("hotel_rooms").select("*").eq("hotel_id", h.id);
       return { hotel: h, rooms: rooms ?? [] };
