@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Hotel as HotelIcon, User as UserIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { MessageSquare, Hotel as HotelIcon, User as UserIcon, Search } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/messages/")({
   head: () => ({ meta: [{ title: "Negotiation Center — GroupToStay" }] }),
@@ -28,6 +29,7 @@ function MessagesIndex() {
   const { user } = useAuth();
   const [convs, setConvs] = useState<ConvRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!user) return;
@@ -60,21 +62,43 @@ function MessagesIndex() {
     };
   }, [user?.id]);
 
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return convs;
+    return convs.filter((c) => {
+      const hotel = c.hotels?.name?.toLowerCase() ?? "";
+      const rfq = c.rfqs?.title?.toLowerCase() ?? "";
+      const prev = c.last_message_preview?.toLowerCase() ?? "";
+      return hotel.includes(q) || rfq.includes(q) || prev.includes(q);
+    });
+  }, [convs, search]);
+
   return (
     <div>
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-4">
         <MessageSquare className="h-6 w-6 text-primary" />
         <h1 className="font-display text-3xl text-primary">Negotiation Center</h1>
       </div>
+      <div className="relative mb-4 max-w-md">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by hotel, request, or message…"
+          className="pl-9"
+        />
+      </div>
       {loading ? (
         <div className="text-muted-foreground">Loading…</div>
-      ) : convs.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <Card><CardContent className="p-8 text-center text-muted-foreground">
-          No conversations yet. Conversations are created automatically when a hotel submits a quotation.
+          {convs.length === 0
+            ? "No conversations yet. Conversations are created automatically when a hotel submits a quotation."
+            : "No conversations match your search."}
         </CardContent></Card>
       ) : (
         <div className="flex flex-col gap-2">
-          {convs.map((c) => {
+          {filtered.map((c) => {
             const myRead = c.participation?.[0]?.last_read_at;
             const unread = myRead ? new Date(c.last_message_at).getTime() > new Date(myRead).getTime() : true;
             const isOrganizer = user?.id === c.organizer_id;
