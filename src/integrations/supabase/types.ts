@@ -90,6 +90,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bookings_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "bookings_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
@@ -259,6 +266,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "conversations_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "conversations_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
@@ -335,6 +349,13 @@ export type Database = {
             referencedRelation: "hotels"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "hotel_amenities_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       hotel_rooms: {
@@ -380,6 +401,13 @@ export type Database = {
             columns: ["hotel_id"]
             isOneToOne: false
             referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_rooms_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
             referencedColumns: ["id"]
           },
           {
@@ -806,6 +834,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "quotes_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "quotes_rfq_id_fkey"
             columns: ["rfq_id"]
             isOneToOne: false
@@ -842,6 +877,13 @@ export type Database = {
             columns: ["hotel_id"]
             isOneToOne: false
             referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rfq_invitations_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
             referencedColumns: ["id"]
           },
           {
@@ -1028,6 +1070,13 @@ export type Database = {
             referencedRelation: "hotels"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "subscription_interest_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_roles: {
@@ -1053,6 +1102,100 @@ export type Database = {
       }
     }
     Views: {
+      hotels_public: {
+        Row: {
+          address: string | null
+          amenities: string[] | null
+          archived: boolean | null
+          city: string | null
+          city_id: string | null
+          country: string | null
+          country_id: string | null
+          cover_image: string | null
+          created_at: string | null
+          description: string | null
+          featured: boolean | null
+          gallery: string[] | null
+          hotel_type_id: string | null
+          id: string | null
+          lat: number | null
+          lng: number | null
+          name: string | null
+          slug: string | null
+          star_rating: number | null
+          status: Database["public"]["Enums"]["hotel_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          amenities?: string[] | null
+          archived?: boolean | null
+          city?: string | null
+          city_id?: string | null
+          country?: string | null
+          country_id?: string | null
+          cover_image?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          gallery?: string[] | null
+          hotel_type_id?: string | null
+          id?: string | null
+          lat?: number | null
+          lng?: number | null
+          name?: string | null
+          slug?: string | null
+          star_rating?: number | null
+          status?: Database["public"]["Enums"]["hotel_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          amenities?: string[] | null
+          archived?: boolean | null
+          city?: string | null
+          city_id?: string | null
+          country?: string | null
+          country_id?: string | null
+          cover_image?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          gallery?: string[] | null
+          hotel_type_id?: string | null
+          id?: string | null
+          lat?: number | null
+          lng?: number | null
+          name?: string | null
+          slug?: string | null
+          star_rating?: number | null
+          status?: Database["public"]["Enums"]["hotel_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotels_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotels_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotels_hotel_type_id_fkey"
+            columns: ["hotel_type_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unmapped_locations: {
         Row: {
           city_text: string | null
