@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { NotificationBell } from "@/components/notification-bell";
 import { Building2, Menu, X } from "lucide-react";
 import { useState } from "react";
 
@@ -78,6 +79,7 @@ export function SiteHeader() {
           <LanguageSwitcher />
           {user ? (
             <>
+              <NotificationBell />
               <Button asChild variant="ghost" size="sm"><Link to="/dashboard">{t("nav.dashboard")}</Link></Button>
               <Button variant="outline" size="sm" onClick={handleSignOut}>{t("nav.signOut")}</Button>
             </>
