@@ -63,6 +63,7 @@ export function SiteFooter() {
         <div>
           <h4 className="font-semibold mb-3 text-premium">Legal</h4>
           <ul className="space-y-2 text-sm text-primary-foreground/80">
+            <li><Link to="/trust" className="hover:text-premium">Trust &amp; Security</Link></li>
             <li><Link to="/about" className="hover:text-premium">Terms &amp; Conditions</Link></li>
             <li><Link to="/about" className="hover:text-premium">Privacy Policy</Link></li>
             <li><Link to="/about" className="hover:text-premium">Cookie Policy</Link></li>
