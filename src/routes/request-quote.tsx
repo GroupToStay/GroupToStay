@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Navigate, useNavigate, useSearch } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { AccessDenied } from "@/components/access-denied";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -145,22 +145,10 @@ function Page() {
   const totalSteps = 3;
 
   if (blocked) {
-    return (
-      <div className="min-h-screen flex flex-col bg-surface">
-        <SiteHeader />
-        <main className="flex-1 container-page py-12">
-          <AccessDenied
-            message={
-              isAdmin
-                ? "Admins cannot submit quote requests. Only organizers can create new requests."
-                : "Hotel accounts cannot submit quote requests. Only organizers can create new requests."
-            }
-          />
-        </main>
-        <SiteFooter />
-      </div>
-    );
+    // Hotel & admin users cannot create requests — redirect them to their dashboard.
+    return <Navigate to="/dashboard" />;
   }
+
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">

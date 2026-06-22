@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Inbox, CheckCircle2, Building2, Send } from "lucide-react";
+import { Plus, FileText, Inbox, CheckCircle2, Building2, Send, CreditCard } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({ meta: [{ title: "Dashboard — GroupToStay" }] }),
@@ -121,11 +121,12 @@ function HotelHome() {
         </Button>
       </div>
 
-      <div className="mt-6 grid sm:grid-cols-3 gap-4">
+      <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { icon: Inbox, label: t("hotelDash.invitations"), value: stats?.invites ?? 0 },
           { icon: Send, label: t("dashboard.viewQuotes"), value: stats?.quotes ?? 0 },
           { icon: CheckCircle2, label: t("dashboard.status.awarded"), value: stats?.wins ?? 0 },
+          { icon: CreditCard, label: t("nav.subscription", "Active Subscription"), value: "Free" },
         ].map((s, i) => (
           <Card key={i}><CardContent className="p-5 flex items-center gap-4">
             <span className="grid h-12 w-12 place-items-center rounded-lg bg-primary text-gold"><s.icon className="h-5 w-5" /></span>
