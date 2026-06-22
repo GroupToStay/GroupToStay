@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TrustRouteImport } from './routes/trust'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RequestQuoteRouteImport } from './routes/request-quote'
@@ -43,6 +44,11 @@ import { Route as AuthenticatedDashboardRfqsIdRouteImport } from './routes/_auth
 import { Route as AuthenticatedDashboardMessagesIdRouteImport } from './routes/_authenticated/dashboard.messages.$id'
 import { Route as AuthenticatedDashboardHotelIdRouteImport } from './routes/_authenticated/dashboard.hotel.$id'
 
+const TrustRoute = TrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -234,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/request-quote': typeof RequestQuoteRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/trust': typeof TrustRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
@@ -268,6 +275,7 @@ export interface FileRoutesByTo {
   '/request-quote': typeof RequestQuoteRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/trust': typeof TrustRoute
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
   '/subscription/checkout': typeof SubscriptionCheckoutRoute
@@ -300,6 +308,7 @@ export interface FileRoutesById {
   '/request-quote': typeof RequestQuoteRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/trust': typeof TrustRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
@@ -336,6 +345,7 @@ export interface FileRouteTypes {
     | '/request-quote'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/trust'
     | '/dashboard'
     | '/hotels/$id'
     | '/requests/$id'
@@ -370,6 +380,7 @@ export interface FileRouteTypes {
     | '/request-quote'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/trust'
     | '/hotels/$id'
     | '/requests/$id'
     | '/subscription/checkout'
@@ -401,6 +412,7 @@ export interface FileRouteTypes {
     | '/request-quote'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/trust'
     | '/_authenticated/dashboard'
     | '/hotels/$id'
     | '/requests/$id'
@@ -437,6 +449,7 @@ export interface RootRouteChildren {
   RequestQuoteRoute: typeof RequestQuoteRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TrustRoute: typeof TrustRoute
   HotelsIdRoute: typeof HotelsIdRoute
   RequestsIdRoute: typeof RequestsIdRoute
   SubscriptionCheckoutRoute: typeof SubscriptionCheckoutRoute
@@ -447,6 +460,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/trust': {
+      id: '/trust'
+      path: '/trust'
+      fullPath: '/trust'
+      preLoaderRoute: typeof TrustRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -790,6 +810,7 @@ const rootRouteChildren: RootRouteChildren = {
   RequestQuoteRoute: RequestQuoteRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TrustRoute: TrustRoute,
   HotelsIdRoute: HotelsIdRoute,
   RequestsIdRoute: RequestsIdRoute,
   SubscriptionCheckoutRoute: SubscriptionCheckoutRoute,
