@@ -143,7 +143,7 @@ function Hero({ isHotel }: { isHotel: boolean }) {
               >
                 <div className="flex items-center justify-between">
                   <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-blue/10 text-brand-blue">
-                    <s.icon className="h-4.5 w-4.5" />
+                    <s.icon className="h-5 w-5" />
                   </span>
                   <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-brand-blue transition" />
                 </div>
@@ -192,7 +192,7 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
       >
         <div className="flex items-center gap-2 mb-4">
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-blue text-brand-blue-foreground">
-            <Sparkles className="h-4.5 w-4.5" />
+            <Sparkles className="h-5 w-5" />
           </span>
           <h2 className="font-display text-xl md:text-2xl text-primary">
             Start Your Group Accommodation Request
