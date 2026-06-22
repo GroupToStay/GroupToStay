@@ -145,22 +145,10 @@ function Page() {
   const totalSteps = 3;
 
   if (blocked) {
-    return (
-      <div className="min-h-screen flex flex-col bg-surface">
-        <SiteHeader />
-        <main className="flex-1 container-page py-12">
-          <AccessDenied
-            message={
-              isAdmin
-                ? "Admins cannot submit quote requests. Only organizers can create new requests."
-                : "Hotel accounts cannot submit quote requests. Only organizers can create new requests."
-            }
-          />
-        </main>
-        <SiteFooter />
-      </div>
-    );
+    // Hotel & admin users cannot create requests — redirect them to their dashboard.
+    return <Navigate to="/dashboard" />;
   }
+
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
