@@ -35,24 +35,30 @@ export function SiteHeader() {
     }
   };
 
-  // Admin users only see Dashboard / Admin Functions / Sign Out — hide all public nav items.
+  const linkCls = "text-sm font-medium text-foreground/80 hover:text-foreground transition";
+  // Admin: dashboard + admin functions only.
+  // Hotel: supplier-focused nav (no How it works / Hotels / For Hotels).
+  // Organizer/public: full marketing nav.
   const navLinks = isAdmin ? (
     <>
-      <Link to="/dashboard" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.dashboard")}</Link>
-      <Link to="/dashboard/admin" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">Admin Functions</Link>
+      <Link to="/dashboard" className={linkCls}>{t("nav.dashboard")}</Link>
+      <Link to="/dashboard/admin" className={linkCls}>Admin Functions</Link>
+    </>
+  ) : isHotel ? (
+    <>
+      <Link to="/requests" className={linkCls}>{t("nav.groupRequests")}</Link>
+      <Link to="/pricing" className={linkCls}>{t("nav.pricing")}</Link>
+      <Link to="/about" className={linkCls}>{t("nav.about")}</Link>
+      <Link to="/contact" className={linkCls}>{t("nav.contact")}</Link>
     </>
   ) : (
     <>
-      <Link to="/how-it-works" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.howItWorks")}</Link>
-      <Link to="/hotels" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.hotels")}</Link>
-      {showForHotels && (
-        <Link to="/for-hotels" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.forHotels")}</Link>
-      )}
-      {showPricing && (
-        <Link to="/pricing" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.pricing")}</Link>
-      )}
-      <Link to="/about" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.about")}</Link>
-      <Link to="/contact" className="text-sm font-medium text-foreground/80 hover:text-foreground transition">{t("nav.contact")}</Link>
+      <Link to="/how-it-works" className={linkCls}>{t("nav.howItWorks")}</Link>
+      <Link to="/hotels" className={linkCls}>{t("nav.hotels")}</Link>
+      {showForHotels && (<Link to="/for-hotels" className={linkCls}>{t("nav.forHotels")}</Link>)}
+      {showPricing && (<Link to="/pricing" className={linkCls}>{t("nav.pricing")}</Link>)}
+      <Link to="/about" className={linkCls}>{t("nav.about")}</Link>
+      <Link to="/contact" className={linkCls}>{t("nav.contact")}</Link>
     </>
   );
 
