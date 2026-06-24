@@ -200,6 +200,58 @@ function Page() {
                 </div>
               )}
 
+              {role === "hotel" && (
+                <div className="rounded-md border border-border bg-accent/30 p-3 space-y-3">
+                  <div className="font-display text-base text-primary">Property Management System (PMS)</div>
+                  <div className="text-xs text-muted-foreground">Optional — helps us prepare future integrations.</div>
+                  <div>
+                    <Label>Do you use a Property Management System?</Label>
+                    <div className="mt-1 grid grid-cols-2 gap-2">
+                      {(["yes","no"] as const).map(v => (
+                        <button type="button" key={v} onClick={() => setPmsEnabled(v)}
+                          className={`rounded-md border px-3 py-2 text-sm capitalize ${pmsEnabled === v ? "border-gold bg-gold/10 text-foreground" : "border-input bg-background text-muted-foreground"}`}>
+                          {v}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {pmsEnabled === "yes" && (
+                    <>
+                      <div>
+                        <Label>PMS Provider</Label>
+                        <select className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                          value={pmsProvider} onChange={e => setPmsProvider(e.target.value)}>
+                          <option value="">Select…</option>
+                          {["MyCloud PMS","Oracle Opera PMS","Cloudbeds","Mews","eZee Absolute","Hotelogix","Protel","Other"].map(p => (
+                            <option key={p} value={p}>{p}</option>
+                          ))}
+                        </select>
+                      </div>
+                      {pmsProvider === "Other" && (
+                        <div>
+                          <Label>Please specify PMS</Label>
+                          <Input value={pmsProviderOther} onChange={e => setPmsProviderOther(e.target.value)} maxLength={120} />
+                        </div>
+                      )}
+                      <div>
+                        <Label>API Available?</Label>
+                        <select className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                          value={apiAvailable} onChange={e => setApiAvailable(e.target.value as any)}>
+                          <option value="">Select…</option>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
+                          <option value="Not Sure">Not Sure</option>
+                        </select>
+                      </div>
+                      <div><Label>Technical Contact Name</Label><Input value={techName} onChange={e => setTechName(e.target.value)} maxLength={160} /></div>
+                      <div><Label>Technical Contact Email</Label><Input type="email" value={techEmail} onChange={e => setTechEmail(e.target.value)} maxLength={255} /></div>
+                      <div><Label>Technical Contact Phone</Label><Input value={techPhone} onChange={e => setTechPhone(e.target.value)} maxLength={40} placeholder="+966 5..." /></div>
+                    </>
+                  )}
+                </div>
+
+              )}
+
               {role === "organizer" && (
                 <div className="rounded-md border border-border bg-accent/30 p-3 space-y-3">
                   <div className="text-xs text-muted-foreground">{t("auth.organizerIdIntro")}</div>
