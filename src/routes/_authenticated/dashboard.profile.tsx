@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { Lock, User as UserIcon, Mail, ShieldCheck } from "lucide-react";
 import { PhoneInput } from "@/components/phone-input";
 import { DEFAULT_PHONE_CODE } from "@/lib/phone-codes";
+import { PmsSection } from "@/components/pms-section";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard/profile")({
   head: () => ({ meta: [{ title: "My profile — GroupToStay" }] }),
