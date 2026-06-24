@@ -104,10 +104,29 @@ function Page() {
           data.vat_number = vatNumber;
           data.cr_number = crNumber;
           data.contact_email = contactEmail || email;
+          if (pmsEnabled) {
+            data.pms_enabled = pmsEnabled === "yes" ? "true" : "false";
+            if (pmsEnabled === "yes") {
+              const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!pmsProvider) throw new Error("Please select your PMS provider");
+              if (pmsProvider === "Other" && !pmsProviderOther.trim()) throw new Error("Please specify your PMS provider");
+              if (!apiAvailable) throw new Error("Please select API availability");
+              if (!techName.trim()) throw new Error("Technical contact name is required");
+              if (!emailRx.test(techEmail.trim())) throw new Error("Invalid technical contact email");
+              if (!/^[+\d][\d\s\-()]{5,}$/.test(techPhone.trim())) throw new Error("Invalid technical contact phone");
+              data.pms_provider = pmsProvider;
+              if (pmsProvider === "Other") data.pms_provider_other = pmsProviderOther.trim();
+              data.api_available = apiAvailable;
+              data.technical_contact_name = techName.trim();
+              data.technical_contact_email = techEmail.trim();
+              data.technical_contact_phone = techPhone.trim();
+            }
+          }
         } else {
           data.id_type = idType;
           data.id_number = idNumber;
         }
+
         const { error } = await supabase.auth.signUp({
           email, password,
           options: {
