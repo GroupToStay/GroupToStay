@@ -63,9 +63,13 @@ function AuthLayout() {
                       </span>
                     )}
                   </Link>
-                  <Link to="/dashboard/hotel" className={navItem} activeProps={{ className: "active" }}>
+                  <Link to="/dashboard/hotel" className={navItem} activeProps={{ className: "active" }} activeOptions={{ exact: true }}>
                     <Building2 className="h-4 w-4" /> {t("nav.hotelProfile")}
                   </Link>
+                  <Link to="/dashboard/hotel/pms" className={navItem} activeProps={{ className: "active" }}>
+                    <Server className="h-4 w-4" /> PMS Integration
+                  </Link>
+
                   <Link to="/pricing" className={navItem} activeProps={{ className: "active" }}>
                     <CreditCard className="h-4 w-4" /> {t("nav.subscription")}
                   </Link>
