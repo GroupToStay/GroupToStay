@@ -168,9 +168,21 @@ function CompanyRow({ row, onDecide }: { row: any; onDecide: (decision: "approve
         <div><span className="text-muted-foreground">{t("auth.vatNumber")}:</span> <span className="font-mono">{row.vat_number ?? "—"}</span></div>
         <div><span className="text-muted-foreground">{t("auth.crNumber")}:</span> <span className="font-mono">{row.cr_number ?? "—"}</span></div>
       </div>
+      <div className="mt-4 rounded-md border border-border bg-surface p-3">
+        <div className="text-xs uppercase tracking-wide text-muted-foreground">PMS Information</div>
+        <div className="mt-2 grid sm:grid-cols-2 gap-2 text-sm">
+          <div><span className="text-muted-foreground">Uses PMS:</span> {row.pms_enabled === true ? "Yes" : row.pms_enabled === false ? "No" : "—"}</div>
+          <div><span className="text-muted-foreground">Provider:</span> {row.pms_provider ?? "—"}{row.pms_provider === "Other" && row.pms_provider_other ? ` (${row.pms_provider_other})` : ""}</div>
+          <div><span className="text-muted-foreground">API Available:</span> {row.api_available ?? "—"}</div>
+          <div><span className="text-muted-foreground">Tech Contact:</span> {row.technical_contact_name ?? "—"}</div>
+          <div><span className="text-muted-foreground">Tech Email:</span> {row.technical_contact_email ?? "—"}</div>
+          <div><span className="text-muted-foreground">Tech Phone:</span> {row.technical_contact_phone ?? "—"}</div>
+        </div>
+      </div>
       <div className="mt-3">
         <Textarea rows={2} placeholder={t("admin.notesPh")} value={notes} onChange={e => setNotes(e.target.value)} maxLength={500} disabled={locked} />
       </div>
+
       <div className="mt-3 flex gap-2 flex-wrap">
         {locked ? (
           <Badge className="bg-muted text-muted-foreground"><Lock className="h-3 w-3 mr-1" /> Approved — locked</Badge>
