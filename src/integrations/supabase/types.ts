@@ -695,6 +695,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          api_available: string | null
           approval_notes: string | null
           approved_at: string | null
           approved_by: string | null
@@ -716,10 +717,17 @@ export type Database = {
           org_name: string | null
           phone: string | null
           phone_number: string | null
+          pms_enabled: boolean | null
+          pms_provider: string | null
+          pms_provider_other: string | null
+          technical_contact_email: string | null
+          technical_contact_name: string | null
+          technical_contact_phone: string | null
           updated_at: string
           vat_number: string | null
         }
         Insert: {
+          api_available?: string | null
           approval_notes?: string | null
           approved_at?: string | null
           approved_by?: string | null
@@ -741,10 +749,17 @@ export type Database = {
           org_name?: string | null
           phone?: string | null
           phone_number?: string | null
+          pms_enabled?: boolean | null
+          pms_provider?: string | null
+          pms_provider_other?: string | null
+          technical_contact_email?: string | null
+          technical_contact_name?: string | null
+          technical_contact_phone?: string | null
           updated_at?: string
           vat_number?: string | null
         }
         Update: {
+          api_available?: string | null
           approval_notes?: string | null
           approved_at?: string | null
           approved_by?: string | null
@@ -766,6 +781,12 @@ export type Database = {
           org_name?: string | null
           phone?: string | null
           phone_number?: string | null
+          pms_enabled?: boolean | null
+          pms_provider?: string | null
+          pms_provider_other?: string | null
+          technical_contact_email?: string | null
+          technical_contact_name?: string | null
+          technical_contact_phone?: string | null
           updated_at?: string
           vat_number?: string | null
         }

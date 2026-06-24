@@ -54,13 +54,14 @@ function CompaniesPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, company_name, vat_number, cr_number, contact_email, phone, country, hotel_approval_status, approval_notes, created_at")
+        .select("id, full_name, company_name, vat_number, cr_number, contact_email, phone, country, hotel_approval_status, approval_notes, created_at, pms_enabled, pms_provider, pms_provider_other, api_available, technical_contact_name, technical_contact_email, technical_contact_phone")
         .eq("hotel_approval_status", status)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
   });
+
 
   const decide = useMutation({
     mutationFn: async ({ id, decision, notes }: { id: string; decision: "approved" | "rejected" | "pending"; notes: string }) => {
@@ -81,6 +82,7 @@ function CompaniesPanel() {
 
   return (
     <div className="space-y-4">
+      <PmsStatistics />
       <div className="flex gap-2">
         {(["pending", "approved", "rejected"] as const).map(s => (
           <button key={s} onClick={() => setStatus(s)}
@@ -97,6 +99,50 @@ function CompaniesPanel() {
     </div>
   );
 }
+
+function PmsStatistics() {
+  const { data: counts = {}, isLoading } = useQuery({
+    queryKey: ["admin-pms-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("pms_enabled, pms_provider")
+        .eq("hotel_approval_status", "approved");
+      if (error) throw error;
+      const presets = ["MyCloud PMS","Oracle Opera PMS","Cloudbeds","Mews","eZee Absolute","Hotelogix","Protel","Other"];
+      const c: Record<string, number> = { "No PMS": 0, "Not specified": 0 };
+      presets.forEach(p => { c[p] = 0; });
+      (data ?? []).forEach((r: any) => {
+        if (r.pms_enabled === false) c["No PMS"]++;
+        else if (r.pms_enabled === true) {
+          const p = r.pms_provider && presets.includes(r.pms_provider) ? r.pms_provider : (r.pms_provider ? "Other" : "Not specified");
+          c[p] = (c[p] ?? 0) + 1;
+        } else c["Not specified"]++;
+      });
+      return c;
+    },
+  });
+
+  return (
+    <Card><CardContent className="p-5">
+      <h2 className="font-display text-xl text-primary">PMS Statistics</h2>
+      <p className="mt-1 text-xs text-muted-foreground">Approved hotel companies by Property Management System.</p>
+      {isLoading ? (
+        <div className="mt-3 text-sm text-muted-foreground">Loading…</div>
+      ) : (
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {Object.entries(counts).map(([label, n]) => (
+            <div key={label} className="rounded-md border border-border bg-surface px-3 py-2">
+              <div className="text-xs text-muted-foreground truncate">{label}</div>
+              <div className="font-display text-2xl text-primary">{n as number}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </CardContent></Card>
+  );
+}
+
 
 function CompanyRow({ row, onDecide }: { row: any; onDecide: (decision: "approved" | "rejected" | "pending", notes: string) => void }) {
   const { t } = useTranslation();
@@ -122,9 +168,21 @@ function CompanyRow({ row, onDecide }: { row: any; onDecide: (decision: "approve
         <div><span className="text-muted-foreground">{t("auth.vatNumber")}:</span> <span className="font-mono">{row.vat_number ?? "—"}</span></div>
         <div><span className="text-muted-foreground">{t("auth.crNumber")}:</span> <span className="font-mono">{row.cr_number ?? "—"}</span></div>
       </div>
+      <div className="mt-4 rounded-md border border-border bg-surface p-3">
+        <div className="text-xs uppercase tracking-wide text-muted-foreground">PMS Information</div>
+        <div className="mt-2 grid sm:grid-cols-2 gap-2 text-sm">
+          <div><span className="text-muted-foreground">Uses PMS:</span> {row.pms_enabled === true ? "Yes" : row.pms_enabled === false ? "No" : "—"}</div>
+          <div><span className="text-muted-foreground">Provider:</span> {row.pms_provider ?? "—"}{row.pms_provider === "Other" && row.pms_provider_other ? ` (${row.pms_provider_other})` : ""}</div>
+          <div><span className="text-muted-foreground">API Available:</span> {row.api_available ?? "—"}</div>
+          <div><span className="text-muted-foreground">Tech Contact:</span> {row.technical_contact_name ?? "—"}</div>
+          <div><span className="text-muted-foreground">Tech Email:</span> {row.technical_contact_email ?? "—"}</div>
+          <div><span className="text-muted-foreground">Tech Phone:</span> {row.technical_contact_phone ?? "—"}</div>
+        </div>
+      </div>
       <div className="mt-3">
         <Textarea rows={2} placeholder={t("admin.notesPh")} value={notes} onChange={e => setNotes(e.target.value)} maxLength={500} disabled={locked} />
       </div>
+
       <div className="mt-3 flex gap-2 flex-wrap">
         {locked ? (
           <Badge className="bg-muted text-muted-foreground"><Lock className="h-3 w-3 mr-1" /> Approved — locked</Badge>

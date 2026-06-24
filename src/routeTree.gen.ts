@@ -42,6 +42,7 @@ import { Route as AuthenticatedDashboardHotelIndexRouteImport } from './routes/_
 import { Route as AuthenticatedDashboardRfqsNewRouteImport } from './routes/_authenticated/dashboard.rfqs.new'
 import { Route as AuthenticatedDashboardRfqsIdRouteImport } from './routes/_authenticated/dashboard.rfqs.$id'
 import { Route as AuthenticatedDashboardMessagesIdRouteImport } from './routes/_authenticated/dashboard.messages.$id'
+import { Route as AuthenticatedDashboardHotelPmsRouteImport } from './routes/_authenticated/dashboard.hotel.pms'
 import { Route as AuthenticatedDashboardHotelIdRouteImport } from './routes/_authenticated/dashboard.hotel.$id'
 
 const TrustRoute = TrustRouteImport.update({
@@ -222,6 +223,12 @@ const AuthenticatedDashboardMessagesIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedDashboardMessagesRoute,
   } as any)
+const AuthenticatedDashboardHotelPmsRoute =
+  AuthenticatedDashboardHotelPmsRouteImport.update({
+    id: '/pms',
+    path: '/pms',
+    getParentRoute: () => AuthenticatedDashboardHotelRoute,
+  } as any)
 const AuthenticatedDashboardHotelIdRoute =
   AuthenticatedDashboardHotelIdRouteImport.update({
     id: '/$id',
@@ -257,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
+  '/dashboard/hotel/pms': typeof AuthenticatedDashboardHotelPmsRoute
   '/dashboard/messages/$id': typeof AuthenticatedDashboardMessagesIdRoute
   '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
   '/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
@@ -288,6 +296,7 @@ export interface FileRoutesByTo {
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
+  '/dashboard/hotel/pms': typeof AuthenticatedDashboardHotelPmsRoute
   '/dashboard/messages/$id': typeof AuthenticatedDashboardMessagesIdRoute
   '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
   '/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
@@ -325,6 +334,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
+  '/_authenticated/dashboard/hotel/pms': typeof AuthenticatedDashboardHotelPmsRoute
   '/_authenticated/dashboard/messages/$id': typeof AuthenticatedDashboardMessagesIdRoute
   '/_authenticated/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
   '/_authenticated/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
@@ -362,6 +372,7 @@ export interface FileRouteTypes {
     | '/dashboard/rfqs'
     | '/dashboard/'
     | '/dashboard/hotel/$id'
+    | '/dashboard/hotel/pms'
     | '/dashboard/messages/$id'
     | '/dashboard/rfqs/$id'
     | '/dashboard/rfqs/new'
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/dashboard/profile'
     | '/dashboard'
     | '/dashboard/hotel/$id'
+    | '/dashboard/hotel/pms'
     | '/dashboard/messages/$id'
     | '/dashboard/rfqs/$id'
     | '/dashboard/rfqs/new'
@@ -429,6 +441,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/rfqs'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/hotel/$id'
+    | '/_authenticated/dashboard/hotel/pms'
     | '/_authenticated/dashboard/messages/$id'
     | '/_authenticated/dashboard/rfqs/$id'
     | '/_authenticated/dashboard/rfqs/new'
@@ -691,6 +704,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardMessagesIdRouteImport
       parentRoute: typeof AuthenticatedDashboardMessagesRoute
     }
+    '/_authenticated/dashboard/hotel/pms': {
+      id: '/_authenticated/dashboard/hotel/pms'
+      path: '/pms'
+      fullPath: '/dashboard/hotel/pms'
+      preLoaderRoute: typeof AuthenticatedDashboardHotelPmsRouteImport
+      parentRoute: typeof AuthenticatedDashboardHotelRoute
+    }
     '/_authenticated/dashboard/hotel/$id': {
       id: '/_authenticated/dashboard/hotel/$id'
       path: '/$id'
@@ -703,12 +723,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedDashboardHotelRouteChildren {
   AuthenticatedDashboardHotelIdRoute: typeof AuthenticatedDashboardHotelIdRoute
+  AuthenticatedDashboardHotelPmsRoute: typeof AuthenticatedDashboardHotelPmsRoute
   AuthenticatedDashboardHotelIndexRoute: typeof AuthenticatedDashboardHotelIndexRoute
 }
 
 const AuthenticatedDashboardHotelRouteChildren: AuthenticatedDashboardHotelRouteChildren =
   {
     AuthenticatedDashboardHotelIdRoute: AuthenticatedDashboardHotelIdRoute,
+    AuthenticatedDashboardHotelPmsRoute: AuthenticatedDashboardHotelPmsRoute,
     AuthenticatedDashboardHotelIndexRoute:
       AuthenticatedDashboardHotelIndexRoute,
   }

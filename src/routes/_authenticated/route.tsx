@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { SiteHeader } from "@/components/site-header";
 import { useUnreadMessageCount } from "@/hooks/use-unread-messages";
-import { LayoutDashboard, FileText, Plus, Building2, Inbox, ShieldCheck, User, MessageSquare, CreditCard, Settings as SettingsIcon } from "lucide-react";
+import { LayoutDashboard, FileText, Plus, Building2, Inbox, ShieldCheck, User, MessageSquare, CreditCard, Settings as SettingsIcon, Server } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -63,9 +63,13 @@ function AuthLayout() {
                       </span>
                     )}
                   </Link>
-                  <Link to="/dashboard/hotel" className={navItem} activeProps={{ className: "active" }}>
+                  <Link to="/dashboard/hotel" className={navItem} activeProps={{ className: "active" }} activeOptions={{ exact: true }}>
                     <Building2 className="h-4 w-4" /> {t("nav.hotelProfile")}
                   </Link>
+                  <Link to="/dashboard/hotel/pms" className={navItem} activeProps={{ className: "active" }}>
+                    <Server className="h-4 w-4" /> PMS Integration
+                  </Link>
+
                   <Link to="/pricing" className={navItem} activeProps={{ className: "active" }}>
                     <CreditCard className="h-4 w-4" /> {t("nav.subscription")}
                   </Link>
