@@ -1,149 +1,71 @@
-# Phase 4 — Platform Overhaul
+# PMS Information Collection — Additive Only
 
-A large multi-part change spanning registration UX, dashboards, hotel management, subscriptions (Coming Soon + waitlist), admin review workflows, and role-based security. Scope is large so I'm grouping by part with the concrete files and DB changes.
+This change is **purely additive**. No existing workflow, permission, or RLS policy changes. Organizers and Admins keep current capabilities; Hotel users keep all current functionality and gain new optional PMS fields.
 
----
+## Scope
 
-## Part 1 — Registration Improvements (Organizer + Hotel signup)
+Collect PMS metadata from hotel companies for future integration planning. No API connection, no sync, no availability logic changes.
 
-**Files:** `src/routes/auth.tsx` (and any shared signup form components)
+## 1. Database (single migration)
 
-- Replace free-text phone with **CountryCode dropdown + phone input** component (new: `src/components/phone-input.tsx`). Codes: SA +966, EG +20, AE +971, QA +974, KW +965, BH +973, OM +968 (+ a longer GCC/MENA list).
-- Store `country_code` and `phone_number` separately on `profiles`; compute `full_phone` on submit.
-- Remove free-text country; use existing `useCountries()` master data → store `country_id` on `profiles`.
-- Organizer ID Type select: **Saudi National ID | Iqama**. Number input: digits only, hard cap 10 chars (no helper text shown).
+Add to `public.profiles` (hotel company profile lives here today alongside `company_name`, `vat_number`, `cr_number`):
 
-**DB:** add `profiles.country_code text`, `profiles.phone_number text`, `profiles.country_id uuid references countries(id)`. Keep existing `phone`/`country` for back-compat (populated from new fields).
+- `pms_enabled boolean` — null/true/false
+- `pms_provider text` — preset name or "Other"
+- `pms_provider_other text` — free text when provider = Other
+- `api_available text` — CHECK in ('Yes','No','Not Sure') or null
+- `technical_contact_name text`
+- `technical_contact_email text`
+- `technical_contact_phone text`
 
----
+All nullable, no defaults beyond null. **No new RLS policies needed** — existing profile RLS already restricts a hotel user to their own row, admins via `has_role`, and blocks organizers. Existing `restrict_profile_company_fields` trigger is unaffected (we don't touch its locked columns).
 
-## Part 2 — Organizer Dashboard
+## 2. Hotel Company Registration (`src/routes/auth.tsx`)
 
-**Files:** `src/routes/_authenticated/dashboard.tsx` (sidebar), `src/routes/_authenticated/dashboard.profile.tsx`
+Append a new optional "Property Management System" section to the hotel signup form, after the existing company fields:
 
-- Sidebar label: "Organization Settings" → **"My Profile"** for organizers.
-- Profile page: editable Name, Email, Phone (country code + number). Remove editable country field (display-only, derived from signup).
+- Radio: "Do you use a PMS?" → Yes / No
+- If **No** or unset: nothing more shown; submit with `pms_enabled = false` (or null if untouched)
+- If **Yes**:
+  - Provider dropdown: MyCloud PMS, Oracle Opera PMS, Cloudbeds, Mews, eZee Absolute, Hotelogix, Protel, Other
+  - If Other → "Please specify" text input
+  - API Available dropdown: Yes / No / Not Sure
+  - Technical Contact Name / Email / Phone (email + phone validated client-side with zod)
 
----
+Values pass through `raw_user_meta_data`; extend `handle_new_user()` trigger to persist them into `profiles`.
 
-## Part 3 — Hotel User Dashboard
+## 3. Hotel Profile Edit (`src/routes/_authenticated/dashboard.profile.tsx`)
 
-### 3a. Hotel Profile Management (approved hotels editable)
-**Files:** `src/routes/_authenticated/dashboard.hotel.$id.tsx`
+Add a new "PMS Information" card below existing company section. Same fields as registration, editable and saved via existing profile update path. Visible only when the user has the hotel role (no UI change for organizers/admins viewing their own profile).
 
-- Allow approved hotel owners to edit: name, description, city/country, contact, amenities (multi-select), rooms (CRUD via `hotel_rooms`), images (upload/replace/delete via `hotel-photos` bucket).
-- All writes go to Supabase; respect RLS (owner_id = auth.uid()).
+## 4. Admin Company Review (`src/routes/_authenticated/dashboard.admin.tsx`)
 
-### 3b. Subscription (Coming Soon + Waitlist) — per UPDATE block
-**Files:**
-- New `src/routes/subscription.coming-soon.tsx` (public route under `/subscription/coming-soon`)
-- New `src/routes/subscription.checkout.tsx` → redirects to coming-soon while flag off
-- New `src/components/waitlist-modal.tsx`
-- Update `src/routes/_authenticated/dashboard.hotel.index.tsx` (subscription cards)
-- Update `src/routes/pricing.tsx` (hide organizer plan from hotel users; CTA = Coming Soon + Notify Me)
+Extend the company select query with the new columns and add a "PMS Information" block inside each company card displaying: Uses PMS, Provider (+ Other text), API Available, Technical Contact Name / Email / Phone. Read-only display.
 
-Behavior:
-- Hide "Hotel Free Listing" if hotel exists; show "Create Hotel Profile" if not.
-- Replace all Upgrade/Pay buttons with **Coming Soon** (primary) + **Notify Me** (secondary).
-- "Notify Me" opens modal → inserts into `subscription_interest` with `requested_plan` = professional|featured.
-- Display "Payment Services Launching Soon" badge.
-- Feature flag `subscriptions_enabled` in `platform_settings` (default false). When false → checkout redirects to coming-soon. Payment gateway code stubs prepared but not invoked.
+## 5. Admin PMS Statistics Widget
 
-**DB:**
-```sql
-CREATE TABLE public.subscription_interest (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete set null,
-  hotel_id uuid references public.hotels(id) on delete set null,
-  full_name text not null,
-  email text not null,
-  hotel_name text,
-  requested_plan text not null check (requested_plan in ('professional','featured')),
-  status text not null default 'waiting' check (status in ('waiting','notified')),
-  created_at timestamptz not null default now(),
-  notified_at timestamptz
-);
--- GRANTs + RLS: authenticated insert (own user_id or null), admin select/update all.
--- Insert seed row: platform_settings('subscriptions_enabled','false').
-```
+New "PMS Statistics" card on the admin dashboard showing counts grouped by `pms_provider` (including "Other" and "Not specified"). Implemented as a client-side aggregation over the already-fetched company list — no new server function, no schema change.
 
----
+## 6. Hotel Dashboard — PMS Integration Placeholder
 
-## Part 4 — Hotel User Profile
-Same as Part 2 profile rules (no editable country, phone uses country-code component).
+New route `src/routes/_authenticated/dashboard.hotel.pms.tsx` (linked from the hotel dashboard nav as "PMS Integration"):
 
----
+- Status badge: **Not Connected**
+- Informational copy: "PMS synchronization will become available in a future release."
+- No buttons, no actions.
 
-## Part 5 — Admin Main Navigation
-**Files:** `src/components/site-header.tsx`
+## 7. Security / Validation
 
-- When current user has admin role: hide public links (Hotels, Contact, For Hotels, How It Works, Pricing, About). Show only Dashboard, Admin Functions, Sign Out.
+- Zod schemas on registration + profile forms: email format, phone digits/length, required fields enforced only when `pms_enabled = true`.
+- RLS: relies on existing profile policies — hotel sees own row, admin sees all, organizer blocked. No new grants.
+- All new columns nullable so existing rows and existing insert paths keep working.
 
----
+## 8. Non-regression
 
-## Part 6 — Admin Review: Hotel Companies
-**Files:** `src/routes/_authenticated/dashboard.admin.tsx` + new `src/routes/_authenticated/dashboard.admin.company.$id.tsx`
+No edits to: organizer flows, RFQs, hotels table, quotes, bookings, messaging, notifications, subscriptions, auth gates, search, hotel CRUD, approval triggers. Migration only adds nullable columns + extends one trigger function — no policy or constraint changes on existing columns.
 
-- Tabs: Pending / Approved / Rejected.
-- "View Company" button → review page (CR, VAT, contact, docs).
-- **Approve** → status `approved` (locked: trigger blocks further status changes).
-- **Reject** → status `rejected` (allow "Reconsider" → back to pending → approve allowed).
+## Technical Notes
 
-**DB:** trigger on `profiles.hotel_approval_status` rejecting transitions away from `approved`.
-
----
-
-## Part 7 — Admin Review: Hotel Listings
-**Files:** existing admin hotel tab + new `src/routes/_authenticated/dashboard.admin.hotel.$id.tsx`
-
-- Tabs: Pending / Approved / Suspended.
-- **Approve** → status `approved` (locked).
-- **Reject** → status `suspended` (final). Detach from owner so owner may create a new hotel (set `owner_id = null` and `archived = true`), previous hotel remains visible in admin archive.
-
-**DB:** add `hotels.archived boolean default false`; trigger preventing leaving `approved`; allow null owner_id transition on suspend.
-
----
-
-## Part 8 — Admin Review Pages
-Covered by the new dedicated review routes in Parts 6 & 7 with "View Company" / "View Hotel" buttons in admin lists.
-
----
-
-## Part 9 — Admin Settings
-**Files:** `dashboard.profile.tsx`
-
-- If user has `admin` role: render read-only view (Name, Email, Country, Phone). No edit controls.
-
----
-
-## Part 10 — Security & Role Enforcement
-
-**Files:** `src/routes/_authenticated/route.tsx` (or per-route `beforeLoad`), `src/components/access-denied.tsx`
-
-- Add role gates on every dashboard route:
-  - Organizer-only: `dashboard.rfqs.*`, `dashboard.invitations`
-  - Hotel-only: `dashboard.hotel.*`
-  - Admin-only: `dashboard.admin.*`
-- Hide unauthorized sidebar items.
-- Backstop with RLS (already in place via `has_role`).
-
----
-
-## Technical notes
-
-- One Supabase migration covers: new profile columns, `subscription_interest` table + GRANTs/RLS, `platform_settings` seed for `subscriptions_enabled`, `hotels.archived` column, status-lock triggers for company + hotel approval.
-- Phone component + country-code list shared between signup and profile pages.
-- Payment gateway integration kept as type-only stub (`src/lib/payments/`) with no network calls until feature flag is on.
-- All new tables/columns: timestamps + update triggers; RLS scoped to `auth.uid()` and `has_role`.
-
----
-
-## Order of execution
-1. DB migration (one batch).
-2. Shared components: `PhoneInput`, `WaitlistModal`, payment stub module.
-3. Registration + profile pages.
-4. Hotel dashboard management editing + subscription cards.
-5. Coming-Soon route + checkout redirect.
-6. Admin review pages + status-lock UI.
-7. Site header role-aware nav + per-route role guards.
-8. QA pass: build + manual smoke of each flow.
+- Files touched: `src/routes/auth.tsx`, `src/routes/_authenticated/dashboard.profile.tsx`, `src/routes/_authenticated/dashboard.admin.tsx`, new `src/routes/_authenticated/dashboard.hotel.pms.tsx`, plus i18n keys in `src/locales/en.json` and `src/locales/ar.json`.
+- One migration: add 7 columns to `profiles` + `CREATE OR REPLACE FUNCTION handle_new_user()` extending the existing INSERT with the new fields from `raw_user_meta_data`.
+- `src/integrations/supabase/types.ts` regenerates automatically post-migration.
