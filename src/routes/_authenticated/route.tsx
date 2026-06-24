@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { SiteHeader } from "@/components/site-header";
 import { useUnreadMessageCount } from "@/hooks/use-unread-messages";
-import { LayoutDashboard, FileText, Plus, Building2, Inbox, ShieldCheck, User, MessageSquare, CreditCard, Settings as SettingsIcon } from "lucide-react";
+import { LayoutDashboard, FileText, Plus, Building2, Inbox, ShieldCheck, User, MessageSquare, CreditCard, Settings as SettingsIcon, Server } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
