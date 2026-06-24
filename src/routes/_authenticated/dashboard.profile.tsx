@@ -205,6 +205,9 @@ function Page() {
         </div>
       </CardContent></Card>
       )}
+
+      {isHotel && user && <PmsSection userId={user.id} profile={profile} />}
+
     </div>
   );
 }
