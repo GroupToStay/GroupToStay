@@ -54,13 +54,14 @@ function CompaniesPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, company_name, vat_number, cr_number, contact_email, phone, country, hotel_approval_status, approval_notes, created_at")
+        .select("id, full_name, company_name, vat_number, cr_number, contact_email, phone, country, hotel_approval_status, approval_notes, created_at, pms_enabled, pms_provider, pms_provider_other, api_available, technical_contact_name, technical_contact_email, technical_contact_phone")
         .eq("hotel_approval_status", status)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
     },
   });
+
 
   const decide = useMutation({
     mutationFn: async ({ id, decision, notes }: { id: string; decision: "approved" | "rejected" | "pending"; notes: string }) => {
