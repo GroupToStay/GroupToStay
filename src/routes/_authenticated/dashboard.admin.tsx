@@ -82,6 +82,7 @@ function CompaniesPanel() {
 
   return (
     <div className="space-y-4">
+      <PmsStatistics />
       <div className="flex gap-2">
         {(["pending", "approved", "rejected"] as const).map(s => (
           <button key={s} onClick={() => setStatus(s)}
@@ -98,6 +99,50 @@ function CompaniesPanel() {
     </div>
   );
 }
+
+function PmsStatistics() {
+  const { data: counts = {}, isLoading } = useQuery({
+    queryKey: ["admin-pms-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("pms_enabled, pms_provider")
+        .eq("hotel_approval_status", "approved");
+      if (error) throw error;
+      const presets = ["MyCloud PMS","Oracle Opera PMS","Cloudbeds","Mews","eZee Absolute","Hotelogix","Protel","Other"];
+      const c: Record<string, number> = { "No PMS": 0, "Not specified": 0 };
+      presets.forEach(p => { c[p] = 0; });
+      (data ?? []).forEach((r: any) => {
+        if (r.pms_enabled === false) c["No PMS"]++;
+        else if (r.pms_enabled === true) {
+          const p = r.pms_provider && presets.includes(r.pms_provider) ? r.pms_provider : (r.pms_provider ? "Other" : "Not specified");
+          c[p] = (c[p] ?? 0) + 1;
+        } else c["Not specified"]++;
+      });
+      return c;
+    },
+  });
+
+  return (
+    <Card><CardContent className="p-5">
+      <h2 className="font-display text-xl text-primary">PMS Statistics</h2>
+      <p className="mt-1 text-xs text-muted-foreground">Approved hotel companies by Property Management System.</p>
+      {isLoading ? (
+        <div className="mt-3 text-sm text-muted-foreground">Loading…</div>
+      ) : (
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {Object.entries(counts).map(([label, n]) => (
+            <div key={label} className="rounded-md border border-border bg-surface px-3 py-2">
+              <div className="text-xs text-muted-foreground truncate">{label}</div>
+              <div className="font-display text-2xl text-primary">{n as number}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </CardContent></Card>
+  );
+}
+
 
 function CompanyRow({ row, onDecide }: { row: any; onDecide: (decision: "approved" | "rejected" | "pending", notes: string) => void }) {
   const { t } = useTranslation();
