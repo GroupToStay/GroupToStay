@@ -45,8 +45,18 @@ function Page() {
   const [crNumber, setCrNumber] = useState("");
   const [contactEmail, setContactEmail] = useState("");
 
+  // PMS (hotel only, optional)
+  const [pmsEnabled, setPmsEnabled] = useState<"yes" | "no" | "">("");
+  const [pmsProvider, setPmsProvider] = useState("");
+  const [pmsProviderOther, setPmsProviderOther] = useState("");
+  const [apiAvailable, setApiAvailable] = useState<"" | "Yes" | "No" | "Not Sure">("");
+  const [techName, setTechName] = useState("");
+  const [techEmail, setTechEmail] = useState("");
+  const [techPhone, setTechPhone] = useState("");
+
   const [idType, setIdType] = useState<"saudi_id" | "iqama">("saudi_id");
   const [idNumber, setIdNumber] = useState("");
+
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
