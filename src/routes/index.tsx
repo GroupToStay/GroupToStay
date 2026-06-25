@@ -425,12 +425,8 @@ function OpenRequestsSection() {
                 <Meta icon={Users}>{r.guests_count} guests</Meta>
                 <Meta icon={BedDouble}>{r.rooms_needed} rooms</Meta>
               </div>
-              {(r.budget_min || r.budget_max) && (
-                <div className="mt-3 text-sm font-medium text-foreground">
-                  <span className="text-muted-foreground text-xs">Budget: </span>
-                  {r.currency} {r.budget_min ?? "—"}{r.budget_max ? ` – ${r.budget_max}` : ""} <span className="text-muted-foreground text-xs">/ room / night</span>
-                </div>
-              )}
+              <div className="mt-3 text-xs text-muted-foreground">Awaiting hotel quotations</div>
+
               <div className="mt-5">
                 <Button asChild variant="outline" className="w-full group-hover:bg-brand-blue group-hover:text-brand-blue-foreground group-hover:border-brand-blue transition">
                   <Link to="/requests/$id" params={{ id: r.id }}>View Details <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
