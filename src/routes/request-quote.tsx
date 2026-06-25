@@ -19,17 +19,29 @@ import { CountryCitySelect } from "@/components/country-city-select";
 import { useCountries, useCities } from "@/hooks/use-master-data";
 import { Star } from "lucide-react";
 
-type Search = { city?: string; country?: string };
+type Search = {
+  city?: string; country?: string;
+  country_id?: string; city_id?: string;
+  guests?: string; rooms?: string;
+  check_in?: string; check_out?: string;
+  accommodation?: string; meal_plan?: string; category?: string;
+};
 
 export const Route = createFileRoute("/request-quote")({
   head: () => ({ meta: [
     { title: "Create a group request — GroupToStay" },
     { name: "description", content: "One request. Multiple hotel offers. Submit one group accommodation request and receive competing hotel quotations." },
   ]}),
-  validateSearch: (s: Record<string, unknown>): Search => ({
-    city: typeof s.city === "string" ? s.city : undefined,
-    country: typeof s.country === "string" ? s.country : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>): Search => {
+    const str = (k: string) => (typeof s[k] === "string" ? (s[k] as string) : undefined);
+    return {
+      city: str("city"), country: str("country"),
+      country_id: str("country_id"), city_id: str("city_id"),
+      guests: str("guests"), rooms: str("rooms"),
+      check_in: str("check_in"), check_out: str("check_out"),
+      accommodation: str("accommodation"), meal_plan: str("meal_plan"), category: str("category"),
+    };
+  },
   component: Page,
 });
 
@@ -52,6 +64,7 @@ const Schema = z.object({
 function Page() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const search = useSearch({ from: "/request-quote" });
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isOrganizer, loading: rolesLoading } = useRoles();
   const [step, setStep] = useState(1);
@@ -66,18 +79,21 @@ function Page() {
     }
   }, [blocked, isAdmin]);
 
+  const cat = search.category;
+  const accom = search.accommodation;
+  const meal = search.meal_plan;
   const [form, setForm] = useState({
     title: "",
     group_type: "umrah" as const,
-    destination_country_id: null as string | null,
-    destination_city_id: null as string | null,
-    check_in: "",
-    check_out: "",
-    guests_count: 30,
-    rooms_needed: 10,
-    hotel_categories: [] as number[],
-    accommodation_type: "any" as "any"|"hotel"|"hotel_apartment"|"resort",
-    meal_plan_code: "bb" as "room_only"|"bb"|"hb"|"fb",
+    destination_country_id: search.country_id ?? null as string | null,
+    destination_city_id: search.city_id ?? null as string | null,
+    check_in: search.check_in ?? "",
+    check_out: search.check_out ?? "",
+    guests_count: search.guests ? Number(search.guests) : 30,
+    rooms_needed: search.rooms ? Number(search.rooms) : 10,
+    hotel_categories: cat && ["3","4","5"].includes(cat) ? [Number(cat)] : [] as number[],
+    accommodation_type: (accom && ["any","hotel","hotel_apartment","resort"].includes(accom) ? accom : "any") as "any"|"hotel"|"hotel_apartment"|"resort",
+    meal_plan_code: (meal && ["room_only","bb","hb","fb"].includes(meal) ? meal : "bb") as "room_only"|"bb"|"hb"|"fb",
     additional_requirements: "",
     deadline: "",
   });

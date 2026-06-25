@@ -32,7 +32,7 @@ function Page() {
     queryFn: async () => {
       const { data } = await supabase
         .from("rfqs")
-        .select("id,title,group_type,destination_city,destination_country,check_in,check_out,nights,guests_count,rooms_needed,board_type,budget_min,budget_max,currency,deadline,created_at")
+        .select("id,title,group_type,destination_city,destination_country,check_in,check_out,nights,guests_count,rooms_needed,board_type,deadline,created_at")
         .eq("status", "open")
         .order("created_at", { ascending: false });
       return data ?? [];
@@ -96,9 +96,6 @@ function Page() {
                         <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> {r.check_in} → {r.check_out} ({r.nights}n)</div>
                         <div className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> {r.guests_count} guests · {r.rooms_needed} rooms</div>
                       </div>
-                      {(r.budget_min || r.budget_max) && (
-                        <div className="text-sm text-foreground">Budget: {r.currency} {r.budget_min ?? "—"} – {r.budget_max ?? "—"}</div>
-                      )}
                       <div className="pt-2 text-sm text-primary font-medium inline-flex items-center gap-1">View & respond <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" /></div>
                     </CardContent>
                   </Card>
