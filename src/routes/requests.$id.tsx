@@ -87,7 +87,7 @@ function Page() {
 
           {!user ? (
             <Card><CardContent className="p-6 flex items-center justify-between gap-4 flex-wrap">
-              <p className="text-sm text-muted-foreground">Sign in as a hotel to message this organizer and respond to the request.</p>
+              <p className="text-sm text-muted-foreground">Sign in as a hotel to message this agency and respond to the request.</p>
               <Button asChild variant="gold"><Link to="/auth"><LogIn className="h-4 w-4" /> Sign in</Link></Button>
             </CardContent></Card>
           ) : canMessage ? (
