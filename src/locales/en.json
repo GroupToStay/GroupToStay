@@ -1,6 +1,11 @@
 {
   "brand": "GroupToStay",
-  "tagline": "Group accommodation, on your terms.",
+  "tagline": "One Request. Multiple Hotel Offers.",
+  "role": {
+    "agency": "Agency",
+    "hotel": "Hotel",
+    "admin": "Admin"
+  },
   "nav": {
     "howItWorks": "How it works",
     "hotels": "Hotels",
@@ -26,14 +31,14 @@
     "settings": "Settings"
   },
   "hero": {
-    "eyebrow": "The Professional Marketplace for Group Hotel Bookings",
-    "title": "One Group Request. Multiple hotels. The best group rate.",
-    "subtitle": "Built for Umrah & Hajj operators, tourism agencies, corporates, governments, sports teams, schools and event organizers. Submit one Group Request — receive competing quotations from matching hotels.",
-    "ctaPrimary": "Create Group Request",
+    "eyebrow": "B2B Group Accommodation Marketplace",
+    "title": "One Request. Multiple Hotel Offers.",
+    "subtitle": "GroupToStay connects travel agencies with verified hotels. Submit one request and receive competitive quotations from multiple hotels. Compare prices, services, and hotel quality in one place — and choose the best offer for your group.",
+    "ctaPrimary": "Create Request",
     "ctaSecondary": "Browse hotels",
-    "ctaBrowseRequests": "Group Requests",
-    "hotelCtaSubtitle": "See open Group Requests that match your hotel and respond with a quote.",
-    "trust": "Trusted by group operators across MENA, Europe and Asia."
+    "ctaBrowseRequests": "Open Group Requests",
+    "hotelCtaSubtitle": "See open Group Requests that match your hotel and respond with a quotation.",
+    "trust": "Trusted by travel agencies and verified hotels across MENA, Europe and Asia."
   },
   "home": {
     "messages": {
@@ -61,13 +66,15 @@
   },
   "how": {
     "title": "How it works",
-    "subtitle": "Three steps from request to confirmed group booking.",
-    "step1Title": "Submit one request",
-    "step1Body": "Describe your group, destination, dates, board and budget. One form replaces dozens of emails.",
-    "step2Title": "Hotels compete",
-    "step2Body": "Approved hotels in your destination submit quotations within hours, not days.",
-    "step3Title": "Compare, negotiate, award",
-    "step3Body": "Side-by-side quote comparison, in-platform messaging, then a confirmed booking with a clear contract."
+    "subtitle": "Four steps from request to confirmed group booking — no budget guessing, no email chains.",
+    "step1Title": "Agency creates a request",
+    "step1Body": "Pick destination, dates, group size, hotel category and meal plan. No budget required — let hotels compete on price.",
+    "step2Title": "Matching hotels send quotations",
+    "step2Body": "Verified hotels in your destination submit competitive quotations within hours.",
+    "step3Title": "Compare side-by-side",
+    "step3Body": "Open the comparison view, evaluate price, services and hotel quality at a glance, message hotels directly.",
+    "step4Title": "Award the winning hotel",
+    "step4Body": "Pick your preferred offer. The hotel and your agency continue the booking process directly."
   },
   "stats": {
     "rooms": "Rooms quoted",
@@ -124,8 +131,24 @@
       "budgetMax": "Budget max (per night)",
       "currency": "Currency",
       "deadline": "Quote deadline (optional)",
-      "notes": "Special requirements",
-      "notesPh": "Halal meals, female-only floor, coach parking, etc."
+      "notes": "Additional requirements",
+      "notesPh": "Halal meals, female-only floor, coach parking, etc.",
+      "categories": "Hotel category required",
+      "categoriesHint": "Pick one or more star ratings. Leave empty for Any.",
+      "accommodation": "Accommodation type",
+      "mealPlan": "Meal plan"
+    },
+    "accommodationTypes": {
+      "any": "Any",
+      "hotel": "Hotel",
+      "hotel_apartment": "Hotel Apartment",
+      "resort": "Resort"
+    },
+    "mealPlans": {
+      "room_only": "Room Only",
+      "bb": "Bed & Breakfast",
+      "hb": "Half Board",
+      "fb": "Full Board"
     },
     "groupTypes": {
       "umrah": "Umrah",
@@ -163,12 +186,12 @@
     "country": "Country",
     "accountType": "Account type",
     "role": {
-      "organizer": "Group organizer",
+      "organizer": "Agency",
       "hotel": "Hotel"
     },
     "roleDesc": {
-      "organizer": "Submit group RFQs and receive quotes.",
-      "hotel": "List your hotel and respond to RFQs."
+      "organizer": "Create group requests and receive competing hotel quotations.",
+      "hotel": "List your hotel and respond to incoming group requests with quotations."
     },
     "haveAccount": "Have an account? Sign in",
     "noAccount": "Need an account? Sign up",
@@ -184,6 +207,11 @@
     "contactEmail": "Business contact email",
     "contactEmailPh": "Leave blank to use your account email",
     "organizerIdIntro": "Identity required to publish group requests.",
+    "agencyIntro": "Tell us about your agency. This information helps hotels evaluate your requests.",
+    "agencyType": "Agency type",
+    "businessAddress": "Business address",
+    "website": "Website (optional)",
+    "websitePh": "https://your-agency.com",
     "idType": "Identity type",
     "idTypes": {
       "saudi_id": "Saudi National ID",
@@ -303,10 +331,13 @@
     "status": {
       "draft": "Draft",
       "open": "Open",
+      "quoting": "Quoting",
+      "under_review": "Under Review",
       "closed": "Closed",
       "awarded": "Awarded",
       "cancelled": "Cancelled",
       "submitted": "Submitted",
+      "viewed": "Viewed",
       "shortlisted": "Shortlisted",
       "accepted": "Accepted",
       "rejected": "Rejected",
@@ -315,21 +346,42 @@
     "guests": "guests",
     "nights": "nights",
     "rooms": "rooms",
-    "quotesReceived": "quotes received",
+    "quotesReceived": "quotations received",
     "deadline": "Deadline",
-    "viewQuotes": "View quotes",
+    "viewQuotes": "Quotations received",
+    "compareQuotes": "Compare quotations",
     "details": "Details",
-    "noQuotesYet": "No quotes received yet. Hotels are reviewing your Group Request.",
+    "noQuotesYet": "No quotations received yet. Hotels are reviewing your request.",
     "shortlist": "Shortlist",
-    "accept": "Accept",
+    "accept": "Award",
     "reject": "Reject",
-    "acceptedToast": "Quote accepted. Booking created.",
-    "close": "Close Group Request",
-    "closedToast": "Group Request closed.",
-    "deleteConfirm": "Delete this Group Request? This cannot be undone.",
+    "acceptedToast": "Quotation awarded. The hotel has been notified.",
+    "close": "Close request",
+    "closedToast": "Request closed.",
+    "deleteConfirm": "Delete this request? This cannot be undone.",
     "sendMessage": "Send",
     "messagePh": "Send a message to this hotel…",
-    "noMessages": "No messages yet."
+    "noMessages": "No messages yet.",
+    "agencyDashboard": "Agency dashboard",
+    "agencyOverview": "Overview",
+    "activeRequests": "Active requests",
+    "receivedQuotations": "Received quotations",
+    "awardedRequests": "Awarded requests",
+    "allQuotations": "All quotations",
+    "compare": {
+      "title": "Compare quotations",
+      "hotel": "Hotel",
+      "rating": "Rating",
+      "location": "Location",
+      "pricePerRoom": "Price / room / night",
+      "totalPrice": "Total price",
+      "mealPlan": "Meal plan",
+      "services": "Services included",
+      "responseTime": "Response time",
+      "action": "Action",
+      "selectWinner": "Award",
+      "noQuotes": "No quotations to compare yet."
+    }
   },
   "pricing": {
     "title": "Simple, transparent pricing",

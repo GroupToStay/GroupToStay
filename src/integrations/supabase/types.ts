@@ -695,10 +695,12 @@ export type Database = {
       }
       profiles: {
         Row: {
+          agency_type: string | null
           api_available: string | null
           approval_notes: string | null
           approved_at: string | null
           approved_by: string | null
+          business_address: string | null
           company_name: string | null
           contact_email: string | null
           country: string | null
@@ -725,12 +727,15 @@ export type Database = {
           technical_contact_phone: string | null
           updated_at: string
           vat_number: string | null
+          website: string | null
         }
         Insert: {
+          agency_type?: string | null
           api_available?: string | null
           approval_notes?: string | null
           approved_at?: string | null
           approved_by?: string | null
+          business_address?: string | null
           company_name?: string | null
           contact_email?: string | null
           country?: string | null
@@ -757,12 +762,15 @@ export type Database = {
           technical_contact_phone?: string | null
           updated_at?: string
           vat_number?: string | null
+          website?: string | null
         }
         Update: {
+          agency_type?: string | null
           api_available?: string | null
           approval_notes?: string | null
           approved_at?: string | null
           approved_by?: string | null
+          business_address?: string | null
           company_name?: string | null
           contact_email?: string | null
           country?: string | null
@@ -789,6 +797,7 @@ export type Database = {
           technical_contact_phone?: string | null
           updated_at?: string
           vat_number?: string | null
+          website?: string | null
         }
         Relationships: [
           {
@@ -807,14 +816,18 @@ export type Database = {
           currency: string
           hotel_id: string
           id: string
+          included_services: string[] | null
           inclusions: string | null
           notes: string | null
           price_per_room_night: number | null
           rfq_id: string
+          room_type: string | null
+          shortlisted_at: string | null
           status: Database["public"]["Enums"]["quote_status"]
           total_price: number
           updated_at: string
           valid_until: string | null
+          viewed_at: string | null
         }
         Insert: {
           board_included?: Database["public"]["Enums"]["board_type"]
@@ -822,14 +835,18 @@ export type Database = {
           currency?: string
           hotel_id: string
           id?: string
+          included_services?: string[] | null
           inclusions?: string | null
           notes?: string | null
           price_per_room_night?: number | null
           rfq_id: string
+          room_type?: string | null
+          shortlisted_at?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
           total_price: number
           updated_at?: string
           valid_until?: string | null
+          viewed_at?: string | null
         }
         Update: {
           board_included?: Database["public"]["Enums"]["board_type"]
@@ -837,14 +854,18 @@ export type Database = {
           currency?: string
           hotel_id?: string
           id?: string
+          included_services?: string[] | null
           inclusions?: string | null
           notes?: string | null
           price_per_room_night?: number | null
           rfq_id?: string
+          room_type?: string | null
+          shortlisted_at?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
           total_price?: number
           updated_at?: string
           valid_until?: string | null
+          viewed_at?: string | null
         }
         Relationships: [
           {
@@ -918,6 +939,8 @@ export type Database = {
       }
       rfqs: {
         Row: {
+          accommodation_type: string | null
+          additional_requirements: string | null
           board_type: Database["public"]["Enums"]["board_type"]
           budget_max: number | null
           budget_min: number | null
@@ -932,7 +955,9 @@ export type Database = {
           destination_country_id: string | null
           group_type: Database["public"]["Enums"]["group_type"]
           guests_count: number
+          hotel_categories: number[] | null
           id: string
+          meal_plan_code: string | null
           nights: number | null
           organizer_id: string
           room_type_id: string | null
@@ -944,6 +969,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          accommodation_type?: string | null
+          additional_requirements?: string | null
           board_type?: Database["public"]["Enums"]["board_type"]
           budget_max?: number | null
           budget_min?: number | null
@@ -958,7 +985,9 @@ export type Database = {
           destination_country_id?: string | null
           group_type?: Database["public"]["Enums"]["group_type"]
           guests_count?: number
+          hotel_categories?: number[] | null
           id?: string
+          meal_plan_code?: string | null
           nights?: number | null
           organizer_id: string
           room_type_id?: string | null
@@ -970,6 +999,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          accommodation_type?: string | null
+          additional_requirements?: string | null
           board_type?: Database["public"]["Enums"]["board_type"]
           budget_max?: number | null
           budget_min?: number | null
@@ -984,7 +1015,9 @@ export type Database = {
           destination_country_id?: string | null
           group_type?: Database["public"]["Enums"]["group_type"]
           guests_count?: number
+          hotel_categories?: number[] | null
           id?: string
+          meal_plan_code?: string | null
           nights?: number | null
           organizer_id?: string
           room_type_id?: string | null
@@ -1307,7 +1340,15 @@ export type Database = {
         | "accepted"
         | "rejected"
         | "withdrawn"
-      rfq_status: "draft" | "open" | "closed" | "awarded" | "cancelled"
+        | "viewed"
+      rfq_status:
+        | "draft"
+        | "open"
+        | "closed"
+        | "awarded"
+        | "cancelled"
+        | "quoting"
+        | "under_review"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1475,8 +1516,17 @@ export const Constants = {
         "accepted",
         "rejected",
         "withdrawn",
+        "viewed",
       ],
-      rfq_status: ["draft", "open", "closed", "awarded", "cancelled"],
+      rfq_status: [
+        "draft",
+        "open",
+        "closed",
+        "awarded",
+        "cancelled",
+        "quoting",
+        "under_review",
+      ],
     },
   },
 } as const

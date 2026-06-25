@@ -16,12 +16,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { z } from "zod";
 import { CountryCitySelect } from "@/components/country-city-select";
-import { useCities, useCountries, useRoomTypes, useLocalizedName } from "@/hooks/use-master-data";
+import { useCountries, useCities } from "@/hooks/use-master-data";
+import { Star } from "lucide-react";
 
 type Search = { city?: string; country?: string };
 
 export const Route = createFileRoute("/request-quote")({
-  head: () => ({ meta: [{ title: "Request a group quote — GroupToStay" }, { name: "description", content: "Submit one group accommodation request and receive competing hotel quotations." }] }),
+  head: () => ({ meta: [
+    { title: "Create a group request — GroupToStay" },
+    { name: "description", content: "One request. Multiple hotel offers. Submit one group accommodation request and receive competing hotel quotations." },
+  ]}),
   validateSearch: (s: Record<string, unknown>): Search => ({
     city: typeof s.city === "string" ? s.city : undefined,
     country: typeof s.country === "string" ? s.country : undefined,
@@ -38,19 +42,16 @@ const Schema = z.object({
   check_out: z.string().min(1),
   guests_count: z.number().int().min(1).max(100000),
   rooms_needed: z.number().int().min(1).max(10000),
-  room_type_id: z.string().uuid().optional().nullable(),
-  board_type: z.enum(["room_only","breakfast","half_board","full_board"]),
-  budget_min: z.number().optional(),
-  budget_max: z.number().optional(),
-  currency: z.string().min(1).max(8),
+  hotel_categories: z.array(z.number().int().min(1).max(5)).optional(),
+  accommodation_type: z.enum(["any","hotel","hotel_apartment","resort"]),
+  meal_plan_code: z.enum(["room_only","bb","hb","fb"]),
+  additional_requirements: z.string().max(2000).optional().or(z.literal("")),
   deadline: z.string().optional().or(z.literal("")),
-  special_requirements: z.string().max(2000).optional().or(z.literal("")),
 });
 
 function Page() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const search = useSearch({ from: "/request-quote" });
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isOrganizer, loading: rolesLoading } = useRoles();
   const [step, setStep] = useState(1);
@@ -59,13 +60,12 @@ function Page() {
   const blocked = !!user && !rolesLoading && !isOrganizer;
   useEffect(() => {
     if (blocked) {
-      toast.info(
-        isAdmin
-          ? "Admins cannot submit quote requests."
-          : t("rfq.hotelCannotRequest", { defaultValue: "Hotel accounts cannot submit quote requests." })
-      );
+      toast.info(isAdmin
+        ? "Admins cannot create group requests."
+        : "Hotel accounts cannot create group requests.");
     }
-  }, [blocked, isAdmin, t]);
+  }, [blocked, isAdmin]);
+
   const [form, setForm] = useState({
     title: "",
     group_type: "umrah" as const,
@@ -75,21 +75,23 @@ function Page() {
     check_out: "",
     guests_count: 30,
     rooms_needed: 10,
-    room_type_id: null as string | null,
-    board_type: "breakfast" as const,
-    budget_min: "" as string | number,
-    budget_max: "" as string | number,
-    currency: "USD",
+    hotel_categories: [] as number[],
+    accommodation_type: "any" as "any"|"hotel"|"hotel_apartment"|"resort",
+    meal_plan_code: "bb" as "room_only"|"bb"|"hb"|"fb",
+    additional_requirements: "",
     deadline: "",
-    special_requirements: "",
   });
 
   const update = (k: keyof typeof form, v: unknown) => setForm(f => ({ ...f, [k]: v }));
+  const toggleCategory = (n: number) => setForm(f => ({
+    ...f,
+    hotel_categories: f.hotel_categories.includes(n)
+      ? f.hotel_categories.filter(x => x !== n)
+      : [...f.hotel_categories, n].sort(),
+  }));
 
   const { data: countries = [] } = useCountries();
   const { data: citiesOfCountry = [] } = useCities(form.destination_country_id);
-  const { data: roomTypes = [] } = useRoomTypes();
-  const localized = useLocalizedName();
 
   async function submit() {
     if (!user) {
@@ -104,23 +106,35 @@ function Page() {
         ...form,
         guests_count: Number(form.guests_count),
         rooms_needed: Number(form.rooms_needed),
-        budget_min: form.budget_min === "" ? undefined : Number(form.budget_min),
-        budget_max: form.budget_max === "" ? undefined : Number(form.budget_max),
       });
       const country = countries.find(c => c.id === parsed.destination_country_id);
       const city = citiesOfCountry.find(c => c.id === parsed.destination_city_id);
-      const roomType = roomTypes.find(r => r.id === parsed.room_type_id);
+
+      // Map meal plan code into legacy board_type for back-compat
+      const boardMap: Record<string, string> = { room_only: "room_only", bb: "breakfast", hb: "half_board", fb: "full_board" };
+
       const { data, error } = await supabase.from("rfqs").insert({
-        ...parsed,
-        // keep legacy text columns populated for back-compat
+        title: parsed.title,
+        group_type: parsed.group_type,
+        destination_country_id: parsed.destination_country_id,
+        destination_city_id: parsed.destination_city_id,
         destination_country: country?.name_en ?? "",
         destination_city: city?.name_en ?? "",
-        room_type_pref: roomType?.name_en ?? null,
-        special_requirements: parsed.special_requirements || null,
+        check_in: parsed.check_in,
+        check_out: parsed.check_out,
+        guests_count: parsed.guests_count,
+        rooms_needed: parsed.rooms_needed,
+        hotel_categories: parsed.hotel_categories && parsed.hotel_categories.length > 0 ? parsed.hotel_categories : null,
+        accommodation_type: parsed.accommodation_type,
+        meal_plan_code: parsed.meal_plan_code,
+        board_type: boardMap[parsed.meal_plan_code] as any,
+        additional_requirements: parsed.additional_requirements || null,
+        special_requirements: parsed.additional_requirements || null,
         deadline: parsed.deadline || null,
+        currency: "USD",
         organizer_id: user.id,
         status: "open",
-      }).select("id").single();
+      } as any).select("id").single();
       if (error) throw error;
       toast.success(t("rfq.createdToast"));
       sessionStorage.removeItem("pending_rfq");
@@ -132,7 +146,6 @@ function Page() {
     }
   }
 
-  // Restore pending after auth
   useEffect(() => {
     if (!authLoading && user) {
       const stored = sessionStorage.getItem("pending_rfq");
@@ -142,13 +155,9 @@ function Page() {
     }
   }, [authLoading, user]);
 
+  if (blocked) return <Navigate to="/dashboard" />;
+
   const totalSteps = 3;
-
-  if (blocked) {
-    // Hotel & admin users cannot create requests — redirect them to their dashboard.
-    return <Navigate to="/dashboard" />;
-  }
-
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
@@ -188,38 +197,55 @@ function Page() {
               <div><Label>{t("rfq.fields.checkOut")}</Label><Input type="date" value={form.check_out} onChange={e => update("check_out", e.target.value)} /></div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>{t("rfq.fields.guests")}</Label><Input type="number" min={1} value={form.guests_count} onChange={e => update("guests_count", e.target.value)} /></div>
-              <div><Label>{t("rfq.fields.rooms")}</Label><Input type="number" min={1} value={form.rooms_needed} onChange={e => update("rooms_needed", e.target.value)} /></div>
+              <div><Label>{t("rfq.fields.guests")}</Label><Input type="number" min={1} value={form.guests_count} onChange={e => update("guests_count", Number(e.target.value))} /></div>
+              <div><Label>{t("rfq.fields.rooms")}</Label><Input type="number" min={1} value={form.rooms_needed} onChange={e => update("rooms_needed", Number(e.target.value))} /></div>
             </div>
-            <div><Label>{t("rfq.fields.roomPref")}</Label>
-              <Select value={form.room_type_id ?? ""} onValueChange={v => update("room_type_id", v || null)}>
-                <SelectTrigger><SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} /></SelectTrigger>
-                <SelectContent>
-                  {roomTypes.map(rt => <SelectItem key={rt.id} value={rt.id}>{localized(rt)}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div><Label>{t("rfq.fields.board")}</Label>
-              <Select value={form.board_type} onValueChange={v => update("board_type", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{["room_only","breakfast","half_board","full_board"].map(k => <SelectItem key={k} value={k}>{t(`rfq.boards.${k}`)}</SelectItem>)}</SelectContent>
-              </Select>
+            <div>
+              <Label>{t("rfq.fields.categories")}</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">{t("rfq.fields.categoriesHint")}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[1,2,3,4,5].map(n => {
+                  const active = form.hotel_categories.includes(n);
+                  return (
+                    <button key={n} type="button" onClick={() => toggleCategory(n)}
+                      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm ${active ? "border-gold bg-gold/10 text-foreground" : "border-input text-muted-foreground"}`}>
+                      {n} <Star className={`h-3 w-3 ${active ? "fill-gold text-gold" : ""}`} />
+                    </button>
+                  );
+                })}
+                <button type="button" onClick={() => update("hotel_categories", [])}
+                  className={`rounded-full border px-3 py-1.5 text-sm ${form.hotel_categories.length === 0 ? "border-gold bg-gold/10 text-foreground" : "border-input text-muted-foreground"}`}>
+                  Any
+                </button>
+              </div>
             </div>
           </>)}
 
           {step === 3 && (<>
-            <div className="grid grid-cols-3 gap-3">
-              <div><Label>{t("rfq.fields.budgetMin")}</Label><Input type="number" value={form.budget_min} onChange={e => update("budget_min", e.target.value)} /></div>
-              <div><Label>{t("rfq.fields.budgetMax")}</Label><Input type="number" value={form.budget_max} onChange={e => update("budget_max", e.target.value)} /></div>
-              <div><Label>{t("rfq.fields.currency")}</Label>
-                <Select value={form.currency} onValueChange={v => update("currency", v)}>
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label>{t("rfq.fields.accommodation")}</Label>
+                <Select value={form.accommodation_type} onValueChange={v => update("accommodation_type", v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{["USD","EUR","GBP","SAR","AED","TRY"].map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                  <SelectContent>
+                    {["any","hotel","hotel_apartment","resort"].map(k => (
+                      <SelectItem key={k} value={k}>{t(`rfq.accommodationTypes.${k}`)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div><Label>{t("rfq.fields.mealPlan")}</Label>
+                <Select value={form.meal_plan_code} onValueChange={v => update("meal_plan_code", v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {["room_only","bb","hb","fb"].map(k => (
+                      <SelectItem key={k} value={k}>{t(`rfq.mealPlans.${k}`)}</SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
             </div>
             <div><Label>{t("rfq.fields.deadline")}</Label><Input type="date" value={form.deadline} onChange={e => update("deadline", e.target.value)} /></div>
-            <div><Label>{t("rfq.fields.notes")}</Label><Textarea rows={4} maxLength={2000} value={form.special_requirements} onChange={e => update("special_requirements", e.target.value)} placeholder={t("rfq.fields.notesPh")} /></div>
+            <div><Label>{t("rfq.fields.notes")}</Label><Textarea rows={4} maxLength={2000} value={form.additional_requirements} onChange={e => update("additional_requirements", e.target.value)} placeholder={t("rfq.fields.notesPh")} /></div>
           </>)}
 
           <div className="flex justify-between pt-4">

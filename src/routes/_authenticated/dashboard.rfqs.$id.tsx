@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { MapPin, Calendar, Users, Star, ArrowLeft, MessageSquare, Trash2 } from "lucide-react";
+import { MapPin, Calendar, Users, Star, ArrowLeft, MessageSquare, Trash2, GitCompare } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/rfqs/$id")({
   head: () => ({ meta: [{ title: "Request — GroupToStay" }] }),
@@ -23,6 +23,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/rfqs/$id")({
 
 const statusColor: Record<string, string> = {
   open: "bg-success/15 text-success",
+  quoting: "bg-info/15 text-info",
+  under_review: "bg-warning/15 text-warning",
   awarded: "bg-gold/20 text-gold-foreground border border-gold/30",
   closed: "bg-muted text-muted-foreground",
   cancelled: "bg-error/15 text-error",
@@ -92,6 +94,17 @@ function Page() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  // Mark freshly received quotations as 'viewed' so hotels get notified.
+  useEffect(() => {
+    const submitted = data?.quotes?.filter((q: any) => q.status === "submitted") ?? [];
+    if (submitted.length === 0) return;
+    supabase
+      .from("quotes")
+      .update({ status: "viewed", viewed_at: new Date().toISOString() } as any)
+      .in("id", submitted.map((q: any) => q.id))
+      .then(() => qc.invalidateQueries({ queryKey: ["rfq", id] }));
+  }, [data?.quotes, id, qc]);
+
   if (isLoading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
   if (!data) throw notFound();
   const { rfq, quotes } = data;
@@ -113,7 +126,7 @@ function Page() {
             </div>
           </div>
           <div className="flex gap-2">
-            {rfq.status === "open" && <Button variant="outline" size="sm" onClick={() => closeMut.mutate()}>{t("dashboard.close")}</Button>}
+            {["open","quoting","under_review"].includes(rfq.status) && <Button variant="outline" size="sm" onClick={() => closeMut.mutate()}>{t("dashboard.close")}</Button>}
             <Dialog>
               <DialogTrigger asChild><Button variant="ghost" size="sm"><Trash2 className="h-4 w-4 text-error" /></Button></DialogTrigger>
               <DialogContent>
@@ -129,17 +142,35 @@ function Page() {
 
       <Card><CardContent className="p-5 grid sm:grid-cols-2 gap-4 text-sm">
         <Detail label={t("rfq.fields.groupType")} value={t(`rfq.groupTypes.${rfq.group_type}`)} />
-        <Detail label={t("rfq.fields.board")} value={t(`rfq.boards.${rfq.board_type}`)} />
-        <Detail label={t("rfq.fields.roomPref")} value={rfq.room_type_pref || "—"} />
-        <Detail label={t("rfq.fields.budgetMin") + " / " + t("rfq.fields.budgetMax")} value={`${rfq.budget_min ?? "—"} / ${rfq.budget_max ?? "—"} ${rfq.currency}`} />
+        <Detail
+          label={t("rfq.fields.mealPlan")}
+          value={rfq.meal_plan_code ? t(`rfq.mealPlans.${rfq.meal_plan_code}`) : (rfq.board_type ? t(`rfq.boards.${rfq.board_type}`) : "—")}
+        />
+        <Detail
+          label={t("rfq.fields.accommodation")}
+          value={rfq.accommodation_type ? t(`rfq.accommodationTypes.${rfq.accommodation_type}`) : "—"}
+        />
+        <Detail
+          label={t("rfq.fields.categories")}
+          value={Array.isArray(rfq.hotel_categories) && rfq.hotel_categories.length > 0
+            ? rfq.hotel_categories.map((n: number) => `${n}★`).join(", ")
+            : "Any"}
+        />
         <Detail label={t("rfq.fields.deadline")} value={rfq.deadline || "—"} />
-        <Detail label={t("rfq.fields.notes")} value={rfq.special_requirements || "—"} />
+        <Detail label={t("rfq.fields.notes")} value={rfq.additional_requirements || rfq.special_requirements || "—"} />
       </CardContent></Card>
 
       <div>
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <h2 className="font-display text-xl text-primary">{t("dashboard.viewQuotes")} ({quotes.length})</h2>
-          <SimulateQuoteDialog open={mockOpen} onOpenChange={setMockOpen} rfq={rfq} onDone={() => qc.invalidateQueries({ queryKey: ["rfq", id] })} />
+          <div className="flex gap-2">
+            {quotes.length >= 2 && (
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/dashboard/rfqs/$id/compare" params={{ id }}><GitCompare className="h-4 w-4 me-1" /> {t("dashboard.compareQuotes")}</Link>
+              </Button>
+            )}
+            <SimulateQuoteDialog open={mockOpen} onOpenChange={setMockOpen} rfq={rfq} onDone={() => qc.invalidateQueries({ queryKey: ["rfq", id] })} />
+          </div>
         </div>
 
         {quotes.length === 0 ? (
@@ -164,7 +195,7 @@ function Page() {
                   <div className="text-end">
                     <div className="font-display text-2xl text-primary">{q.currency} {Number(q.total_price).toLocaleString()}</div>
                     {q.price_per_room_night && <div className="text-xs text-muted-foreground">{q.currency} {q.price_per_room_night}{t("hotels.perNight")}</div>}
-                    {q.status === "submitted" && rfq.status === "open" && (
+                    {["submitted","viewed","shortlisted"].includes(q.status) && ["open","quoting","under_review"].includes(rfq.status) && (
                       <div className="flex gap-2 justify-end mt-3">
                         <Button size="sm" variant="outline" onClick={() => updateQuote.mutate({ qid: q.id, status: "shortlisted" })}>{t("dashboard.shortlist")}</Button>
                         <Button size="sm" variant="gold" onClick={() => acceptQuote.mutate(q)}>{t("dashboard.accept")}</Button>

@@ -112,7 +112,7 @@ function TrustPage() {
           <Section icon={Lock} title="Data Access & Sharing">
             <p>
               Hotels see only the group requests they are invited to and the
-              messages and quotations tied to those requests. Organizers see
+              messages and quotations tied to those requests. Agencies see
               only their own requests, the responses they receive, and their
               bookings. Administrators may access records as needed to operate
               and support the platform.

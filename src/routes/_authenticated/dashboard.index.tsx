@@ -75,7 +75,10 @@ function OrganizerHome() {
       <Card className="mt-6"><CardContent className="p-6">
         <h2 className="font-display text-xl text-primary">{t("dashboard.myRfqs")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{t("hero.subtitle")}</p>
-        <div className="mt-4"><Button asChild variant="default"><Link to="/dashboard/rfqs">{t("dashboard.myRfqs")}</Link></Button></div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button asChild variant="default"><Link to="/dashboard/rfqs">{t("dashboard.myRfqs")}</Link></Button>
+          <Button asChild variant="outline"><Link to="/dashboard/quotations">{t("dashboard.allQuotations")}</Link></Button>
+        </div>
       </CardContent></Card>
     </div>
   );
