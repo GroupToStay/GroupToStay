@@ -1,5 +1,10 @@
 {
   "brand": "GroupToStay",
+  "role": {
+    "agency": "وكالة",
+    "hotel": "فندق",
+    "admin": "مدير"
+  },
   "tagline": "إقامة جماعية، بشروطك.",
   "nav": {
     "howItWorks": "كيف يعمل",
@@ -195,7 +200,28 @@
       "shortlisted": "ضمن القائمة المختصرة",
       "accepted": "مقبول",
       "rejected": "مرفوض",
-      "withdrawn": "مسحوب"
+      "withdrawn": "مسحوب",
+      "viewed": "تمت المشاهدة",
+      "quoting": "قيد التسعير",
+      "under_review": "قيد المراجعة"
+    },
+    "agencyDashboard": "لوحة الوكالة",
+    "agencyOverview": "نظرة عامة",
+    "myRequests": "طلباتي",
+    "receivedQuotations": "العروض المستلمة",
+    "allQuotations": "كل العروض",
+    "compareQuotes": "مقارنة العروض",
+    "compare": {
+      "title": "مقارنة العروض",
+      "hotel": "الفندق",
+      "price": "السعر",
+      "perRoom": "لكل غرفة/ليلة",
+      "board": "نظام الوجبات",
+      "validUntil": "ساري حتى",
+      "inclusions": "ما يشمله",
+      "responseTime": "وقت الاستجابة",
+      "actions": "إجراءات",
+      "noQuotes": "لا توجد عروض للمقارنة بعد."
     },
     "guests": "ضيوف",
     "nights": "ليالٍ",
