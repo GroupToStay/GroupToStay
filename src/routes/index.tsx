@@ -521,7 +521,7 @@ function AdminLanding() {
 
 /* ────────────────────────────────  HERO  ──────────────────────────────── */
 
-function Hero({ isHotel }: { isHotel: boolean }) {
+function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolean }) {
   const { data: counts } = useQuery({
     queryKey: ["hero-counts"],
     queryFn: async () => {
