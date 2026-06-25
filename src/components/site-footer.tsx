@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Building2, Mail, Phone, MapPin, Twitter, Facebook, Instagram, Linkedin } from "lucide-react";
+import { useRoles } from "@/hooks/use-role";
 
 export function SiteFooter() {
   const { t } = useTranslation();
+  const { isOrganizer } = useRoles();
   return (
     <footer className="mt-auto border-t border-border bg-primary text-primary-foreground">
       <div className="container-page py-14 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
