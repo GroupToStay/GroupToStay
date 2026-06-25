@@ -13,9 +13,10 @@ import { Label } from "@/components/ui/label";
 import {
   ArrowRight, Building2, Users, Globe2, Clock, ClipboardList, FileText,
   CheckCircle2, ShieldCheck, Star, MessageSquare, Inbox, Hotel,
-  Calendar, BedDouble, Wallet, MapPin, Sparkles, Handshake, BadgeCheck,
+  Calendar, BedDouble, MapPin, Sparkles, Handshake, BadgeCheck,
   TimerReset, Lock, Quote as QuoteIcon, ArrowUpRight,
 } from "lucide-react";
+import { CountryCitySelect } from "@/components/country-city-select";
 import heroImg from "@/assets/hero-lobby.jpg";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
