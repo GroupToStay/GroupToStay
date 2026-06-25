@@ -32,7 +32,7 @@ function Page() {
     queryFn: async () => {
       const { data } = await supabase
         .from("rfqs")
-        .select("id,title,group_type,destination_city,destination_country,check_in,check_out,nights,guests_count,rooms_needed,board_type,budget_min,budget_max,currency,deadline,created_at")
+        .select("id,title,group_type,destination_city,destination_country,check_in,check_out,nights,guests_count,rooms_needed,board_type,deadline,created_at")
         .eq("status", "open")
         .order("created_at", { ascending: false });
       return data ?? [];
