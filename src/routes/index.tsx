@@ -278,7 +278,7 @@ function LiveStatsSection() {
           Live
         </div>
         <h2 className="mt-2 font-display text-3xl md:text-4xl text-primary">Live Marketplace Activity</h2>
-        <p className="mt-2 text-muted-foreground">Real-time signals from organizers and hotels on the platform.</p>
+        <p className="mt-2 text-muted-foreground">Real-time signals from agencies and hotels on the platform.</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {items.map((s) => (
@@ -351,7 +351,7 @@ function OpenRequestsSection() {
       <div className="flex items-end justify-between gap-4 flex-wrap mb-8">
         <div>
           <h2 className="font-display text-3xl md:text-4xl text-primary">Latest Group Requests</h2>
-          <p className="mt-2 text-muted-foreground">Live demand from organizers — open to all approved hotels.</p>
+          <p className="mt-2 text-muted-foreground">Live demand from agencies — open to all approved hotels.</p>
         </div>
         <Button asChild variant="ghost"><Link to="/requests">View all <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link></Button>
       </div>

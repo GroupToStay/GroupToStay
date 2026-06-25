@@ -16,7 +16,7 @@ export const Route = createFileRoute("/requests/")({
       { title: "Open group requests — GroupToStay" },
       { name: "description", content: "Browse open group accommodation requests from organizers worldwide. Hotels can respond directly to win the booking." },
       { property: "og:title", content: "Open group requests — GroupToStay" },
-      { property: "og:description", content: "Live Group Requests from group organizers. Hotels: respond and message the organizer to close the deal." },
+      { property: "og:description", content: "Live Group Requests from travel agencies. Hotels: respond and message the agency to close the deal." },
     ],
   }),
   component: Page,
@@ -55,7 +55,7 @@ function Page() {
         <section className="bg-primary text-primary-foreground">
           <div className="container-page py-14">
             <h1 className="font-display text-4xl">Open group requests</h1>
-            <p className="mt-2 text-primary-foreground/80">Live Group Requests from organizers. Hotels — review and message the organizer to win the deal.</p>
+            <p className="mt-2 text-primary-foreground/80">Live Group Requests from agencies. Hotels — review and message the agency to win the deal.</p>
           </div>
         </section>
 
