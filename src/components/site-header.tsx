@@ -37,20 +37,13 @@ export function SiteHeader() {
   };
 
   const linkCls = "text-sm font-medium text-foreground/80 hover:text-foreground transition";
-  // Admin: dashboard + admin functions only.
-  // Hotel: supplier-focused nav (no How it works / Hotels / For Hotels).
-  // Organizer/public: full marketing nav.
-  const navLinks = isAdmin ? null : isHotel ? (
-    <>
-      <Link to="/requests" className={linkCls}>{t("nav.groupRequests")}</Link>
-      <Link to="/pricing" className={linkCls}>{t("nav.pricing")}</Link>
-      <Link to="/about" className={linkCls}>{t("nav.about")}</Link>
-      <Link to="/contact" className={linkCls}>{t("nav.contact")}</Link>
-    </>
-  ) : (
+  // Public marketing nav is available to ALL users (including admin/hotel/agency)
+  // so they can freely browse the public site like Booking.com / Airbnb.
+  const navLinks = (
     <>
       <Link to="/how-it-works" className={linkCls}>{t("nav.howItWorks")}</Link>
       <Link to="/hotels" className={linkCls}>{t("nav.hotels")}</Link>
+      {(isHotel || !user) && (<Link to="/requests" className={linkCls}>{t("nav.groupRequests")}</Link>)}
       {showForHotels && (<Link to="/for-hotels" className={linkCls}>{t("nav.forHotels")}</Link>)}
       {showPricing && (<Link to="/pricing" className={linkCls}>{t("nav.pricing")}</Link>)}
       <Link to="/about" className={linkCls}>{t("nav.about")}</Link>
@@ -58,6 +51,7 @@ export function SiteHeader() {
     </>
   );
 
+  const dashboardHref = isAdmin ? "/admin" : isHotel ? "/dashboard/hotel" : "/dashboard";
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
@@ -76,9 +70,7 @@ export function SiteHeader() {
           {user ? (
             <>
               <NotificationBell />
-              {!isAdmin && (
-                <Button asChild variant="ghost" size="sm"><Link to="/dashboard">{t("nav.dashboard")}</Link></Button>
-              )}
+              <Button asChild variant="ghost" size="sm"><Link to={dashboardHref}>{t("nav.dashboard")}</Link></Button>
               <Button variant="outline" size="sm" onClick={handleSignOut}>{t("nav.signOut")}</Button>
             </>
 
