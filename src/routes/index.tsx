@@ -578,6 +578,15 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
                     <Link to="/dashboard/hotel">My Hotel Profile</Link>
                   </Button>
                 </>
+              ) : isOrganizer ? (
+                <>
+                  <Button asChild size="lg" className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg">
+                    <Link to="/request-quote">Create New Request <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+                    <Link to="/dashboard/rfqs">View My Requests</Link>
+                  </Button>
+                </>
               ) : (
                 <>
                   <Button asChild size="lg" className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg">
