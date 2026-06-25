@@ -37,7 +37,27 @@ export const Route = createFileRoute("/")({
 function Landing() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { isHotel } = useRoles();
+  const { isHotel, isAdmin, loading: rolesLoading } = useRoles();
+
+  if (user && rolesLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-surface">
+        <SiteHeader />
+        <div className="container-page py-20 text-center text-muted-foreground">Loading…</div>
+        <SiteFooter />
+      </div>
+    );
+  }
+
+  if (isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col bg-surface">
+        <SiteHeader />
+        <AdminLanding />
+        <SiteFooter />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
@@ -55,6 +75,160 @@ function Landing() {
       <CtaBanner isHotel={isHotel} />
       <SiteFooter />
     </div>
+  );
+}
+
+/* ────────────────────────────────  ADMIN LANDING  ──────────────────────────────── */
+
+function AdminLanding() {
+  const { data: stats } = useQuery({
+    queryKey: ["admin-landing-stats"],
+    refetchInterval: 60_000,
+    queryFn: async () => {
+      const [
+        companiesTotal, companiesApproved, companiesPending, companiesRejected,
+        rfqsTotal, rfqsOpen, rfqsClosed,
+        rolesAgency, rolesHotel,
+        subActive, subWaiting,
+      ] = await Promise.all([
+        supabase.from("profiles").select("id", { count: "exact", head: true }).not("hotel_approval_status", "is", null),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("hotel_approval_status", "approved"),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("hotel_approval_status", "pending"),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("hotel_approval_status", "rejected"),
+        supabase.from("rfqs").select("id", { count: "exact", head: true }),
+        supabase.from("rfqs").select("id", { count: "exact", head: true }).eq("status", "open"),
+        supabase.from("rfqs").select("id", { count: "exact", head: true }).in("status", ["closed", "awarded", "cancelled"]),
+        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "organizer"),
+        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "hotel"),
+        supabase.from("subscription_interest").select("id", { count: "exact", head: true }).eq("status", "notified"),
+        supabase.from("subscription_interest").select("id", { count: "exact", head: true }).eq("status", "waiting"),
+      ]);
+      return {
+        companiesTotal: companiesTotal.count ?? 0,
+        companiesApproved: companiesApproved.count ?? 0,
+        companiesPending: companiesPending.count ?? 0,
+        companiesRejected: companiesRejected.count ?? 0,
+        rfqsTotal: rfqsTotal.count ?? 0,
+        rfqsOpen: rfqsOpen.count ?? 0,
+        rfqsClosed: rfqsClosed.count ?? 0,
+        agencies: rolesAgency.count ?? 0,
+        hotelUsers: rolesHotel.count ?? 0,
+        subActive: subActive.count ?? 0,
+        subWaiting: subWaiting.count ?? 0,
+      };
+    },
+  });
+
+  const sections: { title: string; tint: string; cards: { label: string; value: number | string }[] }[] = [
+    {
+      title: "Hotels",
+      tint: "text-brand-blue bg-brand-blue/10",
+      cards: [
+        { label: "Total Hotel Companies", value: stats?.companiesTotal ?? 0 },
+        { label: "Approved", value: stats?.companiesApproved ?? 0 },
+        { label: "Pending", value: stats?.companiesPending ?? 0 },
+        { label: "Rejected", value: stats?.companiesRejected ?? 0 },
+      ],
+    },
+    {
+      title: "Requests",
+      tint: "text-premium bg-premium/15",
+      cards: [
+        { label: "Total Requests", value: stats?.rfqsTotal ?? 0 },
+        { label: "Active (Open)", value: stats?.rfqsOpen ?? 0 },
+        { label: "Closed", value: stats?.rfqsClosed ?? 0 },
+      ],
+    },
+    {
+      title: "Users",
+      tint: "text-success bg-success/10",
+      cards: [
+        { label: "Total Agencies", value: stats?.agencies ?? 0 },
+        { label: "Total Hotel Users", value: stats?.hotelUsers ?? 0 },
+      ],
+    },
+    {
+      title: "Revenue",
+      tint: "text-primary bg-primary/10",
+      cards: [
+        { label: "Active Subscriptions", value: stats?.subActive ?? 0 },
+        { label: "Pending Subscription Requests", value: stats?.subWaiting ?? 0 },
+      ],
+    },
+  ];
+
+  const quickActions = [
+    { title: "Hotel Companies", desc: "Review and approve hotel companies.", to: "/dashboard/admin", search: { tab: "companies" }, icon: Building2, badge: null as string | null },
+    { title: "Hotel Listings", desc: "Review hotel listings.", to: "/dashboard/admin", search: { tab: "hotels" }, icon: Hotel, badge: null },
+    { title: "Subscription Interest", desc: "Hotels requesting subscriptions.", to: "/dashboard/admin", search: { tab: "interest" }, icon: Inbox, badge: null },
+    { title: "Subscriptions", desc: "Subscription billing module.", to: "/dashboard/admin", search: { tab: "interest" }, icon: BadgeCheck, badge: "Not Active Yet" },
+    { title: "Settings", desc: "Platform settings.", to: "/dashboard/profile", search: undefined, icon: ShieldCheck, badge: null },
+  ];
+
+  return (
+    <section className="container-page py-10 md:py-14">
+      <div className="rounded-2xl bg-gradient-to-br from-[oklch(0.18_0.04_265)] to-[oklch(0.32_0.10_264)] text-primary-foreground p-8 md:p-10">
+        <Badge className="bg-premium text-premium-foreground border-0 mb-3 uppercase tracking-wider">Admin Console</Badge>
+        <h1 className="font-display text-3xl md:text-4xl font-semibold">Welcome Admin</h1>
+        <p className="mt-2 text-primary-foreground/80 max-w-2xl">
+          Manage hotels, subscriptions, approvals and platform performance.
+        </p>
+      </div>
+
+      <div className="mt-8 space-y-8">
+        {sections.map((sec) => (
+          <div key={sec.title}>
+            <div className="flex items-center gap-2 mb-3">
+              <h2 className="font-display text-xl text-primary">{sec.title}</h2>
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {sec.cards.map((c) => (
+                <div key={c.label} className="rounded-2xl bg-card border border-border p-5 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition">
+                  <div className={`inline-grid h-9 w-9 place-items-center rounded-lg ${sec.tint}`}>
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+                  <div className="mt-3 font-display text-3xl font-semibold text-primary">{c.value}</div>
+                  <div className="mt-0.5 text-sm text-muted-foreground">{c.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-10">
+        <h2 className="font-display text-xl text-primary mb-3">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {quickActions.map((qa) => {
+            const Inner = (
+              <Card className="h-full hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition">
+                <CardContent className="p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="grid h-10 w-10 place-items-center rounded-lg bg-brand-blue/10 text-brand-blue">
+                      <qa.icon className="h-5 w-5" />
+                    </span>
+                    {qa.badge ? (
+                      <Badge className="bg-muted text-muted-foreground">{qa.badge}</Badge>
+                    ) : (
+                      <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="mt-3 font-display text-lg text-primary">{qa.title}</div>
+                  <div className="text-sm text-muted-foreground">{qa.desc}</div>
+                </CardContent>
+              </Card>
+            );
+            return qa.badge ? (
+              <div key={qa.title} className="opacity-70 cursor-not-allowed">{Inner}</div>
+            ) : qa.search ? (
+              <Link key={qa.title} to={qa.to} search={qa.search as any}>{Inner}</Link>
+            ) : (
+              <Link key={qa.title} to={qa.to}>{Inner}</Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
 
