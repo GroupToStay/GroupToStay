@@ -391,7 +391,7 @@ function OpenRequestsSection() {
     queryFn: async () => {
       const { data } = await supabase
         .from("rfqs")
-        .select("id,title,group_type,destination_city,destination_country,check_in,check_out,nights,guests_count,rooms_needed,currency,budget_min,budget_max,created_at")
+        .select("id,title,group_type,destination_city,destination_country,check_in,check_out,nights,guests_count,rooms_needed,created_at")
         .eq("status", "open")
         .order("created_at", { ascending: false })
         .limit(6);
