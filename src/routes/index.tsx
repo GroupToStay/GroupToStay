@@ -37,7 +37,7 @@ export const Route = createFileRoute("/")({
 function Landing() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { isHotel, isAdmin, loading: rolesLoading } = useRoles();
+  const { isHotel, isAdmin, isOrganizer, loading: rolesLoading } = useRoles();
 
   if (user && rolesLoading) {
     return (
@@ -49,21 +49,10 @@ function Landing() {
     );
   }
 
-  if (isAdmin) {
-    if (typeof window !== "undefined") window.location.replace("/admin");
-    return (
-      <div className="min-h-screen flex flex-col bg-surface">
-        <SiteHeader />
-        <div className="container-page py-20 text-center text-muted-foreground">Loading admin console…</div>
-        <SiteFooter />
-      </div>
-    );
-  }
-
-
   return (
     <div className="min-h-screen flex flex-col bg-surface">
       <SiteHeader />
+      {user ? <WelcomeBanner userId={user.id} isHotel={isHotel} isAdmin={isAdmin} isOrganizer={isOrganizer} /> : null}
       <Hero isHotel={isHotel} />
       <QuickSearchPanel isHotel={isHotel} />
       <LiveStatsSection />
@@ -79,6 +68,76 @@ function Landing() {
     </div>
   );
 }
+
+/* ────────────────────────────  WELCOME BANNER  ──────────────────────────── */
+
+function WelcomeBanner({ userId, isHotel, isAdmin, isOrganizer }: { userId: string; isHotel: boolean; isAdmin: boolean; isOrganizer: boolean }) {
+  const { data } = useQuery({
+    queryKey: ["welcome-banner", userId],
+    queryFn: async () => {
+      const [{ data: profile }, { data: hotels }] = await Promise.all([
+        supabase.from("profiles").select("full_name, company_name").eq("id", userId).maybeSingle(),
+        supabase.from("hotels").select("name").eq("owner_id", userId).limit(1),
+      ]);
+      return {
+        name: profile?.company_name || profile?.full_name || "",
+        hotelName: hotels?.[0]?.name || "",
+      };
+    },
+  });
+
+  let title = "Welcome back";
+  let actions: { label: string; to: string; icon: any; search?: any }[] = [];
+  let badgeText = "";
+
+  if (isAdmin) {
+    title = "Welcome back, Admin";
+    badgeText = "Admin";
+    actions = [
+      { label: "View Dashboard", to: "/admin", icon: ClipboardList },
+      { label: "Review Hotels", to: "/admin/hotel-companies", icon: Hotel },
+      { label: "Review Listings", to: "/admin/hotel-listings", icon: Building2 },
+      { label: "Subscription Requests", to: "/admin/subscription-interest", icon: Inbox },
+    ];
+  } else if (isHotel) {
+    title = `Welcome back, ${data?.hotelName || data?.name || "Hotel"}`;
+    badgeText = "Hotel";
+    actions = [
+      { label: "View Open Requests", to: "/requests", icon: ClipboardList },
+      { label: "My Quotations", to: "/dashboard/quotations", icon: FileText },
+      { label: "Manage Hotel Profile", to: "/dashboard/hotel", icon: Hotel },
+    ];
+  } else if (isOrganizer) {
+    title = `Welcome back, ${data?.name || "Agency"}`;
+    badgeText = "Agency";
+    actions = [
+      { label: "Create New Request", to: "/request-quote", icon: ClipboardList },
+      { label: "My Requests", to: "/dashboard/rfqs", icon: FileText },
+      { label: "Received Offers", to: "/dashboard/quotations", icon: Inbox },
+    ];
+  } else {
+    return null;
+  }
+
+  return (
+    <section className="bg-gradient-to-r from-primary to-[oklch(0.32_0.10_264)] text-primary-foreground border-b border-border/40">
+      <div className="container-page py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <Badge className="bg-premium text-premium-foreground border-0 uppercase tracking-wider shrink-0">{badgeText}</Badge>
+          <h2 className="font-display text-xl md:text-2xl font-semibold truncate">{title}</h2>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {actions.map((a) => (
+            <Button key={a.label} asChild size="sm" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+              <Link to={a.to}><a.icon className="h-4 w-4" /> {a.label}</Link>
+            </Button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 
 /* ────────────────────────────────  ADMIN LANDING  ──────────────────────────────── */
 
