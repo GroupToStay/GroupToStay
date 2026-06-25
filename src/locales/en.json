@@ -191,6 +191,11 @@
     "contactEmail": "Business contact email",
     "contactEmailPh": "Leave blank to use your account email",
     "organizerIdIntro": "Identity required to publish group requests.",
+    "agencyIntro": "Tell us about your agency. This information helps hotels evaluate your requests.",
+    "agencyType": "Agency type",
+    "businessAddress": "Business address",
+    "website": "Website (optional)",
+    "websitePh": "https://your-agency.com",
     "idType": "Identity type",
     "idTypes": {
       "saudi_id": "Saudi National ID",
