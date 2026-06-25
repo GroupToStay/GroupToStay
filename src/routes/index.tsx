@@ -161,28 +161,35 @@ function Hero({ isHotel }: { isHotel: boolean }) {
 
 /* ────────────────────  QUICK SEARCH PANEL  ──────────────────── */
 
+
 function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    city: "",
+    countryId: null as string | null,
+    cityId: null as string | null,
     guests: "",
     rooms: "",
     checkIn: "",
     checkOut: "",
-    budget: "",
+    accommodation: "any" as "any" | "hotel" | "hotel_apartment" | "resort",
+    mealPlan: "bb" as "room_only" | "bb" | "hb" | "fb",
+    category: "any" as "any" | "3" | "4" | "5",
   });
   if (isHotel) return null;
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (form.city) params.set("city", form.city);
-    if (form.guests) params.set("guests", form.guests);
-    if (form.rooms) params.set("rooms", form.rooms);
-    if (form.checkIn) params.set("check_in", form.checkIn);
-    if (form.checkOut) params.set("check_out", form.checkOut);
-    if (form.budget) params.set("budget_max", form.budget);
-    navigate({ to: "/request-quote", search: Object.fromEntries(params) as any });
+    const params: Record<string, string> = {};
+    if (form.countryId) params.country_id = form.countryId;
+    if (form.cityId) params.city_id = form.cityId;
+    if (form.guests) params.guests = form.guests;
+    if (form.rooms) params.rooms = form.rooms;
+    if (form.checkIn) params.check_in = form.checkIn;
+    if (form.checkOut) params.check_out = form.checkOut;
+    if (form.accommodation !== "any") params.accommodation = form.accommodation;
+    params.meal_plan = form.mealPlan;
+    if (form.category !== "any") params.category = form.category;
+    navigate({ to: "/request-quote", search: params as any });
   };
 
   return (
@@ -198,11 +205,20 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
           <h2 className="font-display text-xl md:text-2xl text-primary">
             Start Your Group Accommodation Request
           </h2>
+          <span className="ml-auto hidden md:inline text-xs text-muted-foreground">
+            No budget needed — hotels compete with their best quotations
+          </span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-          <Field icon={MapPin} label="Destination City">
-            <Input placeholder="e.g. Makkah" value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
-          </Field>
+
+        <CountryCitySelect
+          countryId={form.countryId}
+          cityId={form.cityId}
+          onChange={({ countryId, cityId }) => setForm(f => ({ ...f, countryId, cityId }))}
+          labelCountry="Destination Country"
+          labelCity="Destination City"
+        />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
           <Field icon={Users} label="Group Size">
             <Input type="number" min={1} placeholder="120" value={form.guests} onChange={(e) => setForm((f) => ({ ...f, guests: e.target.value }))} />
           </Field>
@@ -215,19 +231,57 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
           <Field icon={Calendar} label="Check-Out">
             <Input type="date" value={form.checkOut} onChange={(e) => setForm((f) => ({ ...f, checkOut: e.target.value }))} />
           </Field>
-          <Field icon={Wallet} label="Budget / Room">
-            <Input type="number" min={0} placeholder="SAR 300" value={form.budget} onChange={(e) => setForm((f) => ({ ...f, budget: e.target.value }))} />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+          <Field icon={Star} label="Hotel Category">
+            <select
+              className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+              value={form.category}
+              onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as any }))}
+            >
+              <option value="any">Any</option>
+              <option value="3">3 Star</option>
+              <option value="4">4 Star</option>
+              <option value="5">5 Star</option>
+            </select>
+          </Field>
+          <Field icon={Hotel} label="Accommodation Type">
+            <select
+              className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+              value={form.accommodation}
+              onChange={(e) => setForm((f) => ({ ...f, accommodation: e.target.value as any }))}
+            >
+              <option value="any">Any</option>
+              <option value="hotel">Hotel</option>
+              <option value="hotel_apartment">Hotel Apartment</option>
+              <option value="resort">Resort</option>
+            </select>
+          </Field>
+          <Field icon={BedDouble} label="Meal Plan">
+            <select
+              className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+              value={form.mealPlan}
+              onChange={(e) => setForm((f) => ({ ...f, mealPlan: e.target.value as any }))}
+            >
+              <option value="room_only">Room Only</option>
+              <option value="bb">Bed &amp; Breakfast</option>
+              <option value="hb">Half Board</option>
+              <option value="fb">Full Board</option>
+            </select>
           </Field>
         </div>
+
         <div className="mt-5 flex justify-end">
           <Button type="submit" size="lg" className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90">
-            Create Request <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            Request Quotations <ArrowRight className="h-4 w-4 rtl:rotate-180" />
           </Button>
         </div>
       </form>
     </section>
   );
 }
+
 
 function Field({ icon: Icon, label, children }: { icon: any; label: string; children: React.ReactNode }) {
   return (
