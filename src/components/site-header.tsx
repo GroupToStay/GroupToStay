@@ -40,12 +40,7 @@ export function SiteHeader() {
   // Admin: dashboard + admin functions only.
   // Hotel: supplier-focused nav (no How it works / Hotels / For Hotels).
   // Organizer/public: full marketing nav.
-  const navLinks = isAdmin ? (
-    <>
-      <Link to="/dashboard" className={linkCls}>{t("nav.dashboard")}</Link>
-      <Link to="/dashboard/admin" className={linkCls}>Admin Functions</Link>
-    </>
-  ) : isHotel ? (
+  const navLinks = isAdmin ? null : isHotel ? (
     <>
       <Link to="/requests" className={linkCls}>{t("nav.groupRequests")}</Link>
       <Link to="/pricing" className={linkCls}>{t("nav.pricing")}</Link>
@@ -62,6 +57,7 @@ export function SiteHeader() {
       <Link to="/contact" className={linkCls}>{t("nav.contact")}</Link>
     </>
   );
+
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
