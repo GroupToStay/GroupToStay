@@ -131,6 +131,9 @@ function Page() {
         } else {
           data.id_type = idType;
           data.id_number = idNumber;
+          if (agencyType) data.agency_type = agencyType;
+          if (businessAddress.trim()) data.business_address = businessAddress.trim();
+          if (website.trim()) data.website = website.trim();
         }
 
         const { error } = await supabase.auth.signUp({
