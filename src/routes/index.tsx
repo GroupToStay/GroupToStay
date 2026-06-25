@@ -49,6 +49,16 @@ function Landing() {
     );
   }
 
+  if (user && isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col bg-surface">
+        <SiteHeader />
+        <AdminExecutiveDashboard />
+        <SiteFooter />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-surface">
       <SiteHeader />
