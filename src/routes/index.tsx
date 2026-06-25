@@ -160,7 +160,7 @@ function AdminExecutiveDashboard() {
         supabase.from("profiles").select("id", { count: "exact", head: true }).not("hotel_approval_status", "is", null),
         supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "approved"),
         supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "rejected"),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("hotel_approval_status", "rejected"),
         supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "organizer"),
         supabase.from("rfqs").select("id", { count: "exact", head: true }).eq("status", "open"),
         supabase.from("quotes").select("id", { count: "exact", head: true }),
