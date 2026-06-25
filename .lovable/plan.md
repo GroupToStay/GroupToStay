@@ -1,71 +1,134 @@
-# PMS Information Collection — Additive Only
+# GroupToStay → B2B Group Hotel Quotation Marketplace
 
-This change is **purely additive**. No existing workflow, permission, or RLS policy changes. Organizers and Admins keep current capabilities; Hotel users keep all current functionality and gain new optional PMS fields.
+This plan rebrands the **Organizer** role to **Agency**, removes budget-driven logic, adds a proper quotation marketplace with a comparison view, and refines hotel/agency dashboards. All changes are additive or rename-only at the data layer — existing rows, approvals, messages, RLS, and auth flows are preserved.
 
-## Scope
+---
 
-Collect PMS metadata from hotel companies for future integration planning. No API connection, no sync, no availability logic changes.
+## 1. Database (single migration, non-destructive)
 
-## 1. Database (single migration)
+All renames happen at the **application/UI layer**. At the DB level we keep `organizer` to avoid breaking RLS, triggers, FKs, and existing data.
 
-Add to `public.profiles` (hotel company profile lives here today alongside `company_name`, `vat_number`, `cr_number`):
+Additions only:
 
-- `pms_enabled boolean` — null/true/false
-- `pms_provider text` — preset name or "Other"
-- `pms_provider_other text` — free text when provider = Other
-- `api_available text` — CHECK in ('Yes','No','Not Sure') or null
-- `technical_contact_name text`
-- `technical_contact_email text`
-- `technical_contact_phone text`
+- `app_role` enum: add value `'agency'` as an **alias** (kept unused for now — existing `organizer` rows remain valid). UI maps `organizer ⇄ agency`.
+- `profiles`: add nullable columns
+  - `agency_type text` (CHECK in: umrah, hajj, travel, tour_operator, corporate, event, sports, school, government, other)
+  - `business_address text`
+  - `website text`
+  - `city_id uuid references public.cities(id)` (if not already present — verify)
+- `rfqs`: add nullable columns
+  - `hotel_categories int[]` (multi-select star ratings; null = Any)
+  - `accommodation_type text` (CHECK in: hotel, hotel_apartment, resort, any)
+  - `meal_plan text` (CHECK in: room_only, bb, hb, fb)
+  - `additional_requirements text`
+  - Extend status enum/check to include: `draft`, `quoting`, `under_review`, `awarded`. Keep existing `open`, `closed`.
+  - **Keep** `budget_*` columns nullable; stop writing to them. No drop.
+- `quotes`: add
+  - `viewed_at timestamptz`
+  - `shortlisted_at timestamptz`
+  - `room_type text`
+  - `included_services text[]`
+  - Status enum already supports pending/accepted/rejected — add `shortlisted`, `viewed` via CHECK extension.
 
-All nullable, no defaults beyond null. **No new RLS policies needed** — existing profile RLS already restricts a hotel user to their own row, admins via `has_role`, and blocks organizers. Existing `restrict_profile_company_fields` trigger is unaffected (we don't touch its locked columns).
+`handle_new_user()` trigger extended to persist `agency_type`, `business_address`, `website` from `raw_user_meta_data`.
 
-## 2. Hotel Company Registration (`src/routes/auth.tsx`)
+No table drops. No data deletions. No RLS rewrites.
 
-Append a new optional "Property Management System" section to the hotel signup form, after the existing company fields:
+## 2. Terminology layer (UI + i18n only)
 
-- Radio: "Do you use a PMS?" → Yes / No
-- If **No** or unset: nothing more shown; submit with `pms_enabled = false` (or null if untouched)
-- If **Yes**:
-  - Provider dropdown: MyCloud PMS, Oracle Opera PMS, Cloudbeds, Mews, eZee Absolute, Hotelogix, Protel, Other
-  - If Other → "Please specify" text input
-  - API Available dropdown: Yes / No / Not Sure
-  - Technical Contact Name / Email / Phone (email + phone validated client-side with zod)
+- Add i18n keys: `role.agency`, `dashboard.agency.*`, etc. in `src/locales/en.json` + `ar.json`.
+- Replace all visible "Organizer" strings → "Agency" across routes, components, headers, sidebar, notifications copy.
+- Keep code identifiers (`organizer_id`, `is_rfq_organizer`, hooks like `useRoles`) **unchanged** to avoid breaking the codebase. Add a thin helper `roleLabel(role)` that returns "Agency" for `organizer`.
 
-Values pass through `raw_user_meta_data`; extend `handle_new_user()` trigger to persist them into `profiles`.
+## 3. Registration (`src/routes/auth.tsx`)
 
-## 3. Hotel Profile Edit (`src/routes/_authenticated/dashboard.profile.tsx`)
+- Rename the "Organizer" tab/option to "Agency".
+- Add agency fields (when role = agency): Company Name, Contact Person, Business Address, Country, City, Agency Type dropdown, optional Website, optional CR Number, Notes.
+- Remove any budget-related copy.
+- Hotel signup unchanged (still has PMS section from previous turn).
 
-Add a new "PMS Information" card below existing company section. Same fields as registration, editable and saved via existing profile update path. Visible only when the user has the hotel role (no UI change for organizers/admins viewing their own profile).
+## 4. Request creation (`src/routes/_authenticated/dashboard.rfqs.new.tsx` + `request-quote.tsx`)
 
-## 4. Admin Company Review (`src/routes/_authenticated/dashboard.admin.tsx`)
+- Country → City cascading dropdowns (reuse `country-city-select.tsx`; no free typing).
+- Replace budget inputs with:
+  - Hotel Categories (multi-select chips: Any / 1–5★)
+  - Accommodation Type
+  - Meal Plan
+  - Additional Requirements (textarea)
+- Submit writes new columns; legacy budget fields sent as null.
 
-Extend the company select query with the new columns and add a "PMS Information" block inside each company card displaying: Uses PMS, Provider (+ Other text), API Available, Technical Contact Name / Email / Phone. Read-only display.
+## 5. Agency dashboard
 
-## 5. Admin PMS Statistics Widget
+- Rename sidebar group "Organizer" → "Agency".
+- Sections: Overview, Active Requests, Received Quotations, Awarded Requests, Messages.
+- New route `src/routes/_authenticated/dashboard.quotations.tsx` — list all quotations across the agency's RFQs.
+- **Comparison screen** `src/routes/_authenticated/dashboard.rfqs.$id.compare.tsx` — side-by-side table (Hotel | Rating | Location | Room Price | Total | Meal Plan | Services | Response Time | Action: Award).
+- Awarding a quote sets RFQ status `awarded`, quote status `accepted`, other quotes auto-`rejected` (existing `acceptQuote` mutation extended).
 
-New "PMS Statistics" card on the admin dashboard showing counts grouped by `pms_provider` (including "Other" and "Not specified"). Implemented as a client-side aggregation over the already-fetched company list — no new server function, no schema change.
+## 6. Hotel dashboard
 
-## 6. Hotel Dashboard — PMS Integration Placeholder
+- New "Open Requests" view filtering matched RFQs (reuse `rfq_invitations` + status `open`/`quoting`).
+- Cards show Agency Type, destination, dates, guests, rooms, requirements. Buttons: View Details, Send Quotation.
+- Stats cards: New Requests, Active Quotations, Won, Lost, Confirmed Bookings, Revenue.
 
-New route `src/routes/_authenticated/dashboard.hotel.pms.tsx` (linked from the hotel dashboard nav as "PMS Integration"):
+## 7. Request status lifecycle
 
-- Status badge: **Not Connected**
-- Informational copy: "PMS synchronization will become available in a future release."
-- No buttons, no actions.
+- Status transitions handled in mutations:
+  - Create → `open` (or `draft` if saved without submit; optional)
+  - First quote received → `quoting`
+  - Agency opens compare view → `under_review` (soft, optional)
+  - Award → `awarded`
+  - Manual close → `closed`
+- Badge colors updated in status maps.
 
-## 7. Security / Validation
+## 8. Notifications
 
-- Zod schemas on registration + profile forms: email format, phone digits/length, required fields enforced only when `pms_enabled = true`.
-- RLS: relies on existing profile policies — hotel sees own row, admin sees all, organizer blocked. No new grants.
-- All new columns nullable so existing rows and existing insert paths keep working.
+Extend `create_notification` call sites:
+- Hotel: on quote viewed, quote shortlisted, request awarded (already partially exists for accepted).
+- Agency: on new quote, on hotel message (already exists).
 
-## 8. Non-regression
+## 9. Homepage (`src/routes/index.tsx`, `for-hotels.tsx`, `how-it-works.tsx`)
 
-No edits to: organizer flows, RFQs, hotels table, quotes, bookings, messaging, notifications, subscriptions, auth gates, search, hotel CRUD, approval triggers. Migration only adds nullable columns + extends one trigger function — no policy or constraint changes on existing columns.
+Update hero/marketing copy to:
+- "One Request. Multiple Hotel Offers."
+- Emphasize verified hotels, competitive quotations, side-by-side comparison.
+- Remove any "budget" mentions.
 
-## Technical Notes
+## 10. Admin
 
-- Files touched: `src/routes/auth.tsx`, `src/routes/_authenticated/dashboard.profile.tsx`, `src/routes/_authenticated/dashboard.admin.tsx`, new `src/routes/_authenticated/dashboard.hotel.pms.tsx`, plus i18n keys in `src/locales/en.json` and `src/locales/ar.json`.
-- One migration: add 7 columns to `profiles` + `CREATE OR REPLACE FUNCTION handle_new_user()` extending the existing INSERT with the new fields from `raw_user_meta_data`.
-- `src/integrations/supabase/types.ts` regenerates automatically post-migration.
+No permission changes. Admin lists already show RFQs/quotes/hotels/profiles — add Agency Type column to agency list and surface new RFQ fields (categories, meal plan) read-only.
+
+---
+
+## Out of scope / explicitly preserved
+
+- Auth logic, Supabase RLS policies, approval workflows, PMS section, edge functions, payments (none), existing data, multilingual support, current security memory.
+
+## Technical notes
+
+- DB role string remains `organizer`; UI label is "Agency" via helper.
+- Migration is purely additive (`ALTER TABLE ... ADD COLUMN ... NULL`, enum/CHECK extensions). No `DROP`.
+- `restrict_profile_company_fields` and `lock_*` triggers untouched.
+- i18n keys added in both `en.json` and `ar.json`.
+
+## Files touched
+
+**New**
+- `src/routes/_authenticated/dashboard.quotations.tsx`
+- `src/routes/_authenticated/dashboard.rfqs.$id.compare.tsx`
+- `src/components/agency-type-select.tsx`
+- `src/lib/role-label.ts`
+
+**Edited**
+- Migration adding columns + extended `handle_new_user()`
+- `src/routes/auth.tsx` (Agency registration fields)
+- `src/routes/_authenticated/dashboard.rfqs.new.tsx` (remove budget, add new fields)
+- `src/routes/_authenticated/dashboard.rfqs.$id.tsx` (status transitions, award flow)
+- `src/routes/_authenticated/dashboard.rfqs.index.tsx` (terminology, new columns)
+- `src/routes/_authenticated/dashboard.hotel.index.tsx` (stats, open requests)
+- `src/routes/_authenticated/dashboard.admin.tsx` (agency type column)
+- `src/routes/_authenticated/route.tsx` (sidebar labels + new routes)
+- `src/routes/index.tsx`, `for-hotels.tsx`, `how-it-works.tsx`, `request-quote.tsx` (copy)
+- `src/locales/en.json`, `src/locales/ar.json`
+
+After approval I'll run the migration first, then ship the code changes in batches.
