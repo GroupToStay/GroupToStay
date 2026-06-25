@@ -66,13 +66,15 @@
   },
   "how": {
     "title": "How it works",
-    "subtitle": "Three steps from request to confirmed group booking.",
-    "step1Title": "Submit one request",
-    "step1Body": "Describe your group, destination, dates, board and budget. One form replaces dozens of emails.",
-    "step2Title": "Hotels compete",
-    "step2Body": "Approved hotels in your destination submit quotations within hours, not days.",
-    "step3Title": "Compare, negotiate, award",
-    "step3Body": "Side-by-side quote comparison, in-platform messaging, then a confirmed booking with a clear contract."
+    "subtitle": "Four steps from request to confirmed group booking — no budget guessing, no email chains.",
+    "step1Title": "Agency creates a request",
+    "step1Body": "Pick destination, dates, group size, hotel category and meal plan. No budget required — let hotels compete on price.",
+    "step2Title": "Matching hotels send quotations",
+    "step2Body": "Verified hotels in your destination submit competitive quotations within hours.",
+    "step3Title": "Compare side-by-side",
+    "step3Body": "Open the comparison view, evaluate price, services and hotel quality at a glance, message hotels directly.",
+    "step4Title": "Award the winning hotel",
+    "step4Body": "Pick your preferred offer. The hotel and your agency continue the booking process directly."
   },
   "stats": {
     "rooms": "Rooms quoted",
