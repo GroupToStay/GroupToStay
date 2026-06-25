@@ -64,6 +64,7 @@ const Schema = z.object({
 function Page() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const search = useSearch({ from: "/request-quote" });
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isOrganizer, loading: rolesLoading } = useRoles();
   const [step, setStep] = useState(1);
@@ -78,18 +79,21 @@ function Page() {
     }
   }, [blocked, isAdmin]);
 
+  const cat = search.category;
+  const accom = search.accommodation;
+  const meal = search.meal_plan;
   const [form, setForm] = useState({
     title: "",
     group_type: "umrah" as const,
-    destination_country_id: null as string | null,
-    destination_city_id: null as string | null,
-    check_in: "",
-    check_out: "",
-    guests_count: 30,
-    rooms_needed: 10,
-    hotel_categories: [] as number[],
-    accommodation_type: "any" as "any"|"hotel"|"hotel_apartment"|"resort",
-    meal_plan_code: "bb" as "room_only"|"bb"|"hb"|"fb",
+    destination_country_id: search.country_id ?? null as string | null,
+    destination_city_id: search.city_id ?? null as string | null,
+    check_in: search.check_in ?? "",
+    check_out: search.check_out ?? "",
+    guests_count: search.guests ? Number(search.guests) : 30,
+    rooms_needed: search.rooms ? Number(search.rooms) : 10,
+    hotel_categories: cat && ["3","4","5"].includes(cat) ? [Number(cat)] : [] as number[],
+    accommodation_type: (accom && ["any","hotel","hotel_apartment","resort"].includes(accom) ? accom : "any") as "any"|"hotel"|"hotel_apartment"|"resort",
+    meal_plan_code: (meal && ["room_only","bb","hb","fb"].includes(meal) ? meal : "bb") as "room_only"|"bb"|"hb"|"fb",
     additional_requirements: "",
     deadline: "",
   });
