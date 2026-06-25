@@ -195,7 +195,7 @@ function Page() {
                   <div className="text-end">
                     <div className="font-display text-2xl text-primary">{q.currency} {Number(q.total_price).toLocaleString()}</div>
                     {q.price_per_room_night && <div className="text-xs text-muted-foreground">{q.currency} {q.price_per_room_night}{t("hotels.perNight")}</div>}
-                    {q.status === "submitted" && rfq.status === "open" && (
+                    {["submitted","viewed","shortlisted"].includes(q.status) && ["open","quoting","under_review"].includes(rfq.status) && (
                       <div className="flex gap-2 justify-end mt-3">
                         <Button size="sm" variant="outline" onClick={() => updateQuote.mutate({ qid: q.id, status: "shortlisted" })}>{t("dashboard.shortlist")}</Button>
                         <Button size="sm" variant="gold" onClick={() => acceptQuote.mutate(q)}>{t("dashboard.accept")}</Button>
