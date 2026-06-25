@@ -126,7 +126,7 @@ function Page() {
             </div>
           </div>
           <div className="flex gap-2">
-            {rfq.status === "open" && <Button variant="outline" size="sm" onClick={() => closeMut.mutate()}>{t("dashboard.close")}</Button>}
+            {["open","quoting","under_review"].includes(rfq.status) && <Button variant="outline" size="sm" onClick={() => closeMut.mutate()}>{t("dashboard.close")}</Button>}
             <Dialog>
               <DialogTrigger asChild><Button variant="ghost" size="sm"><Trash2 className="h-4 w-4 text-error" /></Button></DialogTrigger>
               <DialogContent>
