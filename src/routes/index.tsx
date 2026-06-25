@@ -278,7 +278,7 @@ function LiveStatsSection() {
           Live
         </div>
         <h2 className="mt-2 font-display text-3xl md:text-4xl text-primary">Live Marketplace Activity</h2>
-        <p className="mt-2 text-muted-foreground">Real-time signals from organizers and hotels on the platform.</p>
+        <p className="mt-2 text-muted-foreground">Real-time signals from agencies and hotels on the platform.</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {items.map((s) => (
