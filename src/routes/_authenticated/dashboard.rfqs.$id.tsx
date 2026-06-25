@@ -142,17 +142,35 @@ function Page() {
 
       <Card><CardContent className="p-5 grid sm:grid-cols-2 gap-4 text-sm">
         <Detail label={t("rfq.fields.groupType")} value={t(`rfq.groupTypes.${rfq.group_type}`)} />
-        <Detail label={t("rfq.fields.board")} value={t(`rfq.boards.${rfq.board_type}`)} />
-        <Detail label={t("rfq.fields.roomPref")} value={rfq.room_type_pref || "—"} />
-        <Detail label={t("rfq.fields.budgetMin") + " / " + t("rfq.fields.budgetMax")} value={`${rfq.budget_min ?? "—"} / ${rfq.budget_max ?? "—"} ${rfq.currency}`} />
+        <Detail
+          label={t("rfq.fields.mealPlan")}
+          value={rfq.meal_plan_code ? t(`rfq.mealPlans.${rfq.meal_plan_code}`) : (rfq.board_type ? t(`rfq.boards.${rfq.board_type}`) : "—")}
+        />
+        <Detail
+          label={t("rfq.fields.accommodation")}
+          value={rfq.accommodation_type ? t(`rfq.accommodationTypes.${rfq.accommodation_type}`) : "—"}
+        />
+        <Detail
+          label={t("rfq.fields.categories")}
+          value={Array.isArray(rfq.hotel_categories) && rfq.hotel_categories.length > 0
+            ? rfq.hotel_categories.map((n: number) => `${n}★`).join(", ")
+            : "Any"}
+        />
         <Detail label={t("rfq.fields.deadline")} value={rfq.deadline || "—"} />
-        <Detail label={t("rfq.fields.notes")} value={rfq.special_requirements || "—"} />
+        <Detail label={t("rfq.fields.notes")} value={rfq.additional_requirements || rfq.special_requirements || "—"} />
       </CardContent></Card>
 
       <div>
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <h2 className="font-display text-xl text-primary">{t("dashboard.viewQuotes")} ({quotes.length})</h2>
-          <SimulateQuoteDialog open={mockOpen} onOpenChange={setMockOpen} rfq={rfq} onDone={() => qc.invalidateQueries({ queryKey: ["rfq", id] })} />
+          <div className="flex gap-2">
+            {quotes.length >= 2 && (
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/dashboard/rfqs/$id/compare" params={{ id }}><GitCompare className="h-4 w-4 me-1" /> {t("dashboard.compareQuotes")}</Link>
+              </Button>
+            )}
+            <SimulateQuoteDialog open={mockOpen} onOpenChange={setMockOpen} rfq={rfq} onDone={() => qc.invalidateQueries({ queryKey: ["rfq", id] })} />
+          </div>
         </div>
 
         {quotes.length === 0 ? (
