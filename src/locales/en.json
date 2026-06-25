@@ -1,6 +1,11 @@
 {
   "brand": "GroupToStay",
-  "tagline": "Group accommodation, on your terms.",
+  "tagline": "One Request. Multiple Hotel Offers.",
+  "role": {
+    "agency": "Agency",
+    "hotel": "Hotel",
+    "admin": "Admin"
+  },
   "nav": {
     "howItWorks": "How it works",
     "hotels": "Hotels",
