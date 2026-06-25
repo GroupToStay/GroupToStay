@@ -63,17 +63,17 @@ function Landing() {
     <div className="min-h-screen flex flex-col bg-surface">
       <SiteHeader />
       {user ? <WelcomeBanner userId={user.id} isHotel={isHotel} isAdmin={isAdmin} isOrganizer={isOrganizer} /> : null}
-      <Hero isHotel={isHotel} />
+      <Hero isHotel={isHotel} isOrganizer={isOrganizer} />
       <QuickSearchPanel isHotel={isHotel} />
       <LiveStatsSection />
       <HowItWorks />
-      <OpenRequestsSection />
+      {isOrganizer ? null : <OpenRequestsSection />}
       <FeaturedHotelsSection />
       <WhyGroupToStay />
       <TestimonialsSection />
       <TrustSection />
       {user ? <MessagesBar userId={user.id} /> : null}
-      <CtaBanner isHotel={isHotel} />
+      <CtaBanner isHotel={isHotel} isOrganizer={isOrganizer} />
       <SiteFooter />
     </div>
   );
