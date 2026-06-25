@@ -1053,7 +1053,13 @@ function TrustSection() {
 
 /* ────────────────────  CTA + MESSAGES  ──────────────────── */
 
-function CtaBanner({ isHotel }: { isHotel: boolean }) {
+function CtaBanner({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolean }) {
+  const ctaTo = isHotel ? "/requests" : "/request-quote";
+  const ctaLabel = isHotel
+    ? "Browse Open Requests"
+    : isOrganizer
+      ? "Create New Request"
+      : "Create Group Request";
   return (
     <section className="container-page py-16">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-brand-blue p-10 md:p-14 text-primary-foreground">
@@ -1071,8 +1077,8 @@ function CtaBanner({ isHotel }: { isHotel: boolean }) {
             </p>
           </div>
           <Button asChild size="lg" className="bg-premium text-premium-foreground hover:bg-premium/90">
-            <Link to={isHotel ? "/requests" : "/request-quote"}>
-              {isHotel ? "Browse Open Requests" : "Create Group Request"} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            <Link to={ctaTo}>
+              {ctaLabel} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
           </Button>
         </div>
