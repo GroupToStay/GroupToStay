@@ -96,9 +96,6 @@ function Page() {
                         <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> {r.check_in} → {r.check_out} ({r.nights}n)</div>
                         <div className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> {r.guests_count} guests · {r.rooms_needed} rooms</div>
                       </div>
-                      {(r.budget_min || r.budget_max) && (
-                        <div className="text-sm text-foreground">Budget: {r.currency} {r.budget_min ?? "—"} – {r.budget_max ?? "—"}</div>
-                      )}
                       <div className="pt-2 text-sm text-primary font-medium inline-flex items-center gap-1">View & respond <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" /></div>
                     </CardContent>
                   </Card>
