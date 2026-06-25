@@ -23,6 +23,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/rfqs/$id")({
 
 const statusColor: Record<string, string> = {
   open: "bg-success/15 text-success",
+  quoting: "bg-info/15 text-info",
+  under_review: "bg-warning/15 text-warning",
   awarded: "bg-gold/20 text-gold-foreground border border-gold/30",
   closed: "bg-muted text-muted-foreground",
   cancelled: "bg-error/15 text-error",
