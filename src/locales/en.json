@@ -170,12 +170,12 @@
     "country": "Country",
     "accountType": "Account type",
     "role": {
-      "organizer": "Group organizer",
+      "organizer": "Agency",
       "hotel": "Hotel"
     },
     "roleDesc": {
-      "organizer": "Submit group RFQs and receive quotes.",
-      "hotel": "List your hotel and respond to RFQs."
+      "organizer": "Create group requests and receive competing hotel quotations.",
+      "hotel": "List your hotel and respond to incoming group requests with quotations."
     },
     "haveAccount": "Have an account? Sign in",
     "noAccount": "Need an account? Sign up",
