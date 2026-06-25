@@ -50,14 +50,16 @@ function Landing() {
   }
 
   if (isAdmin) {
+    if (typeof window !== "undefined") window.location.replace("/admin");
     return (
       <div className="min-h-screen flex flex-col bg-surface">
         <SiteHeader />
-        <AdminLanding />
+        <div className="container-page py-20 text-center text-muted-foreground">Loading admin console…</div>
         <SiteFooter />
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
