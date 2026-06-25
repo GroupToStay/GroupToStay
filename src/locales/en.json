@@ -31,14 +31,14 @@
     "settings": "Settings"
   },
   "hero": {
-    "eyebrow": "The Professional Marketplace for Group Hotel Bookings",
-    "title": "One Group Request. Multiple hotels. The best group rate.",
-    "subtitle": "Built for Umrah & Hajj operators, tourism agencies, corporates, governments, sports teams, schools and event organizers. Submit one Group Request — receive competing quotations from matching hotels.",
-    "ctaPrimary": "Create Group Request",
+    "eyebrow": "B2B Group Accommodation Marketplace",
+    "title": "One Request. Multiple Hotel Offers.",
+    "subtitle": "GroupToStay connects travel agencies with verified hotels. Submit one request and receive competitive quotations from multiple hotels. Compare prices, services, and hotel quality in one place — and choose the best offer for your group.",
+    "ctaPrimary": "Create Request",
     "ctaSecondary": "Browse hotels",
-    "ctaBrowseRequests": "Group Requests",
-    "hotelCtaSubtitle": "See open Group Requests that match your hotel and respond with a quote.",
-    "trust": "Trusted by group operators across MENA, Europe and Asia."
+    "ctaBrowseRequests": "Open Group Requests",
+    "hotelCtaSubtitle": "See open Group Requests that match your hotel and respond with a quotation.",
+    "trust": "Trusted by travel agencies and verified hotels across MENA, Europe and Asia."
   },
   "home": {
     "messages": {
