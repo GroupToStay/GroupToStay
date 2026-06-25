@@ -28,7 +28,9 @@ import { Route as SubscriptionCheckoutRouteImport } from './routes/subscription.
 import { Route as RequestsIdRouteImport } from './routes/requests.$id'
 import { Route as HotelsIdRouteImport } from './routes/hotels.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedDashboardRfqsRouteImport } from './routes/_authenticated/dashboard.rfqs'
 import { Route as AuthenticatedDashboardQuotationsRouteImport } from './routes/_authenticated/dashboard.quotations'
 import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_authenticated/dashboard.profile'
@@ -37,6 +39,11 @@ import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_au
 import { Route as AuthenticatedDashboardInvitationsRouteImport } from './routes/_authenticated/dashboard.invitations'
 import { Route as AuthenticatedDashboardHotelRouteImport } from './routes/_authenticated/dashboard.hotel'
 import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard.admin'
+import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
+import { Route as AuthenticatedAdminSubscriptionInterestRouteImport } from './routes/_authenticated/admin.subscription-interest'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminHotelListingsRouteImport } from './routes/_authenticated/admin.hotel-listings'
+import { Route as AuthenticatedAdminHotelCompaniesRouteImport } from './routes/_authenticated/admin.hotel-companies'
 import { Route as AuthenticatedDashboardRfqsIndexRouteImport } from './routes/_authenticated/dashboard.rfqs.index'
 import { Route as AuthenticatedDashboardMessagesIndexRouteImport } from './routes/_authenticated/dashboard.messages.index'
 import { Route as AuthenticatedDashboardHotelIndexRouteImport } from './routes/_authenticated/dashboard.hotel.index'
@@ -141,12 +148,22 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedDashboardRfqsRoute =
   AuthenticatedDashboardRfqsRouteImport.update({
     id: '/rfqs',
@@ -194,6 +211,36 @@ const AuthenticatedDashboardAdminRoute =
     id: '/admin',
     path: '/admin',
     getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedAdminSubscriptionsRoute =
+  AuthenticatedAdminSubscriptionsRouteImport.update({
+    id: '/subscriptions',
+    path: '/subscriptions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSubscriptionInterestRoute =
+  AuthenticatedAdminSubscriptionInterestRouteImport.update({
+    id: '/subscription-interest',
+    path: '/subscription-interest',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminHotelListingsRoute =
+  AuthenticatedAdminHotelListingsRouteImport.update({
+    id: '/hotel-listings',
+    path: '/hotel-listings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminHotelCompaniesRoute =
+  AuthenticatedAdminHotelCompaniesRouteImport.update({
+    id: '/hotel-companies',
+    path: '/hotel-companies',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedDashboardRfqsIndexRoute =
   AuthenticatedDashboardRfqsIndexRouteImport.update({
@@ -262,6 +309,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trust': typeof TrustRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
@@ -269,6 +317,11 @@ export interface FileRoutesByFullPath {
   '/subscription/coming-soon': typeof SubscriptionComingSoonRoute
   '/hotels/': typeof HotelsIndexRoute
   '/requests/': typeof RequestsIndexRoute
+  '/admin/hotel-companies': typeof AuthenticatedAdminHotelCompaniesRoute
+  '/admin/hotel-listings': typeof AuthenticatedAdminHotelListingsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/subscription-interest': typeof AuthenticatedAdminSubscriptionInterestRoute
+  '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
@@ -277,6 +330,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard/quotations': typeof AuthenticatedDashboardQuotationsRoute
   '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
   '/dashboard/hotel/pms': typeof AuthenticatedDashboardHotelPmsRoute
@@ -306,11 +360,17 @@ export interface FileRoutesByTo {
   '/subscription/coming-soon': typeof SubscriptionComingSoonRoute
   '/hotels': typeof HotelsIndexRoute
   '/requests': typeof RequestsIndexRoute
+  '/admin/hotel-companies': typeof AuthenticatedAdminHotelCompaniesRoute
+  '/admin/hotel-listings': typeof AuthenticatedAdminHotelListingsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/subscription-interest': typeof AuthenticatedAdminSubscriptionInterestRoute
+  '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard/quotations': typeof AuthenticatedDashboardQuotationsRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
   '/dashboard/hotel/pms': typeof AuthenticatedDashboardHotelPmsRoute
@@ -336,6 +396,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trust': typeof TrustRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
@@ -343,6 +404,11 @@ export interface FileRoutesById {
   '/subscription/coming-soon': typeof SubscriptionComingSoonRoute
   '/hotels/': typeof HotelsIndexRoute
   '/requests/': typeof RequestsIndexRoute
+  '/_authenticated/admin/hotel-companies': typeof AuthenticatedAdminHotelCompaniesRoute
+  '/_authenticated/admin/hotel-listings': typeof AuthenticatedAdminHotelListingsRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/subscription-interest': typeof AuthenticatedAdminSubscriptionInterestRoute
+  '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/_authenticated/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/_authenticated/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
   '/_authenticated/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
@@ -351,6 +417,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/_authenticated/dashboard/quotations': typeof AuthenticatedDashboardQuotationsRoute
   '/_authenticated/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
   '/_authenticated/dashboard/hotel/pms': typeof AuthenticatedDashboardHotelPmsRoute
@@ -376,6 +443,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/trust'
+    | '/admin'
     | '/dashboard'
     | '/hotels/$id'
     | '/requests/$id'
@@ -383,6 +451,11 @@ export interface FileRouteTypes {
     | '/subscription/coming-soon'
     | '/hotels/'
     | '/requests/'
+    | '/admin/hotel-companies'
+    | '/admin/hotel-listings'
+    | '/admin/settings'
+    | '/admin/subscription-interest'
+    | '/admin/subscriptions'
     | '/dashboard/admin'
     | '/dashboard/hotel'
     | '/dashboard/invitations'
@@ -391,6 +464,7 @@ export interface FileRouteTypes {
     | '/dashboard/profile'
     | '/dashboard/quotations'
     | '/dashboard/rfqs'
+    | '/admin/'
     | '/dashboard/'
     | '/dashboard/hotel/$id'
     | '/dashboard/hotel/pms'
@@ -420,11 +494,17 @@ export interface FileRouteTypes {
     | '/subscription/coming-soon'
     | '/hotels'
     | '/requests'
+    | '/admin/hotel-companies'
+    | '/admin/hotel-listings'
+    | '/admin/settings'
+    | '/admin/subscription-interest'
+    | '/admin/subscriptions'
     | '/dashboard/admin'
     | '/dashboard/invitations'
     | '/dashboard/notifications'
     | '/dashboard/profile'
     | '/dashboard/quotations'
+    | '/admin'
     | '/dashboard'
     | '/dashboard/hotel/$id'
     | '/dashboard/hotel/pms'
@@ -449,6 +529,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/trust'
+    | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/hotels/$id'
     | '/requests/$id'
@@ -456,6 +537,11 @@ export interface FileRouteTypes {
     | '/subscription/coming-soon'
     | '/hotels/'
     | '/requests/'
+    | '/_authenticated/admin/hotel-companies'
+    | '/_authenticated/admin/hotel-listings'
+    | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/subscription-interest'
+    | '/_authenticated/admin/subscriptions'
     | '/_authenticated/dashboard/admin'
     | '/_authenticated/dashboard/hotel'
     | '/_authenticated/dashboard/invitations'
@@ -464,6 +550,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/profile'
     | '/_authenticated/dashboard/quotations'
     | '/_authenticated/dashboard/rfqs'
+    | '/_authenticated/admin/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/hotel/$id'
     | '/_authenticated/dashboard/hotel/pms'
@@ -632,12 +719,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard/': {
       id: '/_authenticated/dashboard/'
       path: '/'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/dashboard/rfqs': {
       id: '/_authenticated/dashboard/rfqs'
@@ -694,6 +795,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/admin'
       preLoaderRoute: typeof AuthenticatedDashboardAdminRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/admin/subscriptions': {
+      id: '/_authenticated/admin/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/admin/subscriptions'
+      preLoaderRoute: typeof AuthenticatedAdminSubscriptionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/subscription-interest': {
+      id: '/_authenticated/admin/subscription-interest'
+      path: '/subscription-interest'
+      fullPath: '/admin/subscription-interest'
+      preLoaderRoute: typeof AuthenticatedAdminSubscriptionInterestRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/hotel-listings': {
+      id: '/_authenticated/admin/hotel-listings'
+      path: '/hotel-listings'
+      fullPath: '/admin/hotel-listings'
+      preLoaderRoute: typeof AuthenticatedAdminHotelListingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/hotel-companies': {
+      id: '/_authenticated/admin/hotel-companies'
+      path: '/hotel-companies'
+      fullPath: '/admin/hotel-companies'
+      preLoaderRoute: typeof AuthenticatedAdminHotelCompaniesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/dashboard/rfqs/': {
       id: '/_authenticated/dashboard/rfqs/'
@@ -760,6 +896,28 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminHotelCompaniesRoute: typeof AuthenticatedAdminHotelCompaniesRoute
+  AuthenticatedAdminHotelListingsRoute: typeof AuthenticatedAdminHotelListingsRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminSubscriptionInterestRoute: typeof AuthenticatedAdminSubscriptionInterestRoute
+  AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminHotelCompaniesRoute: AuthenticatedAdminHotelCompaniesRoute,
+  AuthenticatedAdminHotelListingsRoute: AuthenticatedAdminHotelListingsRoute,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminSubscriptionInterestRoute:
+    AuthenticatedAdminSubscriptionInterestRoute,
+  AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedDashboardHotelRouteChildren {
   AuthenticatedDashboardHotelIdRoute: typeof AuthenticatedDashboardHotelIdRoute
@@ -869,10 +1027,12 @@ const AuthenticatedDashboardRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
 }
 

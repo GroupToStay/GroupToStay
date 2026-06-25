@@ -34,31 +34,38 @@ function AuthLayout() {
             <div className="px-2 py-2 text-sm font-semibold text-muted-foreground">{t("dashboard.welcome")}</div>
             <div className="px-2 pb-3 text-sm text-foreground truncate">{user?.email}</div>
             <nav className="flex flex-col gap-1">
-              <Link to="/dashboard" activeOptions={{ exact: true }} className={navItem} activeProps={{ className: "active" }}>
-                <LayoutDashboard className="h-4 w-4" /> {t("dashboard.welcome")}
-              </Link>
+              {isAdmin ? (
+                <Link to="/admin" activeOptions={{ exact: true }} className={navItem} activeProps={{ className: "active" }}>
+                  <LayoutDashboard className="h-4 w-4" /> {t("dashboard.welcome")}
+                </Link>
+              ) : (
+                <Link to="/dashboard" activeOptions={{ exact: true }} className={navItem} activeProps={{ className: "active" }}>
+                  <LayoutDashboard className="h-4 w-4" /> {t("dashboard.welcome")}
+                </Link>
+              )}
 
               {isAdmin && (
                 <>
-                  <Link to="/dashboard/admin" search={{ tab: "companies" } as any} className={navItem} activeProps={{ className: "active" }}>
+                  <Link to="/admin/hotel-companies" className={navItem} activeProps={{ className: "active" }}>
                     <Building2 className="h-4 w-4" /> Hotel Companies
                   </Link>
-                  <Link to="/dashboard/admin" search={{ tab: "hotels" } as any} className={navItem} activeProps={{ className: "active" }}>
+                  <Link to="/admin/hotel-listings" className={navItem} activeProps={{ className: "active" }}>
                     <Inbox className="h-4 w-4" /> Hotel Listings
                   </Link>
-                  <Link to="/dashboard/admin" search={{ tab: "interest" } as any} className={navItem} activeProps={{ className: "active" }}>
+                  <Link to="/admin/subscription-interest" className={navItem} activeProps={{ className: "active" }}>
                     <ShieldCheck className="h-4 w-4" /> Subscription Interest
                   </Link>
-                  <span className={`${navItem} opacity-60 cursor-not-allowed`}>
+                  <Link to="/admin/subscriptions" className={navItem} activeProps={{ className: "active" }}>
                     <CreditCard className="h-4 w-4" />
                     <span className="flex-1">Subscriptions</span>
                     <span className="ml-auto text-[10px] uppercase tracking-wide rounded bg-muted px-1.5 py-0.5 text-muted-foreground">Soon</span>
-                  </span>
+                  </Link>
                   <Link to="/dashboard/profile" className={navItem} activeProps={{ className: "active" }}>
                     <SettingsIcon className="h-4 w-4" /> {t("nav.settings")}
                   </Link>
                 </>
               )}
+
 
               {!isAdmin && isHotel && (
                 <>

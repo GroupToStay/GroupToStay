@@ -16,22 +16,15 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 function Page() {
   const { isHotel, isAdmin, loading } = useRoles();
   if (loading) return <div className="text-muted-foreground">Loading…</div>;
-  if (isAdmin) return <AdminHome />;
+  if (isAdmin) return <AdminRedirect />;
   return isHotel ? <HotelHome /> : <OrganizerHome />;
 }
 
-function AdminHome() {
-  return (
-    <div>
-      <h1 className="font-display text-3xl text-primary">Admin</h1>
-      <p className="mt-2 text-muted-foreground">Use the sidebar to open Admin Review or your profile.</p>
-      <div className="mt-4 flex gap-3">
-        <Button asChild variant="gold"><Link to="/dashboard/admin">Admin Review</Link></Button>
-        <Button asChild variant="default"><Link to="/dashboard/profile">My Profile</Link></Button>
-      </div>
-    </div>
-  );
+function AdminRedirect() {
+  if (typeof window !== "undefined") window.location.replace("/admin");
+  return <div className="text-muted-foreground">Redirecting to Admin Dashboard…</div>;
 }
+
 
 function OrganizerHome() {
   const { t } = useTranslation();
