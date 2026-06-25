@@ -95,7 +95,7 @@ function Page() {
           ) : (
             <Card><CardContent className="p-6 text-sm text-muted-foreground">
               Only hotel accounts can contact organizers about open requests.
-              {isOrganizer && " You're signed in as an organizer."}
+              {isOrganizer && " You're signed in as an agency."}
             </CardContent></Card>
           )}
         </div>
