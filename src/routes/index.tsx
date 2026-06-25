@@ -63,17 +63,17 @@ function Landing() {
     <div className="min-h-screen flex flex-col bg-surface">
       <SiteHeader />
       {user ? <WelcomeBanner userId={user.id} isHotel={isHotel} isAdmin={isAdmin} isOrganizer={isOrganizer} /> : null}
-      <Hero isHotel={isHotel} />
+      <Hero isHotel={isHotel} isOrganizer={isOrganizer} />
       <QuickSearchPanel isHotel={isHotel} />
       <LiveStatsSection />
       <HowItWorks />
-      <OpenRequestsSection />
+      {isOrganizer ? null : <OpenRequestsSection />}
       <FeaturedHotelsSection />
       <WhyGroupToStay />
       <TestimonialsSection />
       <TrustSection />
       {user ? <MessagesBar userId={user.id} /> : null}
-      <CtaBanner isHotel={isHotel} />
+      <CtaBanner isHotel={isHotel} isOrganizer={isOrganizer} />
       <SiteFooter />
     </div>
   );
@@ -521,7 +521,7 @@ function AdminLanding() {
 
 /* ────────────────────────────────  HERO  ──────────────────────────────── */
 
-function Hero({ isHotel }: { isHotel: boolean }) {
+function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolean }) {
   const { data: counts } = useQuery({
     queryKey: ["hero-counts"],
     queryFn: async () => {
@@ -576,6 +576,15 @@ function Hero({ isHotel }: { isHotel: boolean }) {
                   </Button>
                   <Button asChild size="lg" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground">
                     <Link to="/dashboard/hotel">My Hotel Profile</Link>
+                  </Button>
+                </>
+              ) : isOrganizer ? (
+                <>
+                  <Button asChild size="lg" className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg">
+                    <Link to="/request-quote">Create New Request <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+                  </Button>
+                  <Button asChild size="lg" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+                    <Link to="/dashboard/rfqs">View My Requests</Link>
                   </Button>
                 </>
               ) : (
@@ -1044,7 +1053,13 @@ function TrustSection() {
 
 /* ────────────────────  CTA + MESSAGES  ──────────────────── */
 
-function CtaBanner({ isHotel }: { isHotel: boolean }) {
+function CtaBanner({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolean }) {
+  const ctaTo = isHotel ? "/requests" : "/request-quote";
+  const ctaLabel = isHotel
+    ? "Browse Open Requests"
+    : isOrganizer
+      ? "Create New Request"
+      : "Create Group Request";
   return (
     <section className="container-page py-16">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-brand-blue p-10 md:p-14 text-primary-foreground">
@@ -1062,8 +1077,8 @@ function CtaBanner({ isHotel }: { isHotel: boolean }) {
             </p>
           </div>
           <Button asChild size="lg" className="bg-premium text-premium-foreground hover:bg-premium/90">
-            <Link to={isHotel ? "/requests" : "/request-quote"}>
-              {isHotel ? "Browse Open Requests" : "Create Group Request"} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            <Link to={ctaTo}>
+              {ctaLabel} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
           </Button>
         </div>
