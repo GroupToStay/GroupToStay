@@ -44,6 +44,7 @@ import { Route as AuthenticatedDashboardRfqsIdRouteImport } from './routes/_auth
 import { Route as AuthenticatedDashboardMessagesIdRouteImport } from './routes/_authenticated/dashboard.messages.$id'
 import { Route as AuthenticatedDashboardHotelPmsRouteImport } from './routes/_authenticated/dashboard.hotel.pms'
 import { Route as AuthenticatedDashboardHotelIdRouteImport } from './routes/_authenticated/dashboard.hotel.$id'
+import { Route as AuthenticatedDashboardRfqsIdCompareRouteImport } from './routes/_authenticated/dashboard.rfqs.$id.compare'
 
 const TrustRoute = TrustRouteImport.update({
   id: '/trust',
@@ -235,6 +236,12 @@ const AuthenticatedDashboardHotelIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedDashboardHotelRoute,
   } as any)
+const AuthenticatedDashboardRfqsIdCompareRoute =
+  AuthenticatedDashboardRfqsIdCompareRouteImport.update({
+    id: '/compare',
+    path: '/compare',
+    getParentRoute: () => AuthenticatedDashboardRfqsIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -266,11 +273,12 @@ export interface FileRoutesByFullPath {
   '/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
   '/dashboard/hotel/pms': typeof AuthenticatedDashboardHotelPmsRoute
   '/dashboard/messages/$id': typeof AuthenticatedDashboardMessagesIdRoute
-  '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
+  '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRouteWithChildren
   '/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
   '/dashboard/hotel/': typeof AuthenticatedDashboardHotelIndexRoute
   '/dashboard/messages/': typeof AuthenticatedDashboardMessagesIndexRoute
   '/dashboard/rfqs/': typeof AuthenticatedDashboardRfqsIndexRoute
+  '/dashboard/rfqs/$id/compare': typeof AuthenticatedDashboardRfqsIdCompareRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -298,11 +306,12 @@ export interface FileRoutesByTo {
   '/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
   '/dashboard/hotel/pms': typeof AuthenticatedDashboardHotelPmsRoute
   '/dashboard/messages/$id': typeof AuthenticatedDashboardMessagesIdRoute
-  '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
+  '/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRouteWithChildren
   '/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
   '/dashboard/hotel': typeof AuthenticatedDashboardHotelIndexRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesIndexRoute
   '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsIndexRoute
+  '/dashboard/rfqs/$id/compare': typeof AuthenticatedDashboardRfqsIdCompareRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -336,11 +345,12 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/hotel/$id': typeof AuthenticatedDashboardHotelIdRoute
   '/_authenticated/dashboard/hotel/pms': typeof AuthenticatedDashboardHotelPmsRoute
   '/_authenticated/dashboard/messages/$id': typeof AuthenticatedDashboardMessagesIdRoute
-  '/_authenticated/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRoute
+  '/_authenticated/dashboard/rfqs/$id': typeof AuthenticatedDashboardRfqsIdRouteWithChildren
   '/_authenticated/dashboard/rfqs/new': typeof AuthenticatedDashboardRfqsNewRoute
   '/_authenticated/dashboard/hotel/': typeof AuthenticatedDashboardHotelIndexRoute
   '/_authenticated/dashboard/messages/': typeof AuthenticatedDashboardMessagesIndexRoute
   '/_authenticated/dashboard/rfqs/': typeof AuthenticatedDashboardRfqsIndexRoute
+  '/_authenticated/dashboard/rfqs/$id/compare': typeof AuthenticatedDashboardRfqsIdCompareRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -379,6 +389,7 @@ export interface FileRouteTypes {
     | '/dashboard/hotel/'
     | '/dashboard/messages/'
     | '/dashboard/rfqs/'
+    | '/dashboard/rfqs/$id/compare'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -411,6 +422,7 @@ export interface FileRouteTypes {
     | '/dashboard/hotel'
     | '/dashboard/messages'
     | '/dashboard/rfqs'
+    | '/dashboard/rfqs/$id/compare'
   id:
     | '__root__'
     | '/'
@@ -448,6 +460,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/hotel/'
     | '/_authenticated/dashboard/messages/'
     | '/_authenticated/dashboard/rfqs/'
+    | '/_authenticated/dashboard/rfqs/$id/compare'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -718,6 +731,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardHotelIdRouteImport
       parentRoute: typeof AuthenticatedDashboardHotelRoute
     }
+    '/_authenticated/dashboard/rfqs/$id/compare': {
+      id: '/_authenticated/dashboard/rfqs/$id/compare'
+      path: '/compare'
+      fullPath: '/dashboard/rfqs/$id/compare'
+      preLoaderRoute: typeof AuthenticatedDashboardRfqsIdCompareRouteImport
+      parentRoute: typeof AuthenticatedDashboardRfqsIdRoute
+    }
   }
 }
 
@@ -758,15 +778,31 @@ const AuthenticatedDashboardMessagesRouteWithChildren =
     AuthenticatedDashboardMessagesRouteChildren,
   )
 
+interface AuthenticatedDashboardRfqsIdRouteChildren {
+  AuthenticatedDashboardRfqsIdCompareRoute: typeof AuthenticatedDashboardRfqsIdCompareRoute
+}
+
+const AuthenticatedDashboardRfqsIdRouteChildren: AuthenticatedDashboardRfqsIdRouteChildren =
+  {
+    AuthenticatedDashboardRfqsIdCompareRoute:
+      AuthenticatedDashboardRfqsIdCompareRoute,
+  }
+
+const AuthenticatedDashboardRfqsIdRouteWithChildren =
+  AuthenticatedDashboardRfqsIdRoute._addFileChildren(
+    AuthenticatedDashboardRfqsIdRouteChildren,
+  )
+
 interface AuthenticatedDashboardRfqsRouteChildren {
-  AuthenticatedDashboardRfqsIdRoute: typeof AuthenticatedDashboardRfqsIdRoute
+  AuthenticatedDashboardRfqsIdRoute: typeof AuthenticatedDashboardRfqsIdRouteWithChildren
   AuthenticatedDashboardRfqsNewRoute: typeof AuthenticatedDashboardRfqsNewRoute
   AuthenticatedDashboardRfqsIndexRoute: typeof AuthenticatedDashboardRfqsIndexRoute
 }
 
 const AuthenticatedDashboardRfqsRouteChildren: AuthenticatedDashboardRfqsRouteChildren =
   {
-    AuthenticatedDashboardRfqsIdRoute: AuthenticatedDashboardRfqsIdRoute,
+    AuthenticatedDashboardRfqsIdRoute:
+      AuthenticatedDashboardRfqsIdRouteWithChildren,
     AuthenticatedDashboardRfqsNewRoute: AuthenticatedDashboardRfqsNewRoute,
     AuthenticatedDashboardRfqsIndexRoute: AuthenticatedDashboardRfqsIndexRoute,
   }
