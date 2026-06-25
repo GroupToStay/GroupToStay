@@ -263,7 +263,37 @@ function Page() {
 
               {role === "organizer" && (
                 <div className="rounded-md border border-border bg-accent/30 p-3 space-y-3">
-                  <div className="text-xs text-muted-foreground">{t("auth.organizerIdIntro")}</div>
+                  <div className="text-xs text-muted-foreground">{t("auth.agencyIntro", { defaultValue: t("auth.organizerIdIntro") })}</div>
+
+                  <div><Label>{t("auth.companyName", { defaultValue: "Agency name" })}</Label>
+                    <Input value={agencyName} onChange={e => setAgencyName(e.target.value)} maxLength={160} placeholder="e.g. Al-Noor Travel" />
+                  </div>
+
+                  <div><Label>{t("auth.agencyType", { defaultValue: "Agency type" })}</Label>
+                    <select className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                      value={agencyType} onChange={e => setAgencyType(e.target.value)}>
+                      <option value="">Select…</option>
+                      <option value="umrah">Umrah Agency</option>
+                      <option value="hajj">Hajj Agency</option>
+                      <option value="travel">Travel Agency</option>
+                      <option value="tour_operator">Tour Operator</option>
+                      <option value="corporate">Corporate Travel</option>
+                      <option value="event">Event Organizer</option>
+                      <option value="sports">Sports Team</option>
+                      <option value="school">School / University</option>
+                      <option value="government">Government Entity</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div><Label>{t("auth.businessAddress", { defaultValue: "Business address" })}</Label>
+                    <Input value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} maxLength={300} />
+                  </div>
+
+                  <div><Label>{t("auth.website", { defaultValue: "Website (optional)" })}</Label>
+                    <Input value={website} onChange={e => setWebsite(e.target.value)} maxLength={300} placeholder="https://your-agency.com" />
+                  </div>
+
                   <div>
                     <Label>{t("auth.idType")}</Label>
                     <div className="mt-1 grid grid-cols-2 gap-2">
