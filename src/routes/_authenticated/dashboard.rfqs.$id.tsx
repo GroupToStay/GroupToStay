@@ -94,6 +94,17 @@ function Page() {
     onError: (e: any) => toast.error(e.message),
   });
 
+  // Mark freshly received quotations as 'viewed' so hotels get notified.
+  useEffect(() => {
+    const submitted = data?.quotes?.filter((q: any) => q.status === "submitted") ?? [];
+    if (submitted.length === 0) return;
+    supabase
+      .from("quotes")
+      .update({ status: "viewed", viewed_at: new Date().toISOString() } as any)
+      .in("id", submitted.map((q: any) => q.id))
+      .then(() => qc.invalidateQueries({ queryKey: ["rfq", id] }));
+  }, [data?.quotes, id, qc]);
+
   if (isLoading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
   if (!data) throw notFound();
   const { rfq, quotes } = data;
