@@ -57,6 +57,12 @@ function Page() {
   const [idType, setIdType] = useState<"saudi_id" | "iqama">("saudi_id");
   const [idNumber, setIdNumber] = useState("");
 
+  // Agency-only fields
+  const [agencyName, setAgencyName] = useState("");
+  const [agencyType, setAgencyType] = useState<string>("");
+  const [businessAddress, setBusinessAddress] = useState("");
+  const [website, setWebsite] = useState("");
+
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
