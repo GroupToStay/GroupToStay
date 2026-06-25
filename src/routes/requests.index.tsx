@@ -16,7 +16,7 @@ export const Route = createFileRoute("/requests/")({
       { title: "Open group requests — GroupToStay" },
       { name: "description", content: "Browse open group accommodation requests from organizers worldwide. Hotels can respond directly to win the booking." },
       { property: "og:title", content: "Open group requests — GroupToStay" },
-      { property: "og:description", content: "Live Group Requests from group organizers. Hotels: respond and message the organizer to close the deal." },
+      { property: "og:description", content: "Live Group Requests from travel agencies. Hotels: respond and message the agency to close the deal." },
     ],
   }),
   component: Page,
