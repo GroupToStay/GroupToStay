@@ -76,9 +76,12 @@ export function SiteHeader() {
           {user ? (
             <>
               <NotificationBell />
-              <Button asChild variant="ghost" size="sm"><Link to="/dashboard">{t("nav.dashboard")}</Link></Button>
+              {!isAdmin && (
+                <Button asChild variant="ghost" size="sm"><Link to="/dashboard">{t("nav.dashboard")}</Link></Button>
+              )}
               <Button variant="outline" size="sm" onClick={handleSignOut}>{t("nav.signOut")}</Button>
             </>
+
           ) : (
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
               <Link to="/auth">{t("nav.signIn")}</Link>
