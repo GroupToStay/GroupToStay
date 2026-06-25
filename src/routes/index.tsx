@@ -523,7 +523,7 @@ function WhyGroupToStay() {
     { icon: Clock, title: "Save Time", desc: "Replace dozens of emails and calls with a single, structured request." },
     { icon: FileText, title: "Receive Multiple Offers", desc: "Compare competitive quotations from matching hotels in one place." },
     { icon: MessageSquare, title: "Direct Hotel Communication", desc: "Negotiate directly with hotels through built-in messaging." },
-    { icon: Wallet, title: "Competitive Group Rates", desc: "Hotels compete for your business — better rates, better terms." },
+    { icon: Handshake, title: "Competitive Group Rates", desc: "Hotels compete for your business — better rates, better terms." },
   ];
   return (
     <section className="container-page py-16 md:py-20">
