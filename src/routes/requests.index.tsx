@@ -24,9 +24,14 @@ export const Route = createFileRoute("/requests/")({
 });
 
 function Page() {
+  const { isOrganizer, loading } = useRoles();
   const [q, setQ] = useState("");
   const [city, setCity] = useState("__any");
   const [type, setType] = useState("__any");
+
+  if (!loading && isOrganizer) {
+    return <Navigate to="/dashboard/rfqs" replace />;
+  }
 
   const { data: rfqs = [] } = useQuery({
     queryKey: ["public-requests"],
