@@ -19,17 +19,29 @@ import { CountryCitySelect } from "@/components/country-city-select";
 import { useCountries, useCities } from "@/hooks/use-master-data";
 import { Star } from "lucide-react";
 
-type Search = { city?: string; country?: string };
+type Search = {
+  city?: string; country?: string;
+  country_id?: string; city_id?: string;
+  guests?: string; rooms?: string;
+  check_in?: string; check_out?: string;
+  accommodation?: string; meal_plan?: string; category?: string;
+};
 
 export const Route = createFileRoute("/request-quote")({
   head: () => ({ meta: [
     { title: "Create a group request — GroupToStay" },
     { name: "description", content: "One request. Multiple hotel offers. Submit one group accommodation request and receive competing hotel quotations." },
   ]}),
-  validateSearch: (s: Record<string, unknown>): Search => ({
-    city: typeof s.city === "string" ? s.city : undefined,
-    country: typeof s.country === "string" ? s.country : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>): Search => {
+    const str = (k: string) => (typeof s[k] === "string" ? (s[k] as string) : undefined);
+    return {
+      city: str("city"), country: str("country"),
+      country_id: str("country_id"), city_id: str("city_id"),
+      guests: str("guests"), rooms: str("rooms"),
+      check_in: str("check_in"), check_out: str("check_out"),
+      accommodation: str("accommodation"), meal_plan: str("meal_plan"), category: str("category"),
+    };
+  },
   component: Page,
 });
 
