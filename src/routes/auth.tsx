@@ -94,7 +94,7 @@ function Page() {
 
         const country = countries.find(c => c.id === countryId);
         const fullPhone = `${phoneCode}${phoneNumber}`;
-        const orgName = role === "hotel" ? companyName : fullName;
+        const orgName = role === "hotel" ? companyName : (agencyName.trim() || fullName);
         const data: Record<string, string> = {
           full_name: fullName,
           org_name: orgName,
