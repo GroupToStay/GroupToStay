@@ -11,8 +11,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ShieldCheck, Building2, CheckCircle2, XCircle, Eye, RotateCcw, Lock, Mail } from "lucide-react";
 
+type Tab = "companies" | "hotels" | "interest";
+
 export const Route = createFileRoute("/_authenticated/dashboard/admin")({
   head: () => ({ meta: [{ title: "Admin — GroupToStay" }] }),
+  validateSearch: (s: Record<string, unknown>): { tab?: Tab } => {
+    const t = s.tab;
+    return t === "companies" || t === "hotels" || t === "interest" ? { tab: t } : {};
+  },
   beforeLoad: async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw redirect({ to: "/auth" });
@@ -22,15 +28,17 @@ export const Route = createFileRoute("/_authenticated/dashboard/admin")({
   component: Page,
 });
 
-type Tab = "companies" | "hotels" | "interest";
-
 function Page() {
   const { t } = useTranslation();
-  const [tab, setTab] = useState<Tab>("companies");
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const tab: Tab = (search.tab as Tab | undefined) ?? "companies";
+  const setTab = (next: Tab) => navigate({ search: { tab: next } });
 
   return (
     <div className="space-y-6">
       <h1 className="font-display text-3xl text-primary flex items-center gap-2"><ShieldCheck className="h-7 w-7" /> {t("admin.title")}</h1>
+      <ReviewStats />
       <div className="flex gap-2 flex-wrap">
         <Button variant={tab === "companies" ? "gold" : "outline"} size="sm" onClick={() => setTab("companies")}>{t("admin.tabs.companies")}</Button>
         <Button variant={tab === "hotels" ? "gold" : "outline"} size="sm" onClick={() => setTab("hotels")}>{t("admin.tabs.hotels")}</Button>
@@ -39,6 +47,43 @@ function Page() {
       {tab === "companies" && <CompaniesPanel />}
       {tab === "hotels" && <HotelsPanel />}
       {tab === "interest" && <InterestPanel />}
+    </div>
+  );
+}
+
+function ReviewStats() {
+  const { data } = useQuery({
+    queryKey: ["admin-review-stats"],
+    queryFn: async () => {
+      const [pendingCo, pendingHo, approvedHo, rejectedHo, activeHotelUsers] = await Promise.all([
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("hotel_approval_status", "pending"),
+        supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "approved"),
+        supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "suspended"),
+        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "hotel"),
+      ]);
+      return {
+        pending: (pendingCo.count ?? 0) + (pendingHo.count ?? 0),
+        approved: approvedHo.count ?? 0,
+        rejected: rejectedHo.count ?? 0,
+        activeHotelUsers: activeHotelUsers.count ?? 0,
+      };
+    },
+  });
+  const items = [
+    { label: "Pending Reviews", value: data?.pending ?? 0 },
+    { label: "Approved Listings", value: data?.approved ?? 0 },
+    { label: "Rejected / Suspended", value: data?.rejected ?? 0 },
+    { label: "Active Hotel Accounts", value: data?.activeHotelUsers ?? 0 },
+  ];
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {items.map((i) => (
+        <Card key={i.label}><CardContent className="p-4">
+          <div className="text-xs text-muted-foreground">{i.label}</div>
+          <div className="font-display text-2xl text-primary mt-1">{i.value}</div>
+        </CardContent></Card>
+      ))}
     </div>
   );
 }
