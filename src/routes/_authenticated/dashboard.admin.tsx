@@ -71,7 +71,7 @@ export function ReviewStats() {
   );
 }
 
-function CompaniesPanel() {
+export function CompaniesPanel() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -229,7 +229,7 @@ function CompanyRow({ row, onDecide }: { row: any; onDecide: (decision: "approve
   );
 }
 
-function HotelsPanel() {
+export function HotelsPanel() {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const [status, setStatus] = useState<"pending" | "approved" | "suspended">("pending");
@@ -309,7 +309,7 @@ function HotelsPanel() {
   );
 }
 
-function InterestPanel() {
+export function InterestPanel() {
   const qc = useQueryClient();
   const [planFilter, setPlanFilter] = useState<"all" | "professional" | "featured">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "waiting" | "notified">("all");
