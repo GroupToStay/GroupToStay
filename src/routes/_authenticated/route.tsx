@@ -40,9 +40,20 @@ function AuthLayout() {
 
               {isAdmin && (
                 <>
-                  <Link to="/dashboard/admin" className={navItem} activeProps={{ className: "active" }}>
-                    <ShieldCheck className="h-4 w-4" /> {t("admin.title")}
+                  <Link to="/dashboard/admin" search={{ tab: "companies" } as any} className={navItem} activeProps={{ className: "active" }}>
+                    <Building2 className="h-4 w-4" /> Hotel Companies
                   </Link>
+                  <Link to="/dashboard/admin" search={{ tab: "hotels" } as any} className={navItem} activeProps={{ className: "active" }}>
+                    <Inbox className="h-4 w-4" /> Hotel Listings
+                  </Link>
+                  <Link to="/dashboard/admin" search={{ tab: "interest" } as any} className={navItem} activeProps={{ className: "active" }}>
+                    <ShieldCheck className="h-4 w-4" /> Subscription Interest
+                  </Link>
+                  <span className={`${navItem} opacity-60 cursor-not-allowed`}>
+                    <CreditCard className="h-4 w-4" />
+                    <span className="flex-1">Subscriptions</span>
+                    <span className="ml-auto text-[10px] uppercase tracking-wide rounded bg-muted px-1.5 py-0.5 text-muted-foreground">Soon</span>
+                  </span>
                   <Link to="/dashboard/profile" className={navItem} activeProps={{ className: "active" }}>
                     <SettingsIcon className="h-4 w-4" /> {t("nav.settings")}
                   </Link>
