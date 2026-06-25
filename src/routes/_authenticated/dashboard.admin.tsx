@@ -19,39 +19,22 @@ export const Route = createFileRoute("/_authenticated/dashboard/admin")({
     const t = s.tab;
     return t === "companies" || t === "hotels" || t === "interest" ? { tab: t } : {};
   },
-  beforeLoad: async () => {
+  beforeLoad: async ({ search }) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw redirect({ to: "/auth" });
     const { data } = await supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle();
     if (!data) throw redirect({ to: "/dashboard" });
+    // Legacy URL — redirect to the new dedicated pages.
+    const tab = (search as any)?.tab as Tab | undefined;
+    if (tab === "hotels") throw redirect({ to: "/admin/hotel-listings" });
+    if (tab === "interest") throw redirect({ to: "/admin/subscription-interest" });
+    throw redirect({ to: "/admin/hotel-companies" });
   },
-  component: Page,
+  component: () => null,
 });
 
-function Page() {
-  const { t } = useTranslation();
-  const search = Route.useSearch();
-  const navigate = Route.useNavigate();
-  const tab: Tab = (search.tab as Tab | undefined) ?? "companies";
-  const setTab = (next: Tab) => navigate({ search: { tab: next } });
+export function ReviewStats() {
 
-  return (
-    <div className="space-y-6">
-      <h1 className="font-display text-3xl text-primary flex items-center gap-2"><ShieldCheck className="h-7 w-7" /> {t("admin.title")}</h1>
-      <ReviewStats />
-      <div className="flex gap-2 flex-wrap">
-        <Button variant={tab === "companies" ? "gold" : "outline"} size="sm" onClick={() => setTab("companies")}>{t("admin.tabs.companies")}</Button>
-        <Button variant={tab === "hotels" ? "gold" : "outline"} size="sm" onClick={() => setTab("hotels")}>{t("admin.tabs.hotels")}</Button>
-        <Button variant={tab === "interest" ? "gold" : "outline"} size="sm" onClick={() => setTab("interest")}>Subscription Interest</Button>
-      </div>
-      {tab === "companies" && <CompaniesPanel />}
-      {tab === "hotels" && <HotelsPanel />}
-      {tab === "interest" && <InterestPanel />}
-    </div>
-  );
-}
-
-function ReviewStats() {
   const { data } = useQuery({
     queryKey: ["admin-review-stats"],
     queryFn: async () => {
