@@ -39,7 +39,7 @@ export function SiteHeader() {
   const linkCls = "text-sm font-medium text-foreground/80 hover:text-foreground transition";
   // Public marketing nav is available to ALL users (including admin/hotel/agency)
   // so they can freely browse the public site like Booking.com / Airbnb.
-  const navLinks = (
+  const navLinks = isAdmin ? null : (
     <>
       <Link to="/how-it-works" className={linkCls}>{t("nav.howItWorks")}</Link>
       <Link to="/hotels" className={linkCls}>{t("nav.hotels")}</Link>

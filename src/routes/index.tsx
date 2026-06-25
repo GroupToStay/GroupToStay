@@ -49,6 +49,16 @@ function Landing() {
     );
   }
 
+  if (user && isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col bg-surface">
+        <SiteHeader />
+        <AdminExecutiveDashboard />
+        <SiteFooter />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-surface">
       <SiteHeader />
@@ -139,7 +149,223 @@ function WelcomeBanner({ userId, isHotel, isAdmin, isOrganizer }: { userId: stri
 }
 
 
-/* ────────────────────────────────  ADMIN LANDING  ──────────────────────────────── */
+/* ────────────────────────────  ADMIN EXECUTIVE DASHBOARD  ──────────────────────────── */
+
+function AdminExecutiveDashboard() {
+  const { data: stats } = useQuery({
+    queryKey: ["admin-exec-stats"],
+    refetchInterval: 60_000,
+    queryFn: async () => {
+      const counts = await Promise.all([
+        supabase.from("profiles").select("id", { count: "exact", head: true }).not("hotel_approval_status", "is", null),
+        supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "approved"),
+        supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("hotel_approval_status", "rejected"),
+        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "organizer"),
+        supabase.from("rfqs").select("id", { count: "exact", head: true }).eq("status", "open"),
+        supabase.from("quotes").select("id", { count: "exact", head: true }),
+        supabase.from("bookings").select("id", { count: "exact", head: true }).eq("status", "confirmed"),
+        supabase.from("subscription_interest").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("pms_enabled", true),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("pms_enabled", false),
+      ]);
+      const startMonth = new Date(); startMonth.setDate(1); startMonth.setHours(0,0,0,0);
+      const [agenciesMonth, rfqsMonth, quotesAvg] = await Promise.all([
+        supabase.from("rfqs").select("organizer_id", { count: "exact", head: true }).gte("created_at", startMonth.toISOString()),
+        supabase.from("rfqs").select("id", { count: "exact", head: true }).gte("created_at", startMonth.toISOString()),
+        supabase.from("quotes").select("rfq_id"),
+      ]);
+      const quoteRows = (quotesAvg.data ?? []) as { rfq_id: string }[];
+      const byRfq = new Map<string, number>();
+      quoteRows.forEach((q) => byRfq.set(q.rfq_id, (byRfq.get(q.rfq_id) ?? 0) + 1));
+      const avgQuotes = byRfq.size ? (Array.from(byRfq.values()).reduce((a,b)=>a+b,0) / byRfq.size) : 0;
+      return {
+        companies: counts[0].count ?? 0,
+        hotelsApproved: counts[1].count ?? 0,
+        hotelsPending: counts[2].count ?? 0,
+        hotelsRejected: counts[3].count ?? 0,
+        agencies: counts[4].count ?? 0,
+        openRfqs: counts[5].count ?? 0,
+        quotes: counts[6].count ?? 0,
+        confirmedDeals: counts[7].count ?? 0,
+        subInterest: counts[8].count ?? 0,
+        users: counts[9].count ?? 0,
+        pmsEnabled: counts[10].count ?? 0,
+        pmsDisabled: counts[11].count ?? 0,
+        agenciesMonth: agenciesMonth.count ?? 0,
+        rfqsMonth: rfqsMonth.count ?? 0,
+        avgQuotes,
+      };
+    },
+  });
+
+  const { data: activity } = useQuery({
+    queryKey: ["admin-exec-activity"],
+    refetchInterval: 60_000,
+    queryFn: async () => {
+      const [hotels, agencies, rfqs, quotes, subs] = await Promise.all([
+        supabase.from("hotels").select("id,name,status,created_at").order("created_at", { ascending: false }).limit(6),
+        supabase.from("profiles").select("id,full_name,company_name,created_at").order("created_at", { ascending: false }).limit(6),
+        supabase.from("rfqs").select("id,title,created_at").order("created_at", { ascending: false }).limit(6),
+        supabase.from("quotes").select("id,created_at,hotel_id").order("created_at", { ascending: false }).limit(6),
+        supabase.from("subscription_interest").select("id,full_name,created_at").order("created_at", { ascending: false }).limit(6),
+      ]);
+      type Item = { ts: string; label: string; sub?: string; status?: string };
+      const items: Item[] = [];
+      (hotels.data ?? []).forEach((h: any) => items.push({ ts: h.created_at, label: `Hotel listing: ${h.name}`, status: h.status }));
+      (agencies.data ?? []).forEach((p: any) => items.push({ ts: p.created_at, label: `New registration: ${p.company_name || p.full_name || "User"}` }));
+      (rfqs.data ?? []).forEach((r: any) => items.push({ ts: r.created_at, label: `New group request: ${r.title}` }));
+      (quotes.data ?? []).forEach((q: any) => items.push({ ts: q.created_at, label: `New quotation submitted` }));
+      (subs.data ?? []).forEach((s: any) => items.push({ ts: s.created_at, label: `Subscription interest: ${s.full_name || "Lead"}` }));
+      return items.sort((a,b) => b.ts.localeCompare(a.ts)).slice(0, 12);
+    },
+  });
+
+  const kpis = [
+    { label: "Total Hotel Companies", value: stats?.companies ?? 0, icon: Building2, to: "/admin/hotel-companies" },
+    { label: "Approved Hotels", value: stats?.hotelsApproved ?? 0, icon: CheckCircle2, to: "/admin/hotel-listings" },
+    { label: "Pending Hotel Reviews", value: stats?.hotelsPending ?? 0, icon: Clock, to: "/admin/hotel-listings" },
+    { label: "Rejected Hotels", value: stats?.hotelsRejected ?? 0, icon: ShieldCheck, to: "/admin/hotel-listings" },
+    { label: "Active Agency Accounts", value: stats?.agencies ?? 0, icon: Users, to: "/admin" },
+    { label: "Open Group Requests", value: stats?.openRfqs ?? 0, icon: ClipboardList, to: "/requests" },
+    { label: "Submitted Quotations", value: stats?.quotes ?? 0, icon: FileText, to: "/admin" },
+    { label: "Confirmed Deals", value: stats?.confirmedDeals ?? 0, icon: Handshake, to: "/admin" },
+    { label: "Subscription Interest Leads", value: stats?.subInterest ?? 0, icon: Inbox, to: "/admin/subscription-interest" },
+    { label: "Total Platform Users", value: stats?.users ?? 0, icon: Globe2, to: "/admin" },
+  ];
+
+  const quickActions = [
+    { label: "Review Hotel Companies", to: "/admin/hotel-companies", icon: Building2 },
+    { label: "Review Hotel Listings", to: "/admin/hotel-listings", icon: Hotel },
+    { label: "Review Subscription Interest", to: "/admin/subscription-interest", icon: Inbox },
+    { label: "View All Agencies", to: "/admin", icon: Users },
+    { label: "View Open Requests", to: "/requests", icon: ClipboardList },
+    { label: "Platform Settings", to: "/dashboard/profile", icon: ShieldCheck },
+  ];
+
+  const pending = [
+    { label: "Hotels awaiting approval", value: stats?.hotelsPending ?? 0, to: "/admin/hotel-listings", cta: "Review" },
+    { label: "Companies awaiting verification", value: stats?.companies ?? 0, to: "/admin/hotel-companies", cta: "Open" },
+    { label: "Subscription interest leads", value: stats?.subInterest ?? 0, to: "/admin/subscription-interest", cta: "View" },
+  ];
+
+  const health = [
+    { label: "Active hotels", value: stats?.hotelsApproved ?? 0 },
+    { label: "Hotels with PMS integration", value: stats?.pmsEnabled ?? 0 },
+    { label: "Hotels without PMS", value: stats?.pmsDisabled ?? 0 },
+    { label: "Agencies active this month", value: stats?.agenciesMonth ?? 0 },
+    { label: "Open requests this month", value: stats?.rfqsMonth ?? 0 },
+    { label: "Avg quotations per request", value: (stats?.avgQuotes ?? 0).toFixed(1) },
+  ];
+
+  return (
+    <main className="flex-1">
+      <section className="container-page py-10 md:py-14">
+        <div className="rounded-2xl bg-gradient-to-br from-[oklch(0.18_0.04_265)] to-[oklch(0.32_0.10_264)] text-primary-foreground p-8 md:p-10">
+          <Badge className="bg-premium text-premium-foreground border-0 mb-3 uppercase tracking-wider">Admin Console</Badge>
+          <h1 className="font-display text-3xl md:text-4xl font-semibold">Platform Overview</h1>
+          <p className="mt-2 text-primary-foreground/80 max-w-2xl">
+            Manage hotels, listings, agencies, requests and platform growth from one place.
+          </p>
+        </div>
+
+        {/* KPI grid */}
+        <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {kpis.map((k) => (
+            <Link key={k.label} to={k.to} className="rounded-2xl bg-card border border-border p-5 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition">
+              <span className="inline-grid h-9 w-9 place-items-center rounded-lg bg-brand-blue/10 text-brand-blue">
+                <k.icon className="h-4 w-4" />
+              </span>
+              <div className="mt-3 font-display text-3xl font-semibold text-primary">{k.value}</div>
+              <div className="mt-0.5 text-sm text-muted-foreground">{k.label}</div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Activity + Pending */}
+        <div className="mt-10 grid lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2">
+            <CardContent className="p-6">
+              <h2 className="font-display text-xl text-primary mb-4">Recent Platform Activity</h2>
+              {!activity?.length ? (
+                <div className="text-sm text-muted-foreground">No recent activity.</div>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {activity.map((a, i) => (
+                    <li key={i} className="py-3 flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="text-sm text-foreground truncate">{a.label}</div>
+                        <div className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(a.ts), { addSuffix: true })}</div>
+                      </div>
+                      {a.status && (
+                        <Badge variant="secondary" className="capitalize shrink-0">{a.status}</Badge>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="font-display text-xl text-primary mb-4">Requires Attention</h2>
+              <ul className="space-y-3">
+                {pending.map((p) => (
+                  <li key={p.label} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-foreground truncate">{p.label}</div>
+                      <div className="text-xs text-muted-foreground">{p.value} item{p.value === 1 ? "" : "s"}</div>
+                    </div>
+                    <Button asChild size="sm" variant="outline">
+                      <Link to={p.to}>{p.cta}</Link>
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mt-10">
+          <h2 className="font-display text-xl text-primary mb-3">Quick Actions</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {quickActions.map((qa) => (
+              <Link key={qa.label} to={qa.to}>
+                <Card className="h-full hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition">
+                  <CardContent className="p-5 flex items-center gap-4">
+                    <span className="grid h-10 w-10 place-items-center rounded-lg bg-brand-blue/10 text-brand-blue">
+                      <qa.icon className="h-5 w-5" />
+                    </span>
+                    <div className="flex-1 font-display text-base text-primary">{qa.label}</div>
+                    <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Platform Health */}
+        <div className="mt-10">
+          <h2 className="font-display text-xl text-primary mb-3">Platform Health</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {health.map((h) => (
+              <div key={h.label} className="rounded-2xl bg-card border border-border p-5">
+                <div className="font-display text-2xl font-semibold text-primary">{h.value}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{h.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+
 
 function AdminLanding() {
   const { data: stats } = useQuery({
