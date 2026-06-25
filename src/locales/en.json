@@ -131,8 +131,24 @@
       "budgetMax": "Budget max (per night)",
       "currency": "Currency",
       "deadline": "Quote deadline (optional)",
-      "notes": "Special requirements",
-      "notesPh": "Halal meals, female-only floor, coach parking, etc."
+      "notes": "Additional requirements",
+      "notesPh": "Halal meals, female-only floor, coach parking, etc.",
+      "categories": "Hotel category required",
+      "categoriesHint": "Pick one or more star ratings. Leave empty for Any.",
+      "accommodation": "Accommodation type",
+      "mealPlan": "Meal plan"
+    },
+    "accommodationTypes": {
+      "any": "Any",
+      "hotel": "Hotel",
+      "hotel_apartment": "Hotel Apartment",
+      "resort": "Resort"
+    },
+    "mealPlans": {
+      "room_only": "Room Only",
+      "bb": "Bed & Breakfast",
+      "hb": "Half Board",
+      "fb": "Full Board"
     },
     "groupTypes": {
       "umrah": "Umrah",
