@@ -72,7 +72,7 @@ function Page() {
           <CardContent className="p-5 grid sm:grid-cols-2 gap-4 text-sm">
             <Detail label="Board" value={rfq.board_type} />
             <Detail label="Room preference" value={rfq.room_type_pref || "—"} />
-            <Detail label="Budget" value={`${rfq.budget_min ?? "—"} – ${rfq.budget_max ?? "—"} ${rfq.currency}`} />
+            <Detail label="Pricing" value="Submit your competitive quotation" />
             <Detail label="Deadline" value={rfq.deadline || "—"} />
             <div className="sm:col-span-2">
               <Detail label="Special requirements" value={rfq.special_requirements || "—"} />
