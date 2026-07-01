@@ -1,12 +1,11 @@
-import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { useAgencyVerification } from "@/hooks/use-agency-verification";
 import { useCountries, useCities } from "@/hooks/use-master-data";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { AccessDenied } from "@/components/access-denied";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,13 +14,20 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { z } from "zod";
-import { AlertCircle, CheckCircle2, Clock, ShieldCheck, Upload, FileText } from "lucide-react";
+import { AlertCircle, Clock, ShieldCheck, Upload, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/agency-profile")({
   head: () => ({ meta: [{ title: "Agency Profile — GroupToStay" }] }),
   component: Page,
+  errorComponent: ({ error }) => (
+    <div className="rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+      Failed to load Agency Profile: {error?.message ?? "Unknown error"}
+    </div>
+  ),
+  notFoundComponent: () => <AccessDenied message="Agency Profile not found." />,
 });
 
 const AGENCY_TYPES = [
@@ -45,7 +51,7 @@ type Profile = Record<string, any>;
 
 function Page() {
   const { user, loading: authLoading } = useAuth();
-  const { isOrganizer, isAdmin, loading: rolesLoading } = useRoles();
+  const { isOrganizer, isAdmin, isHotel, loading: rolesLoading } = useRoles();
   const { status, rejectionReason, isVerified, isPending, isRejected, refetch: refetchStatus } = useAgencyVerification();
   const navigate = useNavigate();
   const { data: countries = [] } = useCountries();
@@ -62,16 +68,42 @@ function Page() {
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
     (async () => {
       setLoading(true);
-      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
-      setProfile(data ?? {});
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+      if (cancelled) return;
+      if (error) {
+        console.error("[agency-profile] load error", error);
+        toast.error(error.message || "Failed to load profile");
+      }
+      // Normalize date to YYYY-MM-DD for <input type="date">
+      const row: Profile = { ...(data ?? {}) };
+      if (row.cr_expiry_date && typeof row.cr_expiry_date === "string" && row.cr_expiry_date.length > 10) {
+        row.cr_expiry_date = row.cr_expiry_date.slice(0, 10);
+      }
+      setProfile(row);
       setLoading(false);
     })();
+    return () => { cancelled = true; };
   }, [user]);
 
-  if (authLoading || rolesLoading || loading || !profile) return null;
-  if (!isOrganizer && !isAdmin) return <Navigate to="/dashboard" />;
+  if (authLoading || rolesLoading || loading || !profile) {
+    return (
+      <div className="max-w-3xl space-y-4">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+  if (isHotel) {
+    return <AccessDenied message="Agency Profile is only available to agency accounts." />;
+  }
+  if (!isOrganizer && !isAdmin) {
+    return <AccessDenied message="Agency Profile is only available to agency accounts." />;
+  }
 
   const readOnly = isPending || isVerified;
 
@@ -218,13 +250,11 @@ function Page() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface">
-      <SiteHeader />
-      <main className="flex-1 container-page py-8 max-w-3xl">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <h1 className="font-display text-3xl text-primary">Agency Profile</h1>
-          <Badge variant={isVerified ? "default" : "secondary"} className="capitalize">{status.replace("_", " ")}</Badge>
-        </div>
+    <div className="max-w-3xl">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="font-display text-3xl text-primary">Agency Profile</h1>
+        <Badge variant={isVerified ? "default" : "secondary"} className="capitalize">{status.replace("_", " ")}</Badge>
+      </div>
         <p className="mt-1 text-muted-foreground text-sm">All information is confidential and used only for verification. Documents are visible to admins only.</p>
 
         <div className="mt-4"><StatusBanner /></div>
@@ -357,8 +387,6 @@ function Page() {
             <Button variant="gold" onClick={submit} disabled={saving}>{saving ? "Submitting…" : (isRejected ? "Resubmit for verification" : "Submit for verification")}</Button>
           </div>
         )}
-      </main>
-      <SiteFooter />
     </div>
   );
 }
