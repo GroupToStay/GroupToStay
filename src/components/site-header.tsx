@@ -65,13 +65,13 @@ export function SiteHeader() {
 
         <nav className="hidden md:flex items-center gap-6">{navLinks}</nav>
 
-        <div className="ms-auto flex items-center gap-2">
+        <div className="ms-auto flex items-center gap-1 sm:gap-2 min-w-0">
           <LanguageSwitcher />
           {user ? (
             <>
               <NotificationBell />
-              <Button asChild variant="ghost" size="sm"><Link to={dashboardHref}>{t("nav.dashboard")}</Link></Button>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>{t("nav.signOut")}</Button>
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex"><Link to={dashboardHref}>{t("nav.dashboard")}</Link></Button>
+              <Button variant="outline" size="sm" onClick={handleSignOut} className="hidden sm:inline-flex">{t("nav.signOut")}</Button>
             </>
 
           ) : (
