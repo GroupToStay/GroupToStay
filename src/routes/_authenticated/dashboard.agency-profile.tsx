@@ -68,16 +68,42 @@ function Page() {
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
     (async () => {
       setLoading(true);
-      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
-      setProfile(data ?? {});
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+      if (cancelled) return;
+      if (error) {
+        console.error("[agency-profile] load error", error);
+        toast.error(error.message || "Failed to load profile");
+      }
+      // Normalize date to YYYY-MM-DD for <input type="date">
+      const row: Profile = { ...(data ?? {}) };
+      if (row.cr_expiry_date && typeof row.cr_expiry_date === "string" && row.cr_expiry_date.length > 10) {
+        row.cr_expiry_date = row.cr_expiry_date.slice(0, 10);
+      }
+      setProfile(row);
       setLoading(false);
     })();
+    return () => { cancelled = true; };
   }, [user]);
 
-  if (authLoading || rolesLoading || loading || !profile) return null;
-  if (!isOrganizer && !isAdmin) return <Navigate to="/dashboard" />;
+  if (authLoading || rolesLoading || loading || !profile) {
+    return (
+      <div className="max-w-3xl space-y-4">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+  if (isHotel) {
+    return <AccessDenied message="Agency Profile is only available to agency accounts." />;
+  }
+  if (!isOrganizer && !isAdmin) {
+    return <AccessDenied message="Agency Profile is only available to agency accounts." />;
+  }
 
   const readOnly = isPending || isVerified;
 
