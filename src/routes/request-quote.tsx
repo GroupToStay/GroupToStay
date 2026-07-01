@@ -26,8 +26,10 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
 const HOTEL_CATEGORIES = [
-  "Budget", "Economy", "Midscale", "Upper Midscale", "Upscale",
-  "Luxury", "Resort", "Boutique", "Serviced Apartments", "Hostel", "Villa", "Other",
+  "Budget", "Economy", "Midscale", "Upper Midscale", "Upscale", "Luxury",
+  "Resort", "Boutique Hotel", "Serviced Apartments", "Business Hotel",
+  "Airport Hotel", "Beach Resort", "City Hotel", "Convention Hotel",
+  "Hostel", "Villa", "Other",
 ] as const;
 
 
