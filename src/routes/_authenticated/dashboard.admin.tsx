@@ -354,7 +354,7 @@ export function InterestPanel() {
         ))}
       </div>
       {isLoading ? <div className="text-muted-foreground">Loading…</div> :
-       rows.length === 0 ? <Card><CardContent className="p-6 text-sm text-muted-foreground">No waitlist entries.</CardContent></Card> :
+       rows.length === 0 ? <EmptyState icon={Inbox} title="No waitlist entries" description="Hotels who register interest in a paid plan will appear here." /> :
        rows.map((r: any) => (
         <Card key={r.id}><CardContent className="p-5 flex items-center gap-4 flex-wrap">
           <div className="flex-1 min-w-[200px]">
