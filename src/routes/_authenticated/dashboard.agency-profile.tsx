@@ -387,8 +387,6 @@ function Page() {
             <Button variant="gold" onClick={submit} disabled={saving}>{saving ? "Submitting…" : (isRejected ? "Resubmit for verification" : "Submit for verification")}</Button>
           </div>
         )}
-      </main>
-      <SiteFooter />
     </div>
   );
 }
