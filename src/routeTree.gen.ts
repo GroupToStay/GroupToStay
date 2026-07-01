@@ -41,12 +41,14 @@ import { Route as AuthenticatedDashboardNotificationsRouteImport } from './route
 import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_authenticated/dashboard.messages'
 import { Route as AuthenticatedDashboardInvitationsRouteImport } from './routes/_authenticated/dashboard.invitations'
 import { Route as AuthenticatedDashboardHotelRouteImport } from './routes/_authenticated/dashboard.hotel'
+import { Route as AuthenticatedDashboardAgencyProfileRouteImport } from './routes/_authenticated/dashboard.agency-profile'
 import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard.admin'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminSubscriptionInterestRouteImport } from './routes/_authenticated/admin.subscription-interest'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminHotelListingsRouteImport } from './routes/_authenticated/admin.hotel-listings'
 import { Route as AuthenticatedAdminHotelCompaniesRouteImport } from './routes/_authenticated/admin.hotel-companies'
+import { Route as AuthenticatedAdminAgencyVerificationsRouteImport } from './routes/_authenticated/admin.agency-verifications'
 import { Route as AuthenticatedDashboardRfqsIndexRouteImport } from './routes/_authenticated/dashboard.rfqs.index'
 import { Route as AuthenticatedDashboardMessagesIndexRouteImport } from './routes/_authenticated/dashboard.messages.index'
 import { Route as AuthenticatedDashboardHotelIndexRouteImport } from './routes/_authenticated/dashboard.hotel.index'
@@ -224,6 +226,12 @@ const AuthenticatedDashboardHotelRoute =
     path: '/hotel',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardAgencyProfileRoute =
+  AuthenticatedDashboardAgencyProfileRouteImport.update({
+    id: '/agency-profile',
+    path: '/agency-profile',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardAdminRoute =
   AuthenticatedDashboardAdminRouteImport.update({
     id: '/admin',
@@ -258,6 +266,12 @@ const AuthenticatedAdminHotelCompaniesRoute =
   AuthenticatedAdminHotelCompaniesRouteImport.update({
     id: '/hotel-companies',
     path: '/hotel-companies',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAgencyVerificationsRoute =
+  AuthenticatedAdminAgencyVerificationsRouteImport.update({
+    id: '/agency-verifications',
+    path: '/agency-verifications',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedDashboardRfqsIndexRoute =
@@ -338,12 +352,14 @@ export interface FileRoutesByFullPath {
   '/subscription/coming-soon': typeof SubscriptionComingSoonRoute
   '/hotels/': typeof HotelsIndexRoute
   '/requests/': typeof RequestsIndexRoute
+  '/admin/agency-verifications': typeof AuthenticatedAdminAgencyVerificationsRoute
   '/admin/hotel-companies': typeof AuthenticatedAdminHotelCompaniesRoute
   '/admin/hotel-listings': typeof AuthenticatedAdminHotelListingsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscription-interest': typeof AuthenticatedAdminSubscriptionInterestRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
+  '/dashboard/agency-profile': typeof AuthenticatedDashboardAgencyProfileRoute
   '/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRouteWithChildren
@@ -384,12 +400,14 @@ export interface FileRoutesByTo {
   '/subscription/coming-soon': typeof SubscriptionComingSoonRoute
   '/hotels': typeof HotelsIndexRoute
   '/requests': typeof RequestsIndexRoute
+  '/admin/agency-verifications': typeof AuthenticatedAdminAgencyVerificationsRoute
   '/admin/hotel-companies': typeof AuthenticatedAdminHotelCompaniesRoute
   '/admin/hotel-listings': typeof AuthenticatedAdminHotelListingsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscription-interest': typeof AuthenticatedAdminSubscriptionInterestRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
+  '/dashboard/agency-profile': typeof AuthenticatedDashboardAgencyProfileRoute
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
@@ -431,12 +449,14 @@ export interface FileRoutesById {
   '/subscription/coming-soon': typeof SubscriptionComingSoonRoute
   '/hotels/': typeof HotelsIndexRoute
   '/requests/': typeof RequestsIndexRoute
+  '/_authenticated/admin/agency-verifications': typeof AuthenticatedAdminAgencyVerificationsRoute
   '/_authenticated/admin/hotel-companies': typeof AuthenticatedAdminHotelCompaniesRoute
   '/_authenticated/admin/hotel-listings': typeof AuthenticatedAdminHotelListingsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/subscription-interest': typeof AuthenticatedAdminSubscriptionInterestRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/_authenticated/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
+  '/_authenticated/dashboard/agency-profile': typeof AuthenticatedDashboardAgencyProfileRoute
   '/_authenticated/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
   '/_authenticated/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRouteWithChildren
@@ -481,12 +501,14 @@ export interface FileRouteTypes {
     | '/subscription/coming-soon'
     | '/hotels/'
     | '/requests/'
+    | '/admin/agency-verifications'
     | '/admin/hotel-companies'
     | '/admin/hotel-listings'
     | '/admin/settings'
     | '/admin/subscription-interest'
     | '/admin/subscriptions'
     | '/dashboard/admin'
+    | '/dashboard/agency-profile'
     | '/dashboard/hotel'
     | '/dashboard/invitations'
     | '/dashboard/messages'
@@ -527,12 +549,14 @@ export interface FileRouteTypes {
     | '/subscription/coming-soon'
     | '/hotels'
     | '/requests'
+    | '/admin/agency-verifications'
     | '/admin/hotel-companies'
     | '/admin/hotel-listings'
     | '/admin/settings'
     | '/admin/subscription-interest'
     | '/admin/subscriptions'
     | '/dashboard/admin'
+    | '/dashboard/agency-profile'
     | '/dashboard/invitations'
     | '/dashboard/notifications'
     | '/dashboard/profile'
@@ -573,12 +597,14 @@ export interface FileRouteTypes {
     | '/subscription/coming-soon'
     | '/hotels/'
     | '/requests/'
+    | '/_authenticated/admin/agency-verifications'
     | '/_authenticated/admin/hotel-companies'
     | '/_authenticated/admin/hotel-listings'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/subscription-interest'
     | '/_authenticated/admin/subscriptions'
     | '/_authenticated/dashboard/admin'
+    | '/_authenticated/dashboard/agency-profile'
     | '/_authenticated/dashboard/hotel'
     | '/_authenticated/dashboard/invitations'
     | '/_authenticated/dashboard/messages'
@@ -849,6 +875,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardHotelRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/agency-profile': {
+      id: '/_authenticated/dashboard/agency-profile'
+      path: '/agency-profile'
+      fullPath: '/dashboard/agency-profile'
+      preLoaderRoute: typeof AuthenticatedDashboardAgencyProfileRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/admin': {
       id: '/_authenticated/dashboard/admin'
       path: '/admin'
@@ -889,6 +922,13 @@ declare module '@tanstack/react-router' {
       path: '/hotel-companies'
       fullPath: '/admin/hotel-companies'
       preLoaderRoute: typeof AuthenticatedAdminHotelCompaniesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/agency-verifications': {
+      id: '/_authenticated/admin/agency-verifications'
+      path: '/agency-verifications'
+      fullPath: '/admin/agency-verifications'
+      preLoaderRoute: typeof AuthenticatedAdminAgencyVerificationsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/dashboard/rfqs/': {
@@ -958,6 +998,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAgencyVerificationsRoute: typeof AuthenticatedAdminAgencyVerificationsRoute
   AuthenticatedAdminHotelCompaniesRoute: typeof AuthenticatedAdminHotelCompaniesRoute
   AuthenticatedAdminHotelListingsRoute: typeof AuthenticatedAdminHotelListingsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
@@ -967,6 +1008,8 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAgencyVerificationsRoute:
+    AuthenticatedAdminAgencyVerificationsRoute,
   AuthenticatedAdminHotelCompaniesRoute: AuthenticatedAdminHotelCompaniesRoute,
   AuthenticatedAdminHotelListingsRoute: AuthenticatedAdminHotelListingsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
@@ -1052,6 +1095,7 @@ const AuthenticatedDashboardRfqsRouteWithChildren =
 
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAdminRoute: typeof AuthenticatedDashboardAdminRoute
+  AuthenticatedDashboardAgencyProfileRoute: typeof AuthenticatedDashboardAgencyProfileRoute
   AuthenticatedDashboardHotelRoute: typeof AuthenticatedDashboardHotelRouteWithChildren
   AuthenticatedDashboardInvitationsRoute: typeof AuthenticatedDashboardInvitationsRoute
   AuthenticatedDashboardMessagesRoute: typeof AuthenticatedDashboardMessagesRouteWithChildren
@@ -1065,6 +1109,8 @@ interface AuthenticatedDashboardRouteChildren {
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
     AuthenticatedDashboardAdminRoute: AuthenticatedDashboardAdminRoute,
+    AuthenticatedDashboardAgencyProfileRoute:
+      AuthenticatedDashboardAgencyProfileRoute,
     AuthenticatedDashboardHotelRoute:
       AuthenticatedDashboardHotelRouteWithChildren,
     AuthenticatedDashboardInvitationsRoute:

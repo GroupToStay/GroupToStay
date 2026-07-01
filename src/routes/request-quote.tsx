@@ -1,11 +1,13 @@
-import { createFileRoute, Navigate, useNavigate, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, useNavigate, useSearch } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
+import { useAgencyVerification } from "@/hooks/use-agency-verification";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +19,17 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { CountryCitySelect } from "@/components/country-city-select";
 import { useCountries, useCities } from "@/hooks/use-master-data";
-import { Star } from "lucide-react";
+import { Star, ShieldCheck, Clock, AlertCircle, CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+
+const HOTEL_CATEGORIES = [
+  "Budget", "Economy", "Midscale", "Upper Midscale", "Upscale",
+  "Luxury", "Resort", "Boutique", "Serviced Apartments", "Hostel", "Villa", "Other",
+] as const;
+
 
 type Search = {
   city?: string; country?: string;
@@ -54,12 +66,14 @@ const Schema = z.object({
   check_out: z.string().min(1),
   guests_count: z.number().int().min(1).max(100000),
   rooms_needed: z.number().int().min(1).max(10000),
-  hotel_categories: z.array(z.number().int().min(1).max(5)).optional(),
+  hotel_categories_v2: z.array(z.string()).optional(),
   accommodation_type: z.enum(["any","hotel","hotel_apartment","resort"]),
   meal_plan_code: z.enum(["room_only","bb","hb","fb"]),
   additional_requirements: z.string().max(2000).optional().or(z.literal("")),
+  requirements: z.string().max(4000).optional().or(z.literal("")),
   deadline: z.string().optional().or(z.literal("")),
 });
+
 
 function Page() {
   const { t } = useTranslation();
@@ -79,9 +93,9 @@ function Page() {
     }
   }, [blocked, isAdmin]);
 
-  const cat = search.category;
   const accom = search.accommodation;
   const meal = search.meal_plan;
+  const cats = search.category ? search.category.split(",") : [];
   const [form, setForm] = useState({
     title: "",
     group_type: "umrah" as const,
@@ -91,20 +105,24 @@ function Page() {
     check_out: search.check_out ?? "",
     guests_count: search.guests ? Number(search.guests) : 30,
     rooms_needed: search.rooms ? Number(search.rooms) : 10,
-    hotel_categories: cat && ["3","4","5"].includes(cat) ? [Number(cat)] : [] as number[],
+    hotel_categories_v2: cats.filter((c: string) => (HOTEL_CATEGORIES as readonly string[]).includes(c)) as string[],
     accommodation_type: (accom && ["any","hotel","hotel_apartment","resort"].includes(accom) ? accom : "any") as "any"|"hotel"|"hotel_apartment"|"resort",
     meal_plan_code: (meal && ["room_only","bb","hb","fb"].includes(meal) ? meal : "bb") as "room_only"|"bb"|"hb"|"fb",
     additional_requirements: "",
+    requirements: "",
     deadline: "",
   });
 
   const update = (k: keyof typeof form, v: unknown) => setForm(f => ({ ...f, [k]: v }));
-  const toggleCategory = (n: number) => setForm(f => ({
+  const toggleCategory = (n: string) => setForm(f => ({
     ...f,
-    hotel_categories: f.hotel_categories.includes(n)
-      ? f.hotel_categories.filter(x => x !== n)
-      : [...f.hotel_categories, n].sort(),
+    hotel_categories_v2: f.hotel_categories_v2.includes(n)
+      ? f.hotel_categories_v2.filter((x: string) => x !== n)
+      : [...f.hotel_categories_v2, n],
   }));
+  const { status: verifStatus, isVerified, isPending, isRejected, isDraft, rejectionReason } = useAgencyVerification();
+
+
 
   const { data: countries = [] } = useCountries();
   const { data: citiesOfCountry = [] } = useCities(form.destination_country_id);
@@ -140,12 +158,14 @@ function Page() {
         check_out: parsed.check_out,
         guests_count: parsed.guests_count,
         rooms_needed: parsed.rooms_needed,
-        hotel_categories: parsed.hotel_categories && parsed.hotel_categories.length > 0 ? parsed.hotel_categories : null,
+        hotel_categories_v2: parsed.hotel_categories_v2 && parsed.hotel_categories_v2.length > 0 ? parsed.hotel_categories_v2 : null,
         accommodation_type: parsed.accommodation_type,
         meal_plan_code: parsed.meal_plan_code,
         board_type: boardMap[parsed.meal_plan_code] as any,
         additional_requirements: parsed.additional_requirements || null,
-        special_requirements: parsed.additional_requirements || null,
+        requirements: parsed.requirements || null,
+        special_requirements: parsed.additional_requirements || parsed.requirements || null,
+
         deadline: parsed.deadline || null,
         currency: "USD",
         organizer_id: user.id,
@@ -184,6 +204,24 @@ function Page() {
         <p className="mt-1 text-muted-foreground">{t("rfq.subtitle")}</p>
         {!user && <div className="mt-3 text-sm rounded-md bg-warning/10 text-warning border border-warning/30 px-3 py-2">{t("rfq.anonymous")}</div>}
 
+        {user && isOrganizer && !isVerified && (
+          <div className="mt-4 rounded-md border border-amber-300 bg-amber-50 text-amber-900 p-4">
+            <div className="flex items-start gap-2">
+              {isPending ? <Clock className="h-5 w-5 mt-0.5" /> : <AlertCircle className="h-5 w-5 mt-0.5" />}
+              <div className="flex-1 text-sm">
+                {isPending && (<><b>Verification in progress.</b> Your agency profile is under review. You will be able to publish requests once verified.</>)}
+                {isRejected && (<><b>Verification rejected.</b> {rejectionReason && <>Reason: {rejectionReason}. </>}Please update your profile and resubmit.</>)}
+                {(isDraft || (!isPending && !isRejected && verifStatus !== "verified")) && (<><b>Complete your agency verification</b> to publish requests and contact hotels.</>)}
+                <div className="mt-2">
+                  <Link to="/dashboard/agency-profile"><Button variant="gold" size="sm">Open Agency Profile</Button></Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+
+
         <Card className="mt-6"><CardContent className="p-6 space-y-4">
           {step === 1 && (<>
             <div><Label>{t("rfq.fields.title")}</Label><Input value={form.title} onChange={e => update("title", e.target.value)} placeholder={t("rfq.fields.titlePh")} maxLength={160} /></div>
@@ -209,33 +247,40 @@ function Page() {
 
           {step === 2 && (<>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>{t("rfq.fields.checkIn")}</Label><Input type="date" value={form.check_in} onChange={e => update("check_in", e.target.value)} /></div>
-              <div><Label>{t("rfq.fields.checkOut")}</Label><Input type="date" value={form.check_out} onChange={e => update("check_out", e.target.value)} /></div>
+              <div>
+                <Label>{t("rfq.fields.checkIn")}</Label>
+                <DatePickerField value={form.check_in} onChange={(v) => update("check_in", v)} />
+              </div>
+              <div>
+                <Label>{t("rfq.fields.checkOut")}</Label>
+                <DatePickerField value={form.check_out} onChange={(v) => update("check_out", v)} min={form.check_in} />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>{t("rfq.fields.guests")}</Label><Input type="number" min={1} value={form.guests_count} onChange={e => update("guests_count", Number(e.target.value))} /></div>
               <div><Label>{t("rfq.fields.rooms")}</Label><Input type="number" min={1} value={form.rooms_needed} onChange={e => update("rooms_needed", Number(e.target.value))} /></div>
             </div>
             <div>
-              <Label>{t("rfq.fields.categories")}</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">{t("rfq.fields.categoriesHint")}</p>
+              <Label>Hotel Categories</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Choose one or more categories. Leave empty for Any.</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                {[1,2,3,4,5].map(n => {
-                  const active = form.hotel_categories.includes(n);
+                {HOTEL_CATEGORIES.map((n) => {
+                  const active = form.hotel_categories_v2.includes(n);
                   return (
                     <button key={n} type="button" onClick={() => toggleCategory(n)}
                       className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm ${active ? "border-gold bg-gold/10 text-foreground" : "border-input text-muted-foreground"}`}>
-                      {n} <Star className={`h-3 w-3 ${active ? "fill-gold text-gold" : ""}`} />
+                      {n}
                     </button>
                   );
                 })}
-                <button type="button" onClick={() => update("hotel_categories", [])}
-                  className={`rounded-full border px-3 py-1.5 text-sm ${form.hotel_categories.length === 0 ? "border-gold bg-gold/10 text-foreground" : "border-input text-muted-foreground"}`}>
+                <button type="button" onClick={() => update("hotel_categories_v2", [])}
+                  className={`rounded-full border px-3 py-1.5 text-sm ${form.hotel_categories_v2.length === 0 ? "border-gold bg-gold/10 text-foreground" : "border-input text-muted-foreground"}`}>
                   Any
                 </button>
               </div>
             </div>
           </>)}
+
 
           {step === 3 && (<>
             <div className="grid grid-cols-2 gap-3">
@@ -260,9 +305,21 @@ function Page() {
                 </Select>
               </div>
             </div>
-            <div><Label>{t("rfq.fields.deadline")}</Label><Input type="date" value={form.deadline} onChange={e => update("deadline", e.target.value)} /></div>
-            <div><Label>{t("rfq.fields.notes")}</Label><Textarea rows={4} maxLength={2000} value={form.additional_requirements} onChange={e => update("additional_requirements", e.target.value)} placeholder={t("rfq.fields.notesPh")} /></div>
+            <div>
+              <Label>{t("rfq.fields.deadline")}</Label>
+              <DatePickerField value={form.deadline} onChange={(v) => update("deadline", v)} />
+            </div>
+            <div>
+              <Label>Requirements (optional)</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">e.g. airport transfer, meeting room, twin beds, parking, wheelchair accessibility, special meals, no alcohol, late check-out…</p>
+              <Textarea rows={5} maxLength={4000} value={form.requirements} onChange={e => update("requirements", e.target.value)} placeholder="Share any operational requirements. Hotels will see this with the RFQ." />
+            </div>
+            <div>
+              <Label>{t("rfq.fields.notes")}</Label>
+              <Textarea rows={3} maxLength={2000} value={form.additional_requirements} onChange={e => update("additional_requirements", e.target.value)} placeholder={t("rfq.fields.notesPh")} />
+            </div>
           </>)}
+
 
           <div className="flex justify-between pt-4">
             <Button variant="ghost" disabled={step === 1} onClick={() => setStep(s => s - 1)}>{t("rfq.back")}</Button>
@@ -286,7 +343,7 @@ function Page() {
                 setStep(s => s + 1);
               }}>{t("rfq.next")}</Button>
             ) : (
-              <Button variant="gold" disabled={submitting} onClick={submit}>{submitting ? t("rfq.submitting") : t("rfq.submit")}</Button>
+              <Button variant="gold" disabled={submitting || (!!user && isOrganizer && !isVerified)} onClick={submit}>{submitting ? t("rfq.submitting") : t("rfq.submit")}</Button>
             )}
           </div>
         </CardContent></Card>
@@ -295,3 +352,33 @@ function Page() {
     </div>
   );
 }
+
+function DatePickerField({ value, onChange, min }: { value: string; onChange: (v: string) => void; min?: string }) {
+  const date = value ? new Date(value) : undefined;
+  const minDate = min ? new Date(min) : undefined;
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}>
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {date ? format(date, "MM/dd/yyyy") : <span>MM/DD/YYYY</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={(d) => onChange(d ? format(d, "yyyy-MM-dd") : "")}
+          disabled={(d) => {
+            const today = new Date(); today.setHours(0,0,0,0);
+            if (d < today) return true;
+            if (minDate && d <= minDate) return true;
+            return false;
+          }}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+

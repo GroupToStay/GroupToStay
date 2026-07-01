@@ -52,9 +52,13 @@ function AuthLayout() {
                   <Link to="/admin/hotel-listings" className={navItem} activeProps={{ className: "active" }}>
                     <Inbox className="h-4 w-4" /> Hotel Listings
                   </Link>
+                  <Link to="/admin/agency-verifications" className={navItem} activeProps={{ className: "active" }}>
+                    <ShieldCheck className="h-4 w-4" /> Agency Verifications
+                  </Link>
                   <Link to="/admin/subscription-interest" className={navItem} activeProps={{ className: "active" }}>
                     <ShieldCheck className="h-4 w-4" /> Subscription Interest
                   </Link>
+
                   <Link to="/admin/subscriptions" className={navItem} activeProps={{ className: "active" }}>
                     <CreditCard className="h-4 w-4" />
                     <span className="flex-1">Subscriptions</span>
@@ -114,9 +118,13 @@ function AuthLayout() {
                       </span>
                     )}
                   </Link>
+                  <Link to="/dashboard/agency-profile" className={navItem} activeProps={{ className: "active" }}>
+                    <ShieldCheck className="h-4 w-4" /> Agency Profile
+                  </Link>
                   <Link to="/dashboard/profile" className={navItem} activeProps={{ className: "active" }}>
                     <User className="h-4 w-4" /> My Profile
                   </Link>
+
                 </>
               )}
             </nav>
