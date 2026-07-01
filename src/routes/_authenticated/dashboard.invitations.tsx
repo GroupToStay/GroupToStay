@@ -80,22 +80,26 @@ function Page() {
 
   if (hotels.length === 0) {
     return (
-      <Card><CardContent className="p-10 text-center">
-        <Inbox className="h-8 w-8 mx-auto text-muted-foreground" />
-        <p className="mt-3 text-muted-foreground">{t("hotelDash.needsHotel")}</p>
-      </CardContent></Card>
+      <EmptyState
+        icon={Building2}
+        title={t("hotelDash.needsHotel")}
+        description="Add your hotel profile to start receiving matching group requests from verified agencies."
+        actionLabel="Add hotel"
+        actionTo="/dashboard/hotel"
+      />
     );
   }
 
   const approvedHotels = hotels.filter((h: any) => h.status === "approved");
   if (approvedHotels.length === 0) {
     return (
-      <Card><CardContent className="p-10 text-center">
-        <Inbox className="h-8 w-8 mx-auto text-muted-foreground" />
-        <p className="mt-3 text-muted-foreground">
-          {t("hotelDash.profileNotApprovedYet", "Complete and verify your hotel profile before participating in Group Requests. Only approved hotels may receive Group Requests and submit quotations.")}
-        </p>
-      </CardContent></Card>
+      <EmptyState
+        icon={ShieldCheck}
+        title="Waiting for approval"
+        description={t("hotelDash.profileNotApprovedYet", "Complete and verify your hotel profile before participating in Group Requests. Only approved hotels may receive Group Requests and submit quotations.")}
+        actionLabel="Review hotel profile"
+        actionTo="/dashboard/hotel"
+      />
     );
   }
 
