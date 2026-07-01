@@ -250,13 +250,11 @@ function Page() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface">
-      <SiteHeader />
-      <main className="flex-1 container-page py-8 max-w-3xl">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <h1 className="font-display text-3xl text-primary">Agency Profile</h1>
-          <Badge variant={isVerified ? "default" : "secondary"} className="capitalize">{status.replace("_", " ")}</Badge>
-        </div>
+    <div className="max-w-3xl">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="font-display text-3xl text-primary">Agency Profile</h1>
+        <Badge variant={isVerified ? "default" : "secondary"} className="capitalize">{status.replace("_", " ")}</Badge>
+      </div>
         <p className="mt-1 text-muted-foreground text-sm">All information is confidential and used only for verification. Documents are visible to admins only.</p>
 
         <div className="mt-4"><StatusBanner /></div>
