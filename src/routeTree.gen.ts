@@ -10,12 +10,15 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrustRouteImport } from './routes/trust'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RequestQuoteRouteImport } from './routes/request-quote'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as ForHotelsRouteImport } from './routes/for-hotels'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
@@ -59,6 +62,11 @@ const TrustRoute = TrustRouteImport.update({
   path: '/trust',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -74,6 +82,11 @@ const RequestQuoteRoute = RequestQuoteRouteImport.update({
   path: '/request-quote',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -87,6 +100,11 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
 const ForHotelsRoute = ForHotelsRouteImport.update({
   id: '/for-hotels',
   path: '/for-hotels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -302,12 +320,15 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/for-hotels': typeof ForHotelsRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/request-quote': typeof RequestQuoteRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
@@ -347,12 +368,15 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/for-hotels': typeof ForHotelsRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/request-quote': typeof RequestQuoteRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
@@ -389,12 +413,15 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/for-hotels': typeof ForHotelsRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/request-quote': typeof RequestQuoteRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
@@ -436,12 +463,15 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/cookies'
     | '/for-hotels'
     | '/how-it-works'
     | '/pricing'
+    | '/privacy'
     | '/request-quote'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/terms'
     | '/trust'
     | '/admin'
     | '/dashboard'
@@ -481,12 +511,15 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/cookies'
     | '/for-hotels'
     | '/how-it-works'
     | '/pricing'
+    | '/privacy'
     | '/request-quote'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/terms'
     | '/trust'
     | '/hotels/$id'
     | '/requests/$id'
@@ -522,12 +555,15 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/cookies'
     | '/for-hotels'
     | '/how-it-works'
     | '/pricing'
+    | '/privacy'
     | '/request-quote'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/terms'
     | '/trust'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
@@ -569,12 +605,15 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
+  CookiesRoute: typeof CookiesRoute
   ForHotelsRoute: typeof ForHotelsRoute
   HowItWorksRoute: typeof HowItWorksRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   RequestQuoteRoute: typeof RequestQuoteRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
   TrustRoute: typeof TrustRoute
   HotelsIdRoute: typeof HotelsIdRoute
   RequestsIdRoute: typeof RequestsIdRoute
@@ -591,6 +630,13 @@ declare module '@tanstack/react-router' {
       path: '/trust'
       fullPath: '/trust'
       preLoaderRoute: typeof TrustRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -614,6 +660,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RequestQuoteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
@@ -633,6 +686,13 @@ declare module '@tanstack/react-router' {
       path: '/for-hotels'
       fullPath: '/for-hotels'
       preLoaderRoute: typeof ForHotelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -1045,12 +1105,15 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
+  CookiesRoute: CookiesRoute,
   ForHotelsRoute: ForHotelsRoute,
   HowItWorksRoute: HowItWorksRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   RequestQuoteRoute: RequestQuoteRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
   TrustRoute: TrustRoute,
   HotelsIdRoute: HotelsIdRoute,
   RequestsIdRoute: RequestsIdRoute,
