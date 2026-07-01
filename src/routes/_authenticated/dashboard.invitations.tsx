@@ -110,7 +110,7 @@ function Page() {
 
       {isLoading ? <div className="mt-6 text-muted-foreground">{t("common.loading")}</div> :
         invitations.length === 0 ? (
-          <Card className="mt-6"><CardContent className="p-10 text-center text-muted-foreground">{t("hotelDash.noInvitations")}</CardContent></Card>
+          <div className="mt-6"><EmptyState icon={Inbox} title={t("hotelDash.noInvitations")} description="You'll be notified as soon as a group request matches your hotel." /></div>
         ) : (
           <div className="mt-6 space-y-3">
             {invitations.map((inv: any) => (
