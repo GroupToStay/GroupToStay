@@ -165,7 +165,7 @@ function Page() {
       <main className="flex-1 container-page py-16 max-w-md w-full mx-auto">
         <Card><CardContent className="p-6">
           <h1 className="font-display text-2xl text-primary">{title}</h1>
-          <form onSubmit={onSubmit} className="mt-4 space-y-3">
+          <form method="post" onSubmit={onSubmit} className="mt-4 space-y-3">
             {mode === "forgot" && (
               <p className="text-sm text-muted-foreground">{t("auth.forgotIntro")}</p>
             )}
