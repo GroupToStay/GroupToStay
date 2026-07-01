@@ -35,12 +35,13 @@ function NotificationsPage() {
       {loading ? (
         <div className="text-muted-foreground">Loading…</div>
       ) : items.length === 0 ? (
-        <Card>
-          <CardContent className="p-12 text-center text-muted-foreground">
-            <Bell className="h-12 w-12 mx-auto mb-3 opacity-30" />
-            No notifications yet. We'll let you know when something happens.
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Bell}
+          title="You're all caught up"
+          description="No notifications yet. We'll let you know when something happens on your account."
+          actionLabel="Go to dashboard"
+          actionTo="/dashboard"
+        />
       ) : (
         <div className="flex flex-col gap-2">
           {items.map((n) => {
