@@ -94,10 +94,12 @@ function AdminHome() {
   const quickActions = [
     { title: "Hotel Companies", desc: "Review and approve hotel companies.", to: "/admin/hotel-companies", icon: Building2, badge: null as string | null },
     { title: "Hotel Listings", desc: "Review hotel listings.", to: "/admin/hotel-listings", icon: Hotel, badge: null },
+    { title: "Agency Verifications", desc: "Review agency verification submissions.", to: "/admin/agency-verifications", icon: BadgeCheck, badge: null },
     { title: "Subscription Interest", desc: "Hotels requesting subscriptions.", to: "/admin/subscription-interest", icon: Inbox, badge: null },
-    { title: "Subscriptions", desc: "Subscription billing module.", to: "/admin/subscriptions", icon: BadgeCheck, badge: "Coming Soon" },
+    { title: "Subscriptions", desc: "Subscription billing module.", to: "/admin/subscriptions", icon: CreditCard, badge: "Coming Soon" },
     { title: "Settings", desc: "Platform & profile settings.", to: "/admin/settings", icon: ShieldCheck, badge: null },
   ];
+
 
   return (
     <section className="space-y-8">

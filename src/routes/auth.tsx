@@ -86,25 +86,24 @@ function Page() {
         if (role === "hotel" && (!companyName.trim() || !vatNumber.trim() || !crNumber.trim())) {
           throw new Error(t("auth.errors.companyRequired"));
         }
-        if (role === "organizer" && idNumber.length !== 10) {
-          throw new Error("ID number must be 10 digits");
-        }
-        if (!countryId) throw new Error("Please select your country");
+        if (role === "hotel" && !countryId) throw new Error("Please select your country");
         if (!phoneNumber.trim()) throw new Error("Please enter your phone number");
 
         const country = countries.find(c => c.id === countryId);
         const fullPhone = `${phoneCode}${phoneNumber}`;
-        const orgName = role === "hotel" ? companyName : (agencyName.trim() || fullName);
+        const orgName = role === "hotel" ? companyName : fullName;
         const data: Record<string, string> = {
           full_name: fullName,
           org_name: orgName,
           phone: fullPhone,
           country_code: phoneCode,
           phone_number: phoneNumber,
-          country_id: countryId,
-          country: country?.name_en ?? "",
           role,
         };
+        if (countryId) {
+          data.country_id = countryId;
+          data.country = country?.name_en ?? "";
+        }
         if (role === "hotel") {
           data.company_name = companyName;
           data.vat_number = vatNumber;
@@ -128,13 +127,8 @@ function Page() {
               data.technical_contact_phone = techPhone.trim();
             }
           }
-        } else {
-          data.id_type = idType;
-          data.id_number = idNumber;
-          if (agencyType) data.agency_type = agencyType;
-          if (businessAddress.trim()) data.business_address = businessAddress.trim();
-          if (website.trim()) data.website = website.trim();
         }
+
 
         const { error } = await supabase.auth.signUp({
           email, password,
@@ -188,14 +182,17 @@ function Page() {
                 <Label>{t("auth.phone")}</Label>
                 <PhoneInput code={phoneCode} number={phoneNumber} onCodeChange={setPhoneCode} onNumberChange={setPhoneNumber} required />
               </div>
-              <div>
-                <Label>{t("auth.country")} <span className="text-destructive">*</span></Label>
-                <CountrySelect
-                  value={countryId}
-                  onChange={setCountryId}
-                  filterCodes={role === "hotel" ? ["SA","EG","AE","KW","BH","OM","QA","JO","MA","TR"] : undefined}
-                />
-              </div>
+              {role === "hotel" && (
+                <div>
+                  <Label>{t("auth.country")} <span className="text-destructive">*</span></Label>
+                  <CountrySelect
+                    value={countryId}
+                    onChange={setCountryId}
+                    filterCodes={["SA","EG","AE","KW","BH","OM","QA","JO","MA","TR"]}
+                  />
+                </div>
+              )}
+
 
               {role === "hotel" && (
                 <div className="rounded-md border border-border bg-accent/30 p-3 space-y-3">
@@ -262,61 +259,11 @@ function Page() {
               )}
 
               {role === "organizer" && (
-                <div className="rounded-md border border-border bg-accent/30 p-3 space-y-3">
-                  <div className="text-xs text-muted-foreground">{t("auth.agencyIntro", { defaultValue: t("auth.organizerIdIntro") })}</div>
-
-                  <div><Label>{t("auth.companyName", { defaultValue: "Agency name" })}</Label>
-                    <Input value={agencyName} onChange={e => setAgencyName(e.target.value)} maxLength={160} placeholder="e.g. Al-Noor Travel" />
-                  </div>
-
-                  <div><Label>{t("auth.agencyType", { defaultValue: "Agency type" })}</Label>
-                    <select className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-                      value={agencyType} onChange={e => setAgencyType(e.target.value)}>
-                      <option value="">Select…</option>
-                      <option value="umrah">Umrah Agency</option>
-                      <option value="hajj">Hajj Agency</option>
-                      <option value="travel">Travel Agency</option>
-                      <option value="tour_operator">Tour Operator</option>
-                      <option value="corporate">Corporate Travel</option>
-                      <option value="event">Event Organizer</option>
-                      <option value="sports">Sports Team</option>
-                      <option value="school">School / University</option>
-                      <option value="government">Government Entity</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  <div><Label>{t("auth.businessAddress", { defaultValue: "Business address" })}</Label>
-                    <Input value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} maxLength={300} />
-                  </div>
-
-                  <div><Label>{t("auth.website", { defaultValue: "Website (optional)" })}</Label>
-                    <Input value={website} onChange={e => setWebsite(e.target.value)} maxLength={300} placeholder="https://your-agency.com" />
-                  </div>
-
-                  <div>
-                    <Label>{t("auth.idType")}</Label>
-                    <div className="mt-1 grid grid-cols-2 gap-2">
-                      {(["saudi_id","iqama"] as const).map(it => (
-                        <button type="button" key={it} onClick={() => setIdType(it)}
-                          className={`rounded-md border px-3 py-2 text-sm ${idType === it ? "border-gold bg-gold/10 text-foreground" : "border-input bg-background text-muted-foreground"}`}>
-                          {t(`auth.idTypes.${it}`)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <Label>{t(`auth.idNumberLabel.${idType}`)}</Label>
-                    <Input
-                      required
-                      value={idNumber}
-                      onChange={e => setIdNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      maxLength={10}
-                      inputMode="numeric"
-                    />
-                  </div>
+                <div className="rounded-md border border-border bg-accent/30 p-3 text-xs text-muted-foreground">
+                  After you verify your email, you'll be asked to complete a short Agency Profile so our team can verify your account. You won't be able to publish requests or contact hotels until verification is approved.
                 </div>
               )}
+
             </>)}
             <div><Label>{t("auth.email")}</Label><Input type="email" required={mode !== "signup"} value={email} onChange={e => setEmail(e.target.value)} /></div>
             {mode !== "forgot" && (
