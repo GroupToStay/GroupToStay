@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Building2, Mail, Phone, MapPin, Twitter, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Building2, Mail, Phone, MapPin } from "lucide-react";
 import { useRoles } from "@/hooks/use-role";
 
 export function SiteFooter() {
@@ -18,22 +18,8 @@ export function SiteFooter() {
           <p className="mt-3 text-sm text-primary-foreground/70 max-w-xs">
             The B2B group accommodation marketplace. One request — competing hotel quotations.
           </p>
-          <div className="mt-5 flex items-center gap-2">
-            {[
-              { icon: Twitter, href: "#", label: "Twitter" },
-              { icon: Facebook, href: "#", label: "Facebook" },
-              { icon: Instagram, href: "#", label: "Instagram" },
-              { icon: Linkedin, href: "#", label: "LinkedIn" },
-            ].map(({ icon: Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                aria-label={label}
-                className="grid h-9 w-9 place-items-center rounded-md bg-primary-foreground/10 hover:bg-premium hover:text-premium-foreground transition"
-              >
-                <Icon className="h-4 w-4" />
-              </a>
-            ))}
+          <div className="mt-5 text-xs text-primary-foreground/60">
+            support@grouptostay.com
           </div>
         </div>
 
@@ -68,9 +54,9 @@ export function SiteFooter() {
           <h4 className="font-semibold mb-3 text-premium">Legal</h4>
           <ul className="space-y-2 text-sm text-primary-foreground/80">
             <li><Link to="/trust" className="hover:text-premium">Trust &amp; Security</Link></li>
-            <li><Link to="/about" className="hover:text-premium">Terms &amp; Conditions</Link></li>
-            <li><Link to="/about" className="hover:text-premium">Privacy Policy</Link></li>
-            <li><Link to="/about" className="hover:text-premium">Cookie Policy</Link></li>
+            <li><Link to="/terms" className="hover:text-premium">Terms &amp; Conditions</Link></li>
+            <li><Link to="/privacy" className="hover:text-premium">Privacy Policy</Link></li>
+            <li><Link to="/cookies" className="hover:text-premium">Cookie Policy</Link></li>
           </ul>
         </div>
       </div>

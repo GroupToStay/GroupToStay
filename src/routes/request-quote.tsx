@@ -267,7 +267,24 @@ function Page() {
           <div className="flex justify-between pt-4">
             <Button variant="ghost" disabled={step === 1} onClick={() => setStep(s => s - 1)}>{t("rfq.back")}</Button>
             {step < totalSteps ? (
-              <Button variant="gold" onClick={() => setStep(s => s + 1)}>{t("rfq.next")}</Button>
+              <Button variant="gold" onClick={() => {
+                if (step === 1) {
+                  if (!form.title.trim() || form.title.trim().length < 3) return toast.error("Please enter a request title (min 3 characters).");
+                  if (!form.destination_country_id) return toast.error("Please select a destination country.");
+                  if (!form.destination_city_id) return toast.error("Please select a destination city.");
+                }
+                if (step === 2) {
+                  if (!form.check_in) return toast.error("Please select a check-in date.");
+                  if (!form.check_out) return toast.error("Please select a check-out date.");
+                  const ci = new Date(form.check_in); const co = new Date(form.check_out);
+                  const today = new Date(); today.setHours(0,0,0,0);
+                  if (ci < today) return toast.error("Check-in cannot be in the past.");
+                  if (co <= ci) return toast.error("Check-out must be after check-in.");
+                  if (!(form.guests_count > 0) || form.guests_count > 100000) return toast.error("Number of guests must be between 1 and 100,000.");
+                  if (!(form.rooms_needed > 0) || form.rooms_needed > 10000) return toast.error("Number of rooms must be between 1 and 10,000.");
+                }
+                setStep(s => s + 1);
+              }}>{t("rfq.next")}</Button>
             ) : (
               <Button variant="gold" disabled={submitting} onClick={submit}>{submitting ? t("rfq.submitting") : t("rfq.submit")}</Button>
             )}
