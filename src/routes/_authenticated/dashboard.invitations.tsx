@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Inbox, MapPin, Calendar, Users } from "lucide-react";
+import { Inbox, MapPin, Calendar, Users, Building2, ShieldCheck } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invitations")({
   head: () => ({ meta: [{ title: "Invitations — GroupToStay" }] }),
