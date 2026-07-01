@@ -74,7 +74,7 @@ function Page() {
             )}
 
             {validRecovery === true && (
-              <form onSubmit={onSubmit} className="mt-4 space-y-3">
+              <form method="post" onSubmit={onSubmit} className="mt-4 space-y-3">
                 <div>
                   <Label>{t("auth.newPassword")}</Label>
                   <div className="relative mt-1">
