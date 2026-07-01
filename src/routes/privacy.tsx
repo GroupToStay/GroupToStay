@@ -24,7 +24,8 @@ function Page() {
 
           <h2 className="font-display text-2xl text-primary">2. Information we collect</h2>
           <ul className="list-disc ps-5 space-y-2">
-            <li><strong>Account data:</strong> name, email, phone, country, role (Agency / Hotel), and — for hotels — company name, VAT and CR numbers.</li>
+            <li><strong>Account data:</strong> name, email, phone, country, role (Agency / Hotel), and — for hotels and agencies — company name, VAT and commercial registration (CR) numbers.</li>
+            <li><strong>Agency verification documents:</strong> business registration files (commercial registration, trade license, tax certificate) uploaded by agencies to prove their company identity. We do not collect personal national or Iqama IDs for agency verification.</li>
             <li><strong>Business data:</strong> group requests (destinations, dates, guests), quotations, bookings, messages between agencies and hotels.</li>
             <li><strong>Technical data:</strong> device, browser, IP, and log data used for security and analytics.</li>
           </ul>
@@ -32,13 +33,13 @@ function Page() {
           <h2 className="font-display text-2xl text-primary">3. How we use your data</h2>
           <ul className="list-disc ps-5 space-y-2">
             <li>To operate the marketplace — match requests to relevant hotels, deliver quotations, and enable messaging.</li>
-            <li>To verify hotel companies (KYC-style checks on CR / VAT).</li>
+            <li>To verify hotel and agency companies (KYC-style checks on CR / VAT and uploaded business registration documents).</li>
             <li>To secure the platform, prevent abuse, and comply with law.</li>
             <li>To communicate service updates. Marketing emails are opt-in.</li>
           </ul>
 
           <h2 className="font-display text-2xl text-primary">4. Sharing</h2>
-          <p>We share only what is required for the marketplace to function: an agency's group request is visible to eligible hotels, and a hotel's quotation is visible to the requesting agency. We do not sell personal data.</p>
+          <p>We share only what is required for the marketplace to function: an agency's group request is visible to eligible hotels, and a hotel's quotation is visible to the requesting agency. Hotels only see the public agency whitelist fields (such as company name, country, and verification badge) — never uploaded verification documents. Agency verification documents are accessible only to GroupToStay administrators and the owning agency itself. We do not sell personal data.</p>
 
           <h2 className="font-display text-2xl text-primary">5. Data retention</h2>
           <p>We keep account and transactional records while your account is active and for as long as required by law thereafter.</p>

@@ -29,7 +29,7 @@ function Page() {
           </section>
           <section>
             <h2 className="font-display text-2xl text-primary">3. Accounts &amp; verification</h2>
-            <p>Hotels must submit accurate business details (company name, VAT, CR). Approval is required before a hotel can quote or list. Agencies must provide a valid national or Iqama ID number where applicable.</p>
+            <p>Hotels must submit accurate business details (company name, VAT, CR). Approval is required before a hotel can quote or list. Agencies must complete business verification by providing accurate company information and uploading valid business registration documents (e.g. commercial registration, trade license, or tax certificate). GroupToStay verifies the business entity, not individuals — personal national or Iqama ID documents are not required.</p>
           </section>
           <section>
             <h2 className="font-display text-2xl text-primary">4. Quotations &amp; bookings</h2>
@@ -42,7 +42,7 @@ function Page() {
           <section>
             <h2 className="font-display text-2xl text-primary">6. Prohibited use</h2>
             <ul className="list-disc ps-5 space-y-2">
-              <li>Submitting false company or identity information.</li>
+              <li>Submitting false company information or forged business registration documents.</li>
               <li>Attempting to bypass the platform to contract directly and avoid fees where a subscription applies.</li>
               <li>Uploading unlawful, misleading, or infringing content.</li>
             </ul>

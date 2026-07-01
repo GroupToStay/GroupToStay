@@ -643,7 +643,7 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
     checkOut: "",
     accommodation: "any" as "any" | "hotel" | "hotel_apartment" | "resort",
     mealPlan: "bb" as "room_only" | "bb" | "hb" | "fb",
-    category: "any" as "any" | "3" | "4" | "5",
+    category: "any" as string,
   });
   if (isHotel) return null;
 
@@ -708,12 +708,21 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
             <select
               className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
               value={form.category}
-              onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as any }))}
+              onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
             >
               <option value="any">Any</option>
-              <option value="3">3 Star</option>
-              <option value="4">4 Star</option>
-              <option value="5">5 Star</option>
+              <option value="Budget">Budget</option>
+              <option value="Economy">Economy</option>
+              <option value="Midscale">Midscale</option>
+              <option value="Upper Midscale">Upper Midscale</option>
+              <option value="Upscale">Upscale</option>
+              <option value="Luxury">Luxury</option>
+              <option value="Resort">Resort</option>
+              <option value="Boutique">Boutique</option>
+              <option value="Serviced Apartments">Serviced Apartments</option>
+              <option value="Hostel">Hostel</option>
+              <option value="Villa">Villa</option>
+              <option value="Other">Other</option>
             </select>
           </Field>
           <Field icon={Hotel} label="Accommodation Type">
