@@ -187,19 +187,36 @@ function Page() {
                   <Row2 k="Email" v={selected.billing_email} />
                 </Group>
 
-                {events.length > 0 && (
-                  <Group title="Verification History">
-                    <ul className="space-y-1">
-                      {events.map((e: any) => (
-                        <li key={e.id} className="text-xs text-muted-foreground flex gap-2">
-                          <span className="capitalize font-medium text-foreground">{String(e.event_type).replace("_", " ")}</span>
-                          {e.notes && <span>— {e.notes}</span>}
-                          <span className="ml-auto">{formatDistanceToNow(new Date(e.created_at), { addSuffix: true })}</span>
-                        </li>
-                      ))}
+                <Group title="Verification History">
+                  {events.length === 0 ? (
+                    <div className="col-span-2 text-xs text-muted-foreground">No events yet.</div>
+                  ) : (
+                    <ul className="col-span-2 space-y-2">
+                      {events.map((e: any) => {
+                        const t = String(e.event_type);
+                        const color =
+                          t === "approved" ? "bg-emerald-100 text-emerald-800" :
+                          t === "rejected" ? "bg-red-100 text-red-800" :
+                          t === "info_requested" ? "bg-amber-100 text-amber-800" :
+                          t === "resubmitted" ? "bg-blue-100 text-blue-800" :
+                          "bg-muted text-muted-foreground";
+                        return (
+                          <li key={e.id} className="rounded-md border border-border p-2 text-xs">
+                            <div className="flex items-center gap-2">
+                              <Badge className={`${color} border-0 capitalize`}>{t.replace("_", " ")}</Badge>
+                              <span className="ml-auto text-muted-foreground">{formatDistanceToNow(new Date(e.created_at), { addSuffix: true })}</span>
+                            </div>
+                            {e.notes && (
+                              <div className="mt-1 text-foreground">
+                                <span className="font-medium">Reason:</span> {e.notes}
+                              </div>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
-                  </Group>
-                )}
+                  )}
+                </Group>
 
                 <div>
                   <label className="text-xs font-medium text-muted-foreground flex items-center gap-1"><MessageSquare className="h-3 w-3" /> Review note / rejection reason</label>
