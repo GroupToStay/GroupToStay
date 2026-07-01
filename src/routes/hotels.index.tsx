@@ -8,8 +8,9 @@ import { SiteFooter } from "@/components/site-footer";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Star } from "lucide-react";
+import { Star, Search } from "lucide-react";
 import { useCities, useLocalizedName } from "@/hooks/use-master-data";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/hotels/")({
   head: () => ({ meta: [{ title: "Group-ready hotels — GroupToStay" }, { name: "description", content: "Browse approved hotels accepting Group Requests across MENA, Europe and Asia." }] }),
@@ -75,7 +76,13 @@ function Page() {
 
         <div className="container-page py-10">
           {filtered.length === 0 ? (
-            <div className="text-center text-muted-foreground py-20">{t("hotels.empty")}</div>
+            <EmptyState
+              icon={Search}
+              title={t("hotels.empty")}
+              description="Try adjusting your filters, or explore our other destinations."
+              actionLabel="Post a group request"
+              actionTo="/request-quote"
+            />
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map(h => (

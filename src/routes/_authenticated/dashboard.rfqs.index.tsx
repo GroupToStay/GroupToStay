@@ -8,7 +8,8 @@ import { AccessDenied } from "@/components/access-denied";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MapPin, Users, Calendar } from "lucide-react";
+import { Plus, MapPin, Users, Calendar, FileText } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/dashboard/rfqs/")({
   head: () => ({ meta: [{ title: "My requests — GroupToStay" }] }),
@@ -48,10 +49,15 @@ function Page() {
       {isLoading ? (
         <div className="text-muted-foreground mt-8">{t("common.loading")}</div>
       ) : rfqs.length === 0 ? (
-        <Card className="mt-8"><CardContent className="p-10 text-center">
-          <p className="text-muted-foreground">{t("dashboard.noRfqs")}</p>
-          <Button asChild variant="gold" className="mt-4"><Link to="/dashboard/rfqs/new">{t("dashboard.createFirst")}</Link></Button>
-        </CardContent></Card>
+        <div className="mt-8">
+          <EmptyState
+            icon={FileText}
+            title={t("dashboard.noRfqs")}
+            description="Post your first group request and start receiving competitive quotations from vetted hotels."
+            actionLabel={t("dashboard.createFirst")}
+            actionTo="/dashboard/rfqs/new"
+          />
+        </div>
       ) : (
         <div className="mt-6 space-y-3">
           {rfqs.map(r => (

@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Inbox, MapPin, Calendar, Users } from "lucide-react";
+import { Inbox, MapPin, Calendar, Users, Building2, ShieldCheck } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invitations")({
   head: () => ({ meta: [{ title: "Invitations — GroupToStay" }] }),
@@ -79,22 +80,26 @@ function Page() {
 
   if (hotels.length === 0) {
     return (
-      <Card><CardContent className="p-10 text-center">
-        <Inbox className="h-8 w-8 mx-auto text-muted-foreground" />
-        <p className="mt-3 text-muted-foreground">{t("hotelDash.needsHotel")}</p>
-      </CardContent></Card>
+      <EmptyState
+        icon={Building2}
+        title={t("hotelDash.needsHotel")}
+        description="Add your hotel profile to start receiving matching group requests from verified agencies."
+        actionLabel="Add hotel"
+        actionTo="/dashboard/hotel"
+      />
     );
   }
 
   const approvedHotels = hotels.filter((h: any) => h.status === "approved");
   if (approvedHotels.length === 0) {
     return (
-      <Card><CardContent className="p-10 text-center">
-        <Inbox className="h-8 w-8 mx-auto text-muted-foreground" />
-        <p className="mt-3 text-muted-foreground">
-          {t("hotelDash.profileNotApprovedYet", "Complete and verify your hotel profile before participating in Group Requests. Only approved hotels may receive Group Requests and submit quotations.")}
-        </p>
-      </CardContent></Card>
+      <EmptyState
+        icon={ShieldCheck}
+        title="Waiting for approval"
+        description={t("hotelDash.profileNotApprovedYet", "Complete and verify your hotel profile before participating in Group Requests. Only approved hotels may receive Group Requests and submit quotations.")}
+        actionLabel="Review hotel profile"
+        actionTo="/dashboard/hotel"
+      />
     );
   }
 
@@ -105,7 +110,7 @@ function Page() {
 
       {isLoading ? <div className="mt-6 text-muted-foreground">{t("common.loading")}</div> :
         invitations.length === 0 ? (
-          <Card className="mt-6"><CardContent className="p-10 text-center text-muted-foreground">{t("hotelDash.noInvitations")}</CardContent></Card>
+          <div className="mt-6"><EmptyState icon={Inbox} title={t("hotelDash.noInvitations")} description="You'll be notified as soon as a group request matches your hotel." /></div>
         ) : (
           <div className="mt-6 space-y-3">
             {invitations.map((inv: any) => (

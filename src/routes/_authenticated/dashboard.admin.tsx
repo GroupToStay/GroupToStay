@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ShieldCheck, Building2, CheckCircle2, XCircle, Eye, RotateCcw, Lock, Mail } from "lucide-react";
+import { ShieldCheck, Building2, CheckCircle2, XCircle, Eye, RotateCcw, Lock, Mail, Inbox, Hotel as HotelIcon } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 
 type Tab = "companies" | "hotels" | "interest";
 
@@ -120,7 +121,7 @@ export function CompaniesPanel() {
         ))}
       </div>
       {isLoading ? <div className="text-muted-foreground">{t("common.loading")}</div> :
-       rows.length === 0 ? <Card><CardContent className="p-6 text-sm text-muted-foreground">{t("admin.empty")}</CardContent></Card> :
+       rows.length === 0 ? <EmptyState icon={Building2} title={t("admin.empty")} description="No hotel company applications match this filter." /> :
        rows.map((r: any) => (
         <CompanyRow key={r.id} row={r} onDecide={(decision, notes) => decide.mutate({ id: r.id, decision, notes })} />
       ))}
@@ -272,7 +273,7 @@ export function HotelsPanel() {
         ))}
       </div>
       {isLoading ? <div className="text-muted-foreground">{t("common.loading")}</div> :
-       rows.length === 0 ? <Card><CardContent className="p-6 text-sm text-muted-foreground">{t("admin.empty")}</CardContent></Card> :
+       rows.length === 0 ? <EmptyState icon={HotelIcon} title={t("admin.empty")} description="No hotel listings match this filter yet." /> :
        rows.map((h: any) => {
         const isApproved = h.status === "approved";
         const isSuspended = h.status === "suspended";
@@ -353,7 +354,7 @@ export function InterestPanel() {
         ))}
       </div>
       {isLoading ? <div className="text-muted-foreground">Loading…</div> :
-       rows.length === 0 ? <Card><CardContent className="p-6 text-sm text-muted-foreground">No waitlist entries.</CardContent></Card> :
+       rows.length === 0 ? <EmptyState icon={Inbox} title="No waitlist entries" description="Hotels who register interest in a paid plan will appear here." /> :
        rows.map((r: any) => (
         <Card key={r.id}><CardContent className="p-5 flex items-center gap-4 flex-wrap">
           <div className="flex-1 min-w-[200px]">

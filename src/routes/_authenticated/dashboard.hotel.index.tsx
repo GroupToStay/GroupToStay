@@ -16,6 +16,7 @@ import { Building2, Plus, Star, MapPin } from "lucide-react";
 import { SubscriptionCards } from "@/components/subscription-cards";
 import { CountryCitySelect } from "@/components/country-city-select";
 import { useCountries, useCities } from "@/hooks/use-master-data";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/")({
   head: () => ({ meta: [{ title: "My hotels — GroupToStay" }] }),
@@ -108,15 +109,15 @@ function Page() {
             {t("hotelDash.completeProfileSubtitle", "Add your hotel details so organizers can find you. Group Requests appear here after your profile is approved.")}
           </p>
         </div>
-        <Card><CardContent className="p-10 text-center">
-          <Building2 className="h-10 w-10 mx-auto text-muted-foreground" />
-          <p className="mt-3 text-muted-foreground">
-            {t("hotelDash.noProfileYet", "You haven't created your hotel profile yet.")}
-          </p>
-          <div className="mt-4">
+        <EmptyState
+          icon={Building2}
+          title={t("hotelDash.noProfileYet", "You haven't created your hotel profile yet.")}
+          description={t("hotelDash.completeProfileSubtitle", "Add your hotel details so organizers can find you.")}
+        >
+          <div className="flex justify-center">
             <AddHotelDialog onCreated={() => qc.invalidateQueries({ queryKey: ["my-hotels", user?.id] })} />
           </div>
-        </CardContent></Card>
+        </EmptyState>
       </div>
     );
   }

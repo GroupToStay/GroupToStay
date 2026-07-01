@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Calendar, Users, ArrowRight } from "lucide-react";
+import { MapPin, Calendar, Users, ArrowRight, Inbox } from "lucide-react";
 import { useRoles } from "@/hooks/use-role";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/requests/")({
   head: () => ({
@@ -85,7 +86,13 @@ function Page() {
 
         <div className="container-page py-10">
           {filtered.length === 0 ? (
-            <div className="text-center text-muted-foreground py-20">No open requests right now. Check back soon.</div>
+            <EmptyState
+              icon={Inbox}
+              title="No open requests right now"
+              description="New group requests appear here as agencies post them. Check back soon or update your hotel profile so you're matched automatically."
+              actionLabel="Go to dashboard"
+              actionTo="/dashboard"
+            />
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map(r => (

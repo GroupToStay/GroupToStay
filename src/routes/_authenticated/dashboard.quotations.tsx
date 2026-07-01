@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star } from "lucide-react";
+import { Star, ClipboardList } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/dashboard/quotations")({
   head: () => ({ meta: [{ title: "Quotations — GroupToStay" }] }),
@@ -46,7 +47,15 @@ function Page() {
       {isLoading ? (
         <div className="text-muted-foreground">{t("common.loading")}</div>
       ) : data.length === 0 ? (
-        <Card><CardContent className="p-10 text-center text-muted-foreground">{t("dashboard.noQuotesYet")}</CardContent></Card>
+        <EmptyState
+          icon={ClipboardList}
+          title={t("dashboard.noQuotesYet")}
+          description="Hotels will send competitive quotations here once your requests are published."
+          actionLabel={t("dashboard.newRfq")}
+          actionTo="/dashboard/rfqs/new"
+          secondaryLabel={t("dashboard.myRfqs")}
+          secondaryTo="/dashboard/rfqs"
+        />
       ) : (
         <div className="space-y-3">
           {data.map((q: any) => (
