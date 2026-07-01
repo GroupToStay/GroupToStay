@@ -14,41 +14,25 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { CountryCitySelect } from "@/components/country-city-select";
 import { useCountries, useCities } from "@/hooks/use-master-data";
 import { Clock, AlertCircle } from "lucide-react";
 
-import { ACCOMMODATION_TYPES, MEAL_PLANS, parseCategoriesParam, type AccommodationType, type MealPlan, type HotelCategory } from "@/features/rfq/rfq-options";
 import { validateDatesAndCounts, validateDestination } from "@/features/rfq/rfq-validation";
 import { submitRfq } from "@/features/rfq/rfq-service";
 import { RfqDatePickerField } from "@/features/rfq/RfqDatePickerField";
-import { RfqCategoriesMultiSelect } from "@/features/rfq/RfqCategoriesMultiSelect";
-import { RfqAccommodationSelect, RfqMealPlanSelect } from "@/features/rfq/RfqEnumSelects";
-import { RfqRequirementsField } from "@/features/rfq/RfqRequirementsField";
-
-type Search = {
-  city?: string; country?: string;
-  country_id?: string; city_id?: string;
-  guests?: string; rooms?: string;
-  check_in?: string; check_out?: string;
-  accommodation?: string; meal_plan?: string; category?: string;
-};
+import { RfqSharedFields, type RfqSharedValues } from "@/features/rfq/RfqSharedFields";
+import {
+  validateRfqSearch,
+  sharedValuesFromSearch,
+  type RfqSearchParams,
+} from "@/features/rfq/rfq-search-params";
 
 export const Route = createFileRoute("/request-quote")({
   head: () => ({ meta: [
     { title: "Create a group request — GroupToStay" },
     { name: "description", content: "One request. Multiple hotel offers. Submit one group accommodation request and receive competing hotel quotations." },
   ]}),
-  validateSearch: (s: Record<string, unknown>): Search => {
-    const str = (k: string) => (typeof s[k] === "string" ? (s[k] as string) : undefined);
-    return {
-      city: str("city"), country: str("country"),
-      country_id: str("country_id"), city_id: str("city_id"),
-      guests: str("guests"), rooms: str("rooms"),
-      check_in: str("check_in"), check_out: str("check_out"),
-      accommodation: str("accommodation"), meal_plan: str("meal_plan"), category: str("category"),
-    };
-  },
+  validateSearch: (s: Record<string, unknown>): RfqSearchParams => validateRfqSearch(s),
   component: Page,
 });
 
