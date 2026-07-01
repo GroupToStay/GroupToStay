@@ -1,12 +1,11 @@
-import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { useAgencyVerification } from "@/hooks/use-agency-verification";
 import { useCountries, useCities } from "@/hooks/use-master-data";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { AccessDenied } from "@/components/access-denied";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,13 +14,20 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { z } from "zod";
-import { AlertCircle, CheckCircle2, Clock, ShieldCheck, Upload, FileText } from "lucide-react";
+import { AlertCircle, Clock, ShieldCheck, Upload, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/agency-profile")({
   head: () => ({ meta: [{ title: "Agency Profile — GroupToStay" }] }),
   component: Page,
+  errorComponent: ({ error }) => (
+    <div className="rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+      Failed to load Agency Profile: {error?.message ?? "Unknown error"}
+    </div>
+  ),
+  notFoundComponent: () => <AccessDenied message="Agency Profile not found." />,
 });
 
 const AGENCY_TYPES = [
