@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      agency_verification_events: {
+        Row: {
+          actor_id: string | null
+          agency_id: string
+          created_at: string
+          event_type: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          agency_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          agency_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_verification_events_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agency_verification_events_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       amenities: {
         Row: {
           created_at: string
@@ -696,18 +738,35 @@ export type Database = {
       profiles: {
         Row: {
           agency_type: string | null
+          agency_verification_status:
+            | Database["public"]["Enums"]["agency_verification_status"]
+            | null
+          annual_group_bookings: string | null
           api_available: string | null
           approval_notes: string | null
           approved_at: string | null
           approved_by: string | null
+          avg_rooms_per_booking: string | null
+          billing_address: string | null
+          billing_email: string | null
           business_address: string | null
+          city_id: string | null
           company_name: string | null
           contact_email: string | null
+          contact_person_email: string | null
+          contact_person_name: string | null
+          contact_person_phone: string | null
+          contact_person_position: string | null
+          contact_person_whatsapp: string | null
           country: string | null
           country_code: string | null
           country_id: string | null
+          cr_document_path: string | null
+          cr_expiry_date: string | null
           cr_number: string | null
           created_at: string
+          employees_count: string | null
+          full_address: string | null
           full_name: string | null
           hotel_approval_status:
             | Database["public"]["Enums"]["hotel_approval_status"]
@@ -715,6 +774,10 @@ export type Database = {
           id: string
           id_number: string | null
           id_type: Database["public"]["Enums"]["id_doc_type"] | null
+          issuing_authority: string | null
+          legal_agreements_accepted_at: string | null
+          legal_billing_name: string | null
+          legal_company_name: string | null
           locale: string
           org_name: string | null
           phone: string | null
@@ -725,24 +788,52 @@ export type Database = {
           technical_contact_email: string | null
           technical_contact_name: string | null
           technical_contact_phone: string | null
+          tourism_license_authority: string | null
+          tourism_license_document_path: string | null
+          tourism_license_number: string | null
+          trade_name: string | null
           updated_at: string
+          vat_billing_number: string | null
           vat_number: string | null
+          verification_rejection_reason: string | null
+          verification_reviewed_at: string | null
+          verification_reviewed_by: string | null
+          verification_submitted_at: string | null
+          verification_trust_level: string | null
           website: string | null
+          year_established: number | null
         }
         Insert: {
           agency_type?: string | null
+          agency_verification_status?:
+            | Database["public"]["Enums"]["agency_verification_status"]
+            | null
+          annual_group_bookings?: string | null
           api_available?: string | null
           approval_notes?: string | null
           approved_at?: string | null
           approved_by?: string | null
+          avg_rooms_per_booking?: string | null
+          billing_address?: string | null
+          billing_email?: string | null
           business_address?: string | null
+          city_id?: string | null
           company_name?: string | null
           contact_email?: string | null
+          contact_person_email?: string | null
+          contact_person_name?: string | null
+          contact_person_phone?: string | null
+          contact_person_position?: string | null
+          contact_person_whatsapp?: string | null
           country?: string | null
           country_code?: string | null
           country_id?: string | null
+          cr_document_path?: string | null
+          cr_expiry_date?: string | null
           cr_number?: string | null
           created_at?: string
+          employees_count?: string | null
+          full_address?: string | null
           full_name?: string | null
           hotel_approval_status?:
             | Database["public"]["Enums"]["hotel_approval_status"]
@@ -750,6 +841,10 @@ export type Database = {
           id: string
           id_number?: string | null
           id_type?: Database["public"]["Enums"]["id_doc_type"] | null
+          issuing_authority?: string | null
+          legal_agreements_accepted_at?: string | null
+          legal_billing_name?: string | null
+          legal_company_name?: string | null
           locale?: string
           org_name?: string | null
           phone?: string | null
@@ -760,24 +855,52 @@ export type Database = {
           technical_contact_email?: string | null
           technical_contact_name?: string | null
           technical_contact_phone?: string | null
+          tourism_license_authority?: string | null
+          tourism_license_document_path?: string | null
+          tourism_license_number?: string | null
+          trade_name?: string | null
           updated_at?: string
+          vat_billing_number?: string | null
           vat_number?: string | null
+          verification_rejection_reason?: string | null
+          verification_reviewed_at?: string | null
+          verification_reviewed_by?: string | null
+          verification_submitted_at?: string | null
+          verification_trust_level?: string | null
           website?: string | null
+          year_established?: number | null
         }
         Update: {
           agency_type?: string | null
+          agency_verification_status?:
+            | Database["public"]["Enums"]["agency_verification_status"]
+            | null
+          annual_group_bookings?: string | null
           api_available?: string | null
           approval_notes?: string | null
           approved_at?: string | null
           approved_by?: string | null
+          avg_rooms_per_booking?: string | null
+          billing_address?: string | null
+          billing_email?: string | null
           business_address?: string | null
+          city_id?: string | null
           company_name?: string | null
           contact_email?: string | null
+          contact_person_email?: string | null
+          contact_person_name?: string | null
+          contact_person_phone?: string | null
+          contact_person_position?: string | null
+          contact_person_whatsapp?: string | null
           country?: string | null
           country_code?: string | null
           country_id?: string | null
+          cr_document_path?: string | null
+          cr_expiry_date?: string | null
           cr_number?: string | null
           created_at?: string
+          employees_count?: string | null
+          full_address?: string | null
           full_name?: string | null
           hotel_approval_status?:
             | Database["public"]["Enums"]["hotel_approval_status"]
@@ -785,6 +908,10 @@ export type Database = {
           id?: string
           id_number?: string | null
           id_type?: Database["public"]["Enums"]["id_doc_type"] | null
+          issuing_authority?: string | null
+          legal_agreements_accepted_at?: string | null
+          legal_billing_name?: string | null
+          legal_company_name?: string | null
           locale?: string
           org_name?: string | null
           phone?: string | null
@@ -795,11 +922,29 @@ export type Database = {
           technical_contact_email?: string | null
           technical_contact_name?: string | null
           technical_contact_phone?: string | null
+          tourism_license_authority?: string | null
+          tourism_license_document_path?: string | null
+          tourism_license_number?: string | null
+          trade_name?: string | null
           updated_at?: string
+          vat_billing_number?: string | null
           vat_number?: string | null
+          verification_rejection_reason?: string | null
+          verification_reviewed_at?: string | null
+          verification_reviewed_by?: string | null
+          verification_submitted_at?: string | null
+          verification_trust_level?: string | null
           website?: string | null
+          year_established?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_country_id_fkey"
             columns: ["country_id"]
@@ -956,10 +1101,12 @@ export type Database = {
           group_type: Database["public"]["Enums"]["group_type"]
           guests_count: number
           hotel_categories: number[] | null
+          hotel_categories_v2: string[] | null
           id: string
           meal_plan_code: string | null
           nights: number | null
           organizer_id: string
+          requirements: string | null
           room_type_id: string | null
           room_type_pref: string | null
           rooms_needed: number
@@ -986,10 +1133,12 @@ export type Database = {
           group_type?: Database["public"]["Enums"]["group_type"]
           guests_count?: number
           hotel_categories?: number[] | null
+          hotel_categories_v2?: string[] | null
           id?: string
           meal_plan_code?: string | null
           nights?: number | null
           organizer_id: string
+          requirements?: string | null
           room_type_id?: string | null
           room_type_pref?: string | null
           rooms_needed?: number
@@ -1016,10 +1165,12 @@ export type Database = {
           group_type?: Database["public"]["Enums"]["group_type"]
           guests_count?: number
           hotel_categories?: number[] | null
+          hotel_categories_v2?: string[] | null
           id?: string
           meal_plan_code?: string | null
           nights?: number | null
           organizer_id?: string
+          requirements?: string | null
           room_type_id?: string | null
           room_type_pref?: string | null
           rooms_needed?: number
@@ -1156,6 +1307,66 @@ export type Database = {
       }
     }
     Views: {
+      agencies_public: {
+        Row: {
+          agency_type: string | null
+          agency_verification_status:
+            | Database["public"]["Enums"]["agency_verification_status"]
+            | null
+          city_id: string | null
+          country: string | null
+          country_id: string | null
+          id: string | null
+          name: string | null
+          verification_trust_level: string | null
+          website: string | null
+          year_established: number | null
+        }
+        Insert: {
+          agency_type?: string | null
+          agency_verification_status?:
+            | Database["public"]["Enums"]["agency_verification_status"]
+            | null
+          city_id?: string | null
+          country?: string | null
+          country_id?: string | null
+          id?: string | null
+          name?: never
+          verification_trust_level?: string | null
+          website?: string | null
+          year_established?: number | null
+        }
+        Update: {
+          agency_type?: string | null
+          agency_verification_status?:
+            | Database["public"]["Enums"]["agency_verification_status"]
+            | null
+          city_id?: string | null
+          country?: string | null
+          country_id?: string | null
+          id?: string | null
+          name?: never
+          verification_trust_level?: string | null
+          website?: string | null
+          year_established?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hotels_public: {
         Row: {
           address: string | null
@@ -1302,6 +1513,12 @@ export type Database = {
       }
     }
     Enums: {
+      agency_verification_status:
+        | "draft"
+        | "submitted"
+        | "pending_review"
+        | "verified"
+        | "rejected"
       app_role: "organizer" | "hotel" | "admin"
       board_type: "room_only" | "breakfast" | "half_board" | "full_board"
       booking_status: "confirmed" | "cancelled" | "completed"
@@ -1476,6 +1693,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      agency_verification_status: [
+        "draft",
+        "submitted",
+        "pending_review",
+        "verified",
+        "rejected",
+      ],
       app_role: ["organizer", "hotel", "admin"],
       board_type: ["room_only", "breakfast", "half_board", "full_board"],
       booking_status: ["confirmed", "cancelled", "completed"],
