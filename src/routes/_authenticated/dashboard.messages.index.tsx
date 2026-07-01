@@ -92,11 +92,15 @@ function MessagesIndex() {
       {loading ? (
         <div className="text-muted-foreground">Loading…</div>
       ) : filtered.length === 0 ? (
-        <Card><CardContent className="p-8 text-center text-muted-foreground">
-          {convs.length === 0
-            ? "No conversations yet. Conversations are created automatically when a hotel submits a quotation."
-            : "No conversations match your search."}
-        </CardContent></Card>
+        <EmptyState
+          icon={MessageSquare}
+          title={convs.length === 0 ? "No conversations yet" : "No matching conversations"}
+          description={
+            convs.length === 0
+              ? "Conversations are created automatically when a hotel submits a quotation on one of your requests."
+              : "Try a different hotel, request, or keyword."
+          }
+        />
       ) : (
         <div className="flex flex-col gap-2">
           {filtered.map((c) => {
