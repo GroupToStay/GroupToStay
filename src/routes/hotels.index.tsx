@@ -8,8 +8,9 @@ import { SiteFooter } from "@/components/site-footer";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Star } from "lucide-react";
+import { Star, Search } from "lucide-react";
 import { useCities, useLocalizedName } from "@/hooks/use-master-data";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/hotels/")({
   head: () => ({ meta: [{ title: "Group-ready hotels — GroupToStay" }, { name: "description", content: "Browse approved hotels accepting Group Requests across MENA, Europe and Asia." }] }),
