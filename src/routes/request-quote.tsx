@@ -281,6 +281,23 @@ function Page() {
                 </button>
               </div>
             </div>
+            <div>
+              <Label>Requirements (optional)</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Share any operational requirements. Hotels will see this with the RFQ.</p>
+              <Textarea
+                rows={6}
+                maxLength={4000}
+                value={form.requirements}
+                onChange={e => {
+                  update("requirements", e.target.value);
+                  const el = e.currentTarget;
+                  el.style.height = "auto";
+                  el.style.height = `${el.scrollHeight}px`;
+                }}
+                placeholder={`Example:\n• Airport transfer required\n• Twin beds preferred\n• Meeting room required\n• Early breakfast\n• Wheelchair accessibility\n• Parking required\n• Special meals\n• Any additional operational requirements...`}
+                className="whitespace-pre-wrap"
+              />
+            </div>
           </>)}
 
 
