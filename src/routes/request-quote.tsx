@@ -14,41 +14,25 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { CountryCitySelect } from "@/components/country-city-select";
 import { useCountries, useCities } from "@/hooks/use-master-data";
 import { Clock, AlertCircle } from "lucide-react";
 
-import { ACCOMMODATION_TYPES, MEAL_PLANS, parseCategoriesParam, type AccommodationType, type MealPlan, type HotelCategory } from "@/features/rfq/rfq-options";
 import { validateDatesAndCounts, validateDestination } from "@/features/rfq/rfq-validation";
 import { submitRfq } from "@/features/rfq/rfq-service";
 import { RfqDatePickerField } from "@/features/rfq/RfqDatePickerField";
-import { RfqCategoriesMultiSelect } from "@/features/rfq/RfqCategoriesMultiSelect";
-import { RfqAccommodationSelect, RfqMealPlanSelect } from "@/features/rfq/RfqEnumSelects";
-import { RfqRequirementsField } from "@/features/rfq/RfqRequirementsField";
-
-type Search = {
-  city?: string; country?: string;
-  country_id?: string; city_id?: string;
-  guests?: string; rooms?: string;
-  check_in?: string; check_out?: string;
-  accommodation?: string; meal_plan?: string; category?: string;
-};
+import { RfqSharedFields, type RfqSharedValues } from "@/features/rfq/RfqSharedFields";
+import {
+  validateRfqSearch,
+  sharedValuesFromSearch,
+  type RfqSearchParams,
+} from "@/features/rfq/rfq-search-params";
 
 export const Route = createFileRoute("/request-quote")({
   head: () => ({ meta: [
     { title: "Create a group request — GroupToStay" },
     { name: "description", content: "One request. Multiple hotel offers. Submit one group accommodation request and receive competing hotel quotations." },
   ]}),
-  validateSearch: (s: Record<string, unknown>): Search => {
-    const str = (k: string) => (typeof s[k] === "string" ? (s[k] as string) : undefined);
-    return {
-      city: str("city"), country: str("country"),
-      country_id: str("country_id"), city_id: str("city_id"),
-      guests: str("guests"), rooms: str("rooms"),
-      check_in: str("check_in"), check_out: str("check_out"),
-      accommodation: str("accommodation"), meal_plan: str("meal_plan"), category: str("category"),
-    };
-  },
+  validateSearch: (s: Record<string, unknown>): RfqSearchParams => validateRfqSearch(s),
   component: Page,
 });
 
@@ -70,47 +54,46 @@ function Page() {
     }
   }, [blocked, isAdmin]);
 
-  const accom = search.accommodation;
-  const meal = search.meal_plan;
-  const [form, setForm] = useState({
+  const [shared, setShared] = useState<RfqSharedValues>(() =>
+    sharedValuesFromSearch(search, { guests_count: 30, rooms_needed: 10 }),
+  );
+  const [extras, setExtras] = useState({
     title: "",
-    group_type: "umrah" as const,
-    destination_country_id: search.country_id ?? null as string | null,
-    destination_city_id: search.city_id ?? null as string | null,
-    check_in: search.check_in ?? "",
-    check_out: search.check_out ?? "",
-    guests_count: search.guests ? Number(search.guests) : 30,
-    rooms_needed: search.rooms ? Number(search.rooms) : 10,
-    hotel_categories_v2: parseCategoriesParam(search.category) as HotelCategory[],
-    accommodation_type: (accom && (ACCOMMODATION_TYPES as readonly string[]).includes(accom) ? accom : "any") as AccommodationType,
-    meal_plan_code: (meal && (MEAL_PLANS as readonly string[]).includes(meal) ? meal : "bb") as MealPlan,
+    group_type: "umrah" as
+      | "umrah" | "hajj" | "tourism" | "corporate" | "government"
+      | "sports" | "education" | "event" | "other",
     additional_requirements: "",
-    requirements: "",
     deadline: "",
   });
 
-  const update = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm(f => ({ ...f, [k]: v }));
+  const patchShared = (patch: Partial<RfqSharedValues>) => setShared((v) => ({ ...v, ...patch }));
   const { status: verifStatus, isVerified, isPending, isRejected, isDraft, rejectionReason } = useAgencyVerification();
 
   const { data: countries = [] } = useCountries();
-  const { data: citiesOfCountry = [] } = useCities(form.destination_country_id);
+  const { data: citiesOfCountry = [] } = useCities(shared.destination_country_id);
 
   async function submit() {
+    const payload = {
+      ...extras,
+      ...shared,
+      guests_count: Number(shared.guests_count ?? 0),
+      rooms_needed: Number(shared.rooms_needed ?? 0),
+    };
     if (!user) {
       toast.info(t("rfq.authRequired"));
-      sessionStorage.setItem("pending_rfq", JSON.stringify(form));
+      sessionStorage.setItem("pending_rfq", JSON.stringify(payload));
       navigate({ to: "/auth", search: { redirect: "/request-quote" } });
       return;
     }
     setSubmitting(true);
     try {
-      const country = countries.find(c => c.id === form.destination_country_id);
-      const city = citiesOfCountry.find(c => c.id === form.destination_city_id);
-      const { id } = await submitRfq({
-        ...form,
-        guests_count: Number(form.guests_count),
-        rooms_needed: Number(form.rooms_needed),
-      }, { userId: user.id, countryNameEn: country?.name_en, cityNameEn: city?.name_en });
+      const country = countries.find(c => c.id === shared.destination_country_id);
+      const city = citiesOfCountry.find(c => c.id === shared.destination_city_id);
+      const { id } = await submitRfq(payload, {
+        userId: user.id,
+        countryNameEn: country?.name_en,
+        cityNameEn: city?.name_en,
+      });
       toast.success(t("rfq.createdToast"));
       sessionStorage.removeItem("pending_rfq");
       navigate({ to: "/dashboard/rfqs/$id", params: { id } });
@@ -125,7 +108,28 @@ function Page() {
     if (!authLoading && user) {
       const stored = sessionStorage.getItem("pending_rfq");
       if (stored) {
-        try { setForm(JSON.parse(stored)); } catch { /* ignore */ }
+        try {
+          const p = JSON.parse(stored);
+          setShared((v) => ({
+            ...v,
+            destination_country_id: p.destination_country_id ?? v.destination_country_id,
+            destination_city_id: p.destination_city_id ?? v.destination_city_id,
+            guests_count: p.guests_count ?? v.guests_count,
+            rooms_needed: p.rooms_needed ?? v.rooms_needed,
+            check_in: p.check_in ?? v.check_in,
+            check_out: p.check_out ?? v.check_out,
+            hotel_categories_v2: p.hotel_categories_v2 ?? v.hotel_categories_v2,
+            accommodation_type: p.accommodation_type ?? v.accommodation_type,
+            meal_plan_code: p.meal_plan_code ?? v.meal_plan_code,
+            requirements: p.requirements ?? v.requirements,
+          }));
+          setExtras((e) => ({
+            title: p.title ?? e.title,
+            group_type: p.group_type ?? e.group_type,
+            additional_requirements: p.additional_requirements ?? e.additional_requirements,
+            deadline: p.deadline ?? e.deadline,
+          }));
+        } catch { /* ignore */ }
       }
     }
   }, [authLoading, user]);
@@ -161,9 +165,13 @@ function Page() {
 
         <Card className="mt-6"><CardContent className="p-6 space-y-4">
           {step === 1 && (<>
-            <div><Label>{t("rfq.fields.title")}</Label><Input value={form.title} onChange={e => update("title", e.target.value)} placeholder={t("rfq.fields.titlePh")} maxLength={160} /></div>
-            <div><Label>{t("rfq.fields.groupType")}</Label>
-              <Select value={form.group_type} onValueChange={v => update("group_type", v as typeof form.group_type)}>
+            <div>
+              <Label>{t("rfq.fields.title")}</Label>
+              <Input value={extras.title} onChange={e => setExtras(x => ({ ...x, title: e.target.value }))} placeholder={t("rfq.fields.titlePh")} maxLength={160} />
+            </div>
+            <div>
+              <Label>{t("rfq.fields.groupType")}</Label>
+              <Select value={extras.group_type} onValueChange={v => setExtras(x => ({ ...x, group_type: v as typeof x.group_type }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {["umrah","hajj","tourism","corporate","government","sports","education","event","other"].map(k => (
@@ -172,66 +180,37 @@ function Page() {
                 </SelectContent>
               </Select>
             </div>
-            <CountryCitySelect
-              countryId={form.destination_country_id}
-              cityId={form.destination_city_id}
-              onChange={({ countryId, cityId }) => setForm(f => ({ ...f, destination_country_id: countryId, destination_city_id: cityId }))}
-              labelCountry={t("rfq.fields.destCountry")}
-              labelCity={t("rfq.fields.destCity")}
-              required
+            <RfqSharedFields
+              value={shared}
+              onChange={patchShared}
+              sections={["destination"]}
+              destinationRequired
+              destinationLabels={{ country: t("rfq.fields.destCountry"), city: t("rfq.fields.destCity") }}
             />
           </>)}
 
-          {step === 2 && (<>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <Label>{t("rfq.fields.checkIn")}</Label>
-                <RfqDatePickerField value={form.check_in} onChange={(v) => update("check_in", v)} />
-              </div>
-              <div>
-                <Label>{t("rfq.fields.checkOut")}</Label>
-                <RfqDatePickerField value={form.check_out} onChange={(v) => update("check_out", v)} min={form.check_in} />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div><Label>{t("rfq.fields.guests")}</Label><Input type="number" min={1} value={form.guests_count} onChange={e => update("guests_count", Number(e.target.value))} /></div>
-              <div><Label>{t("rfq.fields.rooms")}</Label><Input type="number" min={1} value={form.rooms_needed} onChange={e => update("rooms_needed", Number(e.target.value))} /></div>
-            </div>
-            <div>
-              <Label>Categories</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">Choose one or more categories. Leave empty for Any.</p>
-              <div className="mt-2">
-                <RfqCategoriesMultiSelect
-                  value={form.hotel_categories_v2}
-                  onChange={(v) => update("hotel_categories_v2", v)}
-                />
-              </div>
-            </div>
-            <div>
-              <Label>Requirements (optional)</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">Share any operational requirements. Hotels will see this with the RFQ.</p>
-              <RfqRequirementsField value={form.requirements} onChange={(v) => update("requirements", v)} />
-            </div>
-          </>)}
+          {step === 2 && (
+            <RfqSharedFields
+              value={shared}
+              onChange={patchShared}
+              sections={["dates", "counts", "categories", "requirements"]}
+              requirementsHint="Share any operational requirements. Hotels will see this with the RFQ."
+            />
+          )}
 
           {step === 3 && (<>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <Label>{t("rfq.fields.accommodation")}</Label>
-                <RfqAccommodationSelect value={form.accommodation_type} onChange={(v) => update("accommodation_type", v)} />
-              </div>
-              <div>
-                <Label>{t("rfq.fields.mealPlan")}</Label>
-                <RfqMealPlanSelect value={form.meal_plan_code} onChange={(v) => update("meal_plan_code", v)} />
-              </div>
-            </div>
+            <RfqSharedFields
+              value={shared}
+              onChange={patchShared}
+              sections={["accommodation", "mealPlan"]}
+            />
             <div>
               <Label>{t("rfq.fields.deadline")}</Label>
-              <RfqDatePickerField value={form.deadline} onChange={(v) => update("deadline", v)} />
+              <RfqDatePickerField value={extras.deadline} onChange={(v) => setExtras(x => ({ ...x, deadline: v }))} />
             </div>
             <div>
               <Label>{t("rfq.fields.notes")}</Label>
-              <Textarea rows={3} maxLength={2000} value={form.additional_requirements} onChange={e => update("additional_requirements", e.target.value)} placeholder={t("rfq.fields.notesPh")} />
+              <Textarea rows={3} maxLength={2000} value={extras.additional_requirements} onChange={e => setExtras(x => ({ ...x, additional_requirements: e.target.value }))} placeholder={t("rfq.fields.notesPh")} />
             </div>
           </>)}
 
@@ -241,18 +220,18 @@ function Page() {
               <Button variant="gold" onClick={() => {
                 if (step === 1) {
                   const err = validateDestination({
-                    title: form.title,
-                    destination_country_id: form.destination_country_id,
-                    destination_city_id: form.destination_city_id,
+                    title: extras.title,
+                    destination_country_id: shared.destination_country_id,
+                    destination_city_id: shared.destination_city_id,
                   });
                   if (err) return toast.error(err);
                 }
                 if (step === 2) {
                   const err = validateDatesAndCounts({
-                    check_in: form.check_in,
-                    check_out: form.check_out,
-                    guests_count: Number(form.guests_count),
-                    rooms_needed: Number(form.rooms_needed),
+                    check_in: shared.check_in,
+                    check_out: shared.check_out,
+                    guests_count: Number(shared.guests_count ?? 0),
+                    rooms_needed: Number(shared.rooms_needed ?? 0),
                   });
                   if (err) return toast.error(err);
                 }
@@ -268,3 +247,4 @@ function Page() {
     </div>
   );
 }
+
