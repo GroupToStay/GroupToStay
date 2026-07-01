@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { ShieldCheck, Building2, CheckCircle2, XCircle, Eye, RotateCcw, Lock, Mail } from "lucide-react";
+import { ShieldCheck, Building2, CheckCircle2, XCircle, Eye, RotateCcw, Lock, Mail, Inbox, Hotel as HotelIcon } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 
 type Tab = "companies" | "hotels" | "interest";
 
