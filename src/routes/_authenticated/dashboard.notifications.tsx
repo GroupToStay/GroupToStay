@@ -3,6 +3,7 @@ import { Bell, CheckCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNotifications } from "@/hooks/use-notifications";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/dashboard/notifications")({
   head: () => ({ meta: [{ title: "Notifications — GroupToStay" }] }),
