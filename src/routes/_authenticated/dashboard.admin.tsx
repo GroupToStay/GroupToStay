@@ -121,7 +121,7 @@ export function CompaniesPanel() {
         ))}
       </div>
       {isLoading ? <div className="text-muted-foreground">{t("common.loading")}</div> :
-       rows.length === 0 ? <Card><CardContent className="p-6 text-sm text-muted-foreground">{t("admin.empty")}</CardContent></Card> :
+       rows.length === 0 ? <EmptyState icon={Building2} title={t("admin.empty")} description="No hotel company applications match this filter." /> :
        rows.map((r: any) => (
         <CompanyRow key={r.id} row={r} onDecide={(decision, notes) => decide.mutate({ id: r.id, decision, notes })} />
       ))}
