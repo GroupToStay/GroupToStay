@@ -1,13 +1,11 @@
 import { createFileRoute, Link, Navigate, useNavigate, useSearch } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { useAgencyVerification } from "@/hooks/use-agency-verification";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,22 +14,17 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { z } from "zod";
 import { CountryCitySelect } from "@/components/country-city-select";
 import { useCountries, useCities } from "@/hooks/use-master-data";
-import { Star, ShieldCheck, Clock, AlertCircle, CalendarIcon } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { Clock, AlertCircle } from "lucide-react";
 
-const HOTEL_CATEGORIES = [
-  "Budget", "Economy", "Midscale", "Upper Midscale", "Upscale", "Luxury",
-  "Resort", "Boutique Hotel", "Serviced Apartments", "Business Hotel",
-  "Airport Hotel", "Beach Resort", "City Hotel", "Convention Hotel",
-  "Hostel", "Villa", "Other",
-] as const;
-
+import { ACCOMMODATION_TYPES, MEAL_PLANS, parseCategoriesParam, type AccommodationType, type MealPlan, type HotelCategory } from "@/features/rfq/rfq-options";
+import { validateDatesAndCounts, validateDestination } from "@/features/rfq/rfq-validation";
+import { submitRfq } from "@/features/rfq/rfq-service";
+import { RfqDatePickerField } from "@/features/rfq/RfqDatePickerField";
+import { RfqCategoriesMultiSelect } from "@/features/rfq/RfqCategoriesMultiSelect";
+import { RfqAccommodationSelect, RfqMealPlanSelect } from "@/features/rfq/RfqEnumSelects";
+import { RfqRequirementsField } from "@/features/rfq/RfqRequirementsField";
 
 type Search = {
   city?: string; country?: string;
@@ -59,24 +52,6 @@ export const Route = createFileRoute("/request-quote")({
   component: Page,
 });
 
-const Schema = z.object({
-  title: z.string().min(3).max(160),
-  group_type: z.enum(["umrah","hajj","tourism","corporate","government","sports","education","event","other"]),
-  destination_country_id: z.string().uuid({ message: "Please select a country." }),
-  destination_city_id: z.string().uuid({ message: "Please select a city." }),
-  check_in: z.string().min(1),
-  check_out: z.string().min(1),
-  guests_count: z.number().int().min(1).max(100000),
-  rooms_needed: z.number().int().min(1).max(10000),
-  hotel_categories_v2: z.array(z.string()).optional(),
-  accommodation_type: z.enum(["any","hotel","hotel_apartment","resort"]),
-  meal_plan_code: z.enum(["room_only","bb","hb","fb"]),
-  additional_requirements: z.string().max(2000).optional().or(z.literal("")),
-  requirements: z.string().max(4000).optional().or(z.literal("")),
-  deadline: z.string().optional().or(z.literal("")),
-});
-
-
 function Page() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -97,7 +72,6 @@ function Page() {
 
   const accom = search.accommodation;
   const meal = search.meal_plan;
-  const cats = search.category ? search.category.split(",") : [];
   const [form, setForm] = useState({
     title: "",
     group_type: "umrah" as const,
@@ -107,24 +81,16 @@ function Page() {
     check_out: search.check_out ?? "",
     guests_count: search.guests ? Number(search.guests) : 30,
     rooms_needed: search.rooms ? Number(search.rooms) : 10,
-    hotel_categories_v2: cats.filter((c: string) => (HOTEL_CATEGORIES as readonly string[]).includes(c)) as string[],
-    accommodation_type: (accom && ["any","hotel","hotel_apartment","resort"].includes(accom) ? accom : "any") as "any"|"hotel"|"hotel_apartment"|"resort",
-    meal_plan_code: (meal && ["room_only","bb","hb","fb"].includes(meal) ? meal : "bb") as "room_only"|"bb"|"hb"|"fb",
+    hotel_categories_v2: parseCategoriesParam(search.category) as HotelCategory[],
+    accommodation_type: (accom && (ACCOMMODATION_TYPES as readonly string[]).includes(accom) ? accom : "any") as AccommodationType,
+    meal_plan_code: (meal && (MEAL_PLANS as readonly string[]).includes(meal) ? meal : "bb") as MealPlan,
     additional_requirements: "",
     requirements: "",
     deadline: "",
   });
 
-  const update = (k: keyof typeof form, v: unknown) => setForm(f => ({ ...f, [k]: v }));
-  const toggleCategory = (n: string) => setForm(f => ({
-    ...f,
-    hotel_categories_v2: f.hotel_categories_v2.includes(n)
-      ? f.hotel_categories_v2.filter((x: string) => x !== n)
-      : [...f.hotel_categories_v2, n],
-  }));
+  const update = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm(f => ({ ...f, [k]: v }));
   const { status: verifStatus, isVerified, isPending, isRejected, isDraft, rejectionReason } = useAgencyVerification();
-
-
 
   const { data: countries = [] } = useCountries();
   const { data: citiesOfCountry = [] } = useCities(form.destination_country_id);
@@ -138,45 +104,16 @@ function Page() {
     }
     setSubmitting(true);
     try {
-      const parsed = Schema.parse({
+      const country = countries.find(c => c.id === form.destination_country_id);
+      const city = citiesOfCountry.find(c => c.id === form.destination_city_id);
+      const { id } = await submitRfq({
         ...form,
         guests_count: Number(form.guests_count),
         rooms_needed: Number(form.rooms_needed),
-      });
-      const country = countries.find(c => c.id === parsed.destination_country_id);
-      const city = citiesOfCountry.find(c => c.id === parsed.destination_city_id);
-
-      // Map meal plan code into legacy board_type for back-compat
-      const boardMap: Record<string, string> = { room_only: "room_only", bb: "breakfast", hb: "half_board", fb: "full_board" };
-
-      const { data, error } = await supabase.from("rfqs").insert({
-        title: parsed.title,
-        group_type: parsed.group_type,
-        destination_country_id: parsed.destination_country_id,
-        destination_city_id: parsed.destination_city_id,
-        destination_country: country?.name_en ?? "",
-        destination_city: city?.name_en ?? "",
-        check_in: parsed.check_in,
-        check_out: parsed.check_out,
-        guests_count: parsed.guests_count,
-        rooms_needed: parsed.rooms_needed,
-        hotel_categories_v2: parsed.hotel_categories_v2 && parsed.hotel_categories_v2.length > 0 ? parsed.hotel_categories_v2 : null,
-        accommodation_type: parsed.accommodation_type,
-        meal_plan_code: parsed.meal_plan_code,
-        board_type: boardMap[parsed.meal_plan_code] as any,
-        additional_requirements: parsed.additional_requirements || null,
-        requirements: parsed.requirements || null,
-        special_requirements: parsed.additional_requirements || parsed.requirements || null,
-
-        deadline: parsed.deadline || null,
-        currency: "USD",
-        organizer_id: user.id,
-        status: "open",
-      } as any).select("id").single();
-      if (error) throw error;
+      }, { userId: user.id, countryNameEn: country?.name_en, cityNameEn: city?.name_en });
       toast.success(t("rfq.createdToast"));
       sessionStorage.removeItem("pending_rfq");
-      navigate({ to: "/dashboard/rfqs/$id", params: { id: data.id } });
+      navigate({ to: "/dashboard/rfqs/$id", params: { id } });
     } catch (e: any) {
       toast.error(e?.message ?? t("common.error"));
     } finally {
@@ -188,7 +125,7 @@ function Page() {
     if (!authLoading && user) {
       const stored = sessionStorage.getItem("pending_rfq");
       if (stored) {
-        try { setForm(JSON.parse(stored)); } catch {}
+        try { setForm(JSON.parse(stored)); } catch { /* ignore */ }
       }
     }
   }, [authLoading, user]);
@@ -222,13 +159,11 @@ function Page() {
           </div>
         )}
 
-
-
         <Card className="mt-6"><CardContent className="p-6 space-y-4">
           {step === 1 && (<>
             <div><Label>{t("rfq.fields.title")}</Label><Input value={form.title} onChange={e => update("title", e.target.value)} placeholder={t("rfq.fields.titlePh")} maxLength={160} /></div>
             <div><Label>{t("rfq.fields.groupType")}</Label>
-              <Select value={form.group_type} onValueChange={v => update("group_type", v)}>
+              <Select value={form.group_type} onValueChange={v => update("group_type", v as typeof form.group_type)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {["umrah","hajj","tourism","corporate","government","sports","education","event","other"].map(k => (
@@ -248,85 +183,51 @@ function Page() {
           </>)}
 
           {step === 2 && (<>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label>{t("rfq.fields.checkIn")}</Label>
-                <DatePickerField value={form.check_in} onChange={(v) => update("check_in", v)} />
+                <RfqDatePickerField value={form.check_in} onChange={(v) => update("check_in", v)} />
               </div>
               <div>
                 <Label>{t("rfq.fields.checkOut")}</Label>
-                <DatePickerField value={form.check_out} onChange={(v) => update("check_out", v)} min={form.check_in} />
+                <RfqDatePickerField value={form.check_out} onChange={(v) => update("check_out", v)} min={form.check_in} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label>{t("rfq.fields.guests")}</Label><Input type="number" min={1} value={form.guests_count} onChange={e => update("guests_count", Number(e.target.value))} /></div>
               <div><Label>{t("rfq.fields.rooms")}</Label><Input type="number" min={1} value={form.rooms_needed} onChange={e => update("rooms_needed", Number(e.target.value))} /></div>
             </div>
             <div>
-              <Label>Hotel Categories</Label>
+              <Label>Categories</Label>
               <p className="text-xs text-muted-foreground mt-0.5">Choose one or more categories. Leave empty for Any.</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {HOTEL_CATEGORIES.map((n) => {
-                  const active = form.hotel_categories_v2.includes(n);
-                  return (
-                    <button key={n} type="button" onClick={() => toggleCategory(n)}
-                      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm ${active ? "border-gold bg-gold/10 text-foreground" : "border-input text-muted-foreground"}`}>
-                      {n}
-                    </button>
-                  );
-                })}
-                <button type="button" onClick={() => update("hotel_categories_v2", [])}
-                  className={`rounded-full border px-3 py-1.5 text-sm ${form.hotel_categories_v2.length === 0 ? "border-gold bg-gold/10 text-foreground" : "border-input text-muted-foreground"}`}>
-                  Any
-                </button>
+              <div className="mt-2">
+                <RfqCategoriesMultiSelect
+                  value={form.hotel_categories_v2}
+                  onChange={(v) => update("hotel_categories_v2", v)}
+                />
               </div>
             </div>
             <div>
               <Label>Requirements (optional)</Label>
               <p className="text-xs text-muted-foreground mt-0.5">Share any operational requirements. Hotels will see this with the RFQ.</p>
-              <Textarea
-                rows={6}
-                maxLength={4000}
-                value={form.requirements}
-                onChange={e => {
-                  update("requirements", e.target.value);
-                  const el = e.currentTarget;
-                  el.style.height = "auto";
-                  el.style.height = `${el.scrollHeight}px`;
-                }}
-                placeholder={`Example:\n• Airport transfer required\n• Twin beds preferred\n• Meeting room required\n• Early breakfast\n• Wheelchair accessibility\n• Parking required\n• Special meals\n• Any additional operational requirements...`}
-                className="whitespace-pre-wrap"
-              />
+              <RfqRequirementsField value={form.requirements} onChange={(v) => update("requirements", v)} />
             </div>
           </>)}
 
-
           {step === 3 && (<>
-            <div className="grid grid-cols-2 gap-3">
-              <div><Label>{t("rfq.fields.accommodation")}</Label>
-                <Select value={form.accommodation_type} onValueChange={v => update("accommodation_type", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {["any","hotel","hotel_apartment","resort"].map(k => (
-                      <SelectItem key={k} value={k}>{t(`rfq.accommodationTypes.${k}`)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label>{t("rfq.fields.accommodation")}</Label>
+                <RfqAccommodationSelect value={form.accommodation_type} onChange={(v) => update("accommodation_type", v)} />
               </div>
-              <div><Label>{t("rfq.fields.mealPlan")}</Label>
-                <Select value={form.meal_plan_code} onValueChange={v => update("meal_plan_code", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {["room_only","bb","hb","fb"].map(k => (
-                      <SelectItem key={k} value={k}>{t(`rfq.mealPlans.${k}`)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div>
+                <Label>{t("rfq.fields.mealPlan")}</Label>
+                <RfqMealPlanSelect value={form.meal_plan_code} onChange={(v) => update("meal_plan_code", v)} />
               </div>
             </div>
             <div>
               <Label>{t("rfq.fields.deadline")}</Label>
-              <DatePickerField value={form.deadline} onChange={(v) => update("deadline", v)} />
+              <RfqDatePickerField value={form.deadline} onChange={(v) => update("deadline", v)} />
             </div>
             <div>
               <Label>{t("rfq.fields.notes")}</Label>
@@ -334,25 +235,26 @@ function Page() {
             </div>
           </>)}
 
-
           <div className="flex justify-between pt-4">
             <Button variant="ghost" disabled={step === 1} onClick={() => setStep(s => s - 1)}>{t("rfq.back")}</Button>
             {step < totalSteps ? (
               <Button variant="gold" onClick={() => {
                 if (step === 1) {
-                  if (!form.title.trim() || form.title.trim().length < 3) return toast.error("Please enter a request title (min 3 characters).");
-                  if (!form.destination_country_id) return toast.error("Please select a destination country.");
-                  if (!form.destination_city_id) return toast.error("Please select a destination city.");
+                  const err = validateDestination({
+                    title: form.title,
+                    destination_country_id: form.destination_country_id,
+                    destination_city_id: form.destination_city_id,
+                  });
+                  if (err) return toast.error(err);
                 }
                 if (step === 2) {
-                  if (!form.check_in) return toast.error("Please select a check-in date.");
-                  if (!form.check_out) return toast.error("Please select a check-out date.");
-                  const ci = new Date(form.check_in); const co = new Date(form.check_out);
-                  const today = new Date(); today.setHours(0,0,0,0);
-                  if (ci < today) return toast.error("Check-in cannot be in the past.");
-                  if (co <= ci) return toast.error("Check-out must be after check-in.");
-                  if (!(form.guests_count > 0) || form.guests_count > 100000) return toast.error("Number of guests must be between 1 and 100,000.");
-                  if (!(form.rooms_needed > 0) || form.rooms_needed > 10000) return toast.error("Number of rooms must be between 1 and 10,000.");
+                  const err = validateDatesAndCounts({
+                    check_in: form.check_in,
+                    check_out: form.check_out,
+                    guests_count: Number(form.guests_count),
+                    rooms_needed: Number(form.rooms_needed),
+                  });
+                  if (err) return toast.error(err);
                 }
                 setStep(s => s + 1);
               }}>{t("rfq.next")}</Button>
@@ -366,33 +268,3 @@ function Page() {
     </div>
   );
 }
-
-function DatePickerField({ value, onChange, min }: { value: string; onChange: (v: string) => void; min?: string }) {
-  const date = value ? new Date(value) : undefined;
-  const minDate = min ? new Date(min) : undefined;
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}>
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "MM/dd/yyyy") : <span>MM/DD/YYYY</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={(d) => onChange(d ? format(d, "yyyy-MM-dd") : "")}
-          disabled={(d) => {
-            const today = new Date(); today.setHours(0,0,0,0);
-            if (d < today) return true;
-            if (minDate && d <= minDate) return true;
-            return false;
-          }}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
-  );
-}
-
