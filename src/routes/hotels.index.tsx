@@ -75,7 +75,13 @@ function Page() {
 
         <div className="container-page py-10">
           {filtered.length === 0 ? (
-            <div className="text-center text-muted-foreground py-20">{t("hotels.empty")}</div>
+            <EmptyState
+              icon={Search}
+              title={t("hotels.empty")}
+              description="Try adjusting your filters, or explore our other destinations."
+              actionLabel="Post a group request"
+              actionTo="/request-quote"
+            />
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map(h => (
