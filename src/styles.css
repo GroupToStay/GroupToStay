@@ -138,12 +138,18 @@
 
 @layer base {
   * { border-color: var(--color-border); }
+  html, body { max-width: 100%; overflow-x: hidden; }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
+  }
+  img, video, canvas, svg { max-width: 100%; }
+  /* Prevent iOS auto-zoom on focus by ensuring inputs are >= 16px */
+  @media (max-width: 640px) {
+    input, select, textarea { font-size: 16px; }
   }
   h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.01em; }
 
