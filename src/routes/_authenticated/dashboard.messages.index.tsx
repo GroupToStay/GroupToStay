@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { MessageSquare, Hotel as HotelIcon, User as UserIcon, Search } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/dashboard/messages/")({
   head: () => ({ meta: [{ title: "Negotiation Center — GroupToStay" }] }),
