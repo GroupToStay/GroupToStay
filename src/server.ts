@@ -47,17 +47,20 @@ function applySecurityHeaders(request: Request, response: Response): Response {
 
   const headers = new Headers(response.headers);
 
-  // Broadly-safe headers on every response.
-  if (!headers.has("x-content-type-options")) headers.set("x-content-type-options", "nosniff");
-  if (!headers.has("referrer-policy")) headers.set("referrer-policy", "strict-origin-when-cross-origin");
-  if (!headers.has("permissions-policy")) {
-    headers.set(
-      "permissions-policy",
-      "camera=(), microphone=(), geolocation=(self), payment=(), usb=(), interest-cohort=()",
-    );
-  }
-  if (!headers.has("x-frame-options")) headers.set("x-frame-options", "SAMEORIGIN");
-  if (url.protocol === "https:" && !headers.has("strict-transport-security")) {
+  // Broadly-safe headers on every response. Force-set (do not defer to any
+  // upstream value) so production consistently emits the intended posture.
+  headers.set("x-content-type-options", "nosniff");
+  headers.set("referrer-policy", "strict-origin-when-cross-origin");
+  headers.set(
+    "permissions-policy",
+    "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+  );
+  // CSP `frame-ancestors` (below, for HTML) is the modern clickjacking
+  // control and stays permissive enough for the Lovable preview iframe.
+  // XFO=SAMEORIGIN covers legacy UAs that ignore frame-ancestors while
+  // remaining compatible with same-origin app framing.
+  headers.set("x-frame-options", "SAMEORIGIN");
+  if (url.protocol === "https:") {
     headers.set("strict-transport-security", "max-age=31536000; includeSubDomains");
   }
 
