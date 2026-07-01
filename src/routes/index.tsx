@@ -16,11 +16,8 @@ import {
   Calendar, BedDouble, MapPin, Sparkles, Handshake, BadgeCheck,
   TimerReset, Lock, Quote as QuoteIcon, ArrowUpRight,
 } from "lucide-react";
-import { CountryCitySelect } from "@/components/country-city-select";
-import { RfqDatePickerField } from "@/features/rfq/RfqDatePickerField";
-import { RfqCategoriesMultiSelect } from "@/features/rfq/RfqCategoriesMultiSelect";
-import { RfqAccommodationSelect, RfqMealPlanSelect } from "@/features/rfq/RfqEnumSelects";
-import type { AccommodationType, MealPlan, HotelCategory } from "@/features/rfq/rfq-options";
+import { RfqSharedFields, type RfqSharedValues } from "@/features/rfq/RfqSharedFields";
+import { sharedValuesToSearch } from "@/features/rfq/rfq-search-params";
 import heroImg from "@/assets/hero-lobby.jpg";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
