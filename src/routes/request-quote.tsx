@@ -26,8 +26,10 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
 const HOTEL_CATEGORIES = [
-  "Budget", "Economy", "Midscale", "Upper Midscale", "Upscale",
-  "Luxury", "Resort", "Boutique", "Serviced Apartments", "Hostel", "Villa", "Other",
+  "Budget", "Economy", "Midscale", "Upper Midscale", "Upscale", "Luxury",
+  "Resort", "Boutique Hotel", "Serviced Apartments", "Business Hotel",
+  "Airport Hotel", "Beach Resort", "City Hotel", "Convention Hotel",
+  "Hostel", "Villa", "Other",
 ] as const;
 
 
@@ -279,6 +281,23 @@ function Page() {
                 </button>
               </div>
             </div>
+            <div>
+              <Label>Requirements (optional)</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Share any operational requirements. Hotels will see this with the RFQ.</p>
+              <Textarea
+                rows={6}
+                maxLength={4000}
+                value={form.requirements}
+                onChange={e => {
+                  update("requirements", e.target.value);
+                  const el = e.currentTarget;
+                  el.style.height = "auto";
+                  el.style.height = `${el.scrollHeight}px`;
+                }}
+                placeholder={`Example:\n• Airport transfer required\n• Twin beds preferred\n• Meeting room required\n• Early breakfast\n• Wheelchair accessibility\n• Parking required\n• Special meals\n• Any additional operational requirements...`}
+                className="whitespace-pre-wrap"
+              />
+            </div>
           </>)}
 
 
@@ -308,11 +327,6 @@ function Page() {
             <div>
               <Label>{t("rfq.fields.deadline")}</Label>
               <DatePickerField value={form.deadline} onChange={(v) => update("deadline", v)} />
-            </div>
-            <div>
-              <Label>Requirements (optional)</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">e.g. airport transfer, meeting room, twin beds, parking, wheelchair accessibility, special meals, no alcohol, late check-out…</p>
-              <Textarea rows={5} maxLength={4000} value={form.requirements} onChange={e => update("requirements", e.target.value)} placeholder="Share any operational requirements. Hotels will see this with the RFQ." />
             </div>
             <div>
               <Label>{t("rfq.fields.notes")}</Label>
