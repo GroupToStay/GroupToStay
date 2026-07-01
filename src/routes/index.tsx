@@ -17,6 +17,10 @@ import {
   TimerReset, Lock, Quote as QuoteIcon, ArrowUpRight,
 } from "lucide-react";
 import { CountryCitySelect } from "@/components/country-city-select";
+import { RfqDatePickerField } from "@/features/rfq/RfqDatePickerField";
+import { RfqCategoriesMultiSelect } from "@/features/rfq/RfqCategoriesMultiSelect";
+import { RfqAccommodationSelect, RfqMealPlanSelect } from "@/features/rfq/RfqEnumSelects";
+import type { AccommodationType, MealPlan, HotelCategory } from "@/features/rfq/rfq-options";
 import heroImg from "@/assets/hero-lobby.jpg";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
@@ -641,9 +645,9 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
     rooms: "",
     checkIn: "",
     checkOut: "",
-    accommodation: "any" as "any" | "hotel" | "hotel_apartment" | "resort",
-    mealPlan: "bb" as "room_only" | "bb" | "hb" | "fb",
-    category: "any" as string,
+    accommodation: "any" as AccommodationType,
+    mealPlan: "bb" as MealPlan,
+    categories: [] as HotelCategory[],
   });
   if (isHotel) return null;
 
@@ -658,7 +662,7 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
     if (form.checkOut) params.check_out = form.checkOut;
     if (form.accommodation !== "any") params.accommodation = form.accommodation;
     params.meal_plan = form.mealPlan;
-    if (form.category !== "any") params.category = form.category;
+    if (form.categories.length > 0) params.category = form.categories.join(",");
     navigate({ to: "/request-quote", search: params as any });
   };
 
@@ -696,58 +700,25 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
             <Input type="number" min={1} placeholder="40" value={form.rooms} onChange={(e) => setForm((f) => ({ ...f, rooms: e.target.value }))} />
           </Field>
           <Field icon={Calendar} label="Check-In">
-            <Input type="date" value={form.checkIn} onChange={(e) => setForm((f) => ({ ...f, checkIn: e.target.value }))} />
+            <RfqDatePickerField value={form.checkIn} onChange={(v) => setForm((f) => ({ ...f, checkIn: v }))} />
           </Field>
           <Field icon={Calendar} label="Check-Out">
-            <Input type="date" value={form.checkOut} onChange={(e) => setForm((f) => ({ ...f, checkOut: e.target.value }))} />
+            <RfqDatePickerField value={form.checkOut} onChange={(v) => setForm((f) => ({ ...f, checkOut: v }))} min={form.checkIn} />
           </Field>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
-          <Field icon={Star} label="Hotel Category">
-            <select
-              className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-              value={form.category}
-              onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-            >
-              <option value="any">Any</option>
-              <option value="Budget">Budget</option>
-              <option value="Economy">Economy</option>
-              <option value="Midscale">Midscale</option>
-              <option value="Upper Midscale">Upper Midscale</option>
-              <option value="Upscale">Upscale</option>
-              <option value="Luxury">Luxury</option>
-              <option value="Resort">Resort</option>
-              <option value="Boutique">Boutique</option>
-              <option value="Serviced Apartments">Serviced Apartments</option>
-              <option value="Hostel">Hostel</option>
-              <option value="Villa">Villa</option>
-              <option value="Other">Other</option>
-            </select>
+          <Field icon={Star} label="Categories">
+            <RfqCategoriesMultiSelect
+              value={form.categories}
+              onChange={(v) => setForm((f) => ({ ...f, categories: v }))}
+            />
           </Field>
           <Field icon={Hotel} label="Accommodation Type">
-            <select
-              className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-              value={form.accommodation}
-              onChange={(e) => setForm((f) => ({ ...f, accommodation: e.target.value as any }))}
-            >
-              <option value="any">Any</option>
-              <option value="hotel">Hotel</option>
-              <option value="hotel_apartment">Hotel Apartment</option>
-              <option value="resort">Resort</option>
-            </select>
+            <RfqAccommodationSelect value={form.accommodation} onChange={(v) => setForm((f) => ({ ...f, accommodation: v }))} />
           </Field>
           <Field icon={BedDouble} label="Meal Plan">
-            <select
-              className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-              value={form.mealPlan}
-              onChange={(e) => setForm((f) => ({ ...f, mealPlan: e.target.value as any }))}
-            >
-              <option value="room_only">Room Only</option>
-              <option value="bb">Bed &amp; Breakfast</option>
-              <option value="hb">Half Board</option>
-              <option value="fb">Full Board</option>
-            </select>
+            <RfqMealPlanSelect value={form.mealPlan} onChange={(v) => setForm((f) => ({ ...f, mealPlan: v }))} />
           </Field>
         </div>
 
@@ -760,6 +731,7 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
     </section>
   );
 }
+
 
 
 function Field({ icon: Icon, label, children }: { icon: any; label: string; children: React.ReactNode }) {
