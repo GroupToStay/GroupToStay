@@ -47,7 +47,15 @@ function Page() {
       {isLoading ? (
         <div className="text-muted-foreground">{t("common.loading")}</div>
       ) : data.length === 0 ? (
-        <Card><CardContent className="p-10 text-center text-muted-foreground">{t("dashboard.noQuotesYet")}</CardContent></Card>
+        <EmptyState
+          icon={ClipboardList}
+          title={t("dashboard.noQuotesYet")}
+          description="Hotels will send competitive quotations here once your requests are published."
+          actionLabel={t("dashboard.newRfq")}
+          actionTo="/dashboard/rfqs/new"
+          secondaryLabel={t("dashboard.myRfqs")}
+          secondaryTo="/dashboard/rfqs"
+        />
       ) : (
         <div className="space-y-3">
           {data.map((q: any) => (
