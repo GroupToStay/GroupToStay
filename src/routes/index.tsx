@@ -635,32 +635,23 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
 
 function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    countryId: null as string | null,
-    cityId: null as string | null,
-    guests: "",
-    rooms: "",
-    checkIn: "",
-    checkOut: "",
-    accommodation: "any" as AccommodationType,
-    mealPlan: "bb" as MealPlan,
-    categories: [] as HotelCategory[],
+  const [values, setValues] = useState<RfqSharedValues>({
+    destination_country_id: null,
+    destination_city_id: null,
+    guests_count: null,
+    rooms_needed: null,
+    check_in: "",
+    check_out: "",
+    hotel_categories_v2: [],
+    accommodation_type: "any",
+    meal_plan_code: "bb",
+    requirements: "",
   });
   if (isHotel) return null;
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const params: Record<string, string> = {};
-    if (form.countryId) params.country_id = form.countryId;
-    if (form.cityId) params.city_id = form.cityId;
-    if (form.guests) params.guests = form.guests;
-    if (form.rooms) params.rooms = form.rooms;
-    if (form.checkIn) params.check_in = form.checkIn;
-    if (form.checkOut) params.check_out = form.checkOut;
-    if (form.accommodation !== "any") params.accommodation = form.accommodation;
-    params.meal_plan = form.mealPlan;
-    if (form.categories.length > 0) params.category = form.categories.join(",");
-    navigate({ to: "/request-quote", search: params as any });
+    navigate({ to: "/request-quote", search: sharedValuesToSearch(values) as any });
   };
 
   return (
@@ -681,43 +672,12 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
           </span>
         </div>
 
-        <CountryCitySelect
-          countryId={form.countryId}
-          cityId={form.cityId}
-          onChange={({ countryId, cityId }) => setForm(f => ({ ...f, countryId, cityId }))}
-          labelCountry="Destination Country"
-          labelCity="Destination City"
+        <RfqSharedFields
+          variant="compact"
+          value={values}
+          onChange={(patch) => setValues((v) => ({ ...v, ...patch }))}
+          requirementsHint="Optional. Any operational needs — carried over to the full request."
         />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
-          <Field icon={Users} label="Group Size">
-            <Input type="number" min={1} placeholder="120" value={form.guests} onChange={(e) => setForm((f) => ({ ...f, guests: e.target.value }))} />
-          </Field>
-          <Field icon={BedDouble} label="Rooms">
-            <Input type="number" min={1} placeholder="40" value={form.rooms} onChange={(e) => setForm((f) => ({ ...f, rooms: e.target.value }))} />
-          </Field>
-          <Field icon={Calendar} label="Check-In">
-            <RfqDatePickerField value={form.checkIn} onChange={(v) => setForm((f) => ({ ...f, checkIn: v }))} />
-          </Field>
-          <Field icon={Calendar} label="Check-Out">
-            <RfqDatePickerField value={form.checkOut} onChange={(v) => setForm((f) => ({ ...f, checkOut: v }))} min={form.checkIn} />
-          </Field>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
-          <Field icon={Star} label="Categories">
-            <RfqCategoriesMultiSelect
-              value={form.categories}
-              onChange={(v) => setForm((f) => ({ ...f, categories: v }))}
-            />
-          </Field>
-          <Field icon={Hotel} label="Accommodation Type">
-            <RfqAccommodationSelect value={form.accommodation} onChange={(v) => setForm((f) => ({ ...f, accommodation: v }))} />
-          </Field>
-          <Field icon={BedDouble} label="Meal Plan">
-            <RfqMealPlanSelect value={form.mealPlan} onChange={(v) => setForm((f) => ({ ...f, mealPlan: v }))} />
-          </Field>
-        </div>
 
         <div className="mt-5 flex justify-end">
           <Button type="submit" size="lg" className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90">
@@ -728,6 +688,7 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
     </section>
   );
 }
+
 
 
 
