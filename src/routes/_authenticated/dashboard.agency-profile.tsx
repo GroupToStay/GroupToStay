@@ -51,7 +51,7 @@ type Profile = Record<string, any>;
 
 function Page() {
   const { user, loading: authLoading } = useAuth();
-  const { isOrganizer, isAdmin, loading: rolesLoading } = useRoles();
+  const { isOrganizer, isAdmin, isHotel, loading: rolesLoading } = useRoles();
   const { status, rejectionReason, isVerified, isPending, isRejected, refetch: refetchStatus } = useAgencyVerification();
   const navigate = useNavigate();
   const { data: countries = [] } = useCountries();
