@@ -49,10 +49,15 @@ function Page() {
       {isLoading ? (
         <div className="text-muted-foreground mt-8">{t("common.loading")}</div>
       ) : rfqs.length === 0 ? (
-        <Card className="mt-8"><CardContent className="p-10 text-center">
-          <p className="text-muted-foreground">{t("dashboard.noRfqs")}</p>
-          <Button asChild variant="gold" className="mt-4"><Link to="/dashboard/rfqs/new">{t("dashboard.createFirst")}</Link></Button>
-        </CardContent></Card>
+        <div className="mt-8">
+          <EmptyState
+            icon={FileText}
+            title={t("dashboard.noRfqs")}
+            description="Post your first group request and start receiving competitive quotations from vetted hotels."
+            actionLabel={t("dashboard.createFirst")}
+            actionTo="/dashboard/rfqs/new"
+          />
+        </div>
       ) : (
         <div className="mt-6 space-y-3">
           {rfqs.map(r => (
