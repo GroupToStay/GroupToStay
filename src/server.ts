@@ -53,7 +53,7 @@ function applySecurityHeaders(request: Request, response: Response): Response {
   headers.set("referrer-policy", "strict-origin-when-cross-origin");
   headers.set(
     "permissions-policy",
-    "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+    "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
   );
   // CSP `frame-ancestors` (below, for HTML) is the modern clickjacking
   // control and stays permissive enough for the Lovable preview iframe.
