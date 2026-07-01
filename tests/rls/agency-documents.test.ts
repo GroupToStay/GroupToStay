@@ -59,9 +59,11 @@ function objectPath(userId: string, name = `cr-${Date.now()}.pdf`) {
 // --- suite -----------------------------------------------------------------
 
 d("RLS: agency-documents bucket", () => {
-  const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  const admin = skip
+    ? (null as unknown as SupabaseClient)
+    : createClient(SUPABASE_URL, SERVICE_KEY, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
 
   const users: Record<"agencyA" | "agencyB" | "hotel" | "admin", TestUser> =
     {} as never;
