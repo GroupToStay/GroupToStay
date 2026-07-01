@@ -273,7 +273,7 @@ export function HotelsPanel() {
         ))}
       </div>
       {isLoading ? <div className="text-muted-foreground">{t("common.loading")}</div> :
-       rows.length === 0 ? <Card><CardContent className="p-6 text-sm text-muted-foreground">{t("admin.empty")}</CardContent></Card> :
+       rows.length === 0 ? <EmptyState icon={HotelIcon} title={t("admin.empty")} description="No hotel listings match this filter yet." /> :
        rows.map((h: any) => {
         const isApproved = h.status === "approved";
         const isSuspended = h.status === "suspended";
