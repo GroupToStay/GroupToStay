@@ -329,11 +329,6 @@ function Page() {
               <DatePickerField value={form.deadline} onChange={(v) => update("deadline", v)} />
             </div>
             <div>
-              <Label>Requirements (optional)</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">e.g. airport transfer, meeting room, twin beds, parking, wheelchair accessibility, special meals, no alcohol, late check-out…</p>
-              <Textarea rows={5} maxLength={4000} value={form.requirements} onChange={e => update("requirements", e.target.value)} placeholder="Share any operational requirements. Hotels will see this with the RFQ." />
-            </div>
-            <div>
               <Label>{t("rfq.fields.notes")}</Label>
               <Textarea rows={3} maxLength={2000} value={form.additional_requirements} onChange={e => update("additional_requirements", e.target.value)} placeholder={t("rfq.fields.notesPh")} />
             </div>
