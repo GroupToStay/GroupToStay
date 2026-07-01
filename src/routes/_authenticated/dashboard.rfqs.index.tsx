@@ -8,7 +8,8 @@ import { AccessDenied } from "@/components/access-denied";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MapPin, Users, Calendar } from "lucide-react";
+import { Plus, MapPin, Users, Calendar, FileText } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/dashboard/rfqs/")({
   head: () => ({ meta: [{ title: "My requests — GroupToStay" }] }),
