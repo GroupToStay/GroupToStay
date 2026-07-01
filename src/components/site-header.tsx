@@ -93,7 +93,14 @@ export function SiteHeader() {
         <div className="md:hidden border-t border-border bg-background">
           <div className="container-page py-4 flex flex-col gap-3" onClick={() => setOpen(false)}>
             {navLinks}
-            {!user && <Link to="/auth" className="text-sm font-medium">{t("nav.signIn")}</Link>}
+            {user ? (
+              <>
+                <Link to={dashboardHref} className="text-sm font-medium">{t("nav.dashboard")}</Link>
+                <Button variant="outline" size="sm" className="w-full" onClick={handleSignOut}>{t("nav.signOut")}</Button>
+              </>
+            ) : (
+              <Link to="/auth" className="text-sm font-medium">{t("nav.signIn")}</Link>
+            )}
             {showQuoteCta && <Button asChild variant="gold" size="sm" className="w-full"><Link to="/request-quote">{t("nav.getQuote")}</Link></Button>}
           </div>
         </div>
