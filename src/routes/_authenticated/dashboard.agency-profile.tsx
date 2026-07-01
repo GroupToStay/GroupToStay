@@ -111,7 +111,7 @@ function Page() {
     try {
       const ext = file.name.split(".").pop() ?? "bin";
       const path = `${user.id}/${kind}-${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("agency-documents").upload(path, file, { upsert: true, contentType: file.type });
+      const { error } = await supabase.storage.from("agency-documents").upload(path, file, { upsert: false, contentType: file.type });
       if (error) throw error;
       const col = kind === "cr" ? "cr_document_path" : "tourism_license_document_path";
       set(col, path);
