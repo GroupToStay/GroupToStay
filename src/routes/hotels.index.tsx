@@ -53,7 +53,15 @@ function Page() {
     return true;
   });
 
+  if (authLoading || rolesLoading) {
+    return <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">Loading…</div>;
+  }
+  if (!isAdmin) {
+    return <AccessDenied />;
+  }
+
   return (
+
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="flex-1">
