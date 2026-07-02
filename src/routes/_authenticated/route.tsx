@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { SiteHeader } from "@/components/site-header";
 import { useUnreadMessageCount } from "@/hooks/use-unread-messages";
-import { LayoutDashboard, FileText, Plus, Building2, Inbox, ShieldCheck, User, MessageSquare, CreditCard, Settings as SettingsIcon, Server } from "lucide-react";
+import { LayoutDashboard, FileText, Plus, Building2, Inbox, ShieldCheck, User, Users, MessageSquare, CreditCard, Settings as SettingsIcon, Server } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -54,6 +54,12 @@ function AuthLayout() {
                   </Link>
                   <Link to="/admin/agency-verifications" className={navItem} activeProps={{ className: "active" }}>
                     <ShieldCheck className="h-4 w-4" /> Agency Verifications
+                  </Link>
+                  <Link to="/admin/group-requests" className={navItem} activeProps={{ className: "active" }}>
+                    <FileText className="h-4 w-4" /> Group Requests
+                  </Link>
+                  <Link to="/admin/users" className={navItem} activeProps={{ className: "active" }}>
+                    <Users className="h-4 w-4" /> Users
                   </Link>
                   <Link to="/admin/subscription-interest" className={navItem} activeProps={{ className: "active" }}>
                     <ShieldCheck className="h-4 w-4" /> Subscription Interest

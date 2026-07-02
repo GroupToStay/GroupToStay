@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Building2, Hotel, Users, CreditCard, Sparkles, ShieldCheck,
-  Inbox, BadgeCheck, ArrowUpRight, CheckCircle2, XCircle, Clock,
+  Inbox, BadgeCheck, ArrowUpRight, CheckCircle2, XCircle, Clock, FileText,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -95,6 +95,8 @@ function AdminHome() {
     { title: "Hotel Companies", desc: "Review and approve hotel companies.", to: "/admin/hotel-companies", icon: Building2, badge: null as string | null },
     { title: "Hotel Listings", desc: "Review hotel listings.", to: "/admin/hotel-listings", icon: Hotel, badge: null },
     { title: "Agency Verifications", desc: "Review agency verification submissions.", to: "/admin/agency-verifications", icon: BadgeCheck, badge: null },
+    { title: "Group Requests", desc: "Review marketplace RFQs.", to: "/admin/group-requests", icon: FileText, badge: null },
+    { title: "Users", desc: "Review user accounts and roles.", to: "/admin/users", icon: Users, badge: null },
     { title: "Subscription Interest", desc: "Hotels requesting subscriptions.", to: "/admin/subscription-interest", icon: Inbox, badge: null },
     { title: "Subscriptions", desc: "Subscription billing module.", to: "/admin/subscriptions", icon: CreditCard, badge: "Coming Soon" },
     { title: "Settings", desc: "Platform & profile settings.", to: "/admin/settings", icon: ShieldCheck, badge: null },

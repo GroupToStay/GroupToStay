@@ -17,6 +17,7 @@ import { Route as RequestQuoteRouteImport } from './routes/request-quote'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as HotelListRouteImport } from './routes/hotel-list'
 import { Route as ForHotelsRouteImport } from './routes/for-hotels'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -43,11 +44,13 @@ import { Route as AuthenticatedDashboardInvitationsRouteImport } from './routes/
 import { Route as AuthenticatedDashboardHotelRouteImport } from './routes/_authenticated/dashboard.hotel'
 import { Route as AuthenticatedDashboardAgencyProfileRouteImport } from './routes/_authenticated/dashboard.agency-profile'
 import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard.admin'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminSubscriptionInterestRouteImport } from './routes/_authenticated/admin.subscription-interest'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminHotelListingsRouteImport } from './routes/_authenticated/admin.hotel-listings'
 import { Route as AuthenticatedAdminHotelCompaniesRouteImport } from './routes/_authenticated/admin.hotel-companies'
+import { Route as AuthenticatedAdminGroupRequestsRouteImport } from './routes/_authenticated/admin.group-requests'
 import { Route as AuthenticatedAdminAgencyVerificationsRouteImport } from './routes/_authenticated/admin.agency-verifications'
 import { Route as AuthenticatedDashboardRfqsIndexRouteImport } from './routes/_authenticated/dashboard.rfqs.index'
 import { Route as AuthenticatedDashboardMessagesIndexRouteImport } from './routes/_authenticated/dashboard.messages.index'
@@ -97,6 +100,11 @@ const PricingRoute = PricingRouteImport.update({
 const HowItWorksRoute = HowItWorksRouteImport.update({
   id: '/how-it-works',
   path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HotelListRoute = HotelListRouteImport.update({
+  id: '/hotel-list',
+  path: '/hotel-list',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForHotelsRoute = ForHotelsRouteImport.update({
@@ -238,6 +246,11 @@ const AuthenticatedDashboardAdminRoute =
     path: '/admin',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminSubscriptionsRoute =
   AuthenticatedAdminSubscriptionsRouteImport.update({
     id: '/subscriptions',
@@ -266,6 +279,12 @@ const AuthenticatedAdminHotelCompaniesRoute =
   AuthenticatedAdminHotelCompaniesRouteImport.update({
     id: '/hotel-companies',
     path: '/hotel-companies',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminGroupRequestsRoute =
+  AuthenticatedAdminGroupRequestsRouteImport.update({
+    id: '/group-requests',
+    path: '/group-requests',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAgencyVerificationsRoute =
@@ -336,6 +355,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/for-hotels': typeof ForHotelsRoute
+  '/hotel-list': typeof HotelListRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -353,11 +373,13 @@ export interface FileRoutesByFullPath {
   '/hotels/': typeof HotelsIndexRoute
   '/requests/': typeof RequestsIndexRoute
   '/admin/agency-verifications': typeof AuthenticatedAdminAgencyVerificationsRoute
+  '/admin/group-requests': typeof AuthenticatedAdminGroupRequestsRoute
   '/admin/hotel-companies': typeof AuthenticatedAdminHotelCompaniesRoute
   '/admin/hotel-listings': typeof AuthenticatedAdminHotelListingsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscription-interest': typeof AuthenticatedAdminSubscriptionInterestRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/agency-profile': typeof AuthenticatedDashboardAgencyProfileRoute
   '/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
@@ -386,6 +408,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/for-hotels': typeof ForHotelsRoute
+  '/hotel-list': typeof HotelListRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -401,11 +424,13 @@ export interface FileRoutesByTo {
   '/hotels': typeof HotelsIndexRoute
   '/requests': typeof RequestsIndexRoute
   '/admin/agency-verifications': typeof AuthenticatedAdminAgencyVerificationsRoute
+  '/admin/group-requests': typeof AuthenticatedAdminGroupRequestsRoute
   '/admin/hotel-companies': typeof AuthenticatedAdminHotelCompaniesRoute
   '/admin/hotel-listings': typeof AuthenticatedAdminHotelListingsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscription-interest': typeof AuthenticatedAdminSubscriptionInterestRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/agency-profile': typeof AuthenticatedDashboardAgencyProfileRoute
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
@@ -433,6 +458,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/for-hotels': typeof ForHotelsRoute
+  '/hotel-list': typeof HotelListRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -450,11 +476,13 @@ export interface FileRoutesById {
   '/hotels/': typeof HotelsIndexRoute
   '/requests/': typeof RequestsIndexRoute
   '/_authenticated/admin/agency-verifications': typeof AuthenticatedAdminAgencyVerificationsRoute
+  '/_authenticated/admin/group-requests': typeof AuthenticatedAdminGroupRequestsRoute
   '/_authenticated/admin/hotel-companies': typeof AuthenticatedAdminHotelCompaniesRoute
   '/_authenticated/admin/hotel-listings': typeof AuthenticatedAdminHotelListingsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/subscription-interest': typeof AuthenticatedAdminSubscriptionInterestRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/_authenticated/dashboard/agency-profile': typeof AuthenticatedDashboardAgencyProfileRoute
   '/_authenticated/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
@@ -485,6 +513,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/for-hotels'
+    | '/hotel-list'
     | '/how-it-works'
     | '/pricing'
     | '/privacy'
@@ -502,11 +531,13 @@ export interface FileRouteTypes {
     | '/hotels/'
     | '/requests/'
     | '/admin/agency-verifications'
+    | '/admin/group-requests'
     | '/admin/hotel-companies'
     | '/admin/hotel-listings'
     | '/admin/settings'
     | '/admin/subscription-interest'
     | '/admin/subscriptions'
+    | '/admin/users'
     | '/dashboard/admin'
     | '/dashboard/agency-profile'
     | '/dashboard/hotel'
@@ -535,6 +566,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/for-hotels'
+    | '/hotel-list'
     | '/how-it-works'
     | '/pricing'
     | '/privacy'
@@ -550,11 +582,13 @@ export interface FileRouteTypes {
     | '/hotels'
     | '/requests'
     | '/admin/agency-verifications'
+    | '/admin/group-requests'
     | '/admin/hotel-companies'
     | '/admin/hotel-listings'
     | '/admin/settings'
     | '/admin/subscription-interest'
     | '/admin/subscriptions'
+    | '/admin/users'
     | '/dashboard/admin'
     | '/dashboard/agency-profile'
     | '/dashboard/invitations'
@@ -581,6 +615,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/for-hotels'
+    | '/hotel-list'
     | '/how-it-works'
     | '/pricing'
     | '/privacy'
@@ -598,11 +633,13 @@ export interface FileRouteTypes {
     | '/hotels/'
     | '/requests/'
     | '/_authenticated/admin/agency-verifications'
+    | '/_authenticated/admin/group-requests'
     | '/_authenticated/admin/hotel-companies'
     | '/_authenticated/admin/hotel-listings'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/subscription-interest'
     | '/_authenticated/admin/subscriptions'
+    | '/_authenticated/admin/users'
     | '/_authenticated/dashboard/admin'
     | '/_authenticated/dashboard/agency-profile'
     | '/_authenticated/dashboard/hotel'
@@ -633,6 +670,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
   ForHotelsRoute: typeof ForHotelsRoute
+  HotelListRoute: typeof HotelListRoute
   HowItWorksRoute: typeof HowItWorksRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -705,6 +743,13 @@ declare module '@tanstack/react-router' {
       path: '/how-it-works'
       fullPath: '/how-it-works'
       preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hotel-list': {
+      id: '/hotel-list'
+      path: '/hotel-list'
+      fullPath: '/hotel-list'
+      preLoaderRoute: typeof HotelListRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/for-hotels': {
@@ -889,6 +934,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAdminRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/subscriptions': {
       id: '/_authenticated/admin/subscriptions'
       path: '/subscriptions'
@@ -922,6 +974,13 @@ declare module '@tanstack/react-router' {
       path: '/hotel-companies'
       fullPath: '/admin/hotel-companies'
       preLoaderRoute: typeof AuthenticatedAdminHotelCompaniesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/group-requests': {
+      id: '/_authenticated/admin/group-requests'
+      path: '/group-requests'
+      fullPath: '/admin/group-requests'
+      preLoaderRoute: typeof AuthenticatedAdminGroupRequestsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/agency-verifications': {
@@ -999,23 +1058,27 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAgencyVerificationsRoute: typeof AuthenticatedAdminAgencyVerificationsRoute
+  AuthenticatedAdminGroupRequestsRoute: typeof AuthenticatedAdminGroupRequestsRoute
   AuthenticatedAdminHotelCompaniesRoute: typeof AuthenticatedAdminHotelCompaniesRoute
   AuthenticatedAdminHotelListingsRoute: typeof AuthenticatedAdminHotelListingsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSubscriptionInterestRoute: typeof AuthenticatedAdminSubscriptionInterestRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAgencyVerificationsRoute:
     AuthenticatedAdminAgencyVerificationsRoute,
+  AuthenticatedAdminGroupRequestsRoute: AuthenticatedAdminGroupRequestsRoute,
   AuthenticatedAdminHotelCompaniesRoute: AuthenticatedAdminHotelCompaniesRoute,
   AuthenticatedAdminHotelListingsRoute: AuthenticatedAdminHotelListingsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminSubscriptionInterestRoute:
     AuthenticatedAdminSubscriptionInterestRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
@@ -1153,6 +1216,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
   ForHotelsRoute: ForHotelsRoute,
+  HotelListRoute: HotelListRoute,
   HowItWorksRoute: HowItWorksRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
@@ -1171,3 +1235,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

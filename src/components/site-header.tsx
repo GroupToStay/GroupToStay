@@ -40,8 +40,8 @@ export function SiteHeader() {
       { to: "/", label: "Home" },
       { to: "/admin/hotel-listings", label: "Hotels" },
       { to: "/admin/agency-verifications", label: "Agencies" },
-      { to: "/dashboard/admin", label: "Group Requests" },
-      { to: "/dashboard/admin", label: "Users" },
+      { to: "/admin/group-requests", label: "Group Requests" },
+      { to: "/admin/users", label: "Users" },
       { to: "/admin", label: "Dashboard" },
     ];
   } else if (isHotel) {
