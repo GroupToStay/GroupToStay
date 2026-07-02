@@ -69,7 +69,7 @@ function Landing() {
       <LiveStatsSection />
       <HowItWorks />
       {isOrganizer ? null : <OpenRequestsSection />}
-      <FeaturedHotelsSection />
+      {isAdmin ? <FeaturedHotelsSection /> : null}
       <WhyGroupToStay />
       <TestimonialsSection />
       <TrustSection />
