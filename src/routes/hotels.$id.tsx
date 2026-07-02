@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin } from "lucide-react";
 import { useRoles } from "@/hooks/use-role";
+import { useAuth } from "@/hooks/use-auth";
+import { AccessDenied } from "@/components/access-denied";
+
 
 export const Route = createFileRoute("/hotels/$id")({
   head: () => ({ meta: [{ title: "Hotel — GroupToStay" }] }),
