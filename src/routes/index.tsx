@@ -242,7 +242,7 @@ function AdminExecutiveDashboard() {
     { label: "Review Subscription Interest", to: "/admin/subscription-interest", icon: Inbox },
     { label: "View All Users", to: "/admin/users", icon: Users },
     { label: "View Group Requests", to: "/admin/group-requests", icon: ClipboardList },
-    { label: "Platform Settings", to: "/dashboard/profile", icon: ShieldCheck },
+    { label: "Platform Settings", to: "/admin/settings", icon: ShieldCheck },
   ];
 
   const pending = [
@@ -452,7 +452,7 @@ function AdminLanding() {
     { title: "Users", desc: "Review registered website users.", to: "/admin/users", search: undefined, icon: Users, badge: null },
     { title: "Subscription Interest", desc: "Hotels requesting subscriptions.", to: "/admin/subscription-interest", search: undefined, icon: Inbox, badge: null },
     { title: "Subscriptions", desc: "Subscription billing module.", to: "/admin/subscriptions", search: undefined, icon: BadgeCheck, badge: "Not Active Yet" },
-    { title: "Settings", desc: "Platform settings.", to: "/dashboard/profile", search: undefined, icon: ShieldCheck, badge: null },
+    { title: "Settings", desc: "Platform settings.", to: "/admin/settings", search: undefined, icon: ShieldCheck, badge: null },
   ];
 
   return (

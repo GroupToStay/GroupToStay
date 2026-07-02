@@ -36,7 +36,7 @@ function AuthLayout() {
             <nav className="flex flex-col gap-1">
               {isAdmin ? (
                 <Link to="/admin" activeOptions={{ exact: true }} className={navItem} activeProps={{ className: "active" }}>
-                  <LayoutDashboard className="h-4 w-4" /> {t("dashboard.welcome")}
+                  <LayoutDashboard className="h-4 w-4" /> Overview
                 </Link>
               ) : (
                 <Link to="/dashboard" activeOptions={{ exact: true }} className={navItem} activeProps={{ className: "active" }}>
@@ -70,7 +70,7 @@ function AuthLayout() {
                     <span className="flex-1">Subscriptions</span>
                     <span className="ml-auto text-[10px] uppercase tracking-wide rounded bg-muted px-1.5 py-0.5 text-muted-foreground">Soon</span>
                   </Link>
-                  <Link to="/dashboard/profile" className={navItem} activeProps={{ className: "active" }}>
+                  <Link to="/admin/settings" className={navItem} activeProps={{ className: "active" }}>
                     <SettingsIcon className="h-4 w-4" /> {t("nav.settings")}
                   </Link>
                 </>
