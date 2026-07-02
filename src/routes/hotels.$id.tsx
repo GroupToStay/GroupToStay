@@ -99,7 +99,7 @@ function Page() {
               <p className="mt-2 text-sm text-muted-foreground">Read-only view. Approval status:</p>
               <Badge className="mt-3 bg-success/15 text-success">{hotel.status}</Badge>
               <Button asChild variant="outline" className="w-full mt-4">
-                <Link to="/dashboard/admin">Back to Admin Review</Link>
+                <Link to="/admin/hotel-listings">Back to Admin Review</Link>
               </Button>
             </aside>
           ) : isHotel ? null : (

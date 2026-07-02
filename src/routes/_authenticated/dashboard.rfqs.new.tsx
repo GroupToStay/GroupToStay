@@ -10,7 +10,7 @@ function Page() {
   if (loading) return <div className="text-muted-foreground">Loading…</div>;
   // Hotel users are suppliers — redirect to their group requests inbox.
   if (isHotel) return <Navigate to="/dashboard/invitations" />;
-  if (isAdmin) return <Navigate to="/dashboard/admin" />;
+  if (isAdmin) return <Navigate to="/admin/group-requests" />;
   if (!isOrganizer) return <Navigate to="/dashboard" />;
   return <Navigate to="/request-quote" />;
 }

@@ -228,20 +228,20 @@ function AdminExecutiveDashboard() {
     { label: "Approved Hotels", value: stats?.hotelsApproved ?? 0, icon: CheckCircle2, to: "/admin/hotel-listings" },
     { label: "Pending Hotel Reviews", value: stats?.hotelsPending ?? 0, icon: Clock, to: "/admin/hotel-listings" },
     { label: "Rejected Hotels", value: stats?.hotelsRejected ?? 0, icon: ShieldCheck, to: "/admin/hotel-listings" },
-    { label: "Active Agency Accounts", value: stats?.agencies ?? 0, icon: Users, to: "/admin" },
-    { label: "Open Group Requests", value: stats?.openRfqs ?? 0, icon: ClipboardList, to: "/requests" },
+    { label: "Active Agency Accounts", value: stats?.agencies ?? 0, icon: Users, to: "/admin/users" },
+    { label: "Open Group Requests", value: stats?.openRfqs ?? 0, icon: ClipboardList, to: "/admin/group-requests" },
     { label: "Submitted Quotations", value: stats?.quotes ?? 0, icon: FileText, to: "/admin" },
     { label: "Confirmed Deals", value: stats?.confirmedDeals ?? 0, icon: Handshake, to: "/admin" },
     { label: "Subscription Interest Leads", value: stats?.subInterest ?? 0, icon: Inbox, to: "/admin/subscription-interest" },
-    { label: "Total Platform Users", value: stats?.users ?? 0, icon: Globe2, to: "/admin" },
+    { label: "Total Platform Users", value: stats?.users ?? 0, icon: Globe2, to: "/admin/users" },
   ];
 
   const quickActions = [
     { label: "Review Hotel Companies", to: "/admin/hotel-companies", icon: Building2 },
     { label: "Review Hotel Listings", to: "/admin/hotel-listings", icon: Hotel },
     { label: "Review Subscription Interest", to: "/admin/subscription-interest", icon: Inbox },
-    { label: "View All Agencies", to: "/admin", icon: Users },
-    { label: "View Open Requests", to: "/requests", icon: ClipboardList },
+    { label: "View All Users", to: "/admin/users", icon: Users },
+    { label: "View Group Requests", to: "/admin/group-requests", icon: ClipboardList },
     { label: "Platform Settings", to: "/dashboard/profile", icon: ShieldCheck },
   ];
 
@@ -446,10 +446,12 @@ function AdminLanding() {
   ];
 
   const quickActions = [
-    { title: "Hotel Companies", desc: "Review and approve hotel companies.", to: "/dashboard/admin", search: { tab: "companies" }, icon: Building2, badge: null as string | null },
-    { title: "Hotel Listings", desc: "Review hotel listings.", to: "/dashboard/admin", search: { tab: "hotels" }, icon: Hotel, badge: null },
-    { title: "Subscription Interest", desc: "Hotels requesting subscriptions.", to: "/dashboard/admin", search: { tab: "interest" }, icon: Inbox, badge: null },
-    { title: "Subscriptions", desc: "Subscription billing module.", to: "/dashboard/admin", search: { tab: "interest" }, icon: BadgeCheck, badge: "Not Active Yet" },
+    { title: "Hotel Companies", desc: "Review and approve hotel companies.", to: "/admin/hotel-companies", search: undefined, icon: Building2, badge: null as string | null },
+    { title: "Hotel Listings", desc: "Review hotel listings.", to: "/admin/hotel-listings", search: undefined, icon: Hotel, badge: null },
+    { title: "Group Requests", desc: "Review requests created by users.", to: "/admin/group-requests", search: undefined, icon: FileText, badge: null },
+    { title: "Users", desc: "Review registered website users.", to: "/admin/users", search: undefined, icon: Users, badge: null },
+    { title: "Subscription Interest", desc: "Hotels requesting subscriptions.", to: "/admin/subscription-interest", search: undefined, icon: Inbox, badge: null },
+    { title: "Subscriptions", desc: "Subscription billing module.", to: "/admin/subscriptions", search: undefined, icon: BadgeCheck, badge: "Not Active Yet" },
     { title: "Settings", desc: "Platform settings.", to: "/dashboard/profile", search: undefined, icon: ShieldCheck, badge: null },
   ];
 

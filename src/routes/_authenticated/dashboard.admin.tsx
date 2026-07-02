@@ -12,13 +12,13 @@ import { toast } from "sonner";
 import { ShieldCheck, Building2, CheckCircle2, XCircle, Eye, RotateCcw, Lock, Mail, Inbox, Hotel as HotelIcon } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 
-type Tab = "companies" | "hotels" | "interest";
+type Tab = "companies" | "hotels" | "interest" | "requests" | "users";
 
 export const Route = createFileRoute("/_authenticated/dashboard/admin")({
   head: () => ({ meta: [{ title: "Admin — GroupToStay" }] }),
   validateSearch: (s: Record<string, unknown>): { tab?: Tab } => {
     const t = s.tab;
-    return t === "companies" || t === "hotels" || t === "interest" ? { tab: t } : {};
+    return t === "companies" || t === "hotels" || t === "interest" || t === "requests" || t === "users" ? { tab: t } : {};
   },
   beforeLoad: async ({ search }) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -27,9 +27,12 @@ export const Route = createFileRoute("/_authenticated/dashboard/admin")({
     if (!data) throw redirect({ to: "/dashboard" });
     // Legacy URL — redirect to the new dedicated pages.
     const tab = (search as any)?.tab as Tab | undefined;
+    if (tab === "companies") throw redirect({ to: "/admin/hotel-companies" });
     if (tab === "hotels") throw redirect({ to: "/admin/hotel-listings" });
     if (tab === "interest") throw redirect({ to: "/admin/subscription-interest" });
-    throw redirect({ to: "/admin/hotel-companies" });
+    if (tab === "requests") throw redirect({ to: "/admin/group-requests" });
+    if (tab === "users") throw redirect({ to: "/admin/users" });
+    throw redirect({ to: "/admin" });
   },
   component: () => null,
 });
