@@ -26,9 +26,12 @@ function ErrorView() {
 function Page() {
   const { id } = Route.useParams();
   const { t } = useTranslation();
-  const { isAdmin, isHotel } = useRoles();
+  const { isAdmin, isHotel, loading: rolesLoading } = useRoles();
+  const { loading: authLoading } = useAuth();
   const { data, isLoading } = useQuery({
+    enabled: isAdmin,
     queryKey: ["hotel", id],
+
     queryFn: async () => {
       // Look up by slug first, then by id as fallback (back-compat for old links).
       const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
