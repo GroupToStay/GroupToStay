@@ -48,7 +48,10 @@ function Page() {
     },
   });
 
+  if (authLoading || rolesLoading) return <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">Loading…</div>;
+  if (!isAdmin) return <AccessDenied />;
   if (isLoading) return <div className="min-h-screen grid place-items-center text-muted-foreground">{t("common.loading")}</div>;
+
   if (!data) throw notFound();
   const { hotel, rooms } = data;
 
