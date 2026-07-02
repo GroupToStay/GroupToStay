@@ -9,16 +9,12 @@ import { NotificationBell } from "@/components/notification-bell";
 import { Building2, Menu, X } from "lucide-react";
 import { useState } from "react";
 
+type NavItem = { to: string; label: string; search?: Record<string, unknown> };
+
 export function SiteHeader() {
   const { t } = useTranslation();
   const { user, signOut } = useAuth();
   const { isHotel, isOrganizer, isAdmin } = useRoles();
-  const showQuoteCta = !user || isOrganizer;
-  // Pricing visible to: public visitors and hotel users only. Hidden for organizers & admins.
-  const showPricing = !user || isHotel;
-  // For Hotels page is acquisition/onboarding only — show only to public visitors.
-  // Hidden for all logged-in users (hotel users are already hotels; organizers/admins don't need it).
-  const showForHotels = !user;
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -36,22 +32,57 @@ export function SiteHeader() {
     }
   };
 
+  // Role-based navigation. GroupToStay is a B2B RFQ marketplace — no public hotel directory.
+  // "Hotels" is admin-only. Agencies never browse hotels; Hotels never browse other hotels.
+  let items: NavItem[] = [];
+  if (isAdmin) {
+    items = [
+      { to: "/", label: "Home" },
+      { to: "/admin/hotel-listings", label: "Hotels" },
+      { to: "/admin/agency-verifications", label: "Agencies" },
+      { to: "/dashboard/admin", label: "Group Requests" },
+      { to: "/dashboard/admin", label: "Users" },
+      { to: "/admin", label: "Dashboard" },
+    ];
+  } else if (isHotel) {
+    items = [
+      { to: "/", label: "Home" },
+      { to: "/dashboard/invitations", label: "Open Requests" },
+      { to: "/dashboard/invitations", label: "My Quotations" },
+      { to: "/dashboard/hotel", label: "Manage Hotel Profile" },
+      { to: "/dashboard/hotel", label: "Dashboard" },
+    ];
+  } else if (user && isOrganizer) {
+    items = [
+      { to: "/", label: "Home" },
+      { to: "/dashboard/rfqs/new", label: "Create Request" },
+      { to: "/dashboard/rfqs", label: "My Requests" },
+      { to: "/dashboard/quotations", label: "Received Offers" },
+      { to: "/dashboard", label: "Dashboard" },
+    ];
+  } else {
+    // Visitor
+    items = [
+      { to: "/", label: "Home" },
+      { to: "/how-it-works", label: t("nav.howItWorks") },
+      { to: "/pricing", label: t("nav.pricing") },
+      { to: "/about", label: t("nav.about") },
+      { to: "/contact", label: t("nav.contact") },
+    ];
+  }
+
   const linkCls = "text-sm font-medium text-foreground/80 hover:text-foreground transition";
-  // Public marketing nav is available to ALL users (including admin/hotel/agency)
-  // so they can freely browse the public site like Booking.com / Airbnb.
-  const navLinks = isAdmin ? null : (
+  const navLinks = (
     <>
-      <Link to="/how-it-works" className={linkCls}>{t("nav.howItWorks")}</Link>
-      <Link to="/hotels" className={linkCls}>{t("nav.hotels")}</Link>
-      {(isHotel || !user) && (<Link to="/requests" className={linkCls}>{t("nav.groupRequests")}</Link>)}
-      {showForHotels && (<Link to="/for-hotels" className={linkCls}>{t("nav.forHotels")}</Link>)}
-      {showPricing && (<Link to="/pricing" className={linkCls}>{t("nav.pricing")}</Link>)}
-      <Link to="/about" className={linkCls}>{t("nav.about")}</Link>
-      <Link to="/contact" className={linkCls}>{t("nav.contact")}</Link>
+      {items.map((it, i) => (
+        <Link key={`${it.to}-${i}`} to={it.to} search={it.search as any} className={linkCls}>
+          {it.label}
+        </Link>
+      ))}
     </>
   );
 
-  const dashboardHref = isAdmin ? "/admin" : isHotel ? "/dashboard/hotel" : "/dashboard";
+  const showQuoteCta = !user || isOrganizer;
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
@@ -70,14 +101,17 @@ export function SiteHeader() {
           {user ? (
             <>
               <NotificationBell />
-              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex"><Link to={dashboardHref}>{t("nav.dashboard")}</Link></Button>
               <Button variant="outline" size="sm" onClick={handleSignOut} className="hidden sm:inline-flex">{t("nav.signOut")}</Button>
             </>
-
           ) : (
-            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-              <Link to="/auth">{t("nav.signIn")}</Link>
-            </Button>
+            <>
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+                <Link to="/auth">{t("nav.signIn")}</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
+                <Link to="/auth" search={{ mode: "signup" } as any}>Register</Link>
+              </Button>
+            </>
           )}
           {showQuoteCta && (
             <Button asChild variant="gold" size="sm" className="hidden sm:inline-flex">
@@ -94,12 +128,12 @@ export function SiteHeader() {
           <div className="container-page py-4 flex flex-col gap-3" onClick={() => setOpen(false)}>
             {navLinks}
             {user ? (
-              <>
-                <Link to={dashboardHref} className="text-sm font-medium">{t("nav.dashboard")}</Link>
-                <Button variant="outline" size="sm" className="w-full" onClick={handleSignOut}>{t("nav.signOut")}</Button>
-              </>
+              <Button variant="outline" size="sm" className="w-full" onClick={handleSignOut}>{t("nav.signOut")}</Button>
             ) : (
-              <Link to="/auth" className="text-sm font-medium">{t("nav.signIn")}</Link>
+              <>
+                <Link to="/auth" className="text-sm font-medium">{t("nav.signIn")}</Link>
+                <Link to="/auth" search={{ mode: "signup" } as any} className="text-sm font-medium">Register</Link>
+              </>
             )}
             {showQuoteCta && <Button asChild variant="gold" size="sm" className="w-full"><Link to="/request-quote">{t("nav.getQuote")}</Link></Button>}
           </div>
