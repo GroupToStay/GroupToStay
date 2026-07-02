@@ -11,18 +11,24 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Search } from "lucide-react";
 import { useCities, useLocalizedName } from "@/hooks/use-master-data";
 import { EmptyState } from "@/components/empty-state";
+import { AccessDenied } from "@/components/access-denied";
+import { useRoles } from "@/hooks/use-role";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/hotels/")({
-  head: () => ({ meta: [{ title: "Group-ready hotels — GroupToStay" }, { name: "description", content: "Browse approved hotels accepting Group Requests across MENA, Europe and Asia." }] }),
+  head: () => ({ meta: [{ title: "Group-ready hotels — GroupToStay" }, { name: "description", content: "Admin-only hotel directory." }] }),
   component: Page,
 });
 
 function Page() {
   const { t } = useTranslation();
   const localized = useLocalizedName();
+  const { loading: authLoading } = useAuth();
+  const { isAdmin, loading: rolesLoading } = useRoles();
   const [q, setQ] = useState("");
   const [cityId, setCityId] = useState<string>("__any");
   const [stars, setStars] = useState<string>("__any");
+
 
   const { data: hotels = [] } = useQuery({
     queryKey: ["hotels-public"],
