@@ -27,14 +27,11 @@ export function SiteFooter() {
           <h4 className="font-semibold mb-3 text-premium">Quick Links</h4>
           <ul className="space-y-2 text-sm text-primary-foreground/80">
             <li><Link to="/how-it-works" className="hover:text-premium">{t("nav.howItWorks")}</Link></li>
-            <li><Link to="/hotels" className="hover:text-premium">{t("nav.hotels")}</Link></li>
-            {isOrganizer ? null : (
-              <li><Link to="/requests" className="hover:text-premium">{t("hero.ctaBrowseRequests")}</Link></li>
-            )}
             <li><Link to="/for-hotels" className="hover:text-premium">{t("nav.forHotels")}</Link></li>
             <li><Link to="/pricing" className="hover:text-premium">{t("nav.pricing")}</Link></li>
             <li><Link to="/about" className="hover:text-premium">{t("nav.about")}</Link></li>
           </ul>
+
         </div>
 
         {/* Contact */}
