@@ -31,6 +31,8 @@ function Page() {
 
 
   const { data: hotels = [] } = useQuery({
+    enabled: isAdmin,
+
     queryKey: ["hotels-public"],
     queryFn: async () => {
       const { data } = await supabase
