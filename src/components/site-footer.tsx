@@ -1,11 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Building2, Mail, Phone, MapPin } from "lucide-react";
-import { useRoles } from "@/hooks/use-role";
 
 export function SiteFooter() {
   const { t } = useTranslation();
-  const { isOrganizer } = useRoles();
+
   return (
     <footer className="mt-auto border-t border-border bg-primary text-primary-foreground">
       <div className="container-page py-14 grid gap-10 md:grid-cols-2 lg:grid-cols-4">
@@ -28,14 +27,11 @@ export function SiteFooter() {
           <h4 className="font-semibold mb-3 text-premium">Quick Links</h4>
           <ul className="space-y-2 text-sm text-primary-foreground/80">
             <li><Link to="/how-it-works" className="hover:text-premium">{t("nav.howItWorks")}</Link></li>
-            <li><Link to="/hotels" className="hover:text-premium">{t("nav.hotels")}</Link></li>
-            {isOrganizer ? null : (
-              <li><Link to="/requests" className="hover:text-premium">{t("hero.ctaBrowseRequests")}</Link></li>
-            )}
             <li><Link to="/for-hotels" className="hover:text-premium">{t("nav.forHotels")}</Link></li>
             <li><Link to="/pricing" className="hover:text-premium">{t("nav.pricing")}</Link></li>
             <li><Link to="/about" className="hover:text-premium">{t("nav.about")}</Link></li>
           </ul>
+
         </div>
 
         {/* Contact */}

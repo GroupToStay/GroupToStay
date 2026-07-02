@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin } from "lucide-react";
 import { useRoles } from "@/hooks/use-role";
+import { useAuth } from "@/hooks/use-auth";
+import { AccessDenied } from "@/components/access-denied";
+
 
 export const Route = createFileRoute("/hotels/$id")({
   head: () => ({ meta: [{ title: "Hotel — GroupToStay" }] }),
@@ -23,9 +26,12 @@ function ErrorView() {
 function Page() {
   const { id } = Route.useParams();
   const { t } = useTranslation();
-  const { isAdmin, isHotel } = useRoles();
+  const { isAdmin, isHotel, loading: rolesLoading } = useRoles();
+  const { loading: authLoading } = useAuth();
   const { data, isLoading } = useQuery({
+    enabled: isAdmin,
     queryKey: ["hotel", id],
+
     queryFn: async () => {
       // Look up by slug first, then by id as fallback (back-compat for old links).
       const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -42,7 +48,10 @@ function Page() {
     },
   });
 
+  if (authLoading || rolesLoading) return <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">Loading…</div>;
+  if (!isAdmin) return <AccessDenied />;
   if (isLoading) return <div className="min-h-screen grid place-items-center text-muted-foreground">{t("common.loading")}</div>;
+
   if (!data) throw notFound();
   const { hotel, rooms } = data;
 
