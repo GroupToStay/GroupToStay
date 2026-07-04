@@ -832,15 +832,11 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
   const { data: counts } = useQuery({
     queryKey: ["hero-counts"],
     queryFn: async () => {
-      const [openRfqs, countries] = await Promise.all([
-        supabase.from("rfqs").select("*", { count: "exact", head: true }).eq("status", "open"),
-        supabase
-          .from("countries")
-          .select("*", { count: "exact", head: true })
-          .eq("is_active", true),
-      ]);
+      const countries = await supabase
+        .from("countries")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true);
       return {
-        openRfqs: openRfqs.count ?? 0,
         countries: countries.count ?? 0,
       };
     },
@@ -851,7 +847,7 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
     { label: "Hotels Listed", value: "1,250+", icon: Hotel },
     {
       label: "Open Group Requests",
-      value: counts ? fmt(counts.openRfqs, 320) : "320+",
+      value: "320+",
       icon: ClipboardList,
     },
     {
