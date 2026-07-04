@@ -41,7 +41,7 @@ function Page() {
                 <div className="grid h-10 w-10 place-items-center rounded-md bg-primary text-gold font-display text-lg">
                   {n}
                 </div>
-                <h3 className="mt-4 font-display text-xl text-primary">{t(`how.step${n}Title`)}</h3>
+                <h2 className="mt-4 font-display text-xl text-primary">{t(`how.step${n}Title`)}</h2>
                 <p className="mt-2 text-sm text-muted-foreground">{t(`how.step${n}Body`)}</p>
               </CardContent>
             </Card>
