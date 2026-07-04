@@ -96,6 +96,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "GroupToStay — Group accommodation marketplace" },
+      { name: "description", content: "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing — Umrah, Hajj, tourism, corporate, sports and events." },
+      { property: "og:description", content: "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing — Umrah, Hajj, tourism, corporate, sports and events." },
+      { name: "twitter:description", content: "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing — Umrah, Hajj, tourism, corporate, sports and events." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/97af6017-2c64-466b-bb76-afe937cbad20/id-preview-d0c4557f--420e288a-c245-4760-a0c1-7aa42264d36e.lovable.app-1783170536754.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/97af6017-2c64-466b-bb76-afe937cbad20/id-preview-d0c4557f--420e288a-c245-4760-a0c1-7aa42264d36e.lovable.app-1783170536754.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
