@@ -52,7 +52,29 @@ export const Route = createFileRoute("/")({
           "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing — Umrah, Hajj, tourism, corporate, sports and events.",
       },
       { property: "og:title", content: "GroupToStay — Group accommodation marketplace" },
-      { property: "og:description", content: "One request. Multiple hotels. The best group rate." },
+      {
+        property: "og:description",
+        content:
+          "One request. Multiple hotels. The best group rate — for Umrah, Hajj, tourism, corporate, sports and events.",
+      },
+      { property: "og:url", content: "https://groupstay-connect.lovable.app/" },
+    ],
+    links: [{ rel: "canonical", href: "https://groupstay-connect.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: "GroupToStay Group Accommodation Marketplace",
+          serviceType: "Group hotel sourcing and quotation marketplace",
+          provider: { "@type": "Organization", name: "GroupToStay" },
+          areaServed: "Global",
+          description:
+            "B2B marketplace where verified group organizers post Group Requests and approved hotels return competing quotations for Umrah, Hajj, corporate, sports, and event groups.",
+          url: "https://groupstay-connect.lovable.app/",
+        }),
+      },
     ],
   }),
   component: Landing,
