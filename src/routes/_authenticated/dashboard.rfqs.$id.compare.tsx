@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Star } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/_authenticated/dashboard/rfqs/$id/compare")({
   head: () => ({ meta: [{ title: "Compare quotations — GroupToStay" }] }),
@@ -20,6 +21,7 @@ function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
+  const { formatNumber } = useApplicationLocale();
 
   const { data, isLoading } = useQuery({
     queryKey: ["rfq-compare", id],
@@ -135,11 +137,11 @@ function Page() {
                   </td>
                   <td className="px-3 py-3 border-b border-border">
                     {q.price_per_room_night
-                      ? `${q.currency} ${Number(q.price_per_room_night).toLocaleString()}`
+                      ? `${q.currency} ${formatNumber(q.price_per_room_night)}`
                       : "—"}
                   </td>
                   <td className="px-3 py-3 border-b border-border font-display text-base">
-                    {q.currency} {Number(q.total_price).toLocaleString()}
+                    {q.currency} {formatNumber(q.total_price)}
                   </td>
                   <td className="px-3 py-3 border-b border-border">
                     {q.board_included ? t(`rfq.boards.${q.board_included}`) : "—"}

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNotifications } from "@/hooks/use-notifications";
 import { EmptyState } from "@/components/empty-state";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/_authenticated/dashboard/notifications")({
   head: () => ({ meta: [{ title: "Notifications — GroupToStay" }] }),
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/notifications")(
 
 function NotificationsPage() {
   const { items, loading, unreadCount, markRead, markAllRead, remove } = useNotifications(100);
+  const { formatDateTime } = useApplicationLocale();
 
   return (
     <div>
@@ -57,7 +59,7 @@ function NotificationsPage() {
                     <div className="font-medium text-primary">{n.title}</div>
                     {n.body && <div className="text-sm text-muted-foreground mt-0.5">{n.body}</div>}
                     <div className="text-xs text-muted-foreground mt-1">
-                      {new Date(n.created_at).toLocaleString()}
+                      {formatDateTime(n.created_at)}
                     </div>
                   </div>
                   <button

@@ -21,6 +21,7 @@ import {
 import { toast } from "sonner";
 import { Inbox, MapPin, Calendar, Users, Building2, ShieldCheck } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invitations")({
   head: () => ({ meta: [{ title: "Invitations — GroupToStay" }] }),
@@ -153,6 +154,7 @@ function Page() {
 
 function InvitationCard({ inv, hotelName }: { inv: any; hotelName: string }) {
   const { t } = useTranslation();
+  const { formatNumber } = useApplicationLocale();
   const rfq = inv.rfqs;
   if (!rfq) return null;
   return (
@@ -211,7 +213,7 @@ function InvitationCard({ inv, hotelName }: { inv: any; hotelName: string }) {
             {inv.myQuote ? (
               <div>
                 <div className="font-display text-xl text-primary">
-                  {inv.myQuote.currency} {Number(inv.myQuote.total_price).toLocaleString()}
+                  {inv.myQuote.currency} {formatNumber(inv.myQuote.total_price)}
                 </div>
                 <div className="text-xs text-muted-foreground mt-1">
                   {t("hotelDash.quoteSubmitted")}

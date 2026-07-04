@@ -8,13 +8,14 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { I18nextProvider, useTranslation } from "react-i18next";
+import { I18nextProvider } from "react-i18next";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import i18n, { applyLocale } from "@/lib/i18n";
+import i18n from "@/lib/i18n";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Toaster } from "@/components/ui/sonner";
+import { ApplicationLocaleProvider } from "@/lib/application-locale";
 
 function NotFoundComponent() {
   return (
@@ -145,7 +146,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" dir="ltr">
       <head>
         <HeadContent />
       </head>
@@ -157,24 +158,17 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-function LocaleSync() {
-  const { i18n: i18nInstance } = useTranslation();
-  useEffect(() => {
-    applyLocale(i18nInstance.language);
-  }, [i18nInstance.language]);
-  return null;
-}
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
-        <AuthProvider>
-          <LocaleSync />
-          <Outlet />
-          <Toaster richColors position="top-center" />
-        </AuthProvider>
+        <ApplicationLocaleProvider>
+          <AuthProvider>
+            <Outlet />
+            <Toaster richColors position="top-center" />
+          </AuthProvider>
+        </ApplicationLocaleProvider>
       </I18nextProvider>
     </QueryClientProvider>
   );

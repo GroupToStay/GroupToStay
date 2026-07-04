@@ -42,6 +42,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { formatDistanceToNow } from "date-fns";
 import { HotelPhoto } from "@/components/hotel-photo";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -360,7 +361,7 @@ function AdminExecutiveDashboard() {
       (subs.data ?? []).forEach((s: any) =>
         items.push({ ts: s.created_at, label: `Subscription interest: ${s.full_name || "Lead"}` }),
       );
-      return items.sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 12);
+      return items.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime()).slice(0, 12);
     },
   });
 
@@ -829,6 +830,7 @@ function AdminLanding() {
 /* ────────────────────────────────  HERO  ──────────────────────────────── */
 
 function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolean }) {
+  const { formatNumber } = useApplicationLocale();
   const { data: counts } = useQuery({
     queryKey: ["hero-counts"],
     queryFn: async () => {
@@ -842,7 +844,7 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
     },
   });
 
-  const fmt = (n: number, base: number) => `${Math.max(n, base).toLocaleString()}+`;
+  const fmt = (n: number, base: number) => `${formatNumber(Math.max(n, base))}+`;
   const stats = [
     { label: "Hotels Listed", value: "1,250+", icon: Hotel },
     {

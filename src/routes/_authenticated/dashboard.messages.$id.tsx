@@ -16,6 +16,7 @@ import {
   Download,
 } from "lucide-react";
 import { ensureNotificationPermission, notify } from "@/lib/notifications";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/_authenticated/dashboard/messages/$id")({
   head: () => ({ meta: [{ title: "Chat — GroupToStay" }] }),
@@ -61,6 +62,7 @@ function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { formatTime } = useApplicationLocale();
 
   // Request notification permission once on mount.
   useEffect(() => {
@@ -287,7 +289,7 @@ function ChatPage() {
                 <div
                   className={`text-[10px] mt-1 ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}
                 >
-                  {new Date(m.created_at).toLocaleTimeString([], {
+                  {formatTime(m.created_at, {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}

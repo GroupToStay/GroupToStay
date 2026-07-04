@@ -61,6 +61,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Database } from "@/integrations/supabase/types";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
   head: () => ({ meta: [{ title: "Users - Admin" }] }),
@@ -119,6 +120,7 @@ const accountFilters: { value: "all" | AccountStatus; label: string }[] = [
 
 function Page() {
   const qc = useQueryClient();
+  const { compare, language } = useApplicationLocale();
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [countryFilter, setCountryFilter] = useState("all");
   const [verificationFilter, setVerificationFilter] = useState<VerificationFilter>("all");
@@ -221,9 +223,9 @@ function Page() {
 
   const countries = useMemo(() => {
     return [...new Set(rows.map((row) => row.profile?.country).filter(Boolean) as string[])].sort(
-      (a, b) => a.localeCompare(b),
+      compare,
     );
-  }, [rows]);
+  }, [compare, rows]);
 
   const filteredRows = useMemo(() => {
     const text = query.trim().toLowerCase();
@@ -269,35 +271,35 @@ function Page() {
   const metrics: AdminMetric[] = [
     {
       label: "All Users",
-      value: formatCompactNumber(roleCounts.all),
+      value: formatCompactNumber(roleCounts.all, language),
       description: "Registered accounts",
       icon: Users,
       tone: "info",
     },
     {
       label: "Agencies",
-      value: formatCompactNumber(roleCounts.agencies),
+      value: formatCompactNumber(roleCounts.agencies, language),
       description: "Marketplace buyers",
       icon: UserCheck,
       tone: "success",
     },
     {
       label: "Hotels",
-      value: formatCompactNumber(roleCounts.hotels),
+      value: formatCompactNumber(roleCounts.hotels, language),
       description: "Marketplace suppliers",
       icon: UserRound,
       tone: "gold",
     },
     {
       label: "Admins",
-      value: formatCompactNumber(roleCounts.admins),
+      value: formatCompactNumber(roleCounts.admins, language),
       description: "Management users",
       icon: ShieldCheck,
       tone: "purple",
     },
     {
       label: "Active",
-      value: formatCompactNumber(roleCounts.active),
+      value: formatCompactNumber(roleCounts.active, language),
       description: "Current active accounts",
       icon: UserCheck,
       tone: "success",

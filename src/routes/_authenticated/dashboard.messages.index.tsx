@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { MessageSquare, Hotel as HotelIcon, User as UserIcon, Search } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/_authenticated/dashboard/messages/")({
   head: () => ({ meta: [{ title: "Negotiation Center — GroupToStay" }] }),
@@ -32,6 +33,7 @@ function MessagesIndex() {
   const [convs, setConvs] = useState<ConvRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const { formatDateTime } = useApplicationLocale();
 
   useEffect(() => {
     if (!userId) return;
@@ -150,7 +152,7 @@ function MessagesIndex() {
                       </div>
                     </div>
                     <div className="text-xs text-muted-foreground whitespace-nowrap">
-                      {new Date(c.last_message_at).toLocaleString()}
+                      {formatDateTime(c.last_message_at)}
                     </div>
                   </CardContent>
                 </Card>

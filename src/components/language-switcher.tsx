@@ -1,25 +1,19 @@
-import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
-import { applyLocale } from "@/lib/i18n";
-import { Button } from "@/components/ui/button";
 import { Languages } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import { useApplicationLocale } from "@/lib/application-locale";
+
 export function LanguageSwitcher() {
-  const { i18n } = useTranslation();
-  useEffect(() => {
-    applyLocale(i18n.language);
-  }, [i18n.language]);
+  const { language, setLanguage } = useApplicationLocale();
 
   const toggle = () => {
-    const next = i18n.language === "ar" ? "en" : "ar";
-    i18n.changeLanguage(next);
-    applyLocale(next);
+    void setLanguage(language === "ar" ? "en" : "ar");
   };
 
   return (
     <Button variant="ghost" size="sm" onClick={toggle} className="gap-2">
       <Languages className="h-4 w-4" />
-      {i18n.language === "ar" ? "EN" : "عربي"}
+      {language === "ar" ? "EN" : "\u0639\u0631\u0628\u064a"}
     </Button>
   );
 }

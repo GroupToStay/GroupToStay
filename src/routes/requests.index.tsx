@@ -17,6 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Calendar, Users, ArrowRight, Inbox } from "lucide-react";
 import { useRoles } from "@/hooks/use-role";
 import { EmptyState } from "@/components/empty-state";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/requests/")({
   head: () => ({
@@ -40,6 +41,7 @@ export const Route = createFileRoute("/requests/")({
 
 function Page() {
   const { isOrganizer, loading } = useRoles();
+  const { compare, formatDate } = useApplicationLocale();
   const [q, setQ] = useState("");
   const [city, setCity] = useState("__any");
   const [type, setType] = useState("__any");
@@ -60,10 +62,13 @@ function Page() {
   });
 
   const cities = useMemo(
-    () => Array.from(new Set(rfqs.map((r) => r.destination_city))).sort(),
-    [rfqs],
+    () => Array.from(new Set(rfqs.map((r) => r.destination_city))).sort(compare),
+    [compare, rfqs],
   );
-  const types = useMemo(() => Array.from(new Set(rfqs.map((r) => r.group_type))).sort(), [rfqs]);
+  const types = useMemo(
+    () => Array.from(new Set(rfqs.map((r) => r.group_type))).sort(compare),
+    [compare, rfqs],
+  );
   const filtered = rfqs.filter((r) => {
     if (city !== "__any" && r.destination_city !== city) return false;
     if (type !== "__any" && r.group_type !== type) return false;
@@ -149,7 +154,7 @@ function Page() {
                           {r.group_type}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(r.created_at).toLocaleDateString()}
+                          {formatDate(r.created_at)}
                         </span>
                       </div>
                       <h3 className="font-display text-lg text-primary line-clamp-2">{r.title}</h3>

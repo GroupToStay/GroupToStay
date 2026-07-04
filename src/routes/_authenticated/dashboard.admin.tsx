@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { HotelPhoto } from "@/components/hotel-photo";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 type Tab = "companies" | "hotels" | "interest" | "requests" | "users";
 
@@ -513,6 +514,7 @@ export function HotelsPanel() {
 
 export function InterestPanel() {
   const qc = useQueryClient();
+  const { formatDateTime } = useApplicationLocale();
   const [planFilter, setPlanFilter] = useState<"all" | "professional" | "featured">("all");
   const [statusFilter, setStatusFilter] = useState<"all" | "waiting" | "notified">("all");
 
@@ -594,7 +596,7 @@ export function InterestPanel() {
                   <div className="text-xs text-muted-foreground">Hotel: {r.hotel_name}</div>
                 )}
                 <div className="text-xs text-muted-foreground">
-                  Registered: {new Date(r.created_at).toLocaleString()}
+                  Registered: {formatDateTime(r.created_at)}
                 </div>
               </div>
               <Badge className="capitalize">{r.requested_plan}</Badge>

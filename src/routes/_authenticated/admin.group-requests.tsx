@@ -61,6 +61,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Database } from "@/integrations/supabase/types";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/_authenticated/admin/group-requests")({
   head: () => ({ meta: [{ title: "Group Requests - Admin" }] }),
@@ -106,6 +107,7 @@ const sortOptions: { value: SortKey; label: string }[] = [
 
 function Page() {
   const qc = useQueryClient();
+  const { compare, language } = useApplicationLocale();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sort, setSort] = useState<SortKey>("newest");
   const [query, setQuery] = useState("");
@@ -214,12 +216,13 @@ function Page() {
           return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         if (sort === "guests") return b.guests_count - a.guests_count;
         if (sort === "destination")
-          return `${a.destination_country} ${a.destination_city}`.localeCompare(
+          return compare(
+            `${a.destination_country} ${a.destination_city}`,
             `${b.destination_country} ${b.destination_city}`,
           );
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
-  }, [query, rows, sort, statusFilter]);
+  }, [compare, query, rows, sort, statusFilter]);
 
   useEffect(() => {
     setPage(1);
@@ -242,35 +245,35 @@ function Page() {
   const metrics: AdminMetric[] = [
     {
       label: "All Requests",
-      value: formatCompactNumber(rows.length),
+      value: formatCompactNumber(rows.length, language),
       description: "Total RFQs",
       icon: FileText,
       tone: "info",
     },
     {
       label: "Pending",
-      value: formatCompactNumber(counts.pending ?? 0),
+      value: formatCompactNumber(counts.pending ?? 0, language),
       description: "Awaiting quotes or review",
       icon: Calendar,
       tone: "warning",
     },
     {
       label: "Open",
-      value: formatCompactNumber(counts.open ?? 0),
+      value: formatCompactNumber(counts.open ?? 0, language),
       description: "Actively quoting",
       icon: Hotel,
       tone: "success",
     },
     {
       label: "Closed",
-      value: formatCompactNumber(counts.closed ?? 0),
+      value: formatCompactNumber(counts.closed ?? 0, language),
       description: "Completed or awarded",
       icon: RotateCcw,
       tone: "neutral",
     },
     {
       label: "Cancelled",
-      value: formatCompactNumber(counts.cancelled ?? 0),
+      value: formatCompactNumber(counts.cancelled ?? 0, language),
       description: "Cancelled requests",
       icon: ShieldAlert,
       tone: "error",
@@ -552,6 +555,7 @@ function RfqDialog({
   dialog: DialogState;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { formatNumber } = useApplicationLocale();
   const row = dialog?.row;
   return (
     <Dialog open={!!dialog} onOpenChange={onOpenChange}>
@@ -634,7 +638,7 @@ function RfqDialog({
                       <AdminStatusBadge status={quote.status} />
                     </div>
                     <div className="mt-2 text-muted-foreground">
-                      {quote.currency} {Number(quote.total_price).toLocaleString()} - submitted{" "}
+                      {quote.currency} {formatNumber(quote.total_price)} - submitted{" "}
                       {formatDistanceToNow(new Date(quote.created_at), { addSuffix: true })}
                     </div>
                   </div>

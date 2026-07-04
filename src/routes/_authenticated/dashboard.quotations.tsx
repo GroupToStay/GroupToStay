@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, ClipboardList } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/_authenticated/dashboard/quotations")({
   head: () => ({ meta: [{ title: "Quotations — GroupToStay" }] }),
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/quotations")({
 function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { formatNumber } = useApplicationLocale();
 
   const { data = [], isLoading } = useQuery({
     queryKey: ["agency-quotations", user?.id],
@@ -80,7 +82,7 @@ function Page() {
                 </div>
                 <div className="text-end">
                   <div className="font-display text-lg text-primary">
-                    {q.currency} {Number(q.total_price).toLocaleString()}
+                    {q.currency} {formatNumber(q.total_price)}
                   </div>
                   <Badge variant="outline" className="mt-1">
                     {t(`dashboard.status.${q.status}`)}

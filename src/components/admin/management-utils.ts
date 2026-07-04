@@ -1,3 +1,5 @@
+import { formatNumberValue, type AppLanguage } from "@/lib/locale";
+
 export function getPageSlice<T>(rows: T[], page: number, pageSize: number) {
   const pageCount = Math.max(1, Math.ceil(rows.length / pageSize));
   const safePage = Math.min(page, pageCount);
@@ -13,8 +15,9 @@ export function formatAdminDate(value?: string | null) {
   return `${month}/${day}/${year}`;
 }
 
-export function formatCompactNumber(value: number) {
-  return new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(
-    value,
-  );
+export function formatCompactNumber(value: number, language: AppLanguage = "en") {
+  return formatNumberValue(value, language, {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  });
 }

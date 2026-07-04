@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 type Tone = "neutral" | "success" | "warning" | "error" | "info" | "gold" | "purple";
 
@@ -286,6 +287,7 @@ export function AdminPagination({
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
 }) {
+  const { formatNumber } = useApplicationLocale();
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(page, pageCount);
   const start = total === 0 ? 0 : (safePage - 1) * pageSize + 1;
@@ -299,7 +301,7 @@ export function AdminPagination({
         <span className="font-medium text-foreground">
           {start}-{end}
         </span>{" "}
-        of <span className="font-medium text-foreground">{total.toLocaleString()}</span>
+        of <span className="font-medium text-foreground">{formatNumber(total)}</span>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs">Rows per page</span>

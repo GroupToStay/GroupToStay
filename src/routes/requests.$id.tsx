@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { MapPin, Calendar, Users, ArrowLeft, MessageSquare, LogIn, Send } from "lucide-react";
 import { toast } from "sonner";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/requests/$id")({
   head: () => ({ meta: [{ title: "Group request — GroupToStay" }] }),
@@ -165,6 +166,7 @@ function Conversation({
   isOwner: boolean;
 }) {
   const qc = useQueryClient();
+  const { formatDateTime } = useApplicationLocale();
   const [text, setText] = useState("");
   // If hotel viewer: thread is between this hotel and organizer.
   // If organizer (owner) viewer: show all messages on RFQ; reply to currently selected hotel.
@@ -264,7 +266,7 @@ function Conversation({
                 <div
                   className={`text-[10px] mt-1 ${m.sender_id === viewerId ? "text-primary-foreground/70" : "text-muted-foreground"}`}
                 >
-                  {new Date(m.created_at).toLocaleString()}
+                  {formatDateTime(m.created_at)}
                 </div>
               </div>
             ))
@@ -296,6 +298,7 @@ function Conversation({
 
 function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
   const qc = useQueryClient();
+  const { formatNumber } = useApplicationLocale();
   const [open, setOpen] = useState(false);
   const [hotelId, setHotelId] = useState<string>("");
   const [totalPrice, setTotalPrice] = useState("");
@@ -371,7 +374,7 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
           Quote submitted
         </Badge>
         <div className="mt-1 font-display text-lg text-primary">
-          {existingQuote.currency} {Number(existingQuote.total_price).toLocaleString()}
+          {existingQuote.currency} {formatNumber(existingQuote.total_price)}
         </div>
       </div>
     );

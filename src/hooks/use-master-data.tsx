@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export type LookupRow = { id: string; name_en: string; name_ar: string; code?: string };
 export type CityRow = LookupRow & { country_id: string };
 
 export function useLocalizedName() {
-  const { i18n } = useTranslation();
-  const ar = i18n.language?.startsWith("ar");
+  const { language } = useApplicationLocale();
+  const ar = language === "ar";
   return (row: { name_en?: string | null; name_ar?: string | null } | null | undefined) =>
     row ? (ar ? row.name_ar || row.name_en || "" : row.name_en || row.name_ar || "") : "";
 }

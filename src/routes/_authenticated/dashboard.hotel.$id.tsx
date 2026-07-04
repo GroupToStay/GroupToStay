@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { HotelPhoto } from "@/components/hotel-photo";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/$id")({
   head: () => ({ meta: [{ title: "Manage hotel — GroupToStay" }] }),
@@ -81,6 +82,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
   const { user } = useAuth();
   const qc = useQueryClient();
   const fileInput = useRef<HTMLInputElement>(null);
+  const { formatNumber } = useApplicationLocale();
   const [uploading, setUploading] = useState(false);
 
   // Edit hotel info
@@ -611,7 +613,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
                     <span className="text-muted-foreground">
                       {" "}
                       · {r.capacity} pax · {r.count_available} avail · {r.currency}{" "}
-                      {Number(r.base_price).toLocaleString()}
+                      {formatNumber(r.base_price)}
                       {t("hotels.perNight")}
                     </span>
                   </div>

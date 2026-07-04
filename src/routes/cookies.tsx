@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { formatDateValue } from "@/lib/locale";
 
 export const Route = createFileRoute("/cookies")({
   head: () => ({
@@ -20,7 +21,11 @@ function Page() {
         <h1 className="font-display text-4xl text-primary">Cookie Policy</h1>
         <p className="text-sm text-muted-foreground">
           Last updated:{" "}
-          {new Date().toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric" })}
+          {formatDateValue(new Date(), "en", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
         </p>
 
         <div className="mt-6 space-y-4 text-foreground/90">

@@ -27,6 +27,7 @@ import {
   Trash2,
   GitCompare,
 } from "lucide-react";
+import { useApplicationLocale } from "@/lib/application-locale";
 
 export const Route = createFileRoute("/_authenticated/dashboard/rfqs/$id")({
   head: () => ({ meta: [{ title: "Request — GroupToStay" }] }),
@@ -54,6 +55,7 @@ function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
+  const { formatNumber } = useApplicationLocale();
 
   const { data, isLoading } = useQuery({
     queryKey: ["rfq", id],
@@ -292,7 +294,7 @@ function Page() {
                     </div>
                     <div className="text-end">
                       <div className="font-display text-2xl text-primary">
-                        {q.currency} {Number(q.total_price).toLocaleString()}
+                        {q.currency} {formatNumber(q.total_price)}
                       </div>
                       {q.price_per_room_night && (
                         <div className="text-xs text-muted-foreground">
