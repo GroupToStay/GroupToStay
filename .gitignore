@@ -7,6 +7,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Unsupported package managers
+package-lock.json
+yarn.lock
+bun.lock
+bunfig.toml
+
 node_modules
 dist
 dist-ssr
@@ -19,6 +25,9 @@ dist-ssr
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
+.env
+.env.*
+!.env.example
 
 # Editor directories and files
 .vscode/*

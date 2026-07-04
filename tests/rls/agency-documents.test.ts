@@ -17,8 +17,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL =
-  process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "";
+const SUPABASE_URL = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? "";
 const ANON_KEY =
   process.env.SUPABASE_PUBLISHABLE_KEY ??
   process.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
@@ -48,8 +47,7 @@ function freshClient(): SupabaseClient {
 }
 
 const PDF_BYTES = new Uint8Array([
-  0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x34, 0x0a, 0x25, 0xe2, 0xe3, 0xcf,
-  0xd3, 0x0a,
+  0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x34, 0x0a, 0x25, 0xe2, 0xe3, 0xcf, 0xd3, 0x0a,
 ]);
 
 function objectPath(userId: string, name = `cr-${Date.now()}.pdf`) {
@@ -65,8 +63,7 @@ d("RLS: agency-documents bucket", () => {
         auth: { persistSession: false, autoRefreshToken: false },
       });
 
-  const users: Record<"agencyA" | "agencyB" | "hotel" | "admin", TestUser> =
-    {} as never;
+  const users: Record<"agencyA" | "agencyB" | "hotel" | "admin", TestUser> = {} as never;
 
   // Track uploaded object paths for cleanup.
   const uploaded: string[] = [];
@@ -172,9 +169,7 @@ d("RLS: agency-documents bucket", () => {
     expect(up.error).toBeNull();
     uploaded.push(path);
 
-    const { data, error } = await users.agencyA.client.storage
-      .from(BUCKET)
-      .download(path);
+    const { data, error } = await users.agencyA.client.storage.from(BUCKET).download(path);
     expect(error).toBeNull();
     expect(data).not.toBeNull();
   });
@@ -196,9 +191,7 @@ d("RLS: agency-documents bucket", () => {
     expect(up.error).toBeNull();
     uploaded.push(path);
 
-    const { data, error } = await users.agencyB.client.storage
-      .from(BUCKET)
-      .download(path);
+    const { data, error } = await users.agencyB.client.storage.from(BUCKET).download(path);
     expect(data).toBeNull();
     expect(error).not.toBeNull();
   });
@@ -211,9 +204,7 @@ d("RLS: agency-documents bucket", () => {
     expect(up.error).toBeNull();
     uploaded.push(path);
 
-    const { data, error } = await users.hotel.client.storage
-      .from(BUCKET)
-      .download(path);
+    const { data, error } = await users.hotel.client.storage.from(BUCKET).download(path);
     expect(data).toBeNull();
     expect(error).not.toBeNull();
   });
@@ -227,9 +218,7 @@ d("RLS: agency-documents bucket", () => {
     expect(up.error).toBeNull();
     uploaded.push(path);
 
-    const { data, error } = await users.admin.client.storage
-      .from(BUCKET)
-      .download(path);
+    const { data, error } = await users.admin.client.storage.from(BUCKET).download(path);
     expect(error).toBeNull();
     expect(data).not.toBeNull();
   });
@@ -255,26 +244,19 @@ d("RLS: agency-documents bucket", () => {
   });
 
   it("agency can delete its own object; other agency cannot", async () => {
-    const targetPath = objectPath(
-      users.agencyA.id,
-      `del-target-${Date.now()}.pdf`,
-    );
+    const targetPath = objectPath(users.agencyA.id, `del-target-${Date.now()}.pdf`);
     const seed1 = await users.agencyA.client.storage
       .from(BUCKET)
       .upload(targetPath, PDF_BYTES, { contentType: "application/pdf" });
     expect(seed1.error).toBeNull();
 
     // AgencyB attempts delete — should fail (or return empty result).
-    const bDel = await users.agencyB.client.storage
-      .from(BUCKET)
-      .remove([targetPath]);
+    const bDel = await users.agencyB.client.storage.from(BUCKET).remove([targetPath]);
     // The API returns success with data:[] when RLS filters the row away.
     expect(bDel.data ?? []).toHaveLength(0);
 
     // Owner deletes for real.
-    const aDel = await users.agencyA.client.storage
-      .from(BUCKET)
-      .remove([targetPath]);
+    const aDel = await users.agencyA.client.storage.from(BUCKET).remove([targetPath]);
     expect(aDel.error).toBeNull();
     expect((aDel.data ?? []).length).toBeGreaterThan(0);
   });

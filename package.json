@@ -3,6 +3,11 @@
   "private": true,
   "sideEffects": false,
   "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": ">=22.23.1 <23",
+    "pnpm": ">=11 <12"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
@@ -10,6 +15,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "format:check": "prettier --check --ignore-unknown .",
     "test": "vitest run",
     "test:rls": "vitest run tests/rls"
   },
@@ -43,6 +49,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@supabase/supabase-js": "^2.108.1",
     "@tailwindcss/vite": "^4.2.1",
+    "@tanstack/query-core": "^5.83.0",
     "@tanstack/react-query": "^5.83.0",
     "@tanstack/react-router": "^1.168.25",
     "@tanstack/react-start": "^1.167.50",
@@ -62,7 +69,6 @@
     "react-hook-form": "^7.71.2",
     "react-i18next": "^17.0.8",
     "react-resizable-panels": "^4.6.5",
-    "recharts": "^2.15.4",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.1",
@@ -85,6 +91,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
+    "jiti": "^2.7.0",
     "nitro": "3.0.260603-beta",
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",

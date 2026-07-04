@@ -84,12 +84,14 @@ No table drops. No data deletions. No RLS rewrites.
 ## 8. Notifications
 
 Extend `create_notification` call sites:
+
 - Hotel: on quote viewed, quote shortlisted, request awarded (already partially exists for accepted).
 - Agency: on new quote, on hotel message (already exists).
 
 ## 9. Homepage (`src/routes/index.tsx`, `for-hotels.tsx`, `how-it-works.tsx`)
 
 Update hero/marketing copy to:
+
 - "One Request. Multiple Hotel Offers."
 - Emphasize verified hotels, competitive quotations, side-by-side comparison.
 - Remove any "budget" mentions.
@@ -114,12 +116,14 @@ No permission changes. Admin lists already show RFQs/quotes/hotels/profiles — 
 ## Files touched
 
 **New**
+
 - `src/routes/_authenticated/dashboard.quotations.tsx`
 - `src/routes/_authenticated/dashboard.rfqs.$id.compare.tsx`
 - `src/components/agency-type-select.tsx`
 - `src/lib/role-label.ts`
 
 **Edited**
+
 - Migration adding columns + extended `handle_new_user()`
 - `src/routes/auth.tsx` (Agency registration fields)
 - `src/routes/_authenticated/dashboard.rfqs.new.tsx` (remove budget, add new fields)
