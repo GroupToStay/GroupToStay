@@ -10,9 +10,18 @@ export const Route = createFileRoute("/how-it-works")({
       { title: "How it works — GroupToStay" },
       {
         name: "description",
-        content: "From Group Request to confirmed group booking in three steps.",
+        content:
+          "From Group Request to confirmed group booking in three steps. See how GroupToStay sources competing hotel quotations.",
       },
+      { property: "og:title", content: "How it works — GroupToStay" },
+      {
+        property: "og:description",
+        content:
+          "Post a Group Request, receive competing hotel quotations, and confirm the best offer in three steps.",
+      },
+      { property: "og:url", content: "https://groupstay-connect.lovable.app/how-it-works" },
     ],
+    links: [{ rel: "canonical", href: "https://groupstay-connect.lovable.app/how-it-works" }],
   }),
   component: Page,
 });
