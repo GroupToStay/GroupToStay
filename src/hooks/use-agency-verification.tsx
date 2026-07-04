@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./use-auth";
 
-export type AgencyVerificationStatus = "draft" | "submitted" | "pending_review" | "verified" | "rejected";
+export type AgencyVerificationStatus =
+  "draft" | "submitted" | "pending_review" | "verified" | "rejected";
 
 export function useAgencyVerification() {
   const { user } = useAuth();
@@ -12,7 +13,9 @@ export function useAgencyVerification() {
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("agency_verification_status, verification_rejection_reason, verification_submitted_at, verification_reviewed_at, verification_trust_level")
+        .select(
+          "agency_verification_status, verification_rejection_reason, verification_submitted_at, verification_reviewed_at, verification_trust_level",
+        )
         .eq("id", user!.id)
         .maybeSingle();
       return data;

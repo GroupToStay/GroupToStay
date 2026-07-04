@@ -25,7 +25,6 @@ function AdminRedirect() {
   return <div className="text-muted-foreground">Redirecting to Admin Dashboard…</div>;
 }
 
-
 function OrganizerHome() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -34,9 +33,20 @@ function OrganizerHome() {
     enabled: !!user,
     queryFn: async () => {
       const [{ count: total }, { count: open }, { count: awarded }] = await Promise.all([
-        supabase.from("rfqs").select("*", { count: "exact", head: true }).eq("organizer_id", user!.id),
-        supabase.from("rfqs").select("*", { count: "exact", head: true }).eq("organizer_id", user!.id).eq("status", "open"),
-        supabase.from("rfqs").select("*", { count: "exact", head: true }).eq("organizer_id", user!.id).eq("status", "awarded"),
+        supabase
+          .from("rfqs")
+          .select("*", { count: "exact", head: true })
+          .eq("organizer_id", user!.id),
+        supabase
+          .from("rfqs")
+          .select("*", { count: "exact", head: true })
+          .eq("organizer_id", user!.id)
+          .eq("status", "open"),
+        supabase
+          .from("rfqs")
+          .select("*", { count: "exact", head: true })
+          .eq("organizer_id", user!.id)
+          .eq("status", "awarded"),
       ]);
       return { total: total ?? 0, open: open ?? 0, awarded: awarded ?? 0 };
     },
@@ -46,7 +56,11 @@ function OrganizerHome() {
     <div>
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="font-display text-3xl text-primary">{t("dashboard.welcome")}</h1>
-        <Button asChild variant="gold"><Link to="/dashboard/rfqs/new"><Plus className="h-4 w-4" /> {t("dashboard.newRfq")}</Link></Button>
+        <Button asChild variant="gold">
+          <Link to="/dashboard/rfqs/new">
+            <Plus className="h-4 w-4" /> {t("dashboard.newRfq")}
+          </Link>
+        </Button>
       </div>
 
       <div className="mt-6 grid sm:grid-cols-3 gap-4">
@@ -55,24 +69,34 @@ function OrganizerHome() {
           { icon: Inbox, label: t("dashboard.status.open"), value: stats?.open ?? 0 },
           { icon: CheckCircle2, label: t("dashboard.status.awarded"), value: stats?.awarded ?? 0 },
         ].map((s, i) => (
-          <Card key={i}><CardContent className="p-5 flex items-center gap-4">
-            <span className="grid h-12 w-12 place-items-center rounded-lg bg-primary text-gold"><s.icon className="h-5 w-5" /></span>
-            <div>
-              <div className="text-2xl font-display text-primary">{s.value}</div>
-              <div className="text-sm text-muted-foreground">{s.label}</div>
-            </div>
-          </CardContent></Card>
+          <Card key={i}>
+            <CardContent className="p-5 flex items-center gap-4">
+              <span className="grid h-12 w-12 place-items-center rounded-lg bg-primary text-gold">
+                <s.icon className="h-5 w-5" />
+              </span>
+              <div>
+                <div className="text-2xl font-display text-primary">{s.value}</div>
+                <div className="text-sm text-muted-foreground">{s.label}</div>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      <Card className="mt-6"><CardContent className="p-6">
-        <h2 className="font-display text-xl text-primary">{t("dashboard.myRfqs")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{t("hero.subtitle")}</p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button asChild variant="default"><Link to="/dashboard/rfqs">{t("dashboard.myRfqs")}</Link></Button>
-          <Button asChild variant="outline"><Link to="/dashboard/quotations">{t("dashboard.allQuotations")}</Link></Button>
-        </div>
-      </CardContent></Card>
+      <Card className="mt-6">
+        <CardContent className="p-6">
+          <h2 className="font-display text-xl text-primary">{t("dashboard.myRfqs")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t("hero.subtitle")}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button asChild variant="default">
+              <Link to="/dashboard/rfqs">{t("dashboard.myRfqs")}</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/dashboard/quotations">{t("dashboard.allQuotations")}</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -85,7 +109,10 @@ function HotelHome() {
     queryKey: ["my-hotels-summary", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("hotels").select("id, name, status").eq("owner_id", user!.id);
+      const { data } = await supabase
+        .from("hotels")
+        .select("id, name, status")
+        .eq("owner_id", user!.id);
       return data ?? [];
     },
   });
@@ -98,9 +125,18 @@ function HotelHome() {
     enabled: hasHotels,
     queryFn: async () => {
       const [{ count: invites }, { count: quotes }, { count: wins }] = await Promise.all([
-        supabase.from("rfq_invitations").select("*", { count: "exact", head: true }).in("hotel_id", hotelIds),
-        supabase.from("quotes").select("*", { count: "exact", head: true }).in("hotel_id", hotelIds),
-        supabase.from("bookings").select("*", { count: "exact", head: true }).in("hotel_id", hotelIds),
+        supabase
+          .from("rfq_invitations")
+          .select("*", { count: "exact", head: true })
+          .in("hotel_id", hotelIds),
+        supabase
+          .from("quotes")
+          .select("*", { count: "exact", head: true })
+          .in("hotel_id", hotelIds),
+        supabase
+          .from("bookings")
+          .select("*", { count: "exact", head: true })
+          .in("hotel_id", hotelIds),
       ]);
       return { invites: invites ?? 0, quotes: quotes ?? 0, wins: wins ?? 0 };
     },
@@ -112,7 +148,9 @@ function HotelHome() {
         <h1 className="font-display text-3xl text-primary">{t("dashboard.welcome")}</h1>
         <Button asChild variant="gold">
           <Link to={hasHotels ? "/dashboard/invitations" : "/dashboard/hotel"}>
-            {hasHotels ? t("hotelDash.invitations") : t("hotelDash.completeProfileTitle", "Complete Your Hotel Profile")}
+            {hasHotels
+              ? t("hotelDash.invitations")
+              : t("hotelDash.completeProfileTitle", "Complete Your Hotel Profile")}
           </Link>
         </Button>
       </div>
@@ -124,25 +162,39 @@ function HotelHome() {
           { icon: CheckCircle2, label: t("dashboard.status.awarded"), value: stats?.wins ?? 0 },
           { icon: CreditCard, label: t("nav.subscription", "Active Subscription"), value: "Free" },
         ].map((s, i) => (
-          <Card key={i}><CardContent className="p-5 flex items-center gap-4">
-            <span className="grid h-12 w-12 place-items-center rounded-lg bg-primary text-gold"><s.icon className="h-5 w-5" /></span>
-            <div>
-              <div className="text-2xl font-display text-primary">{s.value}</div>
-              <div className="text-sm text-muted-foreground">{s.label}</div>
-            </div>
-          </CardContent></Card>
+          <Card key={i}>
+            <CardContent className="p-5 flex items-center gap-4">
+              <span className="grid h-12 w-12 place-items-center rounded-lg bg-primary text-gold">
+                <s.icon className="h-5 w-5" />
+              </span>
+              <div>
+                <div className="text-2xl font-display text-primary">{s.value}</div>
+                <div className="text-sm text-muted-foreground">{s.label}</div>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      <Card className="mt-6"><CardContent className="p-6">
-        <h2 className="font-display text-xl text-primary flex items-center gap-2"><Building2 className="h-5 w-5" /> {t("nav.hotelProfile", "My Hotel Profile")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {hasHotels
-            ? hotels.map((h: any) => `${h.name} (${t(`hotelDash.statuses.${h.status}`)})`).join(" · ")
-            : t("hotelDash.needsHotel")}
-        </p>
-        <div className="mt-4"><Button asChild variant="default"><Link to="/dashboard/hotel">{t("nav.hotelProfile", "My Hotel Profile")}</Link></Button></div>
-      </CardContent></Card>
+      <Card className="mt-6">
+        <CardContent className="p-6">
+          <h2 className="font-display text-xl text-primary flex items-center gap-2">
+            <Building2 className="h-5 w-5" /> {t("nav.hotelProfile", "My Hotel Profile")}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {hasHotels
+              ? hotels
+                  .map((h: any) => `${h.name} (${t(`hotelDash.statuses.${h.status}`)})`)
+                  .join(" · ")
+              : t("hotelDash.needsHotel")}
+          </p>
+          <div className="mt-4">
+            <Button asChild variant="default">
+              <Link to="/dashboard/hotel">{t("nav.hotelProfile", "My Hotel Profile")}</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -34,7 +34,11 @@ export function useCities(countryId?: string | null) {
     enabled: true,
     staleTime: 1000 * 60 * 10,
     queryFn: async (): Promise<CityRow[]> => {
-      let q = supabase.from("cities").select("id,country_id,name_en,name_ar").eq("is_active", true).order("name_en");
+      let q = supabase
+        .from("cities")
+        .select("id,country_id,name_en,name_ar")
+        .eq("is_active", true)
+        .order("name_en");
       if (countryId) q = q.eq("country_id", countryId);
       const { data, error } = await q;
       if (error) throw error;
@@ -43,16 +47,24 @@ export function useCities(countryId?: string | null) {
   });
 }
 
-function makeLookupHook(table: "hotel_types" | "room_types" | "meal_plans" | "amenities", key: string) {
-  return () => useQuery({
-    queryKey: [key],
-    staleTime: 1000 * 60 * 10,
-    queryFn: async (): Promise<LookupRow[]> => {
-      const { data, error } = await supabase.from(table).select("id,name_en,name_ar").eq("is_active", true).order("name_en");
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
+function makeLookupHook(
+  table: "hotel_types" | "room_types" | "meal_plans" | "amenities",
+  key: string,
+) {
+  return () =>
+    useQuery({
+      queryKey: [key],
+      staleTime: 1000 * 60 * 10,
+      queryFn: async (): Promise<LookupRow[]> => {
+        const { data, error } = await supabase
+          .from(table)
+          .select("id,name_en,name_ar")
+          .eq("is_active", true)
+          .order("name_en");
+        if (error) throw error;
+        return data ?? [];
+      },
+    });
 }
 
 export const useHotelTypes = makeLookupHook("hotel_types", "master-hotel-types");

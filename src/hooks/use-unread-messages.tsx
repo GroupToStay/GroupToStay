@@ -8,10 +8,11 @@ import { useAuth } from "@/hooks/use-auth";
  */
 export function useUnreadMessageCount() {
   const { user } = useAuth();
+  const userId = user?.id;
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setCount(0);
       return;
     }
@@ -22,7 +23,7 @@ export function useUnreadMessageCount() {
       const { data: parts } = await (supabase as any)
         .from("conversation_participants")
         .select("conversation_id, last_read_at, conversations:conversation_id(last_message_at)")
-        .eq("user_id", user!.id);
+        .eq("user_id", userId);
       if (cancelled || !parts) return;
       let unread = 0;
       for (const p of parts as any[]) {
@@ -37,16 +38,21 @@ export function useUnreadMessageCount() {
     void recompute();
 
     const channel = supabase
-      .channel(`unread:${user.id}`)
+      .channel(`unread:${userId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "conversations" },
-        () => void recompute()
+        () => void recompute(),
       )
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "conversation_participants", filter: `user_id=eq.${user.id}` },
-        () => void recompute()
+        {
+          event: "*",
+          schema: "public",
+          table: "conversation_participants",
+          filter: `user_id=eq.${userId}`,
+        },
+        () => void recompute(),
       )
       .subscribe();
 
@@ -54,7 +60,7 @@ export function useUnreadMessageCount() {
       cancelled = true;
       supabase.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [userId]);
 
   return count;
 }

@@ -27,7 +27,9 @@ export function SiteHeader() {
       try {
         window.localStorage.clear();
         window.sessionStorage.clear();
-      } catch {}
+      } catch {
+        // Storage cleanup is best-effort during sign out.
+      }
       window.location.replace("/");
     }
   };
@@ -101,7 +103,14 @@ export function SiteHeader() {
           {user ? (
             <>
               <NotificationBell />
-              <Button variant="outline" size="sm" onClick={handleSignOut} className="hidden sm:inline-flex">{t("nav.signOut")}</Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+                className="hidden sm:inline-flex"
+              >
+                {t("nav.signOut")}
+              </Button>
             </>
           ) : (
             <>
@@ -109,7 +118,9 @@ export function SiteHeader() {
                 <Link to="/auth">{t("nav.signIn")}</Link>
               </Button>
               <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
-                <Link to="/auth" search={{ mode: "signup" } as any}>Register</Link>
+                <Link to="/auth" search={{ mode: "signup" } as any}>
+                  Register
+                </Link>
               </Button>
             </>
           )}
@@ -118,7 +129,7 @@ export function SiteHeader() {
               <Link to="/request-quote">{t("nav.getQuote")}</Link>
             </Button>
           )}
-          <button className="md:hidden p-2" onClick={() => setOpen(v => !v)} aria-label="Menu">
+          <button className="md:hidden p-2" onClick={() => setOpen((v) => !v)} aria-label="Menu">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
@@ -128,14 +139,24 @@ export function SiteHeader() {
           <div className="container-page py-4 flex flex-col gap-3" onClick={() => setOpen(false)}>
             {navLinks}
             {user ? (
-              <Button variant="outline" size="sm" className="w-full" onClick={handleSignOut}>{t("nav.signOut")}</Button>
+              <Button variant="outline" size="sm" className="w-full" onClick={handleSignOut}>
+                {t("nav.signOut")}
+              </Button>
             ) : (
               <>
-                <Link to="/auth" className="text-sm font-medium">{t("nav.signIn")}</Link>
-                <Link to="/auth" search={{ mode: "signup" } as any} className="text-sm font-medium">Register</Link>
+                <Link to="/auth" className="text-sm font-medium">
+                  {t("nav.signIn")}
+                </Link>
+                <Link to="/auth" search={{ mode: "signup" } as any} className="text-sm font-medium">
+                  Register
+                </Link>
               </>
             )}
-            {showQuoteCta && <Button asChild variant="gold" size="sm" className="w-full"><Link to="/request-quote">{t("nav.getQuote")}</Link></Button>}
+            {showQuoteCta && (
+              <Button asChild variant="gold" size="sm" className="w-full">
+                <Link to="/request-quote">{t("nav.getQuote")}</Link>
+              </Button>
+            )}
           </div>
         </div>
       )}

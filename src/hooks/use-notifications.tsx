@@ -20,11 +20,12 @@ export type NotificationRow = {
  */
 export function useNotifications(limit = 30) {
   const { user } = useAuth();
+  const userId = user?.id;
   const [items, setItems] = useState<NotificationRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    if (!user) {
+    if (!userId) {
       setItems([]);
       setLoading(false);
       return;
@@ -32,28 +33,28 @@ export function useNotifications(limit = 30) {
     const { data } = await (supabase as any)
       .from("notifications")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(limit);
     setItems((data as NotificationRow[]) ?? []);
     setLoading(false);
-  }, [user?.id, limit]);
+  }, [userId, limit]);
 
   useEffect(() => {
     void load();
-    if (!user) return;
+    if (!userId) return;
     const channel = supabase
-      .channel(`notifications:${user.id}`)
+      .channel(`notifications:${userId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+        { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
         () => void load(),
       )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, load]);
+  }, [userId, load]);
 
   const unreadCount = items.filter((n) => !n.read_at).length;
 
@@ -65,13 +66,13 @@ export function useNotifications(limit = 30) {
   }, []);
 
   const markAllRead = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     await (supabase as any)
       .from("notifications")
       .update({ read_at: new Date().toISOString() })
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .is("read_at", null);
-  }, [user?.id]);
+  }, [userId]);
 
   const remove = useCallback(async (id: string) => {
     await (supabase as any).from("notifications").delete().eq("id", id);

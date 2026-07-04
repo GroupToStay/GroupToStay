@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -28,7 +34,11 @@ export function WaitlistModal({
     enabled: !!user && open,
     queryFn: async () => {
       const [{ data: p }, { data: h }] = await Promise.all([
-        supabase.from("profiles").select("full_name, contact_email, company_name").eq("id", user!.id).maybeSingle(),
+        supabase
+          .from("profiles")
+          .select("full_name, contact_email, company_name")
+          .eq("id", user!.id)
+          .maybeSingle(),
         supabase.from("hotels").select("id, name").eq("owner_id", user!.id).limit(1).maybeSingle(),
       ]);
       return { p, h };
@@ -56,7 +66,9 @@ export function WaitlistModal({
         requested_plan: plan,
       });
       if (error) throw error;
-      toast.success("You have been added to the subscription waiting list. We will notify you as soon as subscription payments become available.");
+      toast.success(
+        "You have been added to the subscription waiting list. We will notify you as soon as subscription payments become available.",
+      );
       onOpenChange(false);
     } catch (err: any) {
       toast.error(err.message);
@@ -68,16 +80,44 @@ export function WaitlistModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
-        <DialogHeader><DialogTitle>Join Subscription Waitlist</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Join Subscription Waitlist</DialogTitle>
+        </DialogHeader>
         <form onSubmit={submit} className="space-y-3">
           <p className="text-sm text-muted-foreground">
             Requested plan: <span className="font-medium capitalize">{plan} Hotel</span>
           </p>
-          <div><Label>Full Name</Label><Input required value={fullName} onChange={e => setFullName(e.target.value)} maxLength={160} /></div>
-          <div><Label>Email Address</Label><Input type="email" required value={email} onChange={e => setEmail(e.target.value)} maxLength={255} /></div>
-          <div><Label>Hotel Name</Label><Input value={hotelName} onChange={e => setHotelName(e.target.value)} maxLength={160} /></div>
+          <div>
+            <Label>Full Name</Label>
+            <Input
+              required
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              maxLength={160}
+            />
+          </div>
+          <div>
+            <Label>Email Address</Label>
+            <Input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              maxLength={255}
+            />
+          </div>
+          <div>
+            <Label>Hotel Name</Label>
+            <Input
+              value={hotelName}
+              onChange={(e) => setHotelName(e.target.value)}
+              maxLength={160}
+            />
+          </div>
           <DialogFooter>
-            <Button type="submit" variant="gold" disabled={submitting}>{submitting ? "Joining…" : "Join Waitlist"}</Button>
+            <Button type="submit" variant="gold" disabled={submitting}>
+              {submitting ? "Joining…" : "Join Waitlist"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

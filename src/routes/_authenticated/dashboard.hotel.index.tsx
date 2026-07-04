@@ -10,7 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Building2, Plus, Star, MapPin } from "lucide-react";
 import { SubscriptionCards } from "@/components/subscription-cards";
@@ -26,14 +33,21 @@ export const Route = createFileRoute("/_authenticated/dashboard/hotel/")({
       <h2 className="font-display text-xl text-primary">Unable to load hotel profile.</h2>
       <p className="text-sm text-muted-foreground">Please refresh or contact support.</p>
       <pre className="text-xs text-error whitespace-pre-wrap">{error?.message}</pre>
-      <button className="text-sm underline" onClick={() => reset()}>Try again</button>
+      <button className="text-sm underline" onClick={() => reset()}>
+        Try again
+      </button>
     </div>
   ),
   notFoundComponent: () => <div className="text-muted-foreground">Not found</div>,
 });
 
 function slugify(s: string) {
-  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 80);
 }
 
 function Page() {
@@ -45,9 +59,11 @@ function Page() {
     queryKey: ["my-profile", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("profiles")
+      const { data } = await supabase
+        .from("profiles")
         .select("hotel_approval_status, approval_notes, company_name")
-        .eq("id", user!.id).maybeSingle();
+        .eq("id", user!.id)
+        .maybeSingle();
       return data;
     },
   });
@@ -56,7 +72,8 @@ function Page() {
     queryKey: ["my-hotels", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.from("hotels")
+      const { data } = await supabase
+        .from("hotels")
         .select("*")
         .eq("owner_id", user!.id)
         .order("created_at", { ascending: false });
@@ -64,33 +81,42 @@ function Page() {
     },
   });
 
-  if (isLoading || profileLoading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
+  if (isLoading || profileLoading)
+    return <div className="text-muted-foreground">{t("common.loading")}</div>;
 
   if (profile?.hotel_approval_status !== "approved") {
     return (
       <div className="space-y-6">
         <h1 className="font-display text-3xl text-primary">{t("hotelDash.myHotel")}</h1>
-        <Card><CardContent className="p-6">
-          <Badge className={
-            profile?.hotel_approval_status === "rejected"
-              ? "bg-error/15 text-error"
-              : "bg-muted text-muted-foreground"
-          }>
-            {t(`hotelDash.companyStatus.${profile?.hotel_approval_status ?? "pending"}`)}
-          </Badge>
-          <h2 className="mt-3 font-display text-xl text-primary">{t("hotelDash.companyReviewTitle")}</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {profile?.hotel_approval_status === "rejected"
-              ? t("hotelDash.companyRejected")
-              : t("hotelDash.companyPending")}
-          </p>
-          {profile?.approval_notes && (
-            <div className="mt-3 rounded-md border border-border bg-surface p-3 text-sm">
-              <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("hotelDash.adminNotes")}</div>
-              <div className="mt-1">{profile.approval_notes}</div>
-            </div>
-          )}
-        </CardContent></Card>
+        <Card>
+          <CardContent className="p-6">
+            <Badge
+              className={
+                profile?.hotel_approval_status === "rejected"
+                  ? "bg-error/15 text-error"
+                  : "bg-muted text-muted-foreground"
+              }
+            >
+              {t(`hotelDash.companyStatus.${profile?.hotel_approval_status ?? "pending"}`)}
+            </Badge>
+            <h2 className="mt-3 font-display text-xl text-primary">
+              {t("hotelDash.companyReviewTitle")}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {profile?.hotel_approval_status === "rejected"
+                ? t("hotelDash.companyRejected")
+                : t("hotelDash.companyPending")}
+            </p>
+            {profile?.approval_notes && (
+              <div className="mt-3 rounded-md border border-border bg-surface p-3 text-sm">
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                  {t("hotelDash.adminNotes")}
+                </div>
+                <div className="mt-1">{profile.approval_notes}</div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -103,19 +129,28 @@ function Page() {
       <div className="space-y-6">
         <div>
           <h1 className="font-display text-3xl text-primary flex items-center gap-2">
-            <Building2 className="h-7 w-7" /> {t("hotelDash.completeProfileTitle", "Complete Your Hotel Profile")}
+            <Building2 className="h-7 w-7" />{" "}
+            {t("hotelDash.completeProfileTitle", "Complete Your Hotel Profile")}
           </h1>
           <p className="mt-1 text-muted-foreground">
-            {t("hotelDash.completeProfileSubtitle", "Add your hotel details so organizers can find you. Group Requests appear here after your profile is approved.")}
+            {t(
+              "hotelDash.completeProfileSubtitle",
+              "Add your hotel details so organizers can find you. Group Requests appear here after your profile is approved.",
+            )}
           </p>
         </div>
         <EmptyState
           icon={Building2}
           title={t("hotelDash.noProfileYet", "You haven't created your hotel profile yet.")}
-          description={t("hotelDash.completeProfileSubtitle", "Add your hotel details so organizers can find you.")}
+          description={t(
+            "hotelDash.completeProfileSubtitle",
+            "Add your hotel details so organizers can find you.",
+          )}
         >
           <div className="flex justify-center">
-            <AddHotelDialog onCreated={() => qc.invalidateQueries({ queryKey: ["my-hotels", user?.id] })} />
+            <AddHotelDialog
+              onCreated={() => qc.invalidateQueries({ queryKey: ["my-hotels", user?.id] })}
+            />
           </div>
         </EmptyState>
       </div>
@@ -144,29 +179,44 @@ function Page() {
         </h1>
       </div>
 
-      <Card><CardContent className="p-5">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="text-sm font-medium">
-            {t("hotelDash.profileCompletion", "Profile completion")}: {completion}%
+      <Card>
+        <CardContent className="p-5">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="text-sm font-medium">
+              {t("hotelDash.profileCompletion", "Profile completion")}: {completion}%
+            </div>
+            <Badge
+              className={
+                hotel.status === "approved"
+                  ? "bg-success/15 text-success"
+                  : "bg-muted text-muted-foreground"
+              }
+            >
+              {t(`hotelDash.statuses.${hotel.status}`)}
+            </Badge>
           </div>
-          <Badge className={hotel.status === "approved" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}>
-            {t(`hotelDash.statuses.${hotel.status}`)}
-          </Badge>
-        </div>
-        <div className="mt-3 h-2 rounded-full bg-muted overflow-hidden">
-          <div className="h-full bg-gold transition-all" style={{ width: `${completion}%` }} />
-        </div>
-        {completion < 80 && (
-          <p className="mt-3 text-xs text-muted-foreground">
-            {t("hotelDash.completionHint", "Reach 80% completion to unlock subscription upgrades and featured placement.")}
-          </p>
-        )}
-      </CardContent></Card>
+          <div className="mt-3 h-2 rounded-full bg-muted overflow-hidden">
+            <div className="h-full bg-gold transition-all" style={{ width: `${completion}%` }} />
+          </div>
+          {completion < 80 && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              {t(
+                "hotelDash.completionHint",
+                "Reach 80% completion to unlock subscription upgrades and featured placement.",
+              )}
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="overflow-hidden">
         {hotel.cover_image ? (
           <div className="aspect-video bg-surface">
-            <img src={hotel.cover_image} alt={hotel.name ?? ""} className="h-full w-full object-cover" />
+            <img
+              src={hotel.cover_image}
+              alt={hotel.name ?? ""}
+              className="h-full w-full object-cover"
+            />
           </div>
         ) : (
           <div className="aspect-video bg-surface grid place-items-center text-muted-foreground">
@@ -176,7 +226,9 @@ function Page() {
         <CardContent className="p-5">
           <h3 className="font-display text-lg text-primary">{hotel.name ?? ""}</h3>
           <div className="mt-1 text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
-            <MapPin className="h-3 w-3" /> {hotel.city ?? ""}{hotel.city && hotel.country ? ", " : ""}{hotel.country ?? ""}
+            <MapPin className="h-3 w-3" /> {hotel.city ?? ""}
+            {hotel.city && hotel.country ? ", " : ""}
+            {hotel.country ?? ""}
             <span className="flex text-gold">
               {Array.from({ length: Math.max(0, Number(hotel.star_rating) || 0) }).map((_, i) => (
                 <Star key={i} className="h-3 w-3 fill-current" />
@@ -185,7 +237,9 @@ function Page() {
           </div>
           <div className="mt-4">
             <Button asChild variant="default" size="sm">
-              <Link to="/dashboard/hotel/$id" params={{ id: hotel.id }}>{t("hotelDash.manage")}</Link>
+              <Link to="/dashboard/hotel/$id" params={{ id: hotel.id }}>
+                {t("hotelDash.manage")}
+              </Link>
             </Button>
           </div>
         </CardContent>
@@ -220,8 +274,8 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
     }
     setSubmitting(true);
     try {
-      const country = countries.find(c => c.id === countryId);
-      const city = cities.find(c => c.id === cityId);
+      const country = countries.find((c) => c.id === countryId);
+      const city = cities.find((c) => c.id === cityId);
       const { error } = await supabase.from("hotels").insert({
         owner_id: user.id,
         name: name.trim(),
@@ -233,14 +287,22 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
         slug: `${slugify(name)}-${Date.now().toString(36)}`,
         star_rating: Number(starRating),
         description: description.trim() || null,
-        amenities: amenities.split(",").map(s => s.trim()).filter(Boolean),
+        amenities: amenities
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
         status: "pending",
       });
       if (error) throw error;
       toast.success(t("hotelDash.createdToast"));
       setOpen(false);
-      setName(""); setCountryId(null); setCityId(null); setAddress("");
-      setStarRating("4"); setDescription(""); setAmenities("");
+      setName("");
+      setCountryId(null);
+      setCityId(null);
+      setAddress("");
+      setStarRating("4");
+      setDescription("");
+      setAmenities("");
       onCreated();
     } catch (err: any) {
       toast.error(err.message);
@@ -252,26 +314,68 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="gold"><Plus className="h-4 w-4" /> {t("hotelDash.addHotel")}</Button>
+        <Button variant="gold">
+          <Plus className="h-4 w-4" /> {t("hotelDash.addHotel")}
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
-        <DialogHeader><DialogTitle>{t("hotelDash.createTitle")}</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>{t("hotelDash.createTitle")}</DialogTitle>
+        </DialogHeader>
         <form onSubmit={submit} className="space-y-4">
-          <div><Label>{t("hotelDash.fields.name")}</Label><Input required value={name} onChange={e => setName(e.target.value)} maxLength={160} /></div>
+          <div>
+            <Label>{t("hotelDash.fields.name")}</Label>
+            <Input
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={160}
+            />
+          </div>
           <CountryCitySelect
             countryId={countryId}
             cityId={cityId}
-            onChange={({ countryId: c, cityId: ci }) => { setCountryId(c); setCityId(ci); }}
+            onChange={({ countryId: c, cityId: ci }) => {
+              setCountryId(c);
+              setCityId(ci);
+            }}
             required
           />
-          <div><Label>{t("hotelDash.fields.address")}</Label><Input value={address} onChange={e => setAddress(e.target.value)} maxLength={240} /></div>
-          <div><Label>{t("hotelDash.fields.stars")}</Label>
-            <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={starRating} onChange={e => setStarRating(e.target.value)}>
-              {[3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
+          <div>
+            <Label>{t("hotelDash.fields.address")}</Label>
+            <Input value={address} onChange={(e) => setAddress(e.target.value)} maxLength={240} />
+          </div>
+          <div>
+            <Label>{t("hotelDash.fields.stars")}</Label>
+            <select
+              className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              value={starRating}
+              onChange={(e) => setStarRating(e.target.value)}
+            >
+              {[3, 4, 5].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
             </select>
           </div>
-          <div><Label>{t("hotelDash.fields.description")}</Label><Textarea rows={3} value={description} onChange={e => setDescription(e.target.value)} maxLength={1000} /></div>
-          <div><Label>{t("hotelDash.fields.amenities")}</Label><Input value={amenities} onChange={e => setAmenities(e.target.value)} placeholder={t("hotelDash.fields.amenitiesPh")} /></div>
+          <div>
+            <Label>{t("hotelDash.fields.description")}</Label>
+            <Textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={1000}
+            />
+          </div>
+          <div>
+            <Label>{t("hotelDash.fields.amenities")}</Label>
+            <Input
+              value={amenities}
+              onChange={(e) => setAmenities(e.target.value)}
+              placeholder={t("hotelDash.fields.amenitiesPh")}
+            />
+          </div>
           <p className="text-xs text-muted-foreground">{t("hotelDash.photosAfterCreate")}</p>
           <DialogFooter>
             <Button type="submit" variant="gold" disabled={submitting}>

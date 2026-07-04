@@ -22,8 +22,12 @@ export function AccessDenied({
           <h1 className="font-display text-3xl text-primary">403 — {title}</h1>
           <p className="mt-3 text-muted-foreground">{message}</p>
           <div className="mt-6 flex justify-center gap-3">
-            <Button asChild variant="outline"><Link to="/">Return home</Link></Button>
-            <Button asChild variant="gold"><Link to="/request-quote">Create a group request</Link></Button>
+            <Button asChild variant="outline">
+              <Link to="/">Return home</Link>
+            </Button>
+            <Button asChild variant="gold">
+              <Link to="/request-quote">Create a group request</Link>
+            </Button>
           </div>
         </div>
       </main>

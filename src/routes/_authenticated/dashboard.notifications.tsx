@@ -46,9 +46,13 @@ function NotificationsPage() {
         <div className="flex flex-col gap-2">
           {items.map((n) => {
             const body = (
-              <Card className={`transition hover:border-primary ${!n.read_at ? "border-gold/60 bg-gold/5" : ""}`}>
+              <Card
+                className={`transition hover:border-primary ${!n.read_at ? "border-gold/60 bg-gold/5" : ""}`}
+              >
                 <CardContent className="p-4 flex items-start gap-3">
-                  <div className={`mt-1.5 h-2 w-2 rounded-full flex-shrink-0 ${!n.read_at ? "bg-gold" : "bg-muted"}`} />
+                  <div
+                    className={`mt-1.5 h-2 w-2 rounded-full flex-shrink-0 ${!n.read_at ? "bg-gold" : "bg-muted"}`}
+                  />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-primary">{n.title}</div>
                     {n.body && <div className="text-sm text-muted-foreground mt-0.5">{n.body}</div>}

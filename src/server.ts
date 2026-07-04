@@ -51,10 +51,7 @@ function applySecurityHeaders(request: Request, response: Response): Response {
   // upstream value) so production consistently emits the intended posture.
   headers.set("x-content-type-options", "nosniff");
   headers.set("referrer-policy", "strict-origin-when-cross-origin");
-  headers.set(
-    "permissions-policy",
-    "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
-  );
+  headers.set("permissions-policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=()");
   // CSP `frame-ancestors` (below, for HTML) is the modern clickjacking
   // control and stays permissive enough for the Lovable preview iframe.
   // XFO=SAMEORIGIN covers legacy UAs that ignore frame-ancestors while
@@ -83,7 +80,11 @@ function applySecurityHeaders(request: Request, response: Response): Response {
     headers.set("content-security-policy", csp);
   }
 
-  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 
 export default {
@@ -95,10 +96,13 @@ export default {
       return applySecurityHeaders(request, normalized);
     } catch (error) {
       console.error(error);
-      return applySecurityHeaders(request, new Response(renderErrorPage(), {
-        status: 500,
-        headers: { "content-type": "text/html; charset=utf-8" },
-      }));
+      return applySecurityHeaders(
+        request,
+        new Response(renderErrorPage(), {
+          status: 500,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        }),
+      );
     }
   },
 };

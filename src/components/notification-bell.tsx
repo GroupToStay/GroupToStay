@@ -49,7 +49,12 @@ export function NotificationBell() {
           <div className="font-medium text-sm">Notifications</div>
           <div className="flex items-center gap-1">
             {unreadCount > 0 && (
-              <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => void markAllRead()}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => void markAllRead()}
+              >
                 <CheckCheck className="h-3.5 w-3.5 mr-1" /> Mark all read
               </Button>
             )}
@@ -69,13 +74,17 @@ export function NotificationBell() {
                 }`}
                 onClick={() => void handleClick(n)}
               >
-                <div className={`mt-1 h-2 w-2 rounded-full ${!n.read_at ? "bg-gold" : "bg-transparent"}`} />
+                <div
+                  className={`mt-1 h-2 w-2 rounded-full ${!n.read_at ? "bg-gold" : "bg-transparent"}`}
+                />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-primary truncate">{n.title}</div>
                   {n.body && (
                     <div className="text-xs text-muted-foreground line-clamp-2">{n.body}</div>
                   )}
-                  <div className="text-[10px] text-muted-foreground mt-0.5">{timeAgo(n.created_at)} ago</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                    {timeAgo(n.created_at)} ago
+                  </div>
                 </div>
                 <button
                   className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"

@@ -6,7 +6,9 @@ import { Languages } from "lucide-react";
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();
-  useEffect(() => { applyLocale(i18n.language); }, [i18n.language]);
+  useEffect(() => {
+    applyLocale(i18n.language);
+  }, [i18n.language]);
 
   const toggle = () => {
     const next = i18n.language === "ar" ? "en" : "ar";

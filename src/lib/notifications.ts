@@ -7,7 +7,11 @@ export function canNotify() {
 export async function ensureNotificationPermission(): Promise<NotificationPermission> {
   if (!canNotify()) return "denied";
   if (Notification.permission === "default") {
-    try { return await Notification.requestPermission(); } catch { return "denied"; }
+    try {
+      return await Notification.requestPermission();
+    } catch {
+      return "denied";
+    }
   }
   return Notification.permission;
 }
@@ -18,6 +22,13 @@ export function notify(title: string, options?: NotificationOptions & { onClick?
   if (typeof document !== "undefined" && document.visibilityState === "visible") return;
   try {
     const n = new Notification(title, { icon: "/favicon.ico", badge: "/favicon.ico", ...options });
-    if (options?.onClick) n.onclick = () => { window.focus(); options.onClick?.(); n.close(); };
-  } catch { /* noop */ }
+    if (options?.onClick)
+      n.onclick = () => {
+        window.focus();
+        options.onClick?.();
+        n.close();
+      };
+  } catch {
+    /* noop */
+  }
 }

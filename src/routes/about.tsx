@@ -4,7 +4,15 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
 export const Route = createFileRoute("/about")({
-  head: () => ({ meta: [{ title: "About — GroupToStay" }, { name: "description", content: "The B2B marketplace built exclusively for group accommodation." }] }),
+  head: () => ({
+    meta: [
+      { title: "About — GroupToStay" },
+      {
+        name: "description",
+        content: "The B2B marketplace built exclusively for group accommodation.",
+      },
+    ],
+  }),
   component: Page,
 });
 

@@ -11,10 +11,33 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Building2, Plus, Trash2, Star, Upload, Image as ImageIcon, ChevronLeft, Save } from "lucide-react";
+import {
+  Building2,
+  Plus,
+  Trash2,
+  Star,
+  Upload,
+  Image as ImageIcon,
+  ChevronLeft,
+  Save,
+} from "lucide-react";
 import { CountryCitySelect } from "@/components/country-city-select";
-import { useHotelTypes, useLocalizedName, useCities, useCountries, useAmenities, useRoomTypes, useMealPlans } from "@/hooks/use-master-data";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  useHotelTypes,
+  useLocalizedName,
+  useCities,
+  useCountries,
+  useAmenities,
+  useRoomTypes,
+  useMealPlans,
+} from "@/hooks/use-master-data";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/$id")({
@@ -44,7 +67,12 @@ function Page() {
   if (!hotel) throw notFound();
   if (hotel.owner_id !== user?.id) return <div className="text-error">{t("common.error")}</div>;
 
-  return <ManageHotel hotel={hotel} onChanged={() => qc.invalidateQueries({ queryKey: ["hotel-detail", id] })} />;
+  return (
+    <ManageHotel
+      hotel={hotel}
+      onChanged={() => qc.invalidateQueries({ queryKey: ["hotel-detail", id] })}
+    />
+  );
 }
 
 function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }) {
@@ -77,7 +105,10 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
   const { data: selectedAmenityIds } = useQuery({
     queryKey: ["hotel-amenities", hotel.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("hotel_amenities").select("amenity_id").eq("hotel_id", hotel.id);
+      const { data, error } = await supabase
+        .from("hotel_amenities")
+        .select("amenity_id")
+        .eq("hotel_id", hotel.id);
       if (error) throw error;
       return (data ?? []).map((r: any) => r.amenity_id as string);
     },
@@ -87,8 +118,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
     if (selectedAmenityIds) setAmenityIds(selectedAmenityIds);
   }, [selectedAmenityIds]);
   const toggleAmenity = (id: string) =>
-    setAmenityIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-
+    setAmenityIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 
   useEffect(() => {
     setName(hotel.name);
@@ -103,7 +133,9 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
   async function saveInfo(e: React.FormEvent) {
     e.preventDefault();
     if (!countryId || !cityId) {
-      toast.error(t("common.selectCountryCity", { defaultValue: "Please select a country and city." }));
+      toast.error(
+        t("common.selectCountryCity", { defaultValue: "Please select a country and city." }),
+      );
       return;
     }
     if (!hotelTypeId) {
@@ -112,28 +144,34 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
     }
     setSavingInfo(true);
     try {
-      const country = allCountries.find(c => c.id === countryId);
-      const city = allCities.find(c => c.id === cityId);
-      const amenityNames = allAmenities.filter(a => amenityIds.includes(a.id)).map(a => a.name_en);
-      const { error } = await supabase.from("hotels").update({
-        name: name.trim(),
-        country_id: countryId,
-        city_id: cityId,
-        hotel_type_id: hotelTypeId,
-        // keep legacy text columns in sync for back-compat
-        city: city?.name_en ?? hotel.city,
-        country: country?.name_en ?? hotel.country,
-        address: address.trim() || null,
-        star_rating: Number(starRating),
-        description: description.trim() || null,
-        amenities: amenityNames,
-      }).eq("id", hotel.id);
+      const country = allCountries.find((c) => c.id === countryId);
+      const city = allCities.find((c) => c.id === cityId);
+      const amenityNames = allAmenities
+        .filter((a) => amenityIds.includes(a.id))
+        .map((a) => a.name_en);
+      const { error } = await supabase
+        .from("hotels")
+        .update({
+          name: name.trim(),
+          country_id: countryId,
+          city_id: cityId,
+          hotel_type_id: hotelTypeId,
+          // keep legacy text columns in sync for back-compat
+          city: city?.name_en ?? hotel.city,
+          country: country?.name_en ?? hotel.country,
+          address: address.trim() || null,
+          star_rating: Number(starRating),
+          description: description.trim() || null,
+          amenities: amenityNames,
+        })
+        .eq("id", hotel.id);
       if (error) throw error;
       // Sync hotel_amenities join table
       await supabase.from("hotel_amenities").delete().eq("hotel_id", hotel.id);
       if (amenityIds.length > 0) {
-        const { error: insErr } = await supabase.from("hotel_amenities")
-          .insert(amenityIds.map(amenity_id => ({ hotel_id: hotel.id, amenity_id })));
+        const { error: insErr } = await supabase
+          .from("hotel_amenities")
+          .insert(amenityIds.map((amenity_id) => ({ hotel_id: hotel.id, amenity_id })));
         if (insErr) throw insErr;
       }
       qc.invalidateQueries({ queryKey: ["hotel-amenities", hotel.id] });
@@ -149,7 +187,11 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
   const { data: rooms = [] } = useQuery({
     queryKey: ["my-hotel-rooms", hotel.id],
     queryFn: async () => {
-      const { data } = await supabase.from("hotel_rooms").select("*").eq("hotel_id", hotel.id).order("created_at");
+      const { data } = await supabase
+        .from("hotel_rooms")
+        .select("*")
+        .eq("hotel_id", hotel.id)
+        .order("created_at");
       return data ?? [];
     },
   });
@@ -163,7 +205,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
 
   const addRoom = useMutation({
     mutationFn: async () => {
-      const rt = roomTypes.find(r => r.id === roomTypeId);
+      const rt = roomTypes.find((r) => r.id === roomTypeId);
       const { error } = await supabase.from("hotel_rooms").insert({
         hotel_id: hotel.id,
         room_type: rt?.name_en ?? "",
@@ -178,7 +220,9 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
     },
     onSuccess: () => {
       toast.success(t("hotelDash.roomAdded"));
-      setRoomTypeId(""); setMealPlanId(""); setPrice("");
+      setRoomTypeId("");
+      setMealPlanId("");
+      setPrice("");
       qc.invalidateQueries({ queryKey: ["my-hotel-rooms", hotel.id] });
     },
     onError: (e: any) => toast.error(e.message),
@@ -207,14 +251,16 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
         const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
         const path = `${user.id}/${hotel.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
         const { error: upErr } = await supabase.storage.from("hotel-photos").upload(path, file, {
-          contentType: file.type, upsert: false,
+          contentType: file.type,
+          upsert: false,
         });
         if (upErr) throw upErr;
         const { data: pub } = supabase.storage.from("hotel-photos").getPublicUrl(path);
         newGallery.push(pub.publicUrl);
         if (!newCover) newCover = pub.publicUrl;
       }
-      const { error: updErr } = await supabase.from("hotels")
+      const { error: updErr } = await supabase
+        .from("hotels")
         .update({ gallery: newGallery, cover_image: newCover })
         .eq("id", hotel.id);
       if (updErr) throw updErr;
@@ -231,8 +277,14 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
   async function removePhoto(url: string) {
     const newGallery = (hotel.gallery ?? []).filter((u: string) => u !== url);
     const newCover = hotel.cover_image === url ? (newGallery[0] ?? null) : hotel.cover_image;
-    const { error } = await supabase.from("hotels").update({ gallery: newGallery, cover_image: newCover }).eq("id", hotel.id);
-    if (error) { toast.error(error.message); return; }
+    const { error } = await supabase
+      .from("hotels")
+      .update({ gallery: newGallery, cover_image: newCover })
+      .eq("id", hotel.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     const marker = "/hotel-photos/";
     const idx = url.indexOf(marker);
     if (idx >= 0) {
@@ -244,14 +296,20 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
 
   async function setAsCover(url: string) {
     const { error } = await supabase.from("hotels").update({ cover_image: url }).eq("id", hotel.id);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     onChanged();
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <Link to="/dashboard/hotel" className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1">
+        <Link
+          to="/dashboard/hotel"
+          className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1"
+        >
           <ChevronLeft className="h-4 w-4" /> {t("hotelDash.backToHotels")}
         </Link>
       </div>
@@ -259,145 +317,307 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="font-display text-3xl text-primary flex items-center gap-2"><Building2 className="h-7 w-7" /> {hotel.name}</h1>
-            <Badge className={hotel.status === "approved" ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}>
+            <h1 className="font-display text-3xl text-primary flex items-center gap-2">
+              <Building2 className="h-7 w-7" /> {hotel.name}
+            </h1>
+            <Badge
+              className={
+                hotel.status === "approved"
+                  ? "bg-success/15 text-success"
+                  : "bg-muted text-muted-foreground"
+              }
+            >
               {t(`hotelDash.statuses.${hotel.status}`)}
             </Badge>
           </div>
           <div className="mt-1 text-sm text-muted-foreground flex items-center gap-3 flex-wrap">
-            <span>{hotel.city}, {hotel.country}</span>
-            <span className="flex text-gold">{Array.from({ length: hotel.star_rating ?? 0 }).map((_, i) => <Star key={i} className="h-3 w-3 fill-current" />)}</span>
+            <span>
+              {hotel.city}, {hotel.country}
+            </span>
+            <span className="flex text-gold">
+              {Array.from({ length: hotel.star_rating ?? 0 }).map((_, i) => (
+                <Star key={i} className="h-3 w-3 fill-current" />
+              ))}
+            </span>
           </div>
         </div>
       </div>
 
       {hotel.status === "pending" && (
-        <Card><CardContent className="p-5 bg-accent/40 text-sm">{t("hotelDash.pendingNotice")}</CardContent></Card>
+        <Card>
+          <CardContent className="p-5 bg-accent/40 text-sm">
+            {t("hotelDash.pendingNotice")}
+          </CardContent>
+        </Card>
       )}
 
-      <Card><CardContent className="p-5">
-        <h2 className="font-display text-xl text-primary">{t("hotelDash.editInfo")}</h2>
-        <form onSubmit={saveInfo} className="mt-4 space-y-4">
-          <div><Label>{t("hotelDash.fields.name")}</Label><Input required value={name} onChange={e => setName(e.target.value)} maxLength={160} /></div>
-          <CountryCitySelect
-            countryId={countryId}
-            cityId={cityId}
-            onChange={({ countryId: c, cityId: ci }) => { setCountryId(c); setCityId(ci); }}
-            required
-          />
-          <div><Label>{t("hotelDash.fields.address")}</Label><Input value={address} onChange={e => setAddress(e.target.value)} maxLength={240} /></div>
-          <div className="grid sm:grid-cols-2 gap-4">
+      <Card>
+        <CardContent className="p-5">
+          <h2 className="font-display text-xl text-primary">{t("hotelDash.editInfo")}</h2>
+          <form onSubmit={saveInfo} className="mt-4 space-y-4">
             <div>
-              <Label>{t("hotelDash.fields.hotelType", { defaultValue: "Hotel type" })} *</Label>
-              <Select value={hotelTypeId ?? ""} onValueChange={v => setHotelTypeId(v || null)}>
-                <SelectTrigger><SelectValue placeholder={t("common.selectHotelType", { defaultValue: "Select hotel type" })} /></SelectTrigger>
+              <Label>{t("hotelDash.fields.name")}</Label>
+              <Input
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={160}
+              />
+            </div>
+            <CountryCitySelect
+              countryId={countryId}
+              cityId={cityId}
+              onChange={({ countryId: c, cityId: ci }) => {
+                setCountryId(c);
+                setCityId(ci);
+              }}
+              required
+            />
+            <div>
+              <Label>{t("hotelDash.fields.address")}</Label>
+              <Input value={address} onChange={(e) => setAddress(e.target.value)} maxLength={240} />
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <Label>{t("hotelDash.fields.hotelType", { defaultValue: "Hotel type" })} *</Label>
+                <Select value={hotelTypeId ?? ""} onValueChange={(v) => setHotelTypeId(v || null)}>
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={t("common.selectHotelType", {
+                        defaultValue: "Select hotel type",
+                      })}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {hotelTypes.map((ht) => (
+                      <SelectItem key={ht.id} value={ht.id}>
+                        {localized(ht)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>{t("hotelDash.fields.stars")}</Label>
+                <select
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={starRating}
+                  onChange={(e) => setStarRating(e.target.value)}
+                >
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div>
+              <Label>{t("hotelDash.fields.description")}</Label>
+              <Textarea
+                rows={3}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                maxLength={1000}
+              />
+            </div>
+            <div>
+              <Label>{t("hotelDash.fields.amenities")}</Label>
+              <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {allAmenities.map((a) => (
+                  <label
+                    key={a.id}
+                    className="flex items-center gap-2 text-sm rounded-md border border-border px-3 py-2 cursor-pointer hover:bg-accent/30"
+                  >
+                    <Checkbox
+                      checked={amenityIds.includes(a.id)}
+                      onCheckedChange={() => toggleAmenity(a.id)}
+                    />
+                    <span>{localized(a)}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <Button type="submit" variant="gold" disabled={savingInfo}>
+              <Save className="h-4 w-4" />{" "}
+              {savingInfo ? t("common.loading") : t("hotelDash.saveInfo")}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-5">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <h2 className="font-display text-xl text-primary flex items-center gap-2">
+              <ImageIcon className="h-5 w-5" /> {t("hotelDash.photos")}
+            </h2>
+            <div>
+              <input
+                ref={fileInput}
+                type="file"
+                accept="image/*"
+                multiple
+                hidden
+                onChange={handleUpload}
+              />
+              <Button
+                variant="gold"
+                size="sm"
+                onClick={() => fileInput.current?.click()}
+                disabled={uploading}
+              >
+                <Upload className="h-4 w-4" />{" "}
+                {uploading ? t("common.loading") : t("hotelDash.uploadPhotos")}
+              </Button>
+            </div>
+          </div>
+          {(hotel.gallery?.length ?? 0) === 0 ? (
+            <div className="mt-4 text-sm text-muted-foreground">{t("hotelDash.noPhotos")}</div>
+          ) : (
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {(hotel.gallery as string[]).map((url) => (
+                <div
+                  key={url}
+                  className="group relative aspect-video overflow-hidden rounded-md border border-border bg-surface"
+                >
+                  <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  <div className="absolute inset-0 hidden group-hover:flex items-end justify-between p-2 bg-gradient-to-t from-black/70 to-transparent">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => setAsCover(url)}
+                      disabled={hotel.cover_image === url}
+                    >
+                      {hotel.cover_image === url
+                        ? t("hotelDash.coverBadge")
+                        : t("hotelDash.setCover")}
+                    </Button>
+                    <Button size="icon" variant="destructive" onClick={() => removePhoto(url)}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {hotel.cover_image === url && (
+                    <div className="absolute top-1 left-1">
+                      <Badge className="bg-gold text-primary">{t("hotelDash.coverBadge")}</Badge>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-5">
+          <h2 className="font-display text-xl text-primary">{t("hotelDash.rooms")}</h2>
+          <div className="mt-4 grid sm:grid-cols-6 gap-2 items-end">
+            <div className="sm:col-span-2">
+              <Label>{t("hotelDash.fields.roomType")}</Label>
+              <Select value={roomTypeId} onValueChange={(v) => setRoomTypeId(v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} />
+                </SelectTrigger>
                 <SelectContent>
-                  {hotelTypes.map(ht => <SelectItem key={ht.id} value={ht.id}>{localized(ht)}</SelectItem>)}
+                  {roomTypes.map((rt) => (
+                    <SelectItem key={rt.id} value={rt.id}>
+                      {localized(rt)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-            <div><Label>{t("hotelDash.fields.stars")}</Label>
-              <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={starRating} onChange={e => setStarRating(e.target.value)}>
-                {[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
-              </select>
+            <div className="sm:col-span-2">
+              <Label>{t("hotelDash.fields.mealPlan", { defaultValue: "Meal plan" })}</Label>
+              <Select value={mealPlanId} onValueChange={(v) => setMealPlanId(v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} />
+                </SelectTrigger>
+                <SelectContent>
+                  {mealPlans.map((mp) => (
+                    <SelectItem key={mp.id} value={mp.id}>
+                      {localized(mp)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>{t("hotelDash.fields.capacity")}</Label>
+              <Input
+                type="number"
+                min={1}
+                max={20}
+                value={capacity}
+                onChange={(e) => setCapacity(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>{t("hotelDash.fields.count")}</Label>
+              <Input
+                type="number"
+                min={0}
+                value={count}
+                onChange={(e) => setCount(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>{t("hotelDash.fields.price")}</Label>
+              <Input
+                type="number"
+                min={0}
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
             </div>
           </div>
-          <div><Label>{t("hotelDash.fields.description")}</Label><Textarea rows={3} value={description} onChange={e => setDescription(e.target.value)} maxLength={1000} /></div>
-          <div>
-            <Label>{t("hotelDash.fields.amenities")}</Label>
-            <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {allAmenities.map(a => (
-                <label key={a.id} className="flex items-center gap-2 text-sm rounded-md border border-border px-3 py-2 cursor-pointer hover:bg-accent/30">
-                  <Checkbox checked={amenityIds.includes(a.id)} onCheckedChange={() => toggleAmenity(a.id)} />
-                  <span>{localized(a)}</span>
-                </label>
+          <div className="mt-3 flex items-center gap-2">
+            <select
+              className="flex h-9 rounded-md border border-input bg-background px-3 text-sm"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+            >
+              {["USD", "EUR", "SAR", "AED", "GBP"].map((c) => (
+                <option key={c}>{c}</option>
               ))}
-            </div>
-          </div>
-          <Button type="submit" variant="gold" disabled={savingInfo}>
-            <Save className="h-4 w-4" /> {savingInfo ? t("common.loading") : t("hotelDash.saveInfo")}
-          </Button>
-        </form>
-      </CardContent></Card>
-
-      <Card><CardContent className="p-5">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <h2 className="font-display text-xl text-primary flex items-center gap-2"><ImageIcon className="h-5 w-5" /> {t("hotelDash.photos")}</h2>
-          <div>
-            <input ref={fileInput} type="file" accept="image/*" multiple hidden onChange={handleUpload} />
-            <Button variant="gold" size="sm" onClick={() => fileInput.current?.click()} disabled={uploading}>
-              <Upload className="h-4 w-4" /> {uploading ? t("common.loading") : t("hotelDash.uploadPhotos")}
+            </select>
+            <Button
+              variant="gold"
+              size="sm"
+              onClick={() => addRoom.mutate()}
+              disabled={!roomTypeId || !price}
+            >
+              <Plus className="h-4 w-4" /> {t("hotelDash.addRoom")}
             </Button>
           </div>
-        </div>
-        {(hotel.gallery?.length ?? 0) === 0 ? (
-          <div className="mt-4 text-sm text-muted-foreground">{t("hotelDash.noPhotos")}</div>
-        ) : (
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {(hotel.gallery as string[]).map((url) => (
-              <div key={url} className="group relative aspect-video overflow-hidden rounded-md border border-border bg-surface">
-                <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />
-                <div className="absolute inset-0 hidden group-hover:flex items-end justify-between p-2 bg-gradient-to-t from-black/70 to-transparent">
-                  <Button size="sm" variant="secondary" onClick={() => setAsCover(url)} disabled={hotel.cover_image === url}>
-                    {hotel.cover_image === url ? t("hotelDash.coverBadge") : t("hotelDash.setCover")}
+          <div className="mt-5 space-y-2">
+            {rooms.length === 0 ? (
+              <div className="text-sm text-muted-foreground">{t("hotelDash.noRooms")}</div>
+            ) : (
+              rooms.map((r: any) => (
+                <div
+                  key={r.id}
+                  className="flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm"
+                >
+                  <div>
+                    <span className="font-medium">{r.room_type}</span>
+                    <span className="text-muted-foreground">
+                      {" "}
+                      · {r.capacity} pax · {r.count_available} avail · {r.currency}{" "}
+                      {Number(r.base_price).toLocaleString()}
+                      {t("hotels.perNight")}
+                    </span>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => delRoom.mutate(r.id)}>
+                    <Trash2 className="h-4 w-4 text-error" />
                   </Button>
-                  <Button size="icon" variant="destructive" onClick={() => removePhoto(url)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
-                {hotel.cover_image === url && (
-                  <div className="absolute top-1 left-1"><Badge className="bg-gold text-primary">{t("hotelDash.coverBadge")}</Badge></div>
-                )}
-              </div>
-            ))}
+              ))
+            )}
           </div>
-        )}
-      </CardContent></Card>
-
-      <Card><CardContent className="p-5">
-        <h2 className="font-display text-xl text-primary">{t("hotelDash.rooms")}</h2>
-        <div className="mt-4 grid sm:grid-cols-6 gap-2 items-end">
-          <div className="sm:col-span-2">
-            <Label>{t("hotelDash.fields.roomType")}</Label>
-            <Select value={roomTypeId} onValueChange={v => setRoomTypeId(v)}>
-              <SelectTrigger><SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} /></SelectTrigger>
-              <SelectContent>
-                {roomTypes.map(rt => <SelectItem key={rt.id} value={rt.id}>{localized(rt)}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="sm:col-span-2">
-            <Label>{t("hotelDash.fields.mealPlan", { defaultValue: "Meal plan" })}</Label>
-            <Select value={mealPlanId} onValueChange={v => setMealPlanId(v)}>
-              <SelectTrigger><SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} /></SelectTrigger>
-              <SelectContent>
-                {mealPlans.map(mp => <SelectItem key={mp.id} value={mp.id}>{localized(mp)}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <div><Label>{t("hotelDash.fields.capacity")}</Label><Input type="number" min={1} max={20} value={capacity} onChange={e => setCapacity(e.target.value)} /></div>
-          <div><Label>{t("hotelDash.fields.count")}</Label><Input type="number" min={0} value={count} onChange={e => setCount(e.target.value)} /></div>
-          <div><Label>{t("hotelDash.fields.price")}</Label><Input type="number" min={0} value={price} onChange={e => setPrice(e.target.value)} /></div>
-        </div>
-        <div className="mt-3 flex items-center gap-2">
-          <select className="flex h-9 rounded-md border border-input bg-background px-3 text-sm" value={currency} onChange={e => setCurrency(e.target.value)}>
-            {["USD","EUR","SAR","AED","GBP"].map(c => <option key={c}>{c}</option>)}
-          </select>
-          <Button variant="gold" size="sm" onClick={() => addRoom.mutate()} disabled={!roomTypeId || !price}>
-            <Plus className="h-4 w-4" /> {t("hotelDash.addRoom")}
-          </Button>
-        </div>
-        <div className="mt-5 space-y-2">
-          {rooms.length === 0 ? <div className="text-sm text-muted-foreground">{t("hotelDash.noRooms")}</div> :
-            rooms.map((r: any) => (
-              <div key={r.id} className="flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm">
-                <div>
-                  <span className="font-medium">{r.room_type}</span>
-                  <span className="text-muted-foreground"> · {r.capacity} pax · {r.count_available} avail · {r.currency} {Number(r.base_price).toLocaleString()}{t("hotels.perNight")}</span>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => delRoom.mutate(r.id)}><Trash2 className="h-4 w-4 text-error" /></Button>
-              </div>
-            ))}
-        </div>
-      </CardContent></Card>
+        </CardContent>
+      </Card>
     </div>
   );
 }

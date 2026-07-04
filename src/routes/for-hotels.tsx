@@ -12,7 +12,10 @@ export const Route = createFileRoute("/for-hotels")({
   head: () => ({
     meta: [
       { title: "For hotels — GroupToStay" },
-      { name: "description", content: "List your hotel and receive pre-qualified Group Requests. Pay only when you win." },
+      {
+        name: "description",
+        content: "List your hotel and receive pre-qualified Group Requests. Pay only when you win.",
+      },
       { property: "og:title", content: "Win more group business with GroupToStay" },
     ],
   }),
@@ -42,12 +45,18 @@ function Page() {
           </div>
         </section>
         <section className="container-page py-16 grid md:grid-cols-3 gap-6">
-          {[1,2,3].map(n => (
-            <Card key={n}><CardContent className="p-6">
-              <CheckCircle2 className="h-6 w-6 text-gold" />
-              <h3 className="mt-3 font-display text-xl text-primary">{t(`forHotels.benefit${n}Title`)}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{t(`forHotels.benefit${n}Body`)}</p>
-            </CardContent></Card>
+          {[1, 2, 3].map((n) => (
+            <Card key={n}>
+              <CardContent className="p-6">
+                <CheckCircle2 className="h-6 w-6 text-gold" />
+                <h3 className="mt-3 font-display text-xl text-primary">
+                  {t(`forHotels.benefit${n}Title`)}
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {t(`forHotels.benefit${n}Body`)}
+                </p>
+              </CardContent>
+            </Card>
           ))}
         </section>
       </main>

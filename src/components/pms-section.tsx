@@ -8,7 +8,16 @@ import { Server } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
-const PROVIDERS = ["MyCloud PMS","Oracle Opera PMS","Cloudbeds","Mews","eZee Absolute","Hotelogix","Protel","Other"];
+const PROVIDERS = [
+  "MyCloud PMS",
+  "Oracle Opera PMS",
+  "Cloudbeds",
+  "Mews",
+  "eZee Absolute",
+  "Hotelogix",
+  "Protel",
+  "Other",
+];
 
 export function PmsSection({ userId, profile }: { userId: string; profile: any }) {
   const qc = useQueryClient();
@@ -39,11 +48,13 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
       if (enabled === "yes") {
         const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!provider) throw new Error("Please select your PMS provider");
-        if (provider === "Other" && !otherProvider.trim()) throw new Error("Please specify your PMS provider");
+        if (provider === "Other" && !otherProvider.trim())
+          throw new Error("Please specify your PMS provider");
         if (!api) throw new Error("Please select API availability");
         if (!name.trim()) throw new Error("Technical contact name is required");
         if (!emailRx.test(email.trim())) throw new Error("Invalid technical contact email");
-        if (!/^[+\d][\d\s\-()]{5,}$/.test(phone.trim())) throw new Error("Invalid technical contact phone");
+        if (!/^[+\d][\d\s\-()]{5,}$/.test(phone.trim()))
+          throw new Error("Invalid technical contact phone");
       }
       const patch: any = {
         pms_enabled: enabled === "" ? null : enabled === "yes",
@@ -66,58 +77,101 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
   }
 
   return (
-    <Card><CardContent className="p-6">
-      <h2 className="font-display text-xl text-primary flex items-center gap-2">
-        <Server className="h-5 w-5" /> PMS Information
-      </h2>
-      <p className="mt-1 text-sm text-muted-foreground">Optional. Helps us prepare future PMS integrations.</p>
-      <form onSubmit={save} className="mt-4 space-y-4">
-        <div>
-          <Label>Do you use a Property Management System?</Label>
-          <div className="mt-1 grid grid-cols-2 gap-2 max-w-xs">
-            {(["yes","no"] as const).map(v => (
-              <button type="button" key={v} onClick={() => setEnabled(v)}
-                className={`rounded-md border px-3 py-2 text-sm capitalize ${enabled === v ? "border-gold bg-gold/10 text-foreground" : "border-input bg-background text-muted-foreground"}`}>
-                {v}
-              </button>
-            ))}
+    <Card>
+      <CardContent className="p-6">
+        <h2 className="font-display text-xl text-primary flex items-center gap-2">
+          <Server className="h-5 w-5" /> PMS Information
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Optional. Helps us prepare future PMS integrations.
+        </p>
+        <form onSubmit={save} className="mt-4 space-y-4">
+          <div>
+            <Label>Do you use a Property Management System?</Label>
+            <div className="mt-1 grid grid-cols-2 gap-2 max-w-xs">
+              {(["yes", "no"] as const).map((v) => (
+                <button
+                  type="button"
+                  key={v}
+                  onClick={() => setEnabled(v)}
+                  className={`rounded-md border px-3 py-2 text-sm capitalize ${enabled === v ? "border-gold bg-gold/10 text-foreground" : "border-input bg-background text-muted-foreground"}`}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-        {enabled === "yes" && (
-          <>
-            <div>
-              <Label>PMS Provider</Label>
-              <select className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={provider} onChange={e => setProvider(e.target.value)}>
-                <option value="">Select…</option>
-                {PROVIDERS.map(p => <option key={p} value={p}>{p}</option>)}
-              </select>
-            </div>
-            {provider === "Other" && (
+          {enabled === "yes" && (
+            <>
               <div>
-                <Label>Please specify PMS</Label>
-                <Input value={otherProvider} onChange={e => setOtherProvider(e.target.value)} maxLength={120} />
+                <Label>PMS Provider</Label>
+                <select
+                  className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={provider}
+                  onChange={(e) => setProvider(e.target.value)}
+                >
+                  <option value="">Select…</option>
+                  {PROVIDERS.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
-            <div>
-              <Label>API Available?</Label>
-              <select className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={api} onChange={e => setApi(e.target.value as any)}>
-                <option value="">Select…</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-                <option value="Not Sure">Not Sure</option>
-              </select>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div><Label>Technical Contact Name</Label><Input value={name} onChange={e => setName(e.target.value)} maxLength={160} /></div>
-              <div><Label>Technical Contact Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} maxLength={255} /></div>
-              <div className="sm:col-span-2"><Label>Technical Contact Phone</Label><Input value={phone} onChange={e => setPhone(e.target.value)} maxLength={40} placeholder="+966 5..." /></div>
-            </div>
-          </>
-        )}
-        <Button type="submit" variant="gold" disabled={saving}>{saving ? "Saving…" : "Save PMS Information"}</Button>
-      </form>
-    </CardContent></Card>
+              {provider === "Other" && (
+                <div>
+                  <Label>Please specify PMS</Label>
+                  <Input
+                    value={otherProvider}
+                    onChange={(e) => setOtherProvider(e.target.value)}
+                    maxLength={120}
+                  />
+                </div>
+              )}
+              <div>
+                <Label>API Available?</Label>
+                <select
+                  className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  value={api}
+                  onChange={(e) => setApi(e.target.value as any)}
+                >
+                  <option value="">Select…</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Not Sure">Not Sure</option>
+                </select>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Technical Contact Name</Label>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={160} />
+                </div>
+                <div>
+                  <Label>Technical Contact Email</Label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    maxLength={255}
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <Label>Technical Contact Phone</Label>
+                  <Input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    maxLength={40}
+                    placeholder="+966 5..."
+                  />
+                </div>
+              </div>
+            </>
+          )}
+          <Button type="submit" variant="gold" disabled={saving}>
+            {saving ? "Saving…" : "Save PMS Information"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

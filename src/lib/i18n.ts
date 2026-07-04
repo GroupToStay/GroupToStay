@@ -14,21 +14,21 @@ function initialLanguage(): "en" | "ar" {
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY);
     if (saved === "ar" || saved === "en") return saved;
-  } catch {}
+  } catch {
+    // localStorage can be unavailable in strict privacy contexts.
+  }
   return "en";
 }
 
 if (!i18n.isInitialized) {
-  i18n
-    .use(initReactI18next)
-    .init({
-      resources: { en: { translation: en }, ar: { translation: ar } },
-      lng: "en", // deterministic first render — client hydration matches server
-      fallbackLng: "en",
-      supportedLngs: ["en", "ar"],
-      interpolation: { escapeValue: false },
-      react: { useSuspense: false },
-    });
+  i18n.use(initReactI18next).init({
+    resources: { en: { translation: en }, ar: { translation: ar } },
+    lng: "en", // deterministic first render — client hydration matches server
+    fallbackLng: "en",
+    supportedLngs: ["en", "ar"],
+    interpolation: { escapeValue: false },
+    react: { useSuspense: false },
+  });
 
   // After hydration, restore any previously-saved Arabic preference.
   if (typeof window !== "undefined") {
@@ -50,5 +50,9 @@ export function applyLocale(lang: string) {
   const dir = lang === "ar" ? "rtl" : "ltr";
   document.documentElement.lang = lang;
   document.documentElement.dir = dir;
-  try { window.localStorage.setItem(STORAGE_KEY, lang); } catch {}
+  try {
+    window.localStorage.setItem(STORAGE_KEY, lang);
+  } catch {
+    // Locale persistence is best-effort.
+  }
 }

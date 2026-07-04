@@ -59,21 +59,35 @@ function Page() {
       ) : (
         <div className="space-y-3">
           {data.map((q: any) => (
-            <Card key={q.id}><CardContent className="p-4 flex flex-wrap items-center gap-4 justify-between">
-              <div className="min-w-0">
-                <Link to="/dashboard/rfqs/$id" params={{ id: q.rfq_id }} className="font-medium hover:underline">
-                  {q.rfq?.title ?? "Request"}
-                </Link>
-                <div className="text-sm text-muted-foreground">{q.hotels?.name} · {q.hotels?.city}, {q.hotels?.country}</div>
-                <div className="text-xs text-muted-foreground inline-flex items-center gap-1 text-gold">
-                  {Array.from({ length: q.hotels?.star_rating ?? 0 }).map((_, i) => <Star key={i} className="h-3 w-3 fill-current" />)}
+            <Card key={q.id}>
+              <CardContent className="p-4 flex flex-wrap items-center gap-4 justify-between">
+                <div className="min-w-0">
+                  <Link
+                    to="/dashboard/rfqs/$id"
+                    params={{ id: q.rfq_id }}
+                    className="font-medium hover:underline"
+                  >
+                    {q.rfq?.title ?? "Request"}
+                  </Link>
+                  <div className="text-sm text-muted-foreground">
+                    {q.hotels?.name} · {q.hotels?.city}, {q.hotels?.country}
+                  </div>
+                  <div className="text-xs text-muted-foreground inline-flex items-center gap-1 text-gold">
+                    {Array.from({ length: q.hotels?.star_rating ?? 0 }).map((_, i) => (
+                      <Star key={i} className="h-3 w-3 fill-current" />
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <div className="text-end">
-                <div className="font-display text-lg text-primary">{q.currency} {Number(q.total_price).toLocaleString()}</div>
-                <Badge variant="outline" className="mt-1">{t(`dashboard.status.${q.status}`)}</Badge>
-              </div>
-            </CardContent></Card>
+                <div className="text-end">
+                  <div className="font-display text-lg text-primary">
+                    {q.currency} {Number(q.total_price).toLocaleString()}
+                  </div>
+                  <Badge variant="outline" className="mt-1">
+                    {t(`dashboard.status.${q.status}`)}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

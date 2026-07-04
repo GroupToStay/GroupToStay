@@ -6,7 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowLeft, Paperclip, Send, X, FileText, Image as ImageIcon, Download } from "lucide-react";
+import {
+  ArrowLeft,
+  Paperclip,
+  Send,
+  X,
+  FileText,
+  Image as ImageIcon,
+  Download,
+} from "lucide-react";
 import { ensureNotificationPermission, notify } from "@/lib/notifications";
 
 export const Route = createFileRoute("/_authenticated/dashboard/messages/$id")({
@@ -30,13 +38,19 @@ type Conversation = {
   hotel_id: string;
   organizer_id: string;
   hotel_owner_id: string;
-  rfqs?: { title: string | null; destination_city?: string | null; check_in?: string | null; check_out?: string | null } | null;
+  rfqs?: {
+    title: string | null;
+    destination_city?: string | null;
+    check_in?: string | null;
+    check_out?: string | null;
+  } | null;
   hotels?: { name: string | null; city?: string | null } | null;
 };
 
 function ChatPage() {
   const { id } = Route.useParams();
   const { user } = useAuth();
+  const userId = user?.id;
   const [conv, setConv] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [body, setBody] = useState("");
@@ -49,17 +63,21 @@ function ChatPage() {
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Request notification permission once on mount.
-  useEffect(() => { void ensureNotificationPermission(); }, []);
+  useEffect(() => {
+    void ensureNotificationPermission();
+  }, []);
 
   // Load conversation & initial messages.
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
     let cancelled = false;
 
     async function load() {
       const { data: c, error: cErr } = await (supabase as any)
         .from("conversations")
-        .select("id, rfq_id, quote_id, hotel_id, organizer_id, hotel_owner_id, rfqs:rfq_id(title, destination_city, check_in, check_out), hotels:hotel_id(name, city)")
+        .select(
+          "id, rfq_id, quote_id, hotel_id, organizer_id, hotel_owner_id, rfqs:rfq_id(title, destination_city, check_in, check_out), hotels:hotel_id(name, city)",
+        )
         .eq("id", id)
         .maybeSingle();
       if (cancelled) return;
@@ -76,48 +94,64 @@ function ChatPage() {
         .order("created_at", { ascending: true });
       if (cancelled) return;
       setMessages((ms as ChatMessage[]) ?? []);
-      requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }));
+      requestAnimationFrame(() =>
+        scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }),
+      );
 
       // Mark conversation as read for this user.
       await (supabase as any)
         .from("conversation_participants")
         .update({ last_read_at: new Date().toISOString() })
         .eq("conversation_id", id)
-        .eq("user_id", user!.id);
+        .eq("user_id", userId);
     }
     void load();
-    return () => { cancelled = true; };
-  }, [id, user?.id]);
+    return () => {
+      cancelled = true;
+    };
+  }, [id, userId]);
 
   // Realtime: new messages + typing presence.
   useEffect(() => {
-    if (!user || !conv) return;
+    if (!userId || !conv?.id) return;
     const channel = supabase
       .channel(`conv:${id}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "chat_messages", filter: `conversation_id=eq.${id}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_messages",
+          filter: `conversation_id=eq.${id}`,
+        },
         (payload) => {
           const m = payload.new as ChatMessage;
-          setMessages((prev) => prev.some((x) => x.id === m.id) ? prev : [...prev, m]);
-          requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }));
-          if (m.sender_id !== user.id) {
+          setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]));
+          requestAnimationFrame(() =>
+            scrollRef.current?.scrollTo({
+              top: scrollRef.current.scrollHeight,
+              behavior: "smooth",
+            }),
+          );
+          if (m.sender_id !== userId) {
             // Mark read
             void (supabase as any)
               .from("conversation_participants")
               .update({ last_read_at: new Date().toISOString() })
               .eq("conversation_id", id)
-              .eq("user_id", user.id);
+              .eq("user_id", userId);
             notify("New message", {
-              body: m.body || "📎 Attachment",
-              onClick: () => { window.location.href = `/dashboard/messages/${id}`; },
+              body: m.body || "Attachment",
+              onClick: () => {
+                window.location.href = `/dashboard/messages/${id}`;
+              },
             });
           }
-        }
+        },
       )
       .on("broadcast", { event: "typing" }, (payload) => {
         const fromId = (payload.payload as any)?.user_id;
-        if (fromId && fromId !== user.id) {
+        if (fromId && fromId !== userId) {
           setOtherTyping(true);
           if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
           typingTimerRef.current = setTimeout(() => setOtherTyping(false), 2000);
@@ -129,14 +163,21 @@ function ChatPage() {
       supabase.removeChannel(channel);
       typingChannelRef.current = null;
     };
-  }, [id, user?.id, conv?.id]);
+  }, [id, userId, conv?.id]);
 
   function broadcastTyping() {
     if (!typingChannelRef.current || !user) return;
-    typingChannelRef.current.send({ type: "broadcast", event: "typing", payload: { user_id: user.id } });
+    typingChannelRef.current.send({
+      type: "broadcast",
+      event: "typing",
+      payload: { user_id: user.id },
+    });
   }
 
-  const isOrganizer = useMemo(() => user?.id === conv?.organizer_id, [user?.id, conv?.organizer_id]);
+  const isOrganizer = useMemo(
+    () => user?.id === conv?.organizer_id,
+    [user?.id, conv?.organizer_id],
+  );
   const counterpart = isOrganizer ? (conv?.hotels?.name ?? "Hotel") : "Organizer";
 
   function onPickFiles(e: React.ChangeEvent<HTMLInputElement>) {
@@ -211,13 +252,18 @@ function ChatPage() {
         </div>
         {conv?.rfq_id && (
           <Button asChild variant="outline" size="sm">
-            <Link to="/requests/$id" params={{ id: conv.rfq_id }}>View request</Link>
+            <Link to="/requests/$id" params={{ id: conv.rfq_id }}>
+              View request
+            </Link>
           </Button>
         )}
       </div>
 
       {/* Message list */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-2 py-4 space-y-3 bg-surface rounded-lg">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto px-2 py-4 space-y-3 bg-surface rounded-lg"
+      >
         {messages.length === 0 && (
           <div className="text-center text-muted-foreground text-sm py-8">
             Start the negotiation. All messages are private between you and {counterpart}.
@@ -227,7 +273,9 @@ function ChatPage() {
           const mine = m.sender_id === user?.id;
           return (
             <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[75%] rounded-2xl px-4 py-2 shadow-sm ${mine ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-card border border-border rounded-bl-sm"}`}>
+              <div
+                className={`max-w-[75%] rounded-2xl px-4 py-2 shadow-sm ${mine ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-card border border-border rounded-bl-sm"}`}
+              >
                 {m.body && <div className="whitespace-pre-wrap break-words text-sm">{m.body}</div>}
                 {m.attachments?.length > 0 && (
                   <div className="mt-2 flex flex-col gap-1">
@@ -236,8 +284,13 @@ function ChatPage() {
                     ))}
                   </div>
                 )}
-                <div className={`text-[10px] mt-1 ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                  {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                <div
+                  className={`text-[10px] mt-1 ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+                >
+                  {new Date(m.created_at).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
               </div>
             </div>
@@ -255,7 +308,10 @@ function ChatPage() {
             <div key={i} className="flex items-center gap-2 bg-muted px-2 py-1 rounded-md text-xs">
               <FileText className="h-3 w-3" />
               <span className="truncate max-w-[160px]">{f.name}</span>
-              <button onClick={() => setPendingFiles((p) => p.filter((_, j) => j !== i))} className="text-muted-foreground hover:text-destructive">
+              <button
+                onClick={() => setPendingFiles((p) => p.filter((_, j) => j !== i))}
+                className="text-muted-foreground hover:text-destructive"
+              >
                 <X className="h-3 w-3" />
               </button>
             </div>
@@ -273,12 +329,20 @@ function ChatPage() {
           accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt,.zip"
           onChange={onPickFiles}
         />
-        <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => fileInputRef.current?.click()}
+        >
           <Paperclip className="h-4 w-4" />
         </Button>
         <Textarea
           value={body}
-          onChange={(e) => { setBody(e.target.value); broadcastTyping(); }}
+          onChange={(e) => {
+            setBody(e.target.value);
+            broadcastTyping();
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -289,7 +353,11 @@ function ChatPage() {
           className="min-h-[44px] max-h-[120px] resize-none"
           disabled={sending}
         />
-        <Button onClick={() => void handleSend()} disabled={sending || (!body.trim() && pendingFiles.length === 0)} variant="gold">
+        <Button
+          onClick={() => void handleSend()}
+          disabled={sending || (!body.trim() && pendingFiles.length === 0)}
+          variant="gold"
+        >
           <Send className="h-4 w-4" />
         </Button>
       </Card>
@@ -304,16 +372,24 @@ function AttachmentItem({ att, mine }: { att: Attachment; mine: boolean }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await supabase.storage.from("chat-attachments").createSignedUrl(att.path, 3600);
+      const { data } = await supabase.storage
+        .from("chat-attachments")
+        .createSignedUrl(att.path, 3600);
       if (!cancelled) setUrl(data?.signedUrl ?? null);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [att.path]);
 
   if (isImage && url) {
     return (
       <a href={url} target="_blank" rel="noreferrer" className="block">
-        <img src={url} alt={att.name} className="max-w-[240px] max-h-[200px] rounded-md object-cover border border-border" />
+        <img
+          src={url}
+          alt={att.name}
+          className="max-w-[240px] max-h-[200px] rounded-md object-cover border border-border"
+        />
       </a>
     );
   }

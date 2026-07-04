@@ -1,5 +1,11 @@
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PHONE_CODES, DEFAULT_PHONE_CODE } from "@/lib/phone-codes";
 
 export function PhoneInput({
@@ -18,11 +24,14 @@ export function PhoneInput({
   return (
     <div className="grid grid-cols-[140px_1fr] gap-2">
       <Select value={code || DEFAULT_PHONE_CODE} onValueChange={onCodeChange}>
-        <SelectTrigger><SelectValue /></SelectTrigger>
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
         <SelectContent>
-          {PHONE_CODES.map(p => (
+          {PHONE_CODES.map((p) => (
             <SelectItem key={p.code} value={p.code}>
-              <span className="mr-2">{p.flag}</span>{p.code}
+              <span className="mr-2">{p.flag}</span>
+              {p.code}
             </SelectItem>
           ))}
         </SelectContent>
@@ -33,7 +42,7 @@ export function PhoneInput({
         required={required}
         value={number}
         maxLength={15}
-        onChange={e => onNumberChange(e.target.value.replace(/\D/g, ""))}
+        onChange={(e) => onNumberChange(e.target.value.replace(/\D/g, ""))}
         placeholder="5XXXXXXXX"
       />
     </div>

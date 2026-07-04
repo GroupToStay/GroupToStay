@@ -2,7 +2,14 @@ import { useMemo, useState } from "react";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { useCountries, useLocalizedName, type LookupRow } from "@/hooks/use-master-data";
 import { cn } from "@/lib/utils";
 
@@ -39,16 +46,18 @@ export function CountrySelect({
   const [open, setOpen] = useState(false);
 
   const countries = useMemo(() => {
-    const base = (data && data.length > 0 ? data : isError || !isLoading ? FALLBACK : []) as Array<LookupRow & { code?: string }>;
+    const base = (data && data.length > 0 ? data : isError || !isLoading ? FALLBACK : []) as Array<
+      LookupRow & { code?: string }
+    >;
     if (!filterCodes || filterCodes.length === 0) return base;
-    const allow = new Set(filterCodes.map(c => c.toUpperCase()));
-    return base.filter(c => {
+    const allow = new Set(filterCodes.map((c) => c.toUpperCase()));
+    return base.filter((c) => {
       const code = (c.code ?? c.id ?? "").toUpperCase();
       return allow.has(code);
     });
   }, [data, isError, isLoading, filterCodes]);
 
-  const selected = countries.find(c => c.id === value);
+  const selected = countries.find((c) => c.id === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -61,7 +70,11 @@ export function CountrySelect({
           className="w-full justify-between font-normal"
         >
           <span className={selected ? "" : "text-muted-foreground"}>
-            {selected ? localized(selected) : isLoading && countries.length === 0 ? "Loading countries..." : placeholder}
+            {selected
+              ? localized(selected)
+              : isLoading && countries.length === 0
+                ? "Loading countries..."
+                : placeholder}
           </span>
           {isLoading && countries.length === 0 ? (
             <Loader2 className="ml-2 h-4 w-4 shrink-0 opacity-50 animate-spin" />
@@ -76,15 +89,20 @@ export function CountrySelect({
           <CommandList>
             <CommandEmpty>No country found.</CommandEmpty>
             <CommandGroup>
-              {countries.map(c => {
+              {countries.map((c) => {
                 const label = localized(c);
                 return (
                   <CommandItem
                     key={c.id}
                     value={`${c.name_en} ${c.name_ar ?? ""}`}
-                    onSelect={() => { onChange(c.id); setOpen(false); }}
+                    onSelect={() => {
+                      onChange(c.id);
+                      setOpen(false);
+                    }}
                   >
-                    <Check className={cn("mr-2 h-4 w-4", value === c.id ? "opacity-100" : "opacity-0")} />
+                    <Check
+                      className={cn("mr-2 h-4 w-4", value === c.id ? "opacity-100" : "opacity-0")}
+                    />
                     {label}
                   </CommandItem>
                 );

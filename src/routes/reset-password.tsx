@@ -56,9 +56,7 @@ function Page() {
       <main className="flex-1 container-page py-16 max-w-md w-full mx-auto">
         <Card>
           <CardContent className="p-6">
-            <h1 className="font-display text-2xl text-primary">
-              {t("auth.resetPasswordTitle")}
-            </h1>
+            <h1 className="font-display text-2xl text-primary">{t("auth.resetPasswordTitle")}</h1>
 
             {validRecovery === null && (
               <p className="mt-4 text-sm text-muted-foreground">{t("common.loading")}</p>
@@ -67,7 +65,10 @@ function Page() {
             {validRecovery === false && (
               <div className="mt-4 space-y-4">
                 <p className="text-sm text-destructive">{t("auth.resetInvalid")}</p>
-                <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground underline">
+                <Link
+                  to="/auth"
+                  className="text-sm text-muted-foreground hover:text-foreground underline"
+                >
                   {t("auth.signInTitle")}
                 </Link>
               </div>

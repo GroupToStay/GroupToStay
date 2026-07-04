@@ -1,5 +1,11 @@
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AGENCY_TYPES, AGENCY_TYPE_LABELS, type AgencyType } from "@/lib/role-label";
 
 export function AgencyTypeSelect({

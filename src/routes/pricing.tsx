@@ -15,7 +15,11 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Pricing — GroupToStay" },
-      { name: "description", content: "Free forever for organizers. Hotels choose the plan that fits their goals. All prices in SAR." },
+      {
+        name: "description",
+        content:
+          "Free forever for organizers. Hotels choose the plan that fits their goals. All prices in SAR.",
+      },
     ],
   }),
   component: Page,
@@ -39,7 +43,10 @@ function Page() {
     queryKey: ["my-hotel-count", user?.id],
     enabled: !!user && isHotel,
     queryFn: async () => {
-      const { count } = await supabase.from("hotels").select("id", { count: "exact", head: true }).eq("owner_id", user!.id);
+      const { count } = await supabase
+        .from("hotels")
+        .select("id", { count: "exact", head: true })
+        .eq("owner_id", user!.id);
       return count ?? 0;
     },
   });
@@ -139,22 +146,34 @@ function Page() {
         <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {plans
             // Hotel users never see the organizer plan
-            .filter(p => !(isHotel && p.audience === "organizer"))
+            .filter((p) => !(isHotel && p.audience === "organizer"))
             // Hotel users with an existing hotel don't see the Free Listing plan
-            .filter(p => !(isHotel && hotelCount > 0 && p.key === "hotelBasic"))
+            .filter((p) => !(isHotel && hotelCount > 0 && p.key === "hotelBasic"))
             .map((p) => {
               const price = t(`pricing.${p.key}Price`);
               const showMonthly = p.key === "hotelPro" || p.key === "hotelPremium";
               const isPaidHotelPlan = p.key === "hotelPro" || p.key === "hotelPremium";
               return (
-                <Card key={p.key} className={p.featured ? "border-gold shadow-[var(--shadow-gold)]" : ""}>
+                <Card
+                  key={p.key}
+                  className={p.featured ? "border-gold shadow-[var(--shadow-gold)]" : ""}
+                >
                   <CardContent className="p-6 flex flex-col h-full">
-                    <div className="text-sm font-medium text-muted-foreground">{t(`pricing.${p.key}`)}</div>
+                    <div className="text-sm font-medium text-muted-foreground">
+                      {t(`pricing.${p.key}`)}
+                    </div>
                     <div className="font-display text-4xl text-primary mt-2">
                       {price}
-                      {showMonthly && <span className="text-base text-muted-foreground"> {t("pricing.perMonth")}</span>}
+                      {showMonthly && (
+                        <span className="text-base text-muted-foreground">
+                          {" "}
+                          {t("pricing.perMonth")}
+                        </span>
+                      )}
                     </div>
-                    <p className="mt-3 text-sm text-muted-foreground">{t(`pricing.${p.key}Desc`)}</p>
+                    <p className="mt-3 text-sm text-muted-foreground">
+                      {t(`pricing.${p.key}Desc`)}
+                    </p>
                     <ul className="mt-5 space-y-2 text-sm flex-1">
                       {p.items.map((i) => (
                         <li key={i} className="flex gap-2">
@@ -162,8 +181,8 @@ function Page() {
                         </li>
                       ))}
                     </ul>
-                    {!hideUpgradeCtas && (
-                      isPaidHotelPlan ? (
+                    {!hideUpgradeCtas &&
+                      (isPaidHotelPlan ? (
                         <Button asChild className="mt-6" variant={p.featured ? "gold" : "default"}>
                           <Link
                             to="/subscription/coming-soon"
@@ -176,8 +195,7 @@ function Page() {
                         <Button asChild className="mt-6" variant={p.featured ? "gold" : "default"}>
                           <Link to={p.cta}>{t(`pricing.${p.key}Cta`)}</Link>
                         </Button>
-                      )
-                    )}
+                      ))}
                   </CardContent>
                 </Card>
               );
