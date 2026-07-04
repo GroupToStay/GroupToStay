@@ -57,9 +57,9 @@ function Page() {
             <Card key={n}>
               <CardContent className="p-6">
                 <CheckCircle2 className="h-6 w-6 text-gold" />
-                <h3 className="mt-3 font-display text-xl text-primary">
+                <h2 className="mt-3 font-display text-xl text-primary">
                   {t(`forHotels.benefit${n}Title`)}
-                </h3>
+                </h2>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {t(`forHotels.benefit${n}Body`)}
                 </p>
