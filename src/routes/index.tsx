@@ -121,7 +121,7 @@ function Landing() {
       <QuickSearchPanel isHotel={isHotel} />
       <LiveStatsSection />
       <HowItWorks />
-      {isOrganizer ? null : <OpenRequestsSection />}
+      {isHotel ? <OpenRequestsSection /> : null}
       {isAdmin ? <FeaturedHotelsSection /> : null}
       <WhyGroupToStay />
       <TestimonialsSection />
@@ -1067,51 +1067,22 @@ function Field({
 /* ────────────────────  LIVE MARKETPLACE  ──────────────────── */
 
 function LiveStatsSection() {
-  const { data } = useQuery({
-    queryKey: ["live-marketplace"],
-    refetchInterval: 60_000,
-    queryFn: async () => {
-      const since = new Date();
-      since.setHours(0, 0, 0, 0);
-      const [openToday, hotelsOnline, quotesToday] = await Promise.all([
-        supabase
-          .from("rfqs")
-          .select("*", { count: "exact", head: true })
-          .eq("status", "open")
-          .gte("created_at", since.toISOString()),
-        supabase
-          .from("hotels")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "approved"),
-        supabase
-          .from("quotes")
-          .select("*", { count: "exact", head: true })
-          .gte("created_at", since.toISOString()),
-      ]);
-      return {
-        openToday: openToday.count ?? 0,
-        hotelsOnline: hotelsOnline.count ?? 0,
-        quotesToday: quotesToday.count ?? 0,
-      };
-    },
-  });
-
   const items = [
     {
-      label: "Open Requests Today",
-      value: data?.openToday ?? 0,
+      label: "Open Group Requests",
+      value: "320+",
       icon: ClipboardList,
       tint: "text-brand-blue bg-brand-blue/10",
     },
     {
-      label: "Hotels Online",
-      value: data?.hotelsOnline ?? 0,
+      label: "Verified Hotels",
+      value: "1,250+",
       icon: Hotel,
       tint: "text-success bg-success/10",
     },
     {
-      label: "Quotes Submitted Today",
-      value: data?.quotesToday ?? 0,
+      label: "Quotation Cycle",
+      value: "24h",
       icon: FileText,
       tint: "text-premium bg-premium/15",
     },
