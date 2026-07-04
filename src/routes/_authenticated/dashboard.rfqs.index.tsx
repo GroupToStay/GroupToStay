@@ -32,7 +32,11 @@ function Page() {
     queryKey: ["my-rfqs", user?.id],
     enabled: !!user && isOrganizer,
     queryFn: async () => {
-      const { data } = await supabase.from("rfqs").select("*").eq("organizer_id", user!.id).order("created_at", { ascending: false });
+      const { data } = await supabase
+        .from("rfqs")
+        .select("*")
+        .eq("organizer_id", user!.id)
+        .order("created_at", { ascending: false });
       return data ?? [];
     },
   });
@@ -43,7 +47,11 @@ function Page() {
     <div>
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="font-display text-3xl text-primary">{t("dashboard.myRfqs")}</h1>
-        <Button asChild variant="gold"><Link to="/dashboard/rfqs/new"><Plus className="h-4 w-4" /> {t("dashboard.newRfq")}</Link></Button>
+        <Button asChild variant="gold">
+          <Link to="/dashboard/rfqs/new">
+            <Plus className="h-4 w-4" /> {t("dashboard.newRfq")}
+          </Link>
+        </Button>
       </div>
 
       {isLoading ? (
@@ -60,24 +68,39 @@ function Page() {
         </div>
       ) : (
         <div className="mt-6 space-y-3">
-          {rfqs.map(r => (
+          {rfqs.map((r) => (
             <Link key={r.id} to="/dashboard/rfqs/$id" params={{ id: r.id }}>
-              <Card className="hover:shadow-[var(--shadow-elevated)] transition"><CardContent className="p-5">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-display text-lg text-primary truncate">{r.title}</h3>
-                      <Badge className={statusColor[r.status] ?? ""}>{t(`dashboard.status.${r.status}`)}</Badge>
+              <Card className="hover:shadow-[var(--shadow-elevated)] transition">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between gap-4 flex-wrap">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-display text-lg text-primary truncate">{r.title}</h3>
+                        <Badge className={statusColor[r.status] ?? ""}>
+                          {t(`dashboard.status.${r.status}`)}
+                        </Badge>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3.5 w-3.5" /> {r.destination_city},{" "}
+                          {r.destination_country}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3.5 w-3.5" /> {r.check_in} → {r.check_out} (
+                          {r.nights} {t("dashboard.nights")})
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Users className="h-3.5 w-3.5" /> {r.guests_count} {t("dashboard.guests")}{" "}
+                          · {r.rooms_needed} {t("dashboard.rooms")}
+                        </span>
+                      </div>
                     </div>
-                    <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {r.destination_city}, {r.destination_country}</span>
-                      <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {r.check_in} → {r.check_out} ({r.nights} {t("dashboard.nights")})</span>
-                      <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" /> {r.guests_count} {t("dashboard.guests")} · {r.rooms_needed} {t("dashboard.rooms")}</span>
-                    </div>
+                    <Button variant="ghost" size="sm">
+                      {t("dashboard.details")} →
+                    </Button>
                   </div>
-                  <Button variant="ghost" size="sm">{t("dashboard.details")} →</Button>
-                </div>
-              </CardContent></Card>
+                </CardContent>
+              </Card>
             </Link>
           ))}
         </div>

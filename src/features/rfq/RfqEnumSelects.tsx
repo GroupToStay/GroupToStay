@@ -1,5 +1,16 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ACCOMMODATION_TYPES, MEAL_PLANS, type AccommodationType, type MealPlan } from "./rfq-options";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  ACCOMMODATION_TYPES,
+  MEAL_PLANS,
+  type AccommodationType,
+  type MealPlan,
+} from "./rfq-options";
 
 const ACC_LABELS: Record<AccommodationType, string> = {
   any: "Any",
@@ -15,23 +26,47 @@ const MEAL_LABELS: Record<MealPlan, string> = {
   fb: "Full Board",
 };
 
-export function RfqAccommodationSelect({ value, onChange }: { value: AccommodationType; onChange: (v: AccommodationType) => void }) {
+export function RfqAccommodationSelect({
+  value,
+  onChange,
+}: {
+  value: AccommodationType;
+  onChange: (v: AccommodationType) => void;
+}) {
   return (
     <Select value={value} onValueChange={(v) => onChange(v as AccommodationType)}>
-      <SelectTrigger><SelectValue /></SelectTrigger>
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
       <SelectContent>
-        {ACCOMMODATION_TYPES.map((k) => <SelectItem key={k} value={k}>{ACC_LABELS[k]}</SelectItem>)}
+        {ACCOMMODATION_TYPES.map((k) => (
+          <SelectItem key={k} value={k}>
+            {ACC_LABELS[k]}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );
 }
 
-export function RfqMealPlanSelect({ value, onChange }: { value: MealPlan; onChange: (v: MealPlan) => void }) {
+export function RfqMealPlanSelect({
+  value,
+  onChange,
+}: {
+  value: MealPlan;
+  onChange: (v: MealPlan) => void;
+}) {
   return (
     <Select value={value} onValueChange={(v) => onChange(v as MealPlan)}>
-      <SelectTrigger><SelectValue /></SelectTrigger>
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
       <SelectContent>
-        {MEAL_PLANS.map((k) => <SelectItem key={k} value={k}>{MEAL_LABELS[k]}</SelectItem>)}
+        {MEAL_PLANS.map((k) => (
+          <SelectItem key={k} value={k}>
+            {MEAL_LABELS[k]}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );

@@ -32,7 +32,9 @@ const CATEGORY_ALIASES: Record<string, HotelCategory> = {
 export function normalizeCategory(v: string): HotelCategory | null {
   if (!v) return null;
   const mapped = CATEGORY_ALIASES[v] ?? v;
-  return (HOTEL_CATEGORIES as readonly string[]).includes(mapped) ? (mapped as HotelCategory) : null;
+  return (HOTEL_CATEGORIES as readonly string[]).includes(mapped)
+    ? (mapped as HotelCategory)
+    : null;
 }
 
 export function parseCategoriesParam(param: string | undefined | null): HotelCategory[] {

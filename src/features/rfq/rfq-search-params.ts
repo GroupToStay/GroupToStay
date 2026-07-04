@@ -13,21 +13,31 @@ import {
 import type { RfqSharedValues } from "./RfqSharedFields";
 
 export type RfqSearchParams = {
-  city?: string; country?: string;
-  country_id?: string; city_id?: string;
-  guests?: string; rooms?: string;
-  check_in?: string; check_out?: string;
-  accommodation?: string; meal_plan?: string; category?: string;
+  city?: string;
+  country?: string;
+  country_id?: string;
+  city_id?: string;
+  guests?: string;
+  rooms?: string;
+  check_in?: string;
+  check_out?: string;
+  accommodation?: string;
+  meal_plan?: string;
+  category?: string;
   requirements?: string;
 };
 
 export function validateRfqSearch(s: Record<string, unknown>): RfqSearchParams {
   const str = (k: string) => (typeof s[k] === "string" ? (s[k] as string) : undefined);
   return {
-    city: str("city"), country: str("country"),
-    country_id: str("country_id"), city_id: str("city_id"),
-    guests: str("guests"), rooms: str("rooms"),
-    check_in: str("check_in"), check_out: str("check_out"),
+    city: str("city"),
+    country: str("country"),
+    country_id: str("country_id"),
+    city_id: str("city_id"),
+    guests: str("guests"),
+    rooms: str("rooms"),
+    check_in: str("check_in"),
+    check_out: str("check_out"),
     accommodation: str("accommodation"),
     meal_plan: str("meal_plan"),
     category: str("category"),
@@ -44,23 +54,21 @@ export function sharedValuesFromSearch(
   return {
     destination_country_id: search.country_id ?? defaults?.destination_country_id ?? null,
     destination_city_id: search.city_id ?? defaults?.destination_city_id ?? null,
-    guests_count: search.guests
-      ? Number(search.guests) || null
-      : defaults?.guests_count ?? null,
-    rooms_needed: search.rooms
-      ? Number(search.rooms) || null
-      : defaults?.rooms_needed ?? null,
+    guests_count: search.guests ? Number(search.guests) || null : (defaults?.guests_count ?? null),
+    rooms_needed: search.rooms ? Number(search.rooms) || null : (defaults?.rooms_needed ?? null),
     check_in: search.check_in ?? defaults?.check_in ?? "",
     check_out: search.check_out ?? defaults?.check_out ?? "",
     hotel_categories_v2: parseCategoriesParam(search.category).length
       ? parseCategoriesParam(search.category)
-      : defaults?.hotel_categories_v2 ?? [],
-    accommodation_type: (accom && (ACCOMMODATION_TYPES as readonly string[]).includes(accom)
-      ? (accom as AccommodationType)
-      : defaults?.accommodation_type ?? "any"),
-    meal_plan_code: (meal && (MEAL_PLANS as readonly string[]).includes(meal)
-      ? (meal as MealPlan)
-      : defaults?.meal_plan_code ?? "bb"),
+      : (defaults?.hotel_categories_v2 ?? []),
+    accommodation_type:
+      accom && (ACCOMMODATION_TYPES as readonly string[]).includes(accom)
+        ? (accom as AccommodationType)
+        : (defaults?.accommodation_type ?? "any"),
+    meal_plan_code:
+      meal && (MEAL_PLANS as readonly string[]).includes(meal)
+        ? (meal as MealPlan)
+        : (defaults?.meal_plan_code ?? "bb"),
     requirements: search.requirements ?? defaults?.requirements ?? "",
   };
 }

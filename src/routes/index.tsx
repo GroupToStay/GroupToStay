@@ -11,10 +11,29 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  ArrowRight, Building2, Users, Globe2, Clock, ClipboardList, FileText,
-  CheckCircle2, ShieldCheck, Star, MessageSquare, Inbox, Hotel,
-  Calendar, BedDouble, MapPin, Sparkles, Handshake, BadgeCheck,
-  TimerReset, Lock, Quote as QuoteIcon, ArrowUpRight,
+  ArrowRight,
+  Building2,
+  Users,
+  Globe2,
+  Clock,
+  ClipboardList,
+  FileText,
+  CheckCircle2,
+  ShieldCheck,
+  Star,
+  MessageSquare,
+  Inbox,
+  Hotel,
+  Calendar,
+  BedDouble,
+  MapPin,
+  Sparkles,
+  Handshake,
+  BadgeCheck,
+  TimerReset,
+  Lock,
+  Quote as QuoteIcon,
+  ArrowUpRight,
 } from "lucide-react";
 import { RfqSharedFields, type RfqSharedValues } from "@/features/rfq/RfqSharedFields";
 import { sharedValuesToSearch } from "@/features/rfq/rfq-search-params";
@@ -27,7 +46,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "GroupToStay — Group accommodation marketplace" },
-      { name: "description", content: "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing — Umrah, Hajj, tourism, corporate, sports and events." },
+      {
+        name: "description",
+        content:
+          "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing — Umrah, Hajj, tourism, corporate, sports and events.",
+      },
       { property: "og:title", content: "GroupToStay — Group accommodation marketplace" },
       { property: "og:description", content: "One request. Multiple hotels. The best group rate." },
     ],
@@ -63,7 +86,14 @@ function Landing() {
   return (
     <div className="min-h-screen flex flex-col bg-surface">
       <SiteHeader />
-      {user ? <WelcomeBanner userId={user.id} isHotel={isHotel} isAdmin={isAdmin} isOrganizer={isOrganizer} /> : null}
+      {user ? (
+        <WelcomeBanner
+          userId={user.id}
+          isHotel={isHotel}
+          isAdmin={isAdmin}
+          isOrganizer={isOrganizer}
+        />
+      ) : null}
       <Hero isHotel={isHotel} isOrganizer={isOrganizer} />
       <QuickSearchPanel isHotel={isHotel} />
       <LiveStatsSection />
@@ -82,7 +112,17 @@ function Landing() {
 
 /* ────────────────────────────  WELCOME BANNER  ──────────────────────────── */
 
-function WelcomeBanner({ userId, isHotel, isAdmin, isOrganizer }: { userId: string; isHotel: boolean; isAdmin: boolean; isOrganizer: boolean }) {
+function WelcomeBanner({
+  userId,
+  isHotel,
+  isAdmin,
+  isOrganizer,
+}: {
+  userId: string;
+  isHotel: boolean;
+  isAdmin: boolean;
+  isOrganizer: boolean;
+}) {
   const { data } = useQuery({
     queryKey: ["welcome-banner", userId],
     queryFn: async () => {
@@ -134,13 +174,23 @@ function WelcomeBanner({ userId, isHotel, isAdmin, isOrganizer }: { userId: stri
     <section className="bg-gradient-to-r from-primary to-[oklch(0.32_0.10_264)] text-primary-foreground border-b border-border/40">
       <div className="container-page py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
-          <Badge className="bg-premium text-premium-foreground border-0 uppercase tracking-wider shrink-0">{badgeText}</Badge>
+          <Badge className="bg-premium text-premium-foreground border-0 uppercase tracking-wider shrink-0">
+            {badgeText}
+          </Badge>
           <h2 className="font-display text-xl md:text-2xl font-semibold truncate">{title}</h2>
         </div>
         <div className="flex flex-wrap gap-2">
           {actions.map((a) => (
-            <Button key={a.label} asChild size="sm" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground">
-              <Link to={a.to}><a.icon className="h-4 w-4" /> {a.label}</Link>
+            <Button
+              key={a.label}
+              asChild
+              size="sm"
+              variant="outline"
+              className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            >
+              <Link to={a.to}>
+                <a.icon className="h-4 w-4" /> {a.label}
+              </Link>
             </Button>
           ))}
         </div>
@@ -148,7 +198,6 @@ function WelcomeBanner({ userId, isHotel, isAdmin, isOrganizer }: { userId: stri
     </section>
   );
 }
-
 
 /* ────────────────────────────  ADMIN EXECUTIVE DASHBOARD  ──────────────────────────── */
 
@@ -158,29 +207,63 @@ function AdminExecutiveDashboard() {
     refetchInterval: 60_000,
     queryFn: async () => {
       const counts = await Promise.all([
-        supabase.from("profiles").select("id", { count: "exact", head: true }).not("hotel_approval_status", "is", null),
-        supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "approved"),
-        supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("hotel_approval_status", "rejected"),
-        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "organizer"),
+        supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .not("hotel_approval_status", "is", null),
+        supabase
+          .from("hotels")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "approved"),
+        supabase
+          .from("hotels")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending"),
+        supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("hotel_approval_status", "rejected"),
+        supabase
+          .from("user_roles")
+          .select("user_id", { count: "exact", head: true })
+          .eq("role", "organizer"),
         supabase.from("rfqs").select("id", { count: "exact", head: true }).eq("status", "open"),
         supabase.from("quotes").select("id", { count: "exact", head: true }),
-        supabase.from("bookings").select("id", { count: "exact", head: true }).eq("status", "confirmed"),
+        supabase
+          .from("bookings")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "confirmed"),
         supabase.from("subscription_interest").select("id", { count: "exact", head: true }),
         supabase.from("profiles").select("id", { count: "exact", head: true }),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("pms_enabled", true),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("pms_enabled", false),
+        supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("pms_enabled", true),
+        supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("pms_enabled", false),
       ]);
-      const startMonth = new Date(); startMonth.setDate(1); startMonth.setHours(0,0,0,0);
+      const startMonth = new Date();
+      startMonth.setDate(1);
+      startMonth.setHours(0, 0, 0, 0);
       const [agenciesMonth, rfqsMonth, quotesAvg] = await Promise.all([
-        supabase.from("rfqs").select("organizer_id", { count: "exact", head: true }).gte("created_at", startMonth.toISOString()),
-        supabase.from("rfqs").select("id", { count: "exact", head: true }).gte("created_at", startMonth.toISOString()),
+        supabase
+          .from("rfqs")
+          .select("organizer_id", { count: "exact", head: true })
+          .gte("created_at", startMonth.toISOString()),
+        supabase
+          .from("rfqs")
+          .select("id", { count: "exact", head: true })
+          .gte("created_at", startMonth.toISOString()),
         supabase.from("quotes").select("rfq_id"),
       ]);
       const quoteRows = (quotesAvg.data ?? []) as { rfq_id: string }[];
       const byRfq = new Map<string, number>();
       quoteRows.forEach((q) => byRfq.set(q.rfq_id, (byRfq.get(q.rfq_id) ?? 0) + 1));
-      const avgQuotes = byRfq.size ? (Array.from(byRfq.values()).reduce((a,b)=>a+b,0) / byRfq.size) : 0;
+      const avgQuotes = byRfq.size
+        ? Array.from(byRfq.values()).reduce((a, b) => a + b, 0) / byRfq.size
+        : 0;
       return {
         companies: counts[0].count ?? 0,
         hotelsApproved: counts[1].count ?? 0,
@@ -206,33 +289,101 @@ function AdminExecutiveDashboard() {
     refetchInterval: 60_000,
     queryFn: async () => {
       const [hotels, agencies, rfqs, quotes, subs] = await Promise.all([
-        supabase.from("hotels").select("id,name,status,created_at").order("created_at", { ascending: false }).limit(6),
-        supabase.from("profiles").select("id,full_name,company_name,created_at").order("created_at", { ascending: false }).limit(6),
-        supabase.from("rfqs").select("id,title,created_at").order("created_at", { ascending: false }).limit(6),
-        supabase.from("quotes").select("id,created_at,hotel_id").order("created_at", { ascending: false }).limit(6),
-        supabase.from("subscription_interest").select("id,full_name,created_at").order("created_at", { ascending: false }).limit(6),
+        supabase
+          .from("hotels")
+          .select("id,name,status,created_at")
+          .order("created_at", { ascending: false })
+          .limit(6),
+        supabase
+          .from("profiles")
+          .select("id,full_name,company_name,created_at")
+          .order("created_at", { ascending: false })
+          .limit(6),
+        supabase
+          .from("rfqs")
+          .select("id,title,created_at")
+          .order("created_at", { ascending: false })
+          .limit(6),
+        supabase
+          .from("quotes")
+          .select("id,created_at,hotel_id")
+          .order("created_at", { ascending: false })
+          .limit(6),
+        supabase
+          .from("subscription_interest")
+          .select("id,full_name,created_at")
+          .order("created_at", { ascending: false })
+          .limit(6),
       ]);
       type Item = { ts: string; label: string; sub?: string; status?: string };
       const items: Item[] = [];
-      (hotels.data ?? []).forEach((h: any) => items.push({ ts: h.created_at, label: `Hotel listing: ${h.name}`, status: h.status }));
-      (agencies.data ?? []).forEach((p: any) => items.push({ ts: p.created_at, label: `New registration: ${p.company_name || p.full_name || "User"}` }));
-      (rfqs.data ?? []).forEach((r: any) => items.push({ ts: r.created_at, label: `New group request: ${r.title}` }));
-      (quotes.data ?? []).forEach((q: any) => items.push({ ts: q.created_at, label: `New quotation submitted` }));
-      (subs.data ?? []).forEach((s: any) => items.push({ ts: s.created_at, label: `Subscription interest: ${s.full_name || "Lead"}` }));
-      return items.sort((a,b) => b.ts.localeCompare(a.ts)).slice(0, 12);
+      (hotels.data ?? []).forEach((h: any) =>
+        items.push({ ts: h.created_at, label: `Hotel listing: ${h.name}`, status: h.status }),
+      );
+      (agencies.data ?? []).forEach((p: any) =>
+        items.push({
+          ts: p.created_at,
+          label: `New registration: ${p.company_name || p.full_name || "User"}`,
+        }),
+      );
+      (rfqs.data ?? []).forEach((r: any) =>
+        items.push({ ts: r.created_at, label: `New group request: ${r.title}` }),
+      );
+      (quotes.data ?? []).forEach((q: any) =>
+        items.push({ ts: q.created_at, label: `New quotation submitted` }),
+      );
+      (subs.data ?? []).forEach((s: any) =>
+        items.push({ ts: s.created_at, label: `Subscription interest: ${s.full_name || "Lead"}` }),
+      );
+      return items.sort((a, b) => b.ts.localeCompare(a.ts)).slice(0, 12);
     },
   });
 
   const kpis = [
-    { label: "Total Hotel Companies", value: stats?.companies ?? 0, icon: Building2, to: "/admin/hotel-companies" },
-    { label: "Approved Hotels", value: stats?.hotelsApproved ?? 0, icon: CheckCircle2, to: "/admin/hotel-listings" },
-    { label: "Pending Hotel Reviews", value: stats?.hotelsPending ?? 0, icon: Clock, to: "/admin/hotel-listings" },
-    { label: "Rejected Hotels", value: stats?.hotelsRejected ?? 0, icon: ShieldCheck, to: "/admin/hotel-listings" },
-    { label: "Active Agency Accounts", value: stats?.agencies ?? 0, icon: Users, to: "/admin/users" },
-    { label: "Open Group Requests", value: stats?.openRfqs ?? 0, icon: ClipboardList, to: "/admin/group-requests" },
+    {
+      label: "Total Hotel Companies",
+      value: stats?.companies ?? 0,
+      icon: Building2,
+      to: "/admin/hotel-companies",
+    },
+    {
+      label: "Approved Hotels",
+      value: stats?.hotelsApproved ?? 0,
+      icon: CheckCircle2,
+      to: "/admin/hotel-listings",
+    },
+    {
+      label: "Pending Hotel Reviews",
+      value: stats?.hotelsPending ?? 0,
+      icon: Clock,
+      to: "/admin/hotel-listings",
+    },
+    {
+      label: "Rejected Hotels",
+      value: stats?.hotelsRejected ?? 0,
+      icon: ShieldCheck,
+      to: "/admin/hotel-listings",
+    },
+    {
+      label: "Active Agency Accounts",
+      value: stats?.agencies ?? 0,
+      icon: Users,
+      to: "/admin/users",
+    },
+    {
+      label: "Open Group Requests",
+      value: stats?.openRfqs ?? 0,
+      icon: ClipboardList,
+      to: "/admin/group-requests",
+    },
     { label: "Submitted Quotations", value: stats?.quotes ?? 0, icon: FileText, to: "/admin" },
     { label: "Confirmed Deals", value: stats?.confirmedDeals ?? 0, icon: Handshake, to: "/admin" },
-    { label: "Subscription Interest Leads", value: stats?.subInterest ?? 0, icon: Inbox, to: "/admin/subscription-interest" },
+    {
+      label: "Subscription Interest Leads",
+      value: stats?.subInterest ?? 0,
+      icon: Inbox,
+      to: "/admin/subscription-interest",
+    },
     { label: "Total Platform Users", value: stats?.users ?? 0, icon: Globe2, to: "/admin/users" },
   ];
 
@@ -246,9 +397,24 @@ function AdminExecutiveDashboard() {
   ];
 
   const pending = [
-    { label: "Hotels awaiting approval", value: stats?.hotelsPending ?? 0, to: "/admin/hotel-listings", cta: "Review" },
-    { label: "Companies awaiting verification", value: stats?.companies ?? 0, to: "/admin/hotel-companies", cta: "Open" },
-    { label: "Subscription interest leads", value: stats?.subInterest ?? 0, to: "/admin/subscription-interest", cta: "View" },
+    {
+      label: "Hotels awaiting approval",
+      value: stats?.hotelsPending ?? 0,
+      to: "/admin/hotel-listings",
+      cta: "Review",
+    },
+    {
+      label: "Companies awaiting verification",
+      value: stats?.companies ?? 0,
+      to: "/admin/hotel-companies",
+      cta: "Open",
+    },
+    {
+      label: "Subscription interest leads",
+      value: stats?.subInterest ?? 0,
+      to: "/admin/subscription-interest",
+      cta: "View",
+    },
   ];
 
   const health = [
@@ -264,7 +430,9 @@ function AdminExecutiveDashboard() {
     <main className="flex-1">
       <section className="container-page py-10 md:py-14">
         <div className="rounded-2xl bg-gradient-to-br from-[oklch(0.18_0.04_265)] to-[oklch(0.32_0.10_264)] text-primary-foreground p-8 md:p-10">
-          <Badge className="bg-premium text-premium-foreground border-0 mb-3 uppercase tracking-wider">Admin Console</Badge>
+          <Badge className="bg-premium text-premium-foreground border-0 mb-3 uppercase tracking-wider">
+            Admin Console
+          </Badge>
           <h1 className="font-display text-3xl md:text-4xl font-semibold">Platform Overview</h1>
           <p className="mt-2 text-primary-foreground/80 max-w-2xl">
             Manage hotels, listings, agencies, requests and platform growth from one place.
@@ -274,7 +442,11 @@ function AdminExecutiveDashboard() {
         {/* KPI grid */}
         <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {kpis.map((k) => (
-            <Link key={k.label} to={k.to} className="rounded-2xl bg-card border border-border p-5 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition">
+            <Link
+              key={k.label}
+              to={k.to}
+              className="rounded-2xl bg-card border border-border p-5 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition"
+            >
               <span className="inline-grid h-9 w-9 place-items-center rounded-lg bg-brand-blue/10 text-brand-blue">
                 <k.icon className="h-4 w-4" />
               </span>
@@ -297,10 +469,14 @@ function AdminExecutiveDashboard() {
                     <li key={i} className="py-3 flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <div className="text-sm text-foreground truncate">{a.label}</div>
-                        <div className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(a.ts), { addSuffix: true })}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(a.ts), { addSuffix: true })}
+                        </div>
                       </div>
                       {a.status && (
-                        <Badge variant="secondary" className="capitalize shrink-0">{a.status}</Badge>
+                        <Badge variant="secondary" className="capitalize shrink-0">
+                          {a.status}
+                        </Badge>
                       )}
                     </li>
                   ))}
@@ -314,10 +490,15 @@ function AdminExecutiveDashboard() {
               <h2 className="font-display text-xl text-primary mb-4">Requires Attention</h2>
               <ul className="space-y-3">
                 {pending.map((p) => (
-                  <li key={p.label} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+                  <li
+                    key={p.label}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border p-3"
+                  >
                     <div className="min-w-0">
                       <div className="text-sm font-medium text-foreground truncate">{p.label}</div>
-                      <div className="text-xs text-muted-foreground">{p.value} item{p.value === 1 ? "" : "s"}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {p.value} item{p.value === 1 ? "" : "s"}
+                      </div>
                     </div>
                     <Button asChild size="sm" variant="outline">
                       <Link to={p.to}>{p.cta}</Link>
@@ -366,30 +547,62 @@ function AdminExecutiveDashboard() {
   );
 }
 
-
-
 function AdminLanding() {
   const { data: stats } = useQuery({
     queryKey: ["admin-landing-stats"],
     refetchInterval: 60_000,
     queryFn: async () => {
       const [
-        companiesTotal, companiesApproved, companiesPending, companiesRejected,
-        rfqsTotal, rfqsOpen, rfqsClosed,
-        rolesAgency, rolesHotel,
-        subActive, subWaiting,
+        companiesTotal,
+        companiesApproved,
+        companiesPending,
+        companiesRejected,
+        rfqsTotal,
+        rfqsOpen,
+        rfqsClosed,
+        rolesAgency,
+        rolesHotel,
+        subActive,
+        subWaiting,
       ] = await Promise.all([
-        supabase.from("profiles").select("id", { count: "exact", head: true }).not("hotel_approval_status", "is", null),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("hotel_approval_status", "approved"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("hotel_approval_status", "pending"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("hotel_approval_status", "rejected"),
+        supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .not("hotel_approval_status", "is", null),
+        supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("hotel_approval_status", "approved"),
+        supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("hotel_approval_status", "pending"),
+        supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("hotel_approval_status", "rejected"),
         supabase.from("rfqs").select("id", { count: "exact", head: true }),
         supabase.from("rfqs").select("id", { count: "exact", head: true }).eq("status", "open"),
-        supabase.from("rfqs").select("id", { count: "exact", head: true }).in("status", ["closed", "awarded", "cancelled"]),
-        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "organizer"),
-        supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "hotel"),
-        supabase.from("subscription_interest").select("id", { count: "exact", head: true }).eq("status", "notified"),
-        supabase.from("subscription_interest").select("id", { count: "exact", head: true }).eq("status", "waiting"),
+        supabase
+          .from("rfqs")
+          .select("id", { count: "exact", head: true })
+          .in("status", ["closed", "awarded", "cancelled"]),
+        supabase
+          .from("user_roles")
+          .select("user_id", { count: "exact", head: true })
+          .eq("role", "organizer"),
+        supabase
+          .from("user_roles")
+          .select("user_id", { count: "exact", head: true })
+          .eq("role", "hotel"),
+        supabase
+          .from("subscription_interest")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "notified"),
+        supabase
+          .from("subscription_interest")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "waiting"),
       ]);
       return {
         companiesTotal: companiesTotal.count ?? 0,
@@ -407,7 +620,11 @@ function AdminLanding() {
     },
   });
 
-  const sections: { title: string; tint: string; cards: { label: string; value: number | string }[] }[] = [
+  const sections: {
+    title: string;
+    tint: string;
+    cards: { label: string; value: number | string }[];
+  }[] = [
     {
       title: "Hotels",
       tint: "text-brand-blue bg-brand-blue/10",
@@ -446,19 +663,70 @@ function AdminLanding() {
   ];
 
   const quickActions = [
-    { title: "Hotel Companies", desc: "Review and approve hotel companies.", to: "/admin/hotel-companies", search: undefined, icon: Building2, badge: null as string | null },
-    { title: "Hotel Listings", desc: "Review hotel listings.", to: "/admin/hotel-listings", search: undefined, icon: Hotel, badge: null },
-    { title: "Group Requests", desc: "Review requests created by users.", to: "/admin/group-requests", search: undefined, icon: FileText, badge: null },
-    { title: "Users", desc: "Review registered website users.", to: "/admin/users", search: undefined, icon: Users, badge: null },
-    { title: "Subscription Interest", desc: "Hotels requesting subscriptions.", to: "/admin/subscription-interest", search: undefined, icon: Inbox, badge: null },
-    { title: "Subscriptions", desc: "Subscription billing module.", to: "/admin/subscriptions", search: undefined, icon: BadgeCheck, badge: "Not Active Yet" },
-    { title: "Settings", desc: "Platform settings.", to: "/admin/settings", search: undefined, icon: ShieldCheck, badge: null },
+    {
+      title: "Hotel Companies",
+      desc: "Review and approve hotel companies.",
+      to: "/admin/hotel-companies",
+      search: undefined,
+      icon: Building2,
+      badge: null as string | null,
+    },
+    {
+      title: "Hotel Listings",
+      desc: "Review hotel listings.",
+      to: "/admin/hotel-listings",
+      search: undefined,
+      icon: Hotel,
+      badge: null,
+    },
+    {
+      title: "Group Requests",
+      desc: "Review requests created by users.",
+      to: "/admin/group-requests",
+      search: undefined,
+      icon: FileText,
+      badge: null,
+    },
+    {
+      title: "Users",
+      desc: "Review registered website users.",
+      to: "/admin/users",
+      search: undefined,
+      icon: Users,
+      badge: null,
+    },
+    {
+      title: "Subscription Interest",
+      desc: "Hotels requesting subscriptions.",
+      to: "/admin/subscription-interest",
+      search: undefined,
+      icon: Inbox,
+      badge: null,
+    },
+    {
+      title: "Subscriptions",
+      desc: "Subscription billing module.",
+      to: "/admin/subscriptions",
+      search: undefined,
+      icon: BadgeCheck,
+      badge: "Not Active Yet",
+    },
+    {
+      title: "Settings",
+      desc: "Platform settings.",
+      to: "/admin/settings",
+      search: undefined,
+      icon: ShieldCheck,
+      badge: null,
+    },
   ];
 
   return (
     <section className="container-page py-10 md:py-14">
       <div className="rounded-2xl bg-gradient-to-br from-[oklch(0.18_0.04_265)] to-[oklch(0.32_0.10_264)] text-primary-foreground p-8 md:p-10">
-        <Badge className="bg-premium text-premium-foreground border-0 mb-3 uppercase tracking-wider">Admin Console</Badge>
+        <Badge className="bg-premium text-premium-foreground border-0 mb-3 uppercase tracking-wider">
+          Admin Console
+        </Badge>
         <h1 className="font-display text-3xl md:text-4xl font-semibold">Welcome Admin</h1>
         <p className="mt-2 text-primary-foreground/80 max-w-2xl">
           Manage hotels, subscriptions, approvals and platform performance.
@@ -473,11 +741,16 @@ function AdminLanding() {
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {sec.cards.map((c) => (
-                <div key={c.label} className="rounded-2xl bg-card border border-border p-5 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition">
+                <div
+                  key={c.label}
+                  className="rounded-2xl bg-card border border-border p-5 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition"
+                >
                   <div className={`inline-grid h-9 w-9 place-items-center rounded-lg ${sec.tint}`}>
                     <Sparkles className="h-4 w-4" />
                   </div>
-                  <div className="mt-3 font-display text-3xl font-semibold text-primary">{c.value}</div>
+                  <div className="mt-3 font-display text-3xl font-semibold text-primary">
+                    {c.value}
+                  </div>
                   <div className="mt-0.5 text-sm text-muted-foreground">{c.label}</div>
                 </div>
               ))}
@@ -509,11 +782,17 @@ function AdminLanding() {
               </Card>
             );
             return qa.badge ? (
-              <div key={qa.title} className="opacity-70 cursor-not-allowed">{Inner}</div>
+              <div key={qa.title} className="opacity-70 cursor-not-allowed">
+                {Inner}
+              </div>
             ) : qa.search ? (
-              <Link key={qa.title} to={qa.to} search={qa.search as any}>{Inner}</Link>
+              <Link key={qa.title} to={qa.to} search={qa.search as any}>
+                {Inner}
+              </Link>
             ) : (
-              <Link key={qa.title} to={qa.to}>{Inner}</Link>
+              <Link key={qa.title} to={qa.to}>
+                {Inner}
+              </Link>
             );
           })}
         </div>
@@ -529,10 +808,16 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
     queryKey: ["hero-counts"],
     queryFn: async () => {
       const [hotels, openRfqs, rooms, countries] = await Promise.all([
-        supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "approved"),
+        supabase
+          .from("hotels")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "approved"),
         supabase.from("rfqs").select("*", { count: "exact", head: true }).eq("status", "open"),
         supabase.from("hotel_rooms").select("count"),
-        supabase.from("countries").select("*", { count: "exact", head: true }).eq("is_active", true),
+        supabase
+          .from("countries")
+          .select("*", { count: "exact", head: true })
+          .eq("is_active", true),
       ]);
       const totalRooms = (rooms.data ?? []).reduce((s: number, r: any) => s + (r.count ?? 0), 0);
       return {
@@ -547,8 +832,16 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
   const fmt = (n: number, base: number) => `${Math.max(n, base).toLocaleString()}+`;
   const stats = [
     { label: "Hotels Listed", value: counts ? fmt(counts.hotels, 1250) : "1,250+", icon: Hotel },
-    { label: "Open Group Requests", value: counts ? fmt(counts.openRfqs, 320) : "320+", icon: ClipboardList },
-    { label: "Available Rooms", value: counts ? fmt(counts.rooms, 25000) : "25,000+", icon: BedDouble },
+    {
+      label: "Open Group Requests",
+      value: counts ? fmt(counts.openRfqs, 320) : "320+",
+      icon: ClipboardList,
+    },
+    {
+      label: "Available Rooms",
+      value: counts ? fmt(counts.rooms, 25000) : "25,000+",
+      icon: BedDouble,
+    },
     { label: "Countries Served", value: counts ? fmt(counts.countries, 18) : "18+", icon: Globe2 },
   ];
 
@@ -574,37 +867,76 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
             <div className="mt-7 flex flex-wrap gap-3">
               {isHotel ? (
                 <>
-                  <Button asChild size="lg" className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg">
-                    <Link to="/requests">Browse Open Requests <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+                  <Button
+                    asChild
+                    size="lg"
+                    className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg"
+                  >
+                    <Link to="/requests">
+                      Browse Open Requests <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                    </Link>
                   </Button>
-                  <Button asChild size="lg" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                  >
                     <Link to="/dashboard/hotel">My Hotel Profile</Link>
                   </Button>
                 </>
               ) : isOrganizer ? (
                 <>
-                  <Button asChild size="lg" className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg">
-                    <Link to="/request-quote">Create New Request <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+                  <Button
+                    asChild
+                    size="lg"
+                    className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg"
+                  >
+                    <Link to="/request-quote">
+                      Create New Request <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                    </Link>
                   </Button>
-                  <Button asChild size="lg" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                  >
                     <Link to="/dashboard/rfqs">View My Requests</Link>
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button asChild size="lg" className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg">
-                    <Link to="/request-quote">Create Group Request <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+                  <Button
+                    asChild
+                    size="lg"
+                    className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg"
+                  >
+                    <Link to="/request-quote">
+                      Create Group Request <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                    </Link>
                   </Button>
-                  <Button asChild size="lg" variant="outline" className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                  >
                     <Link to="/requests">Browse Open Requests</Link>
                   </Button>
                 </>
               )}
             </div>
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-primary-foreground/70">
-              <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-premium" /> Verified hotels only</span>
-              <span className="inline-flex items-center gap-1.5"><TimerReset className="h-4 w-4 text-premium" /> Quotes in hours</span>
-              <span className="inline-flex items-center gap-1.5"><Lock className="h-4 w-4 text-premium" /> Secure platform</span>
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldCheck className="h-4 w-4 text-premium" /> Verified hotels only
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <TimerReset className="h-4 w-4 text-premium" /> Quotes in hours
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Lock className="h-4 w-4 text-premium" /> Secure platform
+              </span>
             </div>
           </div>
 
@@ -621,7 +953,9 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
                   </span>
                   <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-brand-blue transition" />
                 </div>
-                <div className="mt-3 font-display text-2xl md:text-3xl text-primary font-semibold">{s.value}</div>
+                <div className="mt-3 font-display text-2xl md:text-3xl text-primary font-semibold">
+                  {s.value}
+                </div>
                 <div className="mt-0.5 text-xs md:text-sm text-muted-foreground">{s.label}</div>
               </div>
             ))}
@@ -633,7 +967,6 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
 }
 
 /* ────────────────────  QUICK SEARCH PANEL  ──────────────────── */
-
 
 function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
   const navigate = useNavigate();
@@ -682,7 +1015,11 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
         />
 
         <div className="mt-5 flex justify-end">
-          <Button type="submit" size="lg" className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90">
+          <Button
+            type="submit"
+            size="lg"
+            className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90"
+          >
             Request Quotations <ArrowRight className="h-4 w-4 rtl:rotate-180" />
           </Button>
         </div>
@@ -691,10 +1028,15 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
   );
 }
 
-
-
-
-function Field({ icon: Icon, label, children }: { icon: any; label: string; children: React.ReactNode }) {
+function Field({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: any;
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <Label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 mb-1.5">
@@ -715,10 +1057,18 @@ function LiveStatsSection() {
       const since = new Date();
       since.setHours(0, 0, 0, 0);
       const [openToday, hotelsOnline, quotesToday] = await Promise.all([
-        supabase.from("rfqs").select("*", { count: "exact", head: true })
-          .eq("status", "open").gte("created_at", since.toISOString()),
-        supabase.from("hotels").select("id", { count: "exact", head: true }).eq("status", "approved"),
-        supabase.from("quotes").select("*", { count: "exact", head: true })
+        supabase
+          .from("rfqs")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "open")
+          .gte("created_at", since.toISOString()),
+        supabase
+          .from("hotels")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "approved"),
+        supabase
+          .from("quotes")
+          .select("*", { count: "exact", head: true })
           .gte("created_at", since.toISOString()),
       ]);
       return {
@@ -730,9 +1080,24 @@ function LiveStatsSection() {
   });
 
   const items = [
-    { label: "Open Requests Today", value: data?.openToday ?? 0, icon: ClipboardList, tint: "text-brand-blue bg-brand-blue/10" },
-    { label: "Hotels Online", value: data?.hotelsOnline ?? 0, icon: Hotel, tint: "text-success bg-success/10" },
-    { label: "Quotes Submitted Today", value: data?.quotesToday ?? 0, icon: FileText, tint: "text-premium bg-premium/15" },
+    {
+      label: "Open Requests Today",
+      value: data?.openToday ?? 0,
+      icon: ClipboardList,
+      tint: "text-brand-blue bg-brand-blue/10",
+    },
+    {
+      label: "Hotels Online",
+      value: data?.hotelsOnline ?? 0,
+      icon: Hotel,
+      tint: "text-success bg-success/10",
+    },
+    {
+      label: "Quotes Submitted Today",
+      value: data?.quotesToday ?? 0,
+      icon: FileText,
+      tint: "text-premium bg-premium/15",
+    },
     { label: "Avg. Response Time", value: "< 4h", icon: Clock, tint: "text-primary bg-primary/10" },
   ];
 
@@ -740,17 +1105,31 @@ function LiveStatsSection() {
     <section className="container-page py-16 md:py-20">
       <div className="text-center max-w-2xl mx-auto mb-10">
         <div className="inline-flex items-center gap-2 text-xs font-medium text-success uppercase tracking-wider">
-          <span className="relative flex h-2 w-2"><span className="absolute inset-0 rounded-full bg-success animate-ping opacity-75" /><span className="relative rounded-full h-2 w-2 bg-success" /></span>
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-75" />
+            <span className="relative rounded-full h-2 w-2 bg-success" />
+          </span>
           Live
         </div>
-        <h2 className="mt-2 font-display text-3xl md:text-4xl text-primary">Live Marketplace Activity</h2>
-        <p className="mt-2 text-muted-foreground">Real-time signals from agencies and hotels on the platform.</p>
+        <h2 className="mt-2 font-display text-3xl md:text-4xl text-primary">
+          Live Marketplace Activity
+        </h2>
+        <p className="mt-2 text-muted-foreground">
+          Real-time signals from agencies and hotels on the platform.
+        </p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {items.map((s) => (
-          <div key={s.label} className="rounded-2xl bg-card border border-border p-6 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition">
-            <span className={`grid h-10 w-10 place-items-center rounded-lg ${s.tint}`}><s.icon className="h-5 w-5" /></span>
-            <div className="mt-4 font-display text-3xl md:text-4xl font-semibold text-primary">{s.value}</div>
+          <div
+            key={s.label}
+            className="rounded-2xl bg-card border border-border p-6 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition"
+          >
+            <span className={`grid h-10 w-10 place-items-center rounded-lg ${s.tint}`}>
+              <s.icon className="h-5 w-5" />
+            </span>
+            <div className="mt-4 font-display text-3xl md:text-4xl font-semibold text-primary">
+              {s.value}
+            </div>
             <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
           </div>
         ))}
@@ -763,21 +1142,42 @@ function LiveStatsSection() {
 
 function HowItWorks() {
   const steps = [
-    { icon: ClipboardList, title: "Create Group Request", desc: "Submit your accommodation requirements once." },
-    { icon: Hotel, title: "Hotels Receive Invitations", desc: "Matching hotels are automatically notified." },
-    { icon: FileText, title: "Receive Multiple Quotations", desc: "Compare pricing and services from hotels." },
-    { icon: CheckCircle2, title: "Choose the Best Offer", desc: "Negotiate and confirm with the selected hotel." },
+    {
+      icon: ClipboardList,
+      title: "Create Group Request",
+      desc: "Submit your accommodation requirements once.",
+    },
+    {
+      icon: Hotel,
+      title: "Hotels Receive Invitations",
+      desc: "Matching hotels are automatically notified.",
+    },
+    {
+      icon: FileText,
+      title: "Receive Multiple Quotations",
+      desc: "Compare pricing and services from hotels.",
+    },
+    {
+      icon: CheckCircle2,
+      title: "Choose the Best Offer",
+      desc: "Negotiate and confirm with the selected hotel.",
+    },
   ];
   return (
     <section className="bg-card border-y border-border">
       <div className="container-page py-16 md:py-20">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="font-display text-3xl md:text-4xl text-primary">How GroupToStay Works</h2>
-          <p className="mt-2 text-muted-foreground">Four steps from group request to a confirmed booking.</p>
+          <p className="mt-2 text-muted-foreground">
+            Four steps from group request to a confirmed booking.
+          </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {steps.map((s, i) => (
-            <div key={s.title} className="relative rounded-2xl border border-border bg-surface p-6 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition">
+            <div
+              key={s.title}
+              className="relative rounded-2xl border border-border bg-surface p-6 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition"
+            >
               <div className="absolute top-4 right-4 font-display text-5xl font-bold text-brand-blue/10 leading-none">
                 {String(i + 1).padStart(2, "0")}
               </div>
@@ -802,7 +1202,9 @@ function OpenRequestsSection() {
     queryFn: async () => {
       const { data } = await supabase
         .from("rfqs")
-        .select("id,title,group_type,destination_city,destination_country,check_in,check_out,nights,guests_count,rooms_needed,created_at")
+        .select(
+          "id,title,group_type,destination_city,destination_country,check_in,check_out,nights,guests_count,rooms_needed,created_at",
+        )
         .eq("status", "open")
         .order("created_at", { ascending: false })
         .limit(6);
@@ -817,30 +1219,57 @@ function OpenRequestsSection() {
       <div className="flex items-end justify-between gap-4 flex-wrap mb-8">
         <div>
           <h2 className="font-display text-3xl md:text-4xl text-primary">Latest Group Requests</h2>
-          <p className="mt-2 text-muted-foreground">Live demand from agencies — open to all approved hotels.</p>
+          <p className="mt-2 text-muted-foreground">
+            Live demand from agencies — open to all approved hotels.
+          </p>
         </div>
-        <Button asChild variant="ghost"><Link to="/requests">View all <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link></Button>
+        <Button asChild variant="ghost">
+          <Link to="/requests">
+            View all <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+          </Link>
+        </Button>
       </div>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
         {rfqs.map((r: any) => (
-          <Card key={r.id} className="group h-full border-border hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition overflow-hidden">
+          <Card
+            key={r.id}
+            className="group h-full border-border hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition overflow-hidden"
+          >
             <CardContent className="p-5">
               <div className="flex items-center justify-between gap-2 mb-3">
-                <Badge className="bg-success/15 text-success border-0 uppercase tracking-wide text-[10px]">{r.group_type}</Badge>
-                <span className="text-xs text-muted-foreground">{r.created_at ? formatDistanceToNow(new Date(r.created_at), { addSuffix: true }) : ""}</span>
+                <Badge className="bg-success/15 text-success border-0 uppercase tracking-wide text-[10px]">
+                  {r.group_type}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {r.created_at
+                    ? formatDistanceToNow(new Date(r.created_at), { addSuffix: true })
+                    : ""}
+                </span>
               </div>
-              <h3 className="font-display text-lg text-primary font-semibold line-clamp-2 min-h-[3.25rem]">{r.title}</h3>
+              <h3 className="font-display text-lg text-primary font-semibold line-clamp-2 min-h-[3.25rem]">
+                {r.title}
+              </h3>
               <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                <Meta icon={MapPin}>{r.destination_city}, {r.destination_country}</Meta>
-                <Meta icon={Calendar}>{r.check_in} → {r.check_out}</Meta>
+                <Meta icon={MapPin}>
+                  {r.destination_city}, {r.destination_country}
+                </Meta>
+                <Meta icon={Calendar}>
+                  {r.check_in} → {r.check_out}
+                </Meta>
                 <Meta icon={Users}>{r.guests_count} guests</Meta>
                 <Meta icon={BedDouble}>{r.rooms_needed} rooms</Meta>
               </div>
               <div className="mt-3 text-xs text-muted-foreground">Awaiting hotel quotations</div>
 
               <div className="mt-5">
-                <Button asChild variant="outline" className="w-full group-hover:bg-brand-blue group-hover:text-brand-blue-foreground group-hover:border-brand-blue transition">
-                  <Link to="/requests/$id" params={{ id: r.id }}>View Details <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full group-hover:bg-brand-blue group-hover:text-brand-blue-foreground group-hover:border-brand-blue transition"
+                >
+                  <Link to="/requests/$id" params={{ id: r.id }}>
+                    View Details <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                  </Link>
                 </Button>
               </div>
             </CardContent>
@@ -883,18 +1312,36 @@ function FeaturedHotelsSection() {
         <div className="flex items-end justify-between gap-4 flex-wrap mb-8">
           <div>
             <h2 className="font-display text-3xl md:text-4xl text-primary">Featured Hotels</h2>
-            <p className="mt-2 text-muted-foreground">Hand-picked, approved group-ready properties.</p>
+            <p className="mt-2 text-muted-foreground">
+              Hand-picked, approved group-ready properties.
+            </p>
           </div>
-          <Button asChild variant="ghost"><Link to="/hotels">View all <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link></Button>
+          <Button asChild variant="ghost">
+            <Link to="/hotels">
+              View all <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            </Link>
+          </Button>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {featured.map((h: any) => (
-            <Link key={h.id} to="/hotels/$id" params={{ id: h.id }} className="group rounded-2xl overflow-hidden border border-border bg-card hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition block">
+            <Link
+              key={h.id}
+              to="/hotels/$id"
+              params={{ id: h.id }}
+              className="group rounded-2xl overflow-hidden border border-border bg-card hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition block"
+            >
               <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                 {h.cover_image ? (
-                  <img loading="lazy" src={h.cover_image} alt={h.name} className="h-full w-full object-cover group-hover:scale-105 transition duration-500" />
+                  <img
+                    loading="lazy"
+                    src={h.cover_image}
+                    alt={h.name}
+                    className="h-full w-full object-cover group-hover:scale-105 transition duration-500"
+                  />
                 ) : (
-                  <div className="h-full w-full grid place-items-center text-muted-foreground"><Hotel className="h-10 w-10" /></div>
+                  <div className="h-full w-full grid place-items-center text-muted-foreground">
+                    <Hotel className="h-10 w-10" />
+                  </div>
                 )}
                 <Badge className="absolute top-3 left-3 bg-premium text-premium-foreground border-0 uppercase tracking-wider text-[10px]">
                   <Sparkles className="h-3 w-3 mr-1" /> Featured
@@ -902,13 +1349,17 @@ function FeaturedHotelsSection() {
               </div>
               <div className="p-5">
                 <div className="flex items-center gap-0.5 text-premium mb-1">
-                  {Array.from({ length: h.star_rating ?? 0 }).map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-current" />)}
+                  {Array.from({ length: h.star_rating ?? 0 }).map((_, i) => (
+                    <Star key={i} className="h-3.5 w-3.5 fill-current" />
+                  ))}
                 </div>
                 <h3 className="font-display text-lg text-primary font-semibold">{h.name}</h3>
                 <div className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
                   <MapPin className="h-3.5 w-3.5" /> {h.city}, {h.country}
                 </div>
-                {h.description && <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{h.description}</p>}
+                {h.description && (
+                  <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{h.description}</p>
+                )}
                 <div className="mt-4">
                   <span className="inline-flex items-center gap-1 text-sm font-medium text-brand-blue group-hover:gap-2 transition-all">
                     View Hotel <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -927,20 +1378,41 @@ function FeaturedHotelsSection() {
 
 function WhyGroupToStay() {
   const items = [
-    { icon: Clock, title: "Save Time", desc: "Replace dozens of emails and calls with a single, structured request." },
-    { icon: FileText, title: "Receive Multiple Offers", desc: "Compare competitive quotations from matching hotels in one place." },
-    { icon: MessageSquare, title: "Direct Hotel Communication", desc: "Negotiate directly with hotels through built-in messaging." },
-    { icon: Handshake, title: "Competitive Group Rates", desc: "Hotels compete for your business — better rates, better terms." },
+    {
+      icon: Clock,
+      title: "Save Time",
+      desc: "Replace dozens of emails and calls with a single, structured request.",
+    },
+    {
+      icon: FileText,
+      title: "Receive Multiple Offers",
+      desc: "Compare competitive quotations from matching hotels in one place.",
+    },
+    {
+      icon: MessageSquare,
+      title: "Direct Hotel Communication",
+      desc: "Negotiate directly with hotels through built-in messaging.",
+    },
+    {
+      icon: Handshake,
+      title: "Competitive Group Rates",
+      desc: "Hotels compete for your business — better rates, better terms.",
+    },
   ];
   return (
     <section className="container-page py-16 md:py-20">
       <div className="text-center max-w-2xl mx-auto mb-12">
         <h2 className="font-display text-3xl md:text-4xl text-primary">Why Choose GroupToStay?</h2>
-        <p className="mt-2 text-muted-foreground">A purpose-built marketplace for group hotel sourcing.</p>
+        <p className="mt-2 text-muted-foreground">
+          A purpose-built marketplace for group hotel sourcing.
+        </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {items.map((s) => (
-          <div key={s.title} className="rounded-2xl border border-border bg-card p-6 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition">
+          <div
+            key={s.title}
+            className="rounded-2xl border border-border bg-card p-6 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition"
+          >
             <span className="grid h-12 w-12 place-items-center rounded-xl bg-premium/15 text-premium">
               <s.icon className="h-6 w-6" />
             </span>
@@ -966,10 +1438,26 @@ function TestimonialsSection() {
 
 function TrustSection() {
   const items = [
-    { icon: BadgeCheck, title: "Approved Hotels", desc: "Every hotel is verified before going live." },
-    { icon: ShieldCheck, title: "Verified Companies", desc: "VAT & CR verification for all hotel companies." },
-    { icon: Lock, title: "Secure Platform", desc: "Encrypted traffic and role-based access control." },
-    { icon: Handshake, title: "Direct Communication", desc: "Talk to hotels directly — no middlemen." },
+    {
+      icon: BadgeCheck,
+      title: "Approved Hotels",
+      desc: "Every hotel is verified before going live.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Verified Companies",
+      desc: "VAT & CR verification for all hotel companies.",
+    },
+    {
+      icon: Lock,
+      title: "Secure Platform",
+      desc: "Encrypted traffic and role-based access control.",
+    },
+    {
+      icon: Handshake,
+      title: "Direct Communication",
+      desc: "Talk to hotels directly — no middlemen.",
+    },
   ];
   return (
     <section className="bg-primary text-primary-foreground">
@@ -1017,7 +1505,11 @@ function CtaBanner({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: b
                 : "Submit one Group Request and let matching hotels compete for your booking."}
             </p>
           </div>
-          <Button asChild size="lg" className="bg-premium text-premium-foreground hover:bg-premium/90">
+          <Button
+            asChild
+            size="lg"
+            className="bg-premium text-premium-foreground hover:bg-premium/90"
+          >
             <Link to={ctaTo}>
               {ctaLabel} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
@@ -1055,11 +1547,15 @@ function MessagesBar({ userId }: { userId: string }) {
             </span>
             <div className="min-w-0">
               <h3 className="font-display text-xl text-primary">{t("home.messages.title")}</h3>
-              <p className="text-sm text-muted-foreground truncate">{t("home.messages.subtitle")}</p>
+              <p className="text-sm text-muted-foreground truncate">
+                {t("home.messages.subtitle")}
+              </p>
             </div>
           </div>
           <Button asChild variant="ghost">
-            <Link to="/dashboard">{t("home.messages.openInbox")} <ArrowRight className="h-4 w-4 rtl:rotate-180" /></Link>
+            <Link to="/dashboard">
+              {t("home.messages.openInbox")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            </Link>
           </Button>
         </div>
         <div className="mt-5 divide-y divide-border">
@@ -1072,16 +1568,21 @@ function MessagesBar({ userId }: { userId: string }) {
                 params={{ id: m.rfq_id }}
                 className="flex items-start gap-3 py-3 hover:bg-muted/40 -mx-2 px-2 rounded-md transition"
               >
-                <span className={`mt-1 h-2 w-2 rounded-full ${incoming ? "bg-premium" : "bg-muted-foreground/40"}`} />
+                <span
+                  className={`mt-1 h-2 w-2 rounded-full ${incoming ? "bg-premium" : "bg-muted-foreground/40"}`}
+                />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="text-sm font-medium text-foreground truncate">{m.rfqs?.group_name ?? t("home.messages.thread")}</div>
+                    <div className="text-sm font-medium text-foreground truncate">
+                      {m.rfqs?.group_name ?? t("home.messages.thread")}
+                    </div>
                     <div className="text-xs text-muted-foreground whitespace-nowrap">
                       {formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}
                     </div>
                   </div>
                   <div className="text-sm text-muted-foreground truncate">
-                    {incoming ? "" : t("home.messages.youPrefix") + " "}{m.body}
+                    {incoming ? "" : t("home.messages.youPrefix") + " "}
+                    {m.body}
                   </div>
                 </div>
               </Link>

@@ -38,36 +38,57 @@ function Page() {
 
   const award = useMutation({
     mutationFn: async (q: any) => {
-      const { error: qErr } = await supabase.from("quotes").update({ status: "accepted" }).eq("id", q.id);
+      const { error: qErr } = await supabase
+        .from("quotes")
+        .update({ status: "accepted" })
+        .eq("id", q.id);
       if (qErr) throw qErr;
       const { error: bErr } = await supabase.from("bookings").insert({
-        rfq_id: id, quote_id: q.id, organizer_id: user!.id, hotel_id: q.hotel_id,
-        total_amount: q.total_price, commission_amount: Number(q.total_price) * 0.10,
+        rfq_id: id,
+        quote_id: q.id,
+        organizer_id: user!.id,
+        hotel_id: q.hotel_id,
+        total_amount: q.total_price,
+        commission_amount: Number(q.total_price) * 0.1,
       });
       if (bErr) throw bErr;
-      const { error: rErr } = await supabase.from("rfqs").update({ status: "awarded" }).eq("id", id);
+      const { error: rErr } = await supabase
+        .from("rfqs")
+        .update({ status: "awarded" })
+        .eq("id", id);
       if (rErr) throw rErr;
     },
-    onSuccess: () => { toast.success(t("dashboard.acceptedToast")); qc.invalidateQueries({ queryKey: ["rfq-compare", id] }); },
+    onSuccess: () => {
+      toast.success(t("dashboard.acceptedToast"));
+      qc.invalidateQueries({ queryKey: ["rfq-compare", id] });
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
   if (isLoading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
   if (!data) throw notFound();
   const { rfq, quotes } = data;
-  const isLocked = !["open","quoting","under_review"].includes(rfq.status);
+  const isLocked = !["open", "quoting", "under_review"].includes(rfq.status);
 
   return (
     <div className="space-y-6">
       <div>
-        <Link to="/dashboard/rfqs/$id" params={{ id }} className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
+        <Link
+          to="/dashboard/rfqs/$id"
+          params={{ id }}
+          className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+        >
           <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" /> {rfq.title}
         </Link>
         <h1 className="font-display text-3xl text-primary mt-2">{t("dashboard.compare.title")}</h1>
       </div>
 
       {quotes.length === 0 ? (
-        <Card><CardContent className="p-10 text-center text-muted-foreground">{t("dashboard.compare.noQuotes")}</CardContent></Card>
+        <Card>
+          <CardContent className="p-10 text-center text-muted-foreground">
+            {t("dashboard.compare.noQuotes")}
+          </CardContent>
+        </Card>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm border-separate border-spacing-0">
@@ -84,7 +105,12 @@ function Page() {
                   t("dashboard.compare.responseTime"),
                   t("dashboard.compare.action"),
                 ].map((h) => (
-                  <th key={h} className="px-3 py-3 text-start font-medium text-muted-foreground border-b border-border">{h}</th>
+                  <th
+                    key={h}
+                    className="px-3 py-3 text-start font-medium text-muted-foreground border-b border-border"
+                  >
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -93,7 +119,9 @@ function Page() {
                 <tr key={q.id} className="hover:bg-muted/30">
                   <td className="px-3 py-3 border-b border-border">
                     <div className="font-medium">{q.hotels?.name ?? "Hotel"}</div>
-                    <Badge variant="outline" className="mt-1">{t(`dashboard.status.${q.status}`)}</Badge>
+                    <Badge variant="outline" className="mt-1">
+                      {t(`dashboard.status.${q.status}`)}
+                    </Badge>
                   </td>
                   <td className="px-3 py-3 border-b border-border">
                     <span className="inline-flex text-gold">
@@ -102,15 +130,27 @@ function Page() {
                       ))}
                     </span>
                   </td>
-                  <td className="px-3 py-3 border-b border-border">{q.hotels?.city}, {q.hotels?.country}</td>
-                  <td className="px-3 py-3 border-b border-border">{q.price_per_room_night ? `${q.currency} ${Number(q.price_per_room_night).toLocaleString()}` : "—"}</td>
-                  <td className="px-3 py-3 border-b border-border font-display text-base">{q.currency} {Number(q.total_price).toLocaleString()}</td>
-                  <td className="px-3 py-3 border-b border-border">{q.board_included ? t(`rfq.boards.${q.board_included}`) : "—"}</td>
+                  <td className="px-3 py-3 border-b border-border">
+                    {q.hotels?.city}, {q.hotels?.country}
+                  </td>
+                  <td className="px-3 py-3 border-b border-border">
+                    {q.price_per_room_night
+                      ? `${q.currency} ${Number(q.price_per_room_night).toLocaleString()}`
+                      : "—"}
+                  </td>
+                  <td className="px-3 py-3 border-b border-border font-display text-base">
+                    {q.currency} {Number(q.total_price).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-3 border-b border-border">
+                    {q.board_included ? t(`rfq.boards.${q.board_included}`) : "—"}
+                  </td>
                   <td className="px-3 py-3 border-b border-border max-w-[280px]">
                     <div className="line-clamp-3 text-muted-foreground">{q.notes || "—"}</div>
                   </td>
                   <td className="px-3 py-3 border-b border-border text-muted-foreground">
-                    {q.created_at ? formatDistanceToNow(new Date(q.created_at), { addSuffix: true }) : "—"}
+                    {q.created_at
+                      ? formatDistanceToNow(new Date(q.created_at), { addSuffix: true })
+                      : "—"}
                   </td>
                   <td className="px-3 py-3 border-b border-border">
                     <Button
@@ -119,7 +159,9 @@ function Page() {
                       disabled={isLocked || award.isPending || q.status === "accepted"}
                       onClick={() => award.mutate(q)}
                     >
-                      {q.status === "accepted" ? t("dashboard.status.accepted") : t("dashboard.compare.selectWinner")}
+                      {q.status === "accepted"
+                        ? t("dashboard.status.accepted")
+                        : t("dashboard.compare.selectWinner")}
                     </Button>
                   </td>
                 </tr>

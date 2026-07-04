@@ -2,7 +2,14 @@ import { useMemo, useState } from "react";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { HOTEL_CATEGORIES, type HotelCategory } from "./rfq-options";
@@ -18,7 +25,12 @@ type Props = {
  * Shared searchable multi-select for RFQ Categories.
  * Empty selection === "Any" (backward compatible with existing RFQ storage).
  */
-export function RfqCategoriesMultiSelect({ value, onChange, placeholder = "Any (all categories)", className }: Props) {
+export function RfqCategoriesMultiSelect({
+  value,
+  onChange,
+  placeholder = "Any (all categories)",
+  className,
+}: Props) {
   const [open, setOpen] = useState(false);
   const selectedSet = useMemo(() => new Set(value), [value]);
 
@@ -45,7 +57,10 @@ export function RfqCategoriesMultiSelect({ value, onChange, placeholder = "Any (
             <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0 w-[--radix-popover-trigger-width] min-w-[260px]" align="start">
+        <PopoverContent
+          className="p-0 w-[--radix-popover-trigger-width] min-w-[260px]"
+          align="start"
+        >
           <Command>
             <CommandInput placeholder="Search categories…" />
             <CommandList>
@@ -81,7 +96,11 @@ export function RfqCategoriesMultiSelect({ value, onChange, placeholder = "Any (
               </button>
             </Badge>
           ))}
-          <button type="button" onClick={clear} className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2">
+          <button
+            type="button"
+            onClick={clear}
+            className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
+          >
             Clear
           </button>
         </div>

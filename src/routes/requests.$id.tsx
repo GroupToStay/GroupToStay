@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
@@ -12,15 +12,26 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { MapPin, Calendar, Users, ArrowLeft, MessageSquare, LogIn, Send } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/requests/$id")({
   head: () => ({ meta: [{ title: "Group request — GroupToStay" }] }),
   component: Page,
-  errorComponent: () => <div className="p-8 text-center text-muted-foreground">Could not load this request.</div>,
-  notFoundComponent: () => <div className="p-8 text-center text-muted-foreground">Request not found.</div>,
+  errorComponent: () => (
+    <div className="p-8 text-center text-muted-foreground">Could not load this request.</div>
+  ),
+  notFoundComponent: () => (
+    <div className="p-8 text-center text-muted-foreground">Request not found.</div>
+  ),
 });
 
 function Page() {
@@ -46,7 +57,10 @@ function Page() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="flex-1 container-page py-10 space-y-6">
-        <Link to="/requests" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1">
+        <Link
+          to="/requests"
+          className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+        >
           <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" /> All requests
         </Link>
 
@@ -55,12 +69,22 @@ function Page() {
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="font-display text-3xl text-primary">{rfq.title}</h1>
               <Badge className="bg-success/15 text-success">{rfq.status}</Badge>
-              <Badge variant="outline" className="uppercase tracking-wide">{rfq.group_type}</Badge>
+              <Badge variant="outline" className="uppercase tracking-wide">
+                {rfq.group_type}
+              </Badge>
             </div>
             <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {rfq.destination_city}, {rfq.destination_country}</span>
-              <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {rfq.check_in} → {rfq.check_out} ({rfq.nights}n)</span>
-              <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" /> {rfq.guests_count} guests · {rfq.rooms_needed} rooms</span>
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3.5 w-3.5" /> {rfq.destination_city}, {rfq.destination_country}
+              </span>
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3.5 w-3.5" /> {rfq.check_in} → {rfq.check_out} ({rfq.nights}
+                n)
+              </span>
+              <span className="flex items-center gap-1">
+                <Users className="h-3.5 w-3.5" /> {rfq.guests_count} guests · {rfq.rooms_needed}{" "}
+                rooms
+              </span>
             </div>
           </div>
           {user && isHotel && rfq.status === "open" && (
@@ -86,17 +110,32 @@ function Page() {
           </h2>
 
           {!user ? (
-            <Card><CardContent className="p-6 flex items-center justify-between gap-4 flex-wrap">
-              <p className="text-sm text-muted-foreground">Sign in as a hotel to message this agency and respond to the request.</p>
-              <Button asChild variant="gold"><Link to="/auth"><LogIn className="h-4 w-4" /> Sign in</Link></Button>
-            </CardContent></Card>
+            <Card>
+              <CardContent className="p-6 flex items-center justify-between gap-4 flex-wrap">
+                <p className="text-sm text-muted-foreground">
+                  Sign in as a hotel to message this agency and respond to the request.
+                </p>
+                <Button asChild variant="gold">
+                  <Link to="/auth">
+                    <LogIn className="h-4 w-4" /> Sign in
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           ) : canMessage ? (
-            <Conversation rfqId={id} rfqOrganizerId={rfq.organizer_id} viewerId={user.id} isOwner={isOwner} />
+            <Conversation
+              rfqId={id}
+              rfqOrganizerId={rfq.organizer_id}
+              viewerId={user.id}
+              isOwner={isOwner}
+            />
           ) : (
-            <Card><CardContent className="p-6 text-sm text-muted-foreground">
-              Only hotel accounts can contact organizers about open requests.
-              {isOrganizer && " You're signed in as an agency."}
-            </CardContent></Card>
+            <Card>
+              <CardContent className="p-6 text-sm text-muted-foreground">
+                Only hotel accounts can contact organizers about open requests.
+                {isOrganizer && " You're signed in as an agency."}
+              </CardContent>
+            </Card>
           )}
         </div>
       </main>
@@ -106,10 +145,25 @@ function Page() {
 }
 
 function Detail({ label, value }: { label: string; value: string }) {
-  return <div><div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div><div className="mt-0.5 text-foreground">{value}</div></div>;
+  return (
+    <div>
+      <div className="text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="mt-0.5 text-foreground">{value}</div>
+    </div>
+  );
 }
 
-function Conversation({ rfqId, rfqOrganizerId, viewerId, isOwner }: { rfqId: string; rfqOrganizerId: string; viewerId: string; isOwner: boolean }) {
+function Conversation({
+  rfqId,
+  rfqOrganizerId,
+  viewerId,
+  isOwner,
+}: {
+  rfqId: string;
+  rfqOrganizerId: string;
+  viewerId: string;
+  isOwner: boolean;
+}) {
   const qc = useQueryClient();
   const [text, setText] = useState("");
   // If hotel viewer: thread is between this hotel and organizer.
@@ -127,17 +181,29 @@ function Conversation({ rfqId, rfqOrganizerId, viewerId, isOwner }: { rfqId: str
   });
 
   // For organizer: list of unique hotel user IDs that have messaged.
-  const hotelIds = isOwner
-    ? Array.from(new Set(msgs.flatMap(m => [m.sender_id, m.recipient_id]).filter(id => id !== rfqOrganizerId)))
-    : [];
+  const hotelIds = useMemo(
+    () =>
+      isOwner
+        ? Array.from(
+            new Set(
+              msgs
+                .flatMap((m) => [m.sender_id, m.recipient_id])
+                .filter((id) => id !== rfqOrganizerId),
+            ),
+          )
+        : [],
+    [isOwner, msgs, rfqOrganizerId],
+  );
   const [activeHotelId, setActiveHotelId] = useState<string | null>(null);
   useEffect(() => {
     if (isOwner && !activeHotelId && hotelIds.length > 0) setActiveHotelId(hotelIds[0]);
   }, [isOwner, activeHotelId, hotelIds]);
 
   const threadMsgs = isOwner
-    ? msgs.filter(m => activeHotelId && (m.sender_id === activeHotelId || m.recipient_id === activeHotelId))
-    : msgs.filter(m => m.sender_id === viewerId || m.recipient_id === viewerId);
+    ? msgs.filter(
+        (m) => activeHotelId && (m.sender_id === activeHotelId || m.recipient_id === activeHotelId),
+      )
+    : msgs.filter((m) => m.sender_id === viewerId || m.recipient_id === viewerId);
 
   const send = useMutation({
     mutationFn: async () => {
@@ -145,11 +211,17 @@ function Conversation({ rfqId, rfqOrganizerId, viewerId, isOwner }: { rfqId: str
       const recipient_id = isOwner ? activeHotelId : rfqOrganizerId;
       if (!recipient_id) throw new Error("No recipient");
       const { error } = await supabase.from("messages").insert({
-        rfq_id: rfqId, sender_id: viewerId, recipient_id, body: text.trim(),
+        rfq_id: rfqId,
+        sender_id: viewerId,
+        recipient_id,
+        body: text.trim(),
       });
       if (error) throw error;
     },
-    onSuccess: () => { setText(""); qc.invalidateQueries({ queryKey: ["public-rfq-messages", rfqId, viewerId] }); },
+    onSuccess: () => {
+      setText("");
+      qc.invalidateQueries({ queryKey: ["public-rfq-messages", rfqId, viewerId] });
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -161,8 +233,13 @@ function Conversation({ rfqId, rfqOrganizerId, viewerId, isOwner }: { rfqId: str
             {hotelIds.length === 0 ? (
               <span className="text-sm text-muted-foreground">No hotels have messaged yet.</span>
             ) : (
-              hotelIds.map(hid => (
-                <Button key={hid} size="sm" variant={hid === activeHotelId ? "default" : "outline"} onClick={() => setActiveHotelId(hid)}>
+              hotelIds.map((hid) => (
+                <Button
+                  key={hid}
+                  size="sm"
+                  variant={hid === activeHotelId ? "default" : "outline"}
+                  onClick={() => setActiveHotelId(hid)}
+                >
                   Hotel {hid.slice(0, 8)}
                 </Button>
               ))
@@ -173,22 +250,43 @@ function Conversation({ rfqId, rfqOrganizerId, viewerId, isOwner }: { rfqId: str
         <div className="space-y-2 max-h-72 overflow-y-auto rounded-md bg-muted/30 p-3 min-h-[80px]">
           {threadMsgs.length === 0 ? (
             <div className="text-xs text-muted-foreground text-center py-6">
-              {isOwner ? "No messages in this conversation yet." : "Start the conversation — introduce your hotel and ask any clarifying questions."}
+              {isOwner
+                ? "No messages in this conversation yet."
+                : "Start the conversation — introduce your hotel and ask any clarifying questions."}
             </div>
-          ) : threadMsgs.map(m => (
-            <div key={m.id} className={`text-sm rounded-md px-3 py-2 max-w-[80%] w-fit ${m.sender_id === viewerId ? "bg-primary text-primary-foreground ms-auto" : "bg-background border border-border"}`}>
-              {m.body}
-              <div className={`text-[10px] mt-1 ${m.sender_id === viewerId ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                {new Date(m.created_at).toLocaleString()}
+          ) : (
+            threadMsgs.map((m) => (
+              <div
+                key={m.id}
+                className={`text-sm rounded-md px-3 py-2 max-w-[80%] w-fit ${m.sender_id === viewerId ? "bg-primary text-primary-foreground ms-auto" : "bg-background border border-border"}`}
+              >
+                {m.body}
+                <div
+                  className={`text-[10px] mt-1 ${m.sender_id === viewerId ? "text-primary-foreground/70" : "text-muted-foreground"}`}
+                >
+                  {new Date(m.created_at).toLocaleString()}
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {(!isOwner || activeHotelId) && (
           <div className="flex gap-2">
-            <Textarea value={text} onChange={e => setText(e.target.value)} placeholder="Write a message…" rows={2} maxLength={1000} />
-            <Button onClick={() => send.mutate()} variant="gold" disabled={!text.trim() || send.isPending}>Send</Button>
+            <Textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Write a message…"
+              rows={2}
+              maxLength={1000}
+            />
+            <Button
+              onClick={() => send.mutate()}
+              variant="gold"
+              disabled={!text.trim() || send.isPending}
+            >
+              Send
+            </Button>
           </div>
         )}
       </CardContent>
@@ -233,14 +331,20 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
     },
   });
 
-  useEffect(() => { if (!hotelId && hotels[0]) setHotelId(hotels[0].id); }, [hotels, hotelId]);
+  useEffect(() => {
+    if (!hotelId && hotels[0]) setHotelId(hotels[0].id);
+  }, [hotels, hotelId]);
 
   async function submit() {
-    if (!hotelId) { toast.error("Select a hotel"); return; }
+    if (!hotelId) {
+      toast.error("Select a hotel");
+      return;
+    }
     setSubmitting(true);
     try {
       const { error } = await supabase.from("quotes").insert({
-        rfq_id: rfq.id, hotel_id: hotelId,
+        rfq_id: rfq.id,
+        hotel_id: hotelId,
         total_price: Number(totalPrice),
         price_per_room_night: perNight ? Number(perNight) : null,
         currency: rfq.currency,
@@ -263,40 +367,105 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
   if (existingQuote) {
     return (
       <div className="text-end">
-        <Badge className="bg-gold/20 text-gold-foreground border border-gold/30">Quote submitted</Badge>
-        <div className="mt-1 font-display text-lg text-primary">{existingQuote.currency} {Number(existingQuote.total_price).toLocaleString()}</div>
+        <Badge className="bg-gold/20 text-gold-foreground border border-gold/30">
+          Quote submitted
+        </Badge>
+        <div className="mt-1 font-display text-lg text-primary">
+          {existingQuote.currency} {Number(existingQuote.total_price).toLocaleString()}
+        </div>
       </div>
     );
   }
 
   if (hotels.length === 0) {
-    return <div className="text-xs text-muted-foreground max-w-[220px] text-end">Add and get your hotel approved to send a quote.</div>;
+    return (
+      <div className="text-xs text-muted-foreground max-w-[220px] text-end">
+        Add and get your hotel approved to send a quote.
+      </div>
+    );
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild><Button variant="gold"><Send className="h-4 w-4" /> Submit quote</Button></DialogTrigger>
+      <DialogTrigger asChild>
+        <Button variant="gold">
+          <Send className="h-4 w-4" /> Submit quote
+        </Button>
+      </DialogTrigger>
       <DialogContent className="max-w-md">
-        <DialogHeader><DialogTitle>Submit a quote</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Submit a quote</DialogTitle>
+        </DialogHeader>
         <div className="space-y-3">
           {hotels.length > 1 && (
             <div>
               <Label>Hotel</Label>
-              <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={hotelId} onChange={e => setHotelId(e.target.value)}>
-                {hotels.map((h: any) => <option key={h.id} value={h.id}>{h.name}</option>)}
+              <select
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                value={hotelId}
+                onChange={(e) => setHotelId(e.target.value)}
+              >
+                {hotels.map((h: any) => (
+                  <option key={h.id} value={h.id}>
+                    {h.name}
+                  </option>
+                ))}
               </select>
             </div>
           )}
-          <div><Label>Total price ({rfq.currency})</Label><Input type="number" min={0} value={totalPrice} onChange={e => setTotalPrice(e.target.value)} /></div>
-          <div><Label>Per room / night ({rfq.currency})</Label><Input type="number" min={0} value={perNight} onChange={e => setPerNight(e.target.value)} /></div>
-          <div><Label>Board</Label>
-            <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={board} onChange={e => setBoard(e.target.value)}>
-              {["room_only","breakfast","half_board","full_board"].map(b => <option key={b} value={b}>{b}</option>)}
+          <div>
+            <Label>Total price ({rfq.currency})</Label>
+            <Input
+              type="number"
+              min={0}
+              value={totalPrice}
+              onChange={(e) => setTotalPrice(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label>Per room / night ({rfq.currency})</Label>
+            <Input
+              type="number"
+              min={0}
+              value={perNight}
+              onChange={(e) => setPerNight(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label>Board</Label>
+            <select
+              className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              value={board}
+              onChange={(e) => setBoard(e.target.value)}
+            >
+              {["room_only", "breakfast", "half_board", "full_board"].map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
             </select>
           </div>
-          <div><Label>Valid until</Label><Input type="date" value={validUntil} onChange={e => setValidUntil(e.target.value)} /></div>
-          <div><Label>Inclusions</Label><Input value={inclusions} onChange={e => setInclusions(e.target.value)} maxLength={500} /></div>
-          <div><Label>Notes</Label><Textarea rows={3} value={notes} onChange={e => setNotes(e.target.value)} maxLength={1000} /></div>
+          <div>
+            <Label>Valid until</Label>
+            <Input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
+          </div>
+          <div>
+            <Label>Inclusions</Label>
+            <Input
+              value={inclusions}
+              onChange={(e) => setInclusions(e.target.value)}
+              maxLength={500}
+            />
+          </div>
+          <div>
+            <Label>Notes</Label>
+            <Textarea
+              rows={3}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              maxLength={1000}
+            />
+          </div>
         </div>
         <DialogFooter>
           <Button variant="gold" onClick={submit} disabled={!totalPrice || submitting}>

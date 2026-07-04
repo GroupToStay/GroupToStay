@@ -28,8 +28,7 @@ export type RfqSharedValues = {
 };
 
 export type RfqSharedSection =
-  | "destination" | "counts" | "dates" | "categories"
-  | "accommodation" | "mealPlan" | "requirements";
+  "destination" | "counts" | "dates" | "categories" | "accommodation" | "mealPlan" | "requirements";
 
 type Props = {
   value: RfqSharedValues;
@@ -45,12 +44,18 @@ type Props = {
 };
 
 const ALL: RfqSharedSection[] = [
-  "destination", "counts", "dates", "categories",
-  "accommodation", "mealPlan", "requirements",
+  "destination",
+  "counts",
+  "dates",
+  "categories",
+  "accommodation",
+  "mealPlan",
+  "requirements",
 ];
 
 export function RfqSharedFields({
-  value, onChange,
+  value,
+  onChange,
   variant = "stacked",
   sections = ALL,
   destinationRequired,
@@ -65,7 +70,8 @@ export function RfqSharedFields({
       countryId={value.destination_country_id}
       cityId={value.destination_city_id}
       onChange={({ countryId, cityId }) =>
-        onChange({ destination_country_id: countryId, destination_city_id: cityId })}
+        onChange({ destination_country_id: countryId, destination_city_id: cityId })
+      }
       labelCountry={destinationLabels?.country ?? "Destination Country"}
       labelCity={destinationLabels?.city ?? "Destination City"}
       required={destinationRequired}
@@ -75,7 +81,9 @@ export function RfqSharedFields({
   const groupSize = has("counts") && (
     <LabeledField compact={compact} icon={Users} label="Group Size">
       <Input
-        type="number" min={1} placeholder="120"
+        type="number"
+        min={1}
+        placeholder="120"
         value={value.guests_count ?? ""}
         onChange={(e) => onChange({ guests_count: e.target.value ? Number(e.target.value) : null })}
       />
@@ -84,7 +92,9 @@ export function RfqSharedFields({
   const rooms = has("counts") && (
     <LabeledField compact={compact} icon={BedDouble} label="Rooms">
       <Input
-        type="number" min={1} placeholder="40"
+        type="number"
+        min={1}
+        placeholder="40"
         value={value.rooms_needed ?? ""}
         onChange={(e) => onChange({ rooms_needed: e.target.value ? Number(e.target.value) : null })}
       />
@@ -97,7 +107,11 @@ export function RfqSharedFields({
   );
   const checkOut = has("dates") && (
     <LabeledField compact={compact} icon={Calendar} label="Check-Out">
-      <RfqDatePickerField value={value.check_out} onChange={(v) => onChange({ check_out: v })} min={value.check_in} />
+      <RfqDatePickerField
+        value={value.check_out}
+        onChange={(v) => onChange({ check_out: v })}
+        min={value.check_in}
+      />
     </LabeledField>
   );
 
@@ -111,12 +125,18 @@ export function RfqSharedFields({
   );
   const accommodation = has("accommodation") && (
     <LabeledField compact={compact} icon={Hotel} label="Accommodation Type">
-      <RfqAccommodationSelect value={value.accommodation_type} onChange={(v) => onChange({ accommodation_type: v })} />
+      <RfqAccommodationSelect
+        value={value.accommodation_type}
+        onChange={(v) => onChange({ accommodation_type: v })}
+      />
     </LabeledField>
   );
   const mealPlan = has("mealPlan") && (
     <LabeledField compact={compact} icon={BedDouble} label="Meal Plan">
-      <RfqMealPlanSelect value={value.meal_plan_code} onChange={(v) => onChange({ meal_plan_code: v })} />
+      <RfqMealPlanSelect
+        value={value.meal_plan_code}
+        onChange={(v) => onChange({ meal_plan_code: v })}
+      />
     </LabeledField>
   );
 
@@ -143,10 +163,15 @@ export function RfqSharedFields({
       <div className="space-y-3">
         {destination}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {groupSize}{rooms}{checkIn}{checkOut}
+          {groupSize}
+          {rooms}
+          {checkIn}
+          {checkOut}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {categories}{accommodation}{mealPlan}
+          {categories}
+          {accommodation}
+          {mealPlan}
         </div>
         {requirements}
       </div>
@@ -159,14 +184,23 @@ export function RfqSharedFields({
     <div className="space-y-4">
       {destination}
       {(groupSize || rooms) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{groupSize}{rooms}</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {groupSize}
+          {rooms}
+        </div>
       )}
       {(checkIn || checkOut) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{checkIn}{checkOut}</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {checkIn}
+          {checkOut}
+        </div>
       )}
       {categories}
       {(accommodation || mealPlan) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{accommodation}{mealPlan}</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {accommodation}
+          {mealPlan}
+        </div>
       )}
       {requirements}
     </div>
@@ -174,8 +208,16 @@ export function RfqSharedFields({
 }
 
 function LabeledField({
-  compact, icon: Icon, label, children,
-}: { compact: boolean; icon: any; label: string; children: ReactNode }) {
+  compact,
+  icon: Icon,
+  label,
+  children,
+}: {
+  compact: boolean;
+  icon: any;
+  label: string;
+  children: ReactNode;
+}) {
   if (compact) {
     return (
       <div>
