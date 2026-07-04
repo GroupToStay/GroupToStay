@@ -20,7 +20,15 @@ export const Route = createFileRoute("/pricing")({
         content:
           "Free forever for organizers. Hotels choose the plan that fits their goals. All prices in SAR.",
       },
+      { property: "og:title", content: "Pricing — GroupToStay" },
+      {
+        property: "og:description",
+        content:
+          "Transparent plans for hotels and free access for group organizers. Pay only when you win group business.",
+      },
+      { property: "og:url", content: "https://groupstay-connect.lovable.app/pricing" },
     ],
+    links: [{ rel: "canonical", href: "https://groupstay-connect.lovable.app/pricing" }],
   }),
   component: Page,
 });
