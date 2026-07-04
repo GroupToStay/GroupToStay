@@ -18,6 +18,23 @@ import { DEFAULT_PHONE_CODE } from "@/lib/phone-codes";
 
 type Search = { redirect?: string };
 
+function safeAuthRedirect(redirect?: string): string {
+  const fallback = "/dashboard";
+  if (!redirect) return fallback;
+
+  const target = redirect.trim();
+  if (
+    !target.startsWith("/") ||
+    target.startsWith("//") ||
+    target.includes("\\") ||
+    target.startsWith("/auth")
+  ) {
+    return fallback;
+  }
+
+  return target;
+}
+
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Sign in — GroupToStay" }] }),
   validateSearch: (s: Record<string, unknown>): Search => ({
@@ -69,7 +86,7 @@ function Page() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) navigate({ to: (search.redirect as any) ?? "/dashboard" });
+    if (user) navigate({ to: safeAuthRedirect(search.redirect) as any });
   }, [user, navigate, search.redirect]);
 
   async function onSubmit(e: React.FormEvent) {

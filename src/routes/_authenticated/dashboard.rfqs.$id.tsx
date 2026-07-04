@@ -8,8 +8,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -56,7 +54,6 @@ function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [mockOpen, setMockOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["rfq", id],
@@ -66,7 +63,7 @@ function Page() {
       if (!rfq) return null;
       const { data: quotes } = await supabase
         .from("quotes")
-        .select("*, hotels(name, city, country, star_rating, cover_image)")
+        .select("*, hotels(name, city, country, star_rating)")
         .eq("rfq_id", id)
         .order("total_price", { ascending: true });
       return { rfq, quotes: quotes ?? [] };
@@ -256,12 +253,6 @@ function Page() {
                 </Link>
               </Button>
             )}
-            <SimulateQuoteDialog
-              open={mockOpen}
-              onOpenChange={setMockOpen}
-              rfq={rfq}
-              onDone={() => qc.invalidateQueries({ queryKey: ["rfq", id] })}
-            />
           </div>
         </div>
 
@@ -421,81 +412,5 @@ function MessageThread({
         </Button>
       </div>
     </div>
-  );
-}
-
-// Lets the organizer simulate a hotel quote so the dashboard demo flow is end-to-end usable
-// before any hotel users are onboarded. Hidden behind an explicit action.
-function SimulateQuoteDialog({
-  open,
-  onOpenChange,
-  rfq,
-  onDone,
-}: {
-  open: boolean;
-  onOpenChange: (b: boolean) => void;
-  rfq: any;
-  onDone: () => void;
-}) {
-  const [price, setPrice] = useState("");
-  const [notes, setNotes] = useState("");
-  const submit = async () => {
-    const { data: hotels } = await supabase
-      .from("hotels")
-      .select("id")
-      .eq("status", "approved")
-      .ilike("city", rfq.destination_city)
-      .limit(1);
-    const hotel = hotels?.[0];
-    if (!hotel) {
-      toast.error(`No approved hotel in ${rfq.destination_city}`);
-      return;
-    }
-    const { error } = await supabase.from("quotes").insert({
-      rfq_id: rfq.id,
-      hotel_id: hotel.id,
-      total_price: Number(price),
-      currency: rfq.currency,
-      board_included: rfq.board_type,
-      notes,
-    });
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    toast.success("Quote added");
-    onOpenChange(false);
-    setPrice("");
-    setNotes("");
-    onDone();
-  };
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          + Demo quote
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Simulate a hotel quote</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div>
-            <Label>Total price ({rfq.currency})</Label>
-            <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
-          </div>
-          <div>
-            <Label>Notes</Label>
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="gold" onClick={submit}>
-            Add quote
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   );
 }

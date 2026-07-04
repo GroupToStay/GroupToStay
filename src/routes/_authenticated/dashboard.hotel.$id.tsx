@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { HotelPhoto } from "@/components/hotel-photo";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/$id")({
   head: () => ({ meta: [{ title: "Manage hotel — GroupToStay" }] }),
@@ -481,7 +482,12 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
                   key={url}
                   className="group relative aspect-video overflow-hidden rounded-md border border-border bg-surface"
                 >
-                  <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  <HotelPhoto
+                    src={url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
                   <div className="absolute inset-0 hidden group-hover:flex items-end justify-between p-2 bg-gradient-to-t from-black/70 to-transparent">
                     <Button
                       size="sm"

@@ -20,6 +20,7 @@ import { EmptyState } from "@/components/empty-state";
 import { AccessDenied } from "@/components/access-denied";
 import { useRoles } from "@/hooks/use-role";
 import { useAuth } from "@/hooks/use-auth";
+import { HotelPhoto } from "@/components/hotel-photo";
 
 export const Route = createFileRoute("/hotels/")({
   head: () => ({
@@ -141,7 +142,7 @@ function Page() {
                 >
                   <div className="aspect-[4/3] overflow-hidden bg-muted relative">
                     {h.cover_image && (
-                      <img
+                      <HotelPhoto
                         loading="lazy"
                         src={h.cover_image}
                         alt={h.name}

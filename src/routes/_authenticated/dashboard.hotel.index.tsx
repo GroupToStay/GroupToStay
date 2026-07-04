@@ -24,6 +24,7 @@ import { SubscriptionCards } from "@/components/subscription-cards";
 import { CountryCitySelect } from "@/components/country-city-select";
 import { useCountries, useCities } from "@/hooks/use-master-data";
 import { EmptyState } from "@/components/empty-state";
+import { HotelPhoto } from "@/components/hotel-photo";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/")({
   head: () => ({ meta: [{ title: "My hotels — GroupToStay" }] }),
@@ -212,7 +213,7 @@ function Page() {
       <Card className="overflow-hidden">
         {hotel.cover_image ? (
           <div className="aspect-video bg-surface">
-            <img
+            <HotelPhoto
               src={hotel.cover_image}
               alt={hotel.name ?? ""}
               className="h-full w-full object-cover"

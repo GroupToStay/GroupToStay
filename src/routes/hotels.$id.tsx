@@ -10,6 +10,7 @@ import { Star, MapPin } from "lucide-react";
 import { useRoles } from "@/hooks/use-role";
 import { useAuth } from "@/hooks/use-auth";
 import { AccessDenied } from "@/components/access-denied";
+import { HotelPhoto } from "@/components/hotel-photo";
 
 export const Route = createFileRoute("/hotels/$id")({
   loader: async ({ params }) => {
@@ -27,7 +28,10 @@ export const Route = createFileRoute("/hotels/$id")({
     const h = loaderData?.hotel;
     const title = h?.name ? `${h.name} — GroupToStay` : "Hotel — GroupToStay";
     const description = h
-      ? `${h.name}${h.city ? " in " + h.city : ""} — ${h.description ?? "Group-ready hotel on GroupToStay."}`.slice(0, 300)
+      ? `${h.name}${h.city ? " in " + h.city : ""} — ${h.description ?? "Group-ready hotel on GroupToStay."}`.slice(
+          0,
+          300,
+        )
       : "Hotel listing on GroupToStay.";
     const canonical = `https://groupstay-connect.lovable.app/hotels/${params.id}`;
     return {
@@ -135,7 +139,11 @@ function Page() {
       <main className="flex-1">
         <div className="aspect-[21/9] w-full bg-muted overflow-hidden">
           {hotel.cover_image && (
-            <img src={hotel.cover_image} alt={hotel.name} className="h-full w-full object-cover" />
+            <HotelPhoto
+              src={hotel.cover_image}
+              alt={hotel.name}
+              className="h-full w-full object-cover"
+            />
           )}
         </div>
         <div className="container-page py-10 grid lg:grid-cols-[1fr_320px] gap-10">

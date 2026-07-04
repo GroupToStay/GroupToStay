@@ -18,6 +18,7 @@ import { formatAdminDate, getPageSlice } from "@/components/admin/management-uti
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { HotelPhoto } from "@/components/hotel-photo";
 import {
   Dialog,
   DialogContent,
@@ -201,7 +202,7 @@ function Page() {
                     <TableCell className="min-w-[240px]">
                       <div className="flex items-center gap-3">
                         {row.cover_image ? (
-                          <img
+                          <HotelPhoto
                             src={row.cover_image}
                             alt=""
                             className="h-10 w-14 rounded-md border border-border object-cover"
@@ -300,7 +301,7 @@ function Page() {
               </DialogHeader>
 
               {selected.cover_image ? (
-                <img
+                <HotelPhoto
                   src={selected.cover_image}
                   alt=""
                   className="max-h-64 w-full rounded-lg border border-border object-cover"

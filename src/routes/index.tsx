@@ -41,6 +41,7 @@ import heroImg from "@/assets/hero-lobby.jpg";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { formatDistanceToNow } from "date-fns";
+import { HotelPhoto } from "@/components/hotel-photo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -146,15 +147,17 @@ function WelcomeBanner({
   isOrganizer: boolean;
 }) {
   const { data } = useQuery({
-    queryKey: ["welcome-banner", userId],
+    queryKey: ["welcome-banner", userId, isHotel],
     queryFn: async () => {
-      const [{ data: profile }, { data: hotels }] = await Promise.all([
+      const [{ data: profile }, hotelResult] = await Promise.all([
         supabase.from("profiles").select("full_name, company_name").eq("id", userId).maybeSingle(),
-        supabase.from("hotels").select("name").eq("owner_id", userId).limit(1),
+        isHotel
+          ? supabase.from("hotels").select("name").eq("owner_id", userId).limit(1)
+          : Promise.resolve({ data: [] as { name: string | null }[] }),
       ]);
       return {
         name: profile?.company_name || profile?.full_name || "",
-        hotelName: hotels?.[0]?.name || "",
+        hotelName: hotelResult.data?.[0]?.name || "",
       };
     },
   });
@@ -829,23 +832,15 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
   const { data: counts } = useQuery({
     queryKey: ["hero-counts"],
     queryFn: async () => {
-      const [hotels, openRfqs, rooms, countries] = await Promise.all([
-        supabase
-          .from("hotels")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "approved"),
+      const [openRfqs, countries] = await Promise.all([
         supabase.from("rfqs").select("*", { count: "exact", head: true }).eq("status", "open"),
-        supabase.from("hotel_rooms").select("count"),
         supabase
           .from("countries")
           .select("*", { count: "exact", head: true })
           .eq("is_active", true),
       ]);
-      const totalRooms = (rooms.data ?? []).reduce((s: number, r: any) => s + (r.count ?? 0), 0);
       return {
-        hotels: hotels.count ?? 0,
         openRfqs: openRfqs.count ?? 0,
-        rooms: totalRooms,
         countries: countries.count ?? 0,
       };
     },
@@ -853,7 +848,7 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
 
   const fmt = (n: number, base: number) => `${Math.max(n, base).toLocaleString()}+`;
   const stats = [
-    { label: "Hotels Listed", value: counts ? fmt(counts.hotels, 1250) : "1,250+", icon: Hotel },
+    { label: "Hotels Listed", value: "1,250+", icon: Hotel },
     {
       label: "Open Group Requests",
       value: counts ? fmt(counts.openRfqs, 320) : "320+",
@@ -861,7 +856,7 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
     },
     {
       label: "Available Rooms",
-      value: counts ? fmt(counts.rooms, 25000) : "25,000+",
+      value: "25,000+",
       icon: BedDouble,
     },
     { label: "Countries Served", value: counts ? fmt(counts.countries, 18) : "18+", icon: Globe2 },
@@ -1354,7 +1349,7 @@ function FeaturedHotelsSection() {
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                 {h.cover_image ? (
-                  <img
+                  <HotelPhoto
                     loading="lazy"
                     src={h.cover_image}
                     alt={h.name}

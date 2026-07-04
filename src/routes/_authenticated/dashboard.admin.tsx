@@ -22,6 +22,7 @@ import {
   Hotel as HotelIcon,
 } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import { HotelPhoto } from "@/components/hotel-photo";
 
 type Tab = "companies" | "hotels" | "interest" | "requests" | "users";
 
@@ -440,7 +441,7 @@ export function HotelsPanel() {
             <Card key={h.id}>
               <CardContent className="p-5 flex items-center gap-4 flex-wrap">
                 {h.cover_image && (
-                  <img
+                  <HotelPhoto
                     src={h.cover_image}
                     alt=""
                     className="h-16 w-24 rounded object-cover border border-border"
