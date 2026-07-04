@@ -26,7 +26,9 @@ function Page() {
           <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
             The subscription billing module will be available once the payment system is launched.
           </p>
-          <Badge className="mt-4 bg-muted text-muted-foreground uppercase tracking-wide">Not Active Yet</Badge>
+          <Badge className="mt-4 bg-muted text-muted-foreground uppercase tracking-wide">
+            Not Active Yet
+          </Badge>
         </CardContent>
       </Card>
     </div>

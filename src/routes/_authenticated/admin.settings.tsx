@@ -25,7 +25,8 @@ function Page() {
               <ShieldCheck className="h-4 w-4" /> Admin Profile Settings
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Manage the current admin profile, contact details and account email from the existing profile settings workflow.
+              Manage the current admin profile, contact details and account email from the existing
+              profile settings workflow.
             </p>
           </div>
           <Button asChild variant="outline">
