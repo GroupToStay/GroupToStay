@@ -1,0 +1,22 @@
+# GroupToStay
+
+> B2B marketplace where verified group organizers submit one Group Request and receive competing quotations from approved hotels — built for Umrah, Hajj, tourism, corporate, sports and event groups.
+
+GroupToStay connects agencies, corporate travel teams, and event organizers with vetted hotels for group accommodation sourcing. Organizers post a single Group Request; matched hotels return quotations that can be compared side by side before awarding the booking.
+
+## Pages
+
+- [Home](/): Overview of the GroupToStay marketplace and how to post a Group Request.
+- [How it works](/how-it-works): Three-step flow from Group Request to confirmed booking.
+- [For hotels](/for-hotels): How hotels join, receive matched requests, and win group business.
+- [Pricing](/pricing): Free access for organizers; plans and commission structure for hotels.
+- [Request a quote](/request-quote): Submit a Group Request to receive competing hotel offers.
+- [About](/about): Who we are and why we built GroupToStay.
+- [Contact](/contact): Reach the GroupToStay team.
+- [Trust & Security](/trust): Security, privacy, and data handling practices.
+
+## Optional
+
+- [Privacy Policy](/privacy)
+- [Terms of Service](/terms)
+- [Cookie Policy](/cookies)
