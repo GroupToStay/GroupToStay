@@ -12,7 +12,61 @@ import { useAuth } from "@/hooks/use-auth";
 import { AccessDenied } from "@/components/access-denied";
 
 export const Route = createFileRoute("/hotels/$id")({
-  head: () => ({ meta: [{ title: "Hotel — GroupToStay" }] }),
+  loader: async ({ params }) => {
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const lookupColumn = uuidRe.test(params.id) ? "id" : "slug";
+    const { data } = await supabase
+      .from("hotels")
+      .select("name,description,city,country,address,star_rating,cover_image")
+      .eq(lookupColumn, params.id)
+      .eq("status", "approved")
+      .maybeSingle();
+    return { hotel: data };
+  },
+  head: ({ params, loaderData }) => {
+    const h = loaderData?.hotel;
+    const title = h?.name ? `${h.name} — GroupToStay` : "Hotel — GroupToStay";
+    const description = h
+      ? `${h.name}${h.city ? " in " + h.city : ""} — ${h.description ?? "Group-ready hotel on GroupToStay."}`.slice(0, 300)
+      : "Hotel listing on GroupToStay.";
+    const canonical = `https://groupstay-connect.lovable.app/hotels/${params.id}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: canonical },
+        { property: "og:type", content: "product" },
+        ...(h?.cover_image ? [{ property: "og:image", content: h.cover_image }] : []),
+      ],
+      links: [{ rel: "canonical", href: canonical }],
+      scripts: h
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Hotel",
+                name: h.name,
+                description: h.description ?? undefined,
+                starRating: h.star_rating
+                  ? { "@type": "Rating", ratingValue: h.star_rating }
+                  : undefined,
+                image: h.cover_image ?? undefined,
+                address: {
+                  "@type": "PostalAddress",
+                  streetAddress: h.address ?? undefined,
+                  addressLocality: h.city ?? undefined,
+                  addressCountry: h.country ?? undefined,
+                },
+                url: canonical,
+              }),
+            },
+          ]
+        : undefined,
+    };
+  },
   component: Page,
   errorComponent: () => <ErrorView />,
   notFoundComponent: () => <ErrorView />,

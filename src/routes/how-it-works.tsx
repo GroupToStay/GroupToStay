@@ -10,9 +10,18 @@ export const Route = createFileRoute("/how-it-works")({
       { title: "How it works — GroupToStay" },
       {
         name: "description",
-        content: "From Group Request to confirmed group booking in three steps.",
+        content:
+          "From Group Request to confirmed group booking in three steps. See how GroupToStay sources competing hotel quotations.",
       },
+      { property: "og:title", content: "How it works — GroupToStay" },
+      {
+        property: "og:description",
+        content:
+          "Post a Group Request, receive competing hotel quotations, and confirm the best offer in three steps.",
+      },
+      { property: "og:url", content: "https://groupstay-connect.lovable.app/how-it-works" },
     ],
+    links: [{ rel: "canonical", href: "https://groupstay-connect.lovable.app/how-it-works" }],
   }),
   component: Page,
 });
@@ -32,7 +41,7 @@ function Page() {
                 <div className="grid h-10 w-10 place-items-center rounded-md bg-primary text-gold font-display text-lg">
                   {n}
                 </div>
-                <h3 className="mt-4 font-display text-xl text-primary">{t(`how.step${n}Title`)}</h3>
+                <h2 className="mt-4 font-display text-xl text-primary">{t(`how.step${n}Title`)}</h2>
                 <p className="mt-2 text-sm text-muted-foreground">{t(`how.step${n}Body`)}</p>
               </CardContent>
             </Card>

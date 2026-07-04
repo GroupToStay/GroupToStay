@@ -14,10 +14,18 @@ export const Route = createFileRoute("/for-hotels")({
       { title: "For hotels — GroupToStay" },
       {
         name: "description",
-        content: "List your hotel and receive pre-qualified Group Requests. Pay only when you win.",
+        content:
+          "List your hotel on GroupToStay and receive pre-qualified Group Requests. Pay only when you win group business.",
       },
-      { property: "og:title", content: "Win more group business with GroupToStay" },
+      { property: "og:title", content: "GroupToStay — Win more group business" },
+      {
+        property: "og:description",
+        content:
+          "Reach verified group organizers, respond to matched Group Requests, and grow group revenue with GroupToStay.",
+      },
+      { property: "og:url", content: "https://groupstay-connect.lovable.app/for-hotels" },
     ],
+    links: [{ rel: "canonical", href: "https://groupstay-connect.lovable.app/for-hotels" }],
   }),
   component: Page,
 });
@@ -49,9 +57,9 @@ function Page() {
             <Card key={n}>
               <CardContent className="p-6">
                 <CheckCircle2 className="h-6 w-6 text-gold" />
-                <h3 className="mt-3 font-display text-xl text-primary">
+                <h2 className="mt-3 font-display text-xl text-primary">
                   {t(`forHotels.benefit${n}Title`)}
-                </h3>
+                </h2>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {t(`forHotels.benefit${n}Body`)}
                 </p>

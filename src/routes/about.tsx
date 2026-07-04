@@ -9,9 +9,18 @@ export const Route = createFileRoute("/about")({
       { title: "About — GroupToStay" },
       {
         name: "description",
-        content: "The B2B marketplace built exclusively for group accommodation.",
+        content:
+          "GroupToStay — the B2B marketplace built exclusively for group accommodation sourcing and hotel quotations.",
       },
+      { property: "og:title", content: "About — GroupToStay" },
+      {
+        property: "og:description",
+        content:
+          "Learn how GroupToStay connects group organizers with verified hotels for competitive group quotations.",
+      },
+      { property: "og:url", content: "https://groupstay-connect.lovable.app/about" },
     ],
+    links: [{ rel: "canonical", href: "https://groupstay-connect.lovable.app/about" }],
   }),
   component: Page,
 });
