@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "@tanstack/react-router";
 
 import { applyLocale } from "@/lib/i18n";
 import { installNoTranslateAttributeGuard } from "@/lib/translation-hardening";
@@ -61,6 +62,7 @@ const ApplicationLocaleContext = createContext<ApplicationLocaleContextValue>(de
 
 export function ApplicationLocaleProvider({ children }: { children: ReactNode }) {
   const { i18n } = useTranslation();
+  const router = useRouter();
   const language = normalizeAppLanguage(i18n.language);
   const languageRef = useRef<AppLanguage>(language);
 
@@ -78,8 +80,9 @@ export function ApplicationLocaleProvider({ children }: { children: ReactNode })
       const normalized = normalizeAppLanguage(nextLanguage);
       await i18n.changeLanguage(normalized);
       applyLocale(normalized);
+      await router.invalidate();
     },
-    [i18n],
+    [i18n, router],
   );
 
   const value = useMemo<ApplicationLocaleContextValue>(
