@@ -114,7 +114,7 @@ function ChatPage() {
     return () => {
       cancelled = true;
     };
-  }, [id, userId]);
+  }, [id, t, userId]);
 
   // Realtime: new messages + typing presence.
   useEffect(() => {

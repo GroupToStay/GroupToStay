@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { arSA, enUS } from "date-fns/locale";
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
+import { arSA, enUS } from "react-day-picker/locale";
 
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
