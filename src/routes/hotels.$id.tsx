@@ -11,6 +11,7 @@ import { useRoles } from "@/hooks/use-role";
 import { useAuth } from "@/hooks/use-auth";
 import { AccessDenied } from "@/components/access-denied";
 import { HotelPhoto } from "@/components/hotel-photo";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/hotels/$id")({
   loader: async ({ params }) => {
@@ -26,13 +27,18 @@ export const Route = createFileRoute("/hotels/$id")({
   },
   head: ({ params, loaderData }) => {
     const h = loaderData?.hotel;
-    const title = h?.name ? `${h.name} — GroupToStay` : "Hotel — GroupToStay";
+    const title = h?.name
+      ? i18n.t("hotels.detailTitle", { name: h.name })
+      : i18n.t("hotels.detailFallbackTitle");
     const description = h
-      ? `${h.name}${h.city ? " in " + h.city : ""} — ${h.description ?? "Group-ready hotel on GroupToStay."}`.slice(
-          0,
-          300,
-        )
-      : "Hotel listing on GroupToStay.";
+      ? i18n
+          .t(h.city ? "hotels.detailMetaWithCity" : "hotels.detailMetaWithoutCity", {
+            name: h.name,
+            city: h.city,
+            description: h.description ?? i18n.t("hotels.detailDescription"),
+          })
+          .slice(0, 300)
+      : i18n.t("hotels.detailOgDescription");
     const canonical = `https://groupstay-connect.lovable.app/hotels/${params.id}`;
     return {
       meta: [
@@ -77,12 +83,13 @@ export const Route = createFileRoute("/hotels/$id")({
 });
 
 function ErrorView() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen grid place-items-center">
       <div>
-        Hotel not found.{" "}
+        {t("hotels.notFound")}{" "}
         <Link to="/hotels" className="underline">
-          Back to hotels
+          {t("hotels.backToHotels")}
         </Link>
       </div>
     </div>
@@ -119,7 +126,7 @@ function Page() {
   if (authLoading || rolesLoading)
     return (
       <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">
-        Loading…
+        {t("hotels.loading")}
       </div>
     );
   if (!isAdmin) return <AccessDenied />;
@@ -180,7 +187,10 @@ function Page() {
                     <div key={r.id} className="rounded-lg border border-border p-4 bg-card">
                       <div className="font-semibold">{r.room_type}</div>
                       <div className="text-sm text-muted-foreground">
-                        Capacity {r.capacity} · {r.count_available} available
+                        {t("hotels.capacityAvailable", {
+                          capacity: r.capacity,
+                          available: r.count_available,
+                        })}
                       </div>
                       <div className="mt-2 text-primary">
                         <span className="text-sm text-muted-foreground">{t("hotels.from")} </span>
@@ -199,18 +209,18 @@ function Page() {
           </div>
           {isAdmin ? (
             <aside className="rounded-xl border border-border bg-surface p-6 h-fit sticky top-24">
-              <h3 className="font-display text-lg text-primary">Admin Review</h3>
-              <p className="mt-2 text-sm text-muted-foreground">Read-only view. Approval status:</p>
+              <h3 className="font-display text-lg text-primary">{t("hotels.adminReview")}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{t("hotels.approvalStatus")}</p>
               <Badge className="mt-3 bg-success/15 text-success">{hotel.status}</Badge>
               <Button asChild variant="outline" className="w-full mt-4">
-                <Link to="/admin/hotel-listings">Back to Admin Review</Link>
+                <Link to="/admin/hotel-listings">{t("hotels.backToAdminReview")}</Link>
               </Button>
             </aside>
           ) : isHotel ? null : (
             <aside className="rounded-xl border border-border bg-surface p-6 h-fit sticky top-24">
               <h3 className="font-display text-lg text-primary">{t("nav.getQuote")}</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Get competing offers from {hotel.city} hotels including this one.
+                {t("hotels.offersDescription", { city: hotel.city })}
               </p>
               <Button asChild variant="gold" className="w-full mt-4">
                 <Link to="/request-quote" search={{ city: hotel.city, country: hotel.country }}>

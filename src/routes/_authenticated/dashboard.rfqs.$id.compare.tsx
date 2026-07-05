@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Star } from "lucide-react";
 import { toast } from "sonner";
-import { formatDistanceToNow } from "date-fns";
 import { useApplicationLocale } from "@/lib/application-locale";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/rfqs/$id/compare")({
-  head: () => ({ meta: [{ title: "Compare quotations — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("dashboard.compare.metaTitle") }] }),
   component: Page,
 });
 
@@ -21,7 +21,7 @@ function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
-  const { formatNumber } = useApplicationLocale();
+  const { formatDateTime, formatNumber } = useApplicationLocale();
 
   const { data, isLoading } = useQuery({
     queryKey: ["rfq-compare", id],
@@ -150,9 +150,7 @@ function Page() {
                     <div className="line-clamp-3 text-muted-foreground">{q.notes || "—"}</div>
                   </td>
                   <td className="px-3 py-3 border-b border-border text-muted-foreground">
-                    {q.created_at
-                      ? formatDistanceToNow(new Date(q.created_at), { addSuffix: true })
-                      : "—"}
+                    {q.created_at ? formatDateTime(q.created_at) : "—"}
                   </td>
                   <td className="px-3 py-3 border-b border-border">
                     <Button

@@ -1,17 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { Bell, CheckCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNotifications } from "@/hooks/use-notifications";
 import { EmptyState } from "@/components/empty-state";
 import { useApplicationLocale } from "@/lib/application-locale";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/notifications")({
-  head: () => ({ meta: [{ title: "Notifications — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("notifications.metaTitle") }] }),
   component: NotificationsPage,
 });
 
 function NotificationsPage() {
+  const { t } = useTranslation();
   const { items, loading, unreadCount, markRead, markAllRead, remove } = useNotifications(100);
   const { formatDateTime } = useApplicationLocale();
 
@@ -20,28 +23,28 @@ function NotificationsPage() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Bell className="h-6 w-6 text-primary" />
-          <h1 className="font-display text-3xl text-primary">Notifications</h1>
+          <h1 className="font-display text-3xl text-primary">{t("notifications.title")}</h1>
           {unreadCount > 0 && (
             <span className="text-xs bg-gold text-primary-foreground rounded-full px-2 py-0.5">
-              {unreadCount} unread
+              {t("notifications.unreadCount", { count: unreadCount })}
             </span>
           )}
         </div>
         {unreadCount > 0 && (
           <Button variant="outline" size="sm" onClick={() => void markAllRead()}>
-            <CheckCheck className="h-4 w-4 mr-1" /> Mark all read
+            <CheckCheck className="h-4 w-4 me-1" /> {t("notifications.markAllRead")}
           </Button>
         )}
       </div>
 
       {loading ? (
-        <div className="text-muted-foreground">Loading…</div>
+        <div className="text-muted-foreground">{t("common.loading")}</div>
       ) : items.length === 0 ? (
         <EmptyState
           icon={Bell}
-          title="You're all caught up"
-          description="No notifications yet. We'll let you know when something happens on your account."
-          actionLabel="Go to dashboard"
+          title={t("notifications.empty")}
+          description={t("notifications.emptyDescription")}
+          actionLabel={t("notifications.goToDashboard")}
           actionTo="/dashboard"
         />
       ) : (
@@ -68,7 +71,7 @@ function NotificationsPage() {
                       void remove(n.id);
                     }}
                     className="text-muted-foreground hover:text-destructive"
-                    aria-label="Delete"
+                    aria-label={t("notifications.delete")}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>

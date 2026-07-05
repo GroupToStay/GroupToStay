@@ -32,15 +32,15 @@ import {
   sharedValuesFromSearch,
   type RfqSearchParams,
 } from "@/features/rfq/rfq-search-params";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/request-quote")({
   head: () => ({
     meta: [
-      { title: "Create a group request — GroupToStay" },
+      { title: i18n.t("rfq.create.metaTitle") },
       {
         name: "description",
-        content:
-          "One request. Multiple hotel offers. Submit one group accommodation request and receive competing hotel quotations.",
+        content: i18n.t("rfq.create.metaDescription"),
       },
     ],
   }),
@@ -60,13 +60,9 @@ function Page() {
   const blocked = !!user && !rolesLoading && !isOrganizer;
   useEffect(() => {
     if (blocked) {
-      toast.info(
-        isAdmin
-          ? "Admins cannot create group requests."
-          : "Hotel accounts cannot create group requests.",
-      );
+      toast.info(isAdmin ? t("rfq.create.adminBlocked") : t("rfq.create.hotelBlocked"));
     }
-  }, [blocked, isAdmin]);
+  }, [blocked, isAdmin, t]);
 
   const [shared, setShared] = useState<RfqSharedValues>(() =>
     sharedValuesFromSearch(search, { guests_count: 30, rooms_needed: 10 }),
@@ -194,26 +190,29 @@ function Page() {
               <div className="flex-1 text-sm">
                 {isPending && (
                   <>
-                    <b>Verification in progress.</b> Your agency profile is under review. You will
-                    be able to publish requests once verified.
+                    <b>{t("rfq.create.verification.pendingTitle")}</b>{" "}
+                    {t("rfq.create.verification.pendingBody")}
                   </>
                 )}
                 {isRejected && (
                   <>
-                    <b>Verification rejected.</b>{" "}
-                    {rejectionReason && <>Reason: {rejectionReason}. </>}Please update your profile
-                    and resubmit.
+                    <b>{t("rfq.create.verification.rejectedTitle")}</b>{" "}
+                    {rejectionReason && (
+                      <>{t("rfq.create.verification.reason", { reason: rejectionReason })} </>
+                    )}
+                    {t("rfq.create.verification.rejectedBody")}
                   </>
                 )}
                 {(isDraft || (!isPending && !isRejected && verifStatus !== "verified")) && (
                   <>
-                    <b>Complete your agency verification</b> to publish requests and contact hotels.
+                    <b>{t("rfq.create.verification.draftTitle")}</b>{" "}
+                    {t("rfq.create.verification.draftBody")}
                   </>
                 )}
                 <div className="mt-2">
                   <Link to="/dashboard/agency-profile">
                     <Button variant="gold" size="sm">
-                      Open Agency Profile
+                      {t("rfq.create.verification.openAgencyProfile")}
                     </Button>
                   </Link>
                 </div>
@@ -283,7 +282,7 @@ function Page() {
                 value={shared}
                 onChange={patchShared}
                 sections={["dates", "counts", "categories", "requirements"]}
-                requirementsHint="Share any operational requirements. Hotels will see this with the RFQ."
+                requirementsHint={t("rfq.create.requirementsHint")}
               />
             )}
 

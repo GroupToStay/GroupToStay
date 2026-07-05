@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { I18nextProvider } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -25,20 +26,20 @@ import {
 installExternalDomMutationRecovery();
 
 function NotFoundComponent() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="font-display text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">{t("errors.notFound.title")}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t("errors.notFound.description")}</p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            {t("errors.actions.goHome")}
           </Link>
         </div>
       </div>
@@ -47,6 +48,7 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const isTranslatedDomMutation = isExternalDomMutationError(error);
   if (!isTranslatedDomMutation) {
@@ -69,7 +71,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   if (isTranslatedDomMutation) {
     return (
       <div className="notranslate sr-only" translate="no" role="status" aria-live="polite">
-        Recovering interface
+        {t("errors.recoveringInterface")}
       </div>
     );
   }
@@ -78,11 +80,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          {t("errors.pageLoad.title")}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{t("errors.pageLoad.description")}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -91,13 +91,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            {t("common.retry")}
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            {t("errors.actions.goHome")}
           </a>
         </div>
       </div>
@@ -112,27 +112,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "google", content: "notranslate" },
       { name: "googlebot", content: "notranslate" },
-      { title: "GroupToStay — Group accommodation marketplace" },
+      { title: i18n.t("landing.meta.title") },
       {
         name: "description",
-        content:
-          "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing — Umrah, Hajj, tourism, corporate, sports and events.",
+        content: i18n.t("landing.meta.description"),
       },
       { name: "author", content: "GroupToStay" },
       { property: "og:site_name", content: "GroupToStay" },
-      { property: "og:title", content: "GroupToStay — Group accommodation marketplace" },
+      { property: "og:title", content: i18n.t("landing.meta.title") },
       {
         property: "og:description",
-        content:
-          "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing.",
+        content: i18n.t("landing.meta.shortDescription"),
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "GroupToStay — Group accommodation marketplace" },
+      { name: "twitter:title", content: i18n.t("landing.meta.title") },
       {
         name: "twitter:description",
-        content:
-          "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing.",
+        content: i18n.t("landing.meta.shortDescription"),
       },
     ],
     links: [
@@ -155,8 +152,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               "@type": "Organization",
               name: "GroupToStay",
               url: "https://groupstay-connect.lovable.app",
-              description:
-                "B2B marketplace connecting group organizers with approved hotels for competitive group quotations.",
+              description: i18n.t("landing.schema.organizationDescription"),
             },
             {
               "@type": "WebSite",

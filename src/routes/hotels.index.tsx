@@ -21,12 +21,13 @@ import { AccessDenied } from "@/components/access-denied";
 import { useRoles } from "@/hooks/use-role";
 import { useAuth } from "@/hooks/use-auth";
 import { HotelPhoto } from "@/components/hotel-photo";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/hotels/")({
   head: () => ({
     meta: [
-      { title: "Group-ready hotels — GroupToStay" },
-      { name: "description", content: "Admin-only hotel directory." },
+      { title: i18n.t("hotels.metaTitle") },
+      { name: "description", content: i18n.t("hotels.metaDescription") },
     ],
   }),
   component: Page,
@@ -69,7 +70,7 @@ function Page() {
   if (authLoading || rolesLoading) {
     return (
       <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">
-        Loading…
+        {t("hotels.loading")}
       </div>
     );
   }
@@ -127,8 +128,8 @@ function Page() {
             <EmptyState
               icon={Search}
               title={t("hotels.empty")}
-              description="Try adjusting your filters, or explore our other destinations."
-              actionLabel="Post a group request"
+              description={t("hotels.emptyDescription")}
+              actionLabel={t("hotels.postRequest")}
               actionTo="/request-quote"
             />
           ) : (
@@ -151,7 +152,7 @@ function Page() {
                     )}
                     {h.featured && (
                       <Badge className="absolute top-3 start-3 bg-gold text-gold-foreground border-0">
-                        Featured
+                        {t("hotels.featured")}
                       </Badge>
                     )}
                   </div>

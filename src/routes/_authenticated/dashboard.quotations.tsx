@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Star, ClipboardList } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { useApplicationLocale } from "@/lib/application-locale";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/quotations")({
-  head: () => ({ meta: [{ title: "Quotations — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("dashboard.quotations.metaTitle") }] }),
   component: Page,
 });
 
@@ -52,7 +53,7 @@ function Page() {
         <EmptyState
           icon={ClipboardList}
           title={t("dashboard.noQuotesYet")}
-          description="Hotels will send competitive quotations here once your requests are published."
+          description={t("dashboard.quotations.emptyDescription")}
           actionLabel={t("dashboard.newRfq")}
           actionTo="/dashboard/rfqs/new"
           secondaryLabel={t("dashboard.myRfqs")}
@@ -69,7 +70,7 @@ function Page() {
                     params={{ id: q.rfq_id }}
                     className="font-medium hover:underline"
                   >
-                    {q.rfq?.title ?? "Request"}
+                    {q.rfq?.title ?? t("dashboard.quotations.requestFallback")}
                   </Link>
                   <div className="text-sm text-muted-foreground">
                     {q.hotels?.name} · {q.hotels?.city}, {q.hotels?.country}

@@ -1,0 +1,103 @@
+{
+  "common": {
+    "brand": {
+      "name": "GroupToStay",
+      "tagline": "طلب واحد. عروض متعددة من الفنادق."
+    },
+    "languageNames": {
+      "englishShort": "EN",
+      "arabicShort": "العربية"
+    },
+    "accessibility": {
+      "breadcrumb": "مسار التنقل",
+      "more": "المزيد",
+      "previousSlide": "الشريحة السابقة",
+      "nextSlide": "الشريحة التالية",
+      "close": "إغلاق",
+      "pagination": "ترقيم الصفحات",
+      "previousPage": "الانتقال إلى الصفحة السابقة",
+      "previous": "السابق",
+      "nextPage": "الانتقال إلى الصفحة التالية",
+      "next": "التالي",
+      "morePages": "صفحات إضافية",
+      "sidebar": "الشريط الجانبي",
+      "mobileSidebarDescription": "يعرض الشريط الجانبي على الجوال.",
+      "toggleSidebar": "تبديل الشريط الجانبي"
+    },
+    "loading": "جارٍ التحميل…",
+    "error": "حدث خطأ ما.",
+    "retry": "إعادة المحاولة",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "language": "اللغة",
+    "city": "المدينة",
+    "country": "الدولة",
+    "yes": "نعم",
+    "no": "لا",
+    "soon": "قريبًا",
+    "comingSoon": "قريبًا",
+    "other": "أخرى",
+    "notAvailable": "غير متاح",
+    "send": "إرسال",
+    "selectCountry": "اختر الدولة",
+    "selectCity": "اختر المدينة",
+    "selectCountryFirst": "اختر الدولة أولًا",
+    "selectCountryCity": "يرجى اختيار الدولة والمدينة.",
+    "selectHotelType": "يرجى اختيار نوع الفندق.",
+    "select": "اختر"
+  },
+  "role": {
+    "agency": "وكالة",
+    "hotel": "فندق",
+    "admin": "مسؤول",
+    "visitor": "زائر",
+    "superAdmin": "مسؤول رئيسي"
+  },
+  "stats": {
+    "rooms": "الغرف المشمولة بالعروض",
+    "destinations": "الوجهات",
+    "responseTime": "متوسط وقت الاستجابة",
+    "save": "متوسط التوفير"
+  },
+  "status": {
+    "unknown": "غير معروف",
+    "approved": "معتمد",
+    "verified": "موثّق",
+    "active": "نشط",
+    "open": "مفتوح",
+    "awarded": "تمت الترسية",
+    "success": "ناجح",
+    "submitted": "مقدّم",
+    "pending": "قيد الانتظار",
+    "pending_review": "قيد المراجعة",
+    "quoting": "استقبال العروض",
+    "under_review": "قيد المراجعة",
+    "draft": "مسودة",
+    "waiting": "بانتظار الإجراء",
+    "rejected": "مرفوض",
+    "cancelled": "ملغي",
+    "suspended": "موقوف",
+    "disabled": "معطّل",
+    "expired": "منتهي الصلاحية",
+    "error": "خطأ",
+    "closed": "مغلق",
+    "locked": "مقفل",
+    "archived": "مؤرشف",
+    "notified": "تم الإشعار",
+    "trusted": "موثوق",
+    "premium": "مميز",
+    "unverified": "غير موثّق",
+    "not_required": "غير مطلوب",
+    "reconsider": "طلب معلومات إضافية",
+    "blocked": "محظور",
+    "inactive": "غير نشط"
+  },
+  "footer": {
+    "description": "منصة أعمال متخصصة في الإقامة الجماعية. طلب واحد يتيح للفنادق تقديم عروض تنافسية.",
+    "quickLinks": "روابط سريعة",
+    "contact": "التواصل",
+    "legal": "الشؤون القانونية",
+    "location": "الرياض، المملكة العربية السعودية",
+    "madeFor": "مصممة لقطاع الضيافة الجماعية."
+  }
+}

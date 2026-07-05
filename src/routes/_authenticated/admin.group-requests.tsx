@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { formatDistanceToNow } from "date-fns";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { toast } from "sonner";
 import {
   Calendar,
@@ -34,6 +35,7 @@ import {
   getPageSlice,
 } from "@/components/admin/management-utils";
 import { EmptyState } from "@/components/empty-state";
+import { HOTEL_CATEGORY_TRANSLATION_KEYS, type HotelCategory } from "@/features/rfq/rfq-options";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -62,9 +64,10 @@ import {
 } from "@/components/ui/table";
 import type { Database } from "@/integrations/supabase/types";
 import { useApplicationLocale } from "@/lib/application-locale";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/group-requests")({
-  head: () => ({ meta: [{ title: "Group Requests - Admin" }] }),
+  head: () => ({ meta: [{ title: i18n.t("admin.groupRequests.metaTitle") }] }),
   component: Page,
 });
 
@@ -77,6 +80,7 @@ type Quote = Pick<
 type RfqStatus = Database["public"]["Enums"]["rfq_status"];
 type StatusFilter = "all" | "pending" | "open" | "closed" | "cancelled" | "expired";
 type SortKey = "newest" | "oldest" | "guests" | "destination";
+const ANY_HOTEL_CATEGORY = "Any";
 type DialogState =
   | { type: "request"; row: AdminRfq }
   | { type: "quotes"; row: AdminRfq }
@@ -89,24 +93,25 @@ type AdminRfq = Rfq & {
   quotationCount: number;
 };
 
-const statusFilters: { value: StatusFilter; label: string }[] = [
-  { value: "all", label: "All Status" },
-  { value: "pending", label: "Pending" },
-  { value: "open", label: "Open" },
-  { value: "closed", label: "Closed" },
-  { value: "cancelled", label: "Cancelled" },
-  { value: "expired", label: "Expired" },
+const statusFilterKeys: { value: StatusFilter; labelKey: string }[] = [
+  { value: "all", labelKey: "admin.groupRequests.filters.allStatus" },
+  { value: "pending", labelKey: "status.pending" },
+  { value: "open", labelKey: "status.open" },
+  { value: "closed", labelKey: "status.closed" },
+  { value: "cancelled", labelKey: "status.cancelled" },
+  { value: "expired", labelKey: "status.expired" },
 ];
 
-const sortOptions: { value: SortKey; label: string }[] = [
-  { value: "newest", label: "Newest First" },
-  { value: "oldest", label: "Oldest First" },
-  { value: "guests", label: "Guests" },
-  { value: "destination", label: "Destination" },
+const sortOptionKeys: { value: SortKey; labelKey: string }[] = [
+  { value: "newest", labelKey: "admin.groupRequests.sort.newest" },
+  { value: "oldest", labelKey: "admin.groupRequests.sort.oldest" },
+  { value: "guests", labelKey: "admin.groupRequests.sort.guests" },
+  { value: "destination", labelKey: "admin.groupRequests.sort.destination" },
 ];
 
 function Page() {
   const qc = useQueryClient();
+  const { t } = useTranslation();
   const { compare, language } = useApplicationLocale();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [sort, setSort] = useState<SortKey>("newest");
@@ -176,10 +181,11 @@ function Page() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Request updated");
+      toast.success(t("admin.groupRequests.toasts.updated"));
       qc.invalidateQueries({ queryKey: ["admin-rfq-management"] });
     },
-    onError: (err: unknown) => toast.error(errorMessage(err, "Request update failed")),
+    onError: (err: unknown) =>
+      toast.error(errorMessage(err, t("admin.groupRequests.errors.updateFailed"))),
   });
 
   const deleteRequest = useMutation({
@@ -188,10 +194,11 @@ function Page() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Request deleted");
+      toast.success(t("admin.groupRequests.toasts.deleted"));
       qc.invalidateQueries({ queryKey: ["admin-rfq-management"] });
     },
-    onError: (err: unknown) => toast.error(errorMessage(err, "Request delete failed")),
+    onError: (err: unknown) =>
+      toast.error(errorMessage(err, t("admin.groupRequests.errors.deleteFailed"))),
   });
 
   const filteredRows = useMemo(() => {
@@ -203,7 +210,7 @@ function Page() {
         return [
           row.id,
           row.title,
-          agencyName(row.agency),
+          agencyName(row.agency, t),
           row.destination_country,
           row.destination_city,
         ]
@@ -222,7 +229,7 @@ function Page() {
           );
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
-  }, [compare, query, rows, sort, statusFilter]);
+  }, [compare, query, rows, sort, statusFilter, t]);
 
   useEffect(() => {
     setPage(1);
@@ -230,7 +237,7 @@ function Page() {
 
   const pageRows = getPageSlice(filteredRows, page, pageSize);
   const counts = useMemo(() => {
-    return statusFilters.reduce<Record<StatusFilter, number>>(
+    return statusFilterKeys.reduce<Record<StatusFilter, number>>(
       (acc, item) => {
         acc[item.value] =
           item.value === "all"
@@ -244,37 +251,37 @@ function Page() {
 
   const metrics: AdminMetric[] = [
     {
-      label: "All Requests",
+      label: t("admin.groupRequests.metrics.allRequests.label"),
       value: formatCompactNumber(rows.length, language),
-      description: "Total RFQs",
+      description: t("admin.groupRequests.metrics.allRequests.description"),
       icon: FileText,
       tone: "info",
     },
     {
-      label: "Pending",
+      label: t("status.pending"),
       value: formatCompactNumber(counts.pending ?? 0, language),
-      description: "Awaiting quotes or review",
+      description: t("admin.groupRequests.metrics.pending.description"),
       icon: Calendar,
       tone: "warning",
     },
     {
-      label: "Open",
+      label: t("status.open"),
       value: formatCompactNumber(counts.open ?? 0, language),
-      description: "Actively quoting",
+      description: t("admin.groupRequests.metrics.open.description"),
       icon: Hotel,
       tone: "success",
     },
     {
-      label: "Closed",
+      label: t("status.closed"),
       value: formatCompactNumber(counts.closed ?? 0, language),
-      description: "Completed or awarded",
+      description: t("admin.groupRequests.metrics.closed.description"),
       icon: RotateCcw,
       tone: "neutral",
     },
     {
-      label: "Cancelled",
+      label: t("status.cancelled"),
       value: formatCompactNumber(counts.cancelled ?? 0, language),
-      description: "Cancelled requests",
+      description: t("admin.groupRequests.metrics.cancelled.description"),
       icon: ShieldAlert,
       tone: "error",
     },
@@ -282,8 +289,8 @@ function Page() {
 
   return (
     <AdminManagementPage
-      title="Group Requests (RFQ)"
-      description="Manage all accommodation requests created by agencies."
+      title={t("admin.groupRequests.title")}
+      description={t("admin.groupRequests.description")}
       icon={FileText}
       metrics={metrics}
     >
@@ -294,7 +301,7 @@ function Page() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             className="pl-9"
-            placeholder="Search by ID, agency, destination or city"
+            placeholder={t("admin.groupRequests.searchPlaceholder")}
           />
         </div>
         <Select
@@ -305,9 +312,9 @@ function Page() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {statusFilters.map((option) => (
+            {statusFilterKeys.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -317,9 +324,9 @@ function Page() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {sortOptions.map((option) => (
+            {sortOptionKeys.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -332,27 +339,27 @@ function Page() {
             setSort("newest");
           }}
         >
-          Reset Filters
+          {t("admin.common.resetFilters")}
         </Button>
       </AdminToolbar>
 
       {isLoading ? (
         <Card>
           <CardContent className="flex items-center gap-2 p-6 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading RFQs...
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("admin.groupRequests.loading")}
           </CardContent>
         </Card>
       ) : error ? (
         <Card>
           <CardContent className="p-6 text-sm text-error">
-            Could not load RFQ management data.
+            {t("admin.groupRequests.errors.loadFailed")}
           </CardContent>
         </Card>
       ) : filteredRows.length === 0 ? (
         <EmptyState
           icon={FileText}
-          title="No Requests Available"
-          description="No group accommodation requests match these filters."
+          title={t("admin.groupRequests.empty.title")}
+          description={t("admin.groupRequests.empty.description")}
         />
       ) : (
         <AdminTableCard
@@ -370,15 +377,21 @@ function Page() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/30">
-                  <TableHead>RFQ</TableHead>
-                  <TableHead>Agency</TableHead>
-                  <TableHead>Destination</TableHead>
-                  <TableHead>Guests / Rooms</TableHead>
-                  <TableHead className="hidden xl:table-cell">Categories</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Quotes</TableHead>
-                  <TableHead className="hidden lg:table-cell">Updated</TableHead>
-                  <TableHead className="w-12 text-right">Actions</TableHead>
+                  <TableHead>{t("admin.groupRequests.table.rfq")}</TableHead>
+                  <TableHead>{t("admin.groupRequests.table.agency")}</TableHead>
+                  <TableHead>{t("admin.groupRequests.table.destination")}</TableHead>
+                  <TableHead>{t("admin.groupRequests.table.guestsRooms")}</TableHead>
+                  <TableHead className="hidden xl:table-cell">
+                    {t("admin.groupRequests.table.categories")}
+                  </TableHead>
+                  <TableHead>{t("admin.groupRequests.table.status")}</TableHead>
+                  <TableHead>{t("admin.groupRequests.table.quotes")}</TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    {t("admin.groupRequests.table.updated")}
+                  </TableHead>
+                  <TableHead className="w-12 text-right">
+                    {t("admin.groupRequests.table.actions")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -395,7 +408,7 @@ function Page() {
                       </div>
                     </TableCell>
                     <TableCell className="min-w-[160px]">
-                      <div className="font-medium">{agencyName(row.agency)}</div>
+                      <div className="font-medium">{agencyName(row.agency, t)}</div>
                       <div className="text-xs text-muted-foreground">
                         {contactEmail(row.agency)}
                       </div>
@@ -408,8 +421,16 @@ function Page() {
                       <div className="text-xs text-muted-foreground">{row.destination_country}</div>
                     </TableCell>
                     <TableCell>
-                      <div>{row.guests_count} guests</div>
-                      <div className="text-xs text-muted-foreground">{row.rooms_needed} rooms</div>
+                      <div>
+                        {t("admin.groupRequests.table.guestsCount", {
+                          count: row.guests_count,
+                        })}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {t("admin.groupRequests.table.roomsCount", {
+                          count: row.rooms_needed,
+                        })}
+                      </div>
                     </TableCell>
                     <TableCell className="hidden max-w-[220px] xl:table-cell">
                       <CategoryPreview row={row} />
@@ -419,7 +440,7 @@ function Page() {
                     </TableCell>
                     <TableCell className="font-medium">{row.quotationCount}</TableCell>
                     <TableCell className="hidden text-muted-foreground lg:table-cell">
-                      {formatDistanceToNow(new Date(row.updated_at), { addSuffix: true })}
+                      {formatAdminDate(row.updated_at)}
                     </TableCell>
                     <TableCell onClick={(event) => event.stopPropagation()}>
                       <div className="flex justify-end">
@@ -431,7 +452,7 @@ function Page() {
                           onClose={() => updateStatus.mutate({ id: row.id, status: "closed" })}
                           onSuspend={() => updateStatus.mutate({ id: row.id, status: "cancelled" })}
                           onDelete={() => {
-                            if (window.confirm("Delete this request permanently?"))
+                            if (window.confirm(t("admin.groupRequests.confirmDelete")))
                               deleteRequest.mutate(row.id);
                           }}
                         />
@@ -463,30 +484,38 @@ function Page() {
                     onClose={() => updateStatus.mutate({ id: row.id, status: "closed" })}
                     onSuspend={() => updateStatus.mutate({ id: row.id, status: "cancelled" })}
                     onDelete={() => {
-                      if (window.confirm("Delete this request permanently?"))
+                      if (window.confirm(t("admin.groupRequests.confirmDelete")))
                         deleteRequest.mutate(row.id);
                     }}
                   />
                 </div>
                 <div className="mt-3 grid gap-2 text-sm">
                   <div className="flex justify-between gap-3">
-                    <span className="text-muted-foreground">Agency</span>
-                    <span className="text-right">{agencyName(row.agency)}</span>
+                    <span className="text-muted-foreground">
+                      {t("admin.groupRequests.table.agency")}
+                    </span>
+                    <span className="text-right">{agencyName(row.agency, t)}</span>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span className="text-muted-foreground">Destination</span>
+                    <span className="text-muted-foreground">
+                      {t("admin.groupRequests.table.destination")}
+                    </span>
                     <span className="text-right">
                       {row.destination_city}, {row.destination_country}
                     </span>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span className="text-muted-foreground">Guests / rooms</span>
+                    <span className="text-muted-foreground">
+                      {t("admin.groupRequests.table.guestsRooms")}
+                    </span>
                     <span>
                       {row.guests_count} / {row.rooms_needed}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-muted-foreground">Status</span>
+                    <span className="text-muted-foreground">
+                      {t("admin.groupRequests.table.status")}
+                    </span>
                     <AdminStatusBadge status={isExpired(row) ? "expired" : row.status} />
                   </div>
                 </div>
@@ -518,26 +547,28 @@ function RequestActions({
   onSuspend: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <AdminActionMenu
       items={[
-        { label: "View Request", icon: Eye, onSelect: onView },
-        { label: "View Quotations", icon: Hotel, onSelect: onQuotes },
-        { label: "View Agency", icon: Users, onSelect: onAgency },
+        { label: t("admin.groupRequests.actions.viewRequest"), icon: Eye, onSelect: onView },
+        { label: t("admin.groupRequests.actions.viewQuotations"), icon: Hotel, onSelect: onQuotes },
+        { label: t("admin.groupRequests.actions.viewAgency"), icon: Users, onSelect: onAgency },
         {
-          label: "Close Request",
+          label: t("admin.groupRequests.actions.closeRequest"),
           icon: RotateCcw,
           onSelect: onClose,
           disabled: row.status === "closed",
         },
         {
-          label: "Suspend Request",
+          label: t("admin.groupRequests.actions.suspendRequest"),
           icon: ShieldAlert,
           onSelect: onSuspend,
           disabled: row.status === "cancelled",
         },
         {
-          label: "Delete Request",
+          label: t("admin.groupRequests.actions.deleteRequest"),
           icon: Trash2,
           onSelect: onDelete,
           destructive: true,
@@ -555,6 +586,7 @@ function RfqDialog({
   dialog: DialogState;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const { formatNumber } = useApplicationLocale();
   const row = dialog?.row;
   return (
@@ -567,48 +599,82 @@ function RfqDialog({
                 {row.title}
                 <AdminStatusBadge status={isExpired(row) ? "expired" : row.status} />
               </DialogTitle>
-              <DialogDescription>Request ID: {row.id}</DialogDescription>
+              <DialogDescription>
+                {t("admin.groupRequests.dialog.requestId", { id: row.id })}
+              </DialogDescription>
             </DialogHeader>
             <AdminDetailGrid>
-              <AdminDetailItem label="Agency" value={agencyName(row.agency)} />
               <AdminDetailItem
-                label="Destination"
+                label={t("admin.groupRequests.table.agency")}
+                value={agencyName(row.agency, t)}
+              />
+              <AdminDetailItem
+                label={t("admin.groupRequests.table.destination")}
                 value={`${row.destination_country}, ${row.destination_city}`}
               />
-              <AdminDetailItem label="Check-in" value={formatAdminDate(row.check_in)} />
-              <AdminDetailItem label="Check-out" value={formatAdminDate(row.check_out)} />
-              <AdminDetailItem label="Guests" value={row.guests_count} />
-              <AdminDetailItem label="Rooms" value={row.rooms_needed} />
-              <AdminDetailItem label="Accommodation Type" value={row.accommodation_type || "Any"} />
-              <AdminDetailItem label="Meal Plan" value={row.meal_plan_code || row.board_type} />
-              <AdminDetailItem label="Quotations" value={row.quotationCount} />
-              <AdminDetailItem label="Created" value={formatAdminDate(row.created_at)} />
-              <AdminDetailItem label="Last Update" value={formatAdminDate(row.updated_at)} />
-              <AdminDetailItem label="Deadline" value={formatAdminDate(row.deadline)} />
+              <AdminDetailItem
+                label={t("rfq.fields.checkIn")}
+                value={formatAdminDate(row.check_in)}
+              />
+              <AdminDetailItem
+                label={t("rfq.fields.checkOut")}
+                value={formatAdminDate(row.check_out)}
+              />
+              <AdminDetailItem label={t("dashboard.guests")} value={row.guests_count} />
+              <AdminDetailItem label={t("dashboard.rooms")} value={row.rooms_needed} />
+              <AdminDetailItem
+                label={t("rfq.fields.accommodation")}
+                value={
+                  row.accommodation_type
+                    ? t(`rfq.accommodationTypes.${row.accommodation_type}`)
+                    : t("rfq.accommodationTypes.any")
+                }
+              />
+              <AdminDetailItem
+                label={t("rfq.fields.mealPlan")}
+                value={mealPlanLabel(row.meal_plan_code || row.board_type, t)}
+              />
+              <AdminDetailItem
+                label={t("admin.groupRequests.table.quotes")}
+                value={row.quotationCount}
+              />
+              <AdminDetailItem
+                label={t("admin.groupRequests.details.created")}
+                value={formatAdminDate(row.created_at)}
+              />
+              <AdminDetailItem
+                label={t("admin.groupRequests.details.lastUpdate")}
+                value={formatAdminDate(row.updated_at)}
+              />
+              <AdminDetailItem
+                label={t("rfq.fields.deadline")}
+                value={formatAdminDate(row.deadline)}
+              />
             </AdminDetailGrid>
             <div className="rounded-md border border-border bg-surface/60 p-3">
               <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Categories
+                {t("admin.groupRequests.table.categories")}
               </div>
               <div className="mt-2 flex flex-wrap gap-1">
-                {(row.hotel_categories_v2?.length ? row.hotel_categories_v2 : ["Any"]).map(
-                  (item) => (
-                    <Badge key={item} variant="secondary">
-                      {item}
-                    </Badge>
-                  ),
-                )}
+                {(row.hotel_categories_v2?.length
+                  ? row.hotel_categories_v2
+                  : [ANY_HOTEL_CATEGORY]
+                ).map((item) => (
+                  <Badge key={item} variant="secondary">
+                    {categoryLabel(item, t)}
+                  </Badge>
+                ))}
               </div>
             </div>
             <div className="rounded-md border border-border bg-surface/60 p-3">
               <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Requirements
+                {t("rfq.fields.requirementsOptional")}
               </div>
               <p className="mt-2 whitespace-pre-wrap text-sm">
                 {row.requirements ||
                   row.additional_requirements ||
                   row.special_requirements ||
-                  "No requirements provided."}
+                  t("admin.groupRequests.details.noRequirements")}
               </p>
             </div>
           </>
@@ -617,14 +683,20 @@ function RfqDialog({
         {dialog?.type === "quotes" && row ? (
           <>
             <DialogHeader>
-              <DialogTitle>Quotations for {row.title}</DialogTitle>
-              <DialogDescription>{row.quotationCount} quotations received.</DialogDescription>
+              <DialogTitle>
+                {t("admin.groupRequests.dialog.quotationsTitle", { title: row.title })}
+              </DialogTitle>
+              <DialogDescription>
+                {t("admin.groupRequests.dialog.quotationsReceived", {
+                  count: row.quotationCount,
+                })}
+              </DialogDescription>
             </DialogHeader>
             {row.quotations.length === 0 ? (
               <EmptyState
                 icon={Hotel}
-                title="No Quotations"
-                description="No hotel has submitted a quotation for this request yet."
+                title={t("admin.groupRequests.empty.noQuotationsTitle")}
+                description={t("admin.groupRequests.empty.noQuotationsDescription")}
               />
             ) : (
               <div className="space-y-2">
@@ -634,12 +706,16 @@ function RfqDialog({
                     className="rounded-md border border-border bg-surface/60 p-3 text-sm"
                   >
                     <div className="flex items-center justify-between gap-3">
-                      <div className="font-medium">Quote {shortId(quote.id)}</div>
+                      <div className="font-medium">
+                        {t("admin.groupRequests.quotes.quoteId", { id: shortId(quote.id) })}
+                      </div>
                       <AdminStatusBadge status={quote.status} />
                     </div>
                     <div className="mt-2 text-muted-foreground">
-                      {quote.currency} {formatNumber(quote.total_price)} - submitted{" "}
-                      {formatDistanceToNow(new Date(quote.created_at), { addSuffix: true })}
+                      {t("admin.groupRequests.quotes.amountSubmitted", {
+                        amount: `${quote.currency} ${formatNumber(quote.total_price)}`,
+                        date: formatAdminDate(quote.created_at),
+                      })}
                     </div>
                   </div>
                 ))}
@@ -651,23 +727,31 @@ function RfqDialog({
         {dialog?.type === "agency" && row ? (
           <>
             <DialogHeader>
-              <DialogTitle>{agencyName(row.agency)}</DialogTitle>
-              <DialogDescription>Agency profile connected to this RFQ.</DialogDescription>
+              <DialogTitle>{agencyName(row.agency, t)}</DialogTitle>
+              <DialogDescription>
+                {t("admin.groupRequests.dialog.agencyDescription")}
+              </DialogDescription>
             </DialogHeader>
             <AdminDetailGrid>
-              <AdminDetailItem label="Full Name" value={row.agency?.full_name || "-"} />
               <AdminDetailItem
-                label="Company Name"
+                label={t("admin.users.fields.fullName")}
+                value={row.agency?.full_name || "-"}
+              />
+              <AdminDetailItem
+                label={t("admin.users.fields.companyName")}
                 value={row.agency?.company_name || row.agency?.legal_company_name || "-"}
               />
-              <AdminDetailItem label="Email" value={contactEmail(row.agency)} />
               <AdminDetailItem
-                label="Phone"
+                label={t("admin.users.fields.email")}
+                value={contactEmail(row.agency)}
+              />
+              <AdminDetailItem
+                label={t("admin.users.table.phone")}
                 value={row.agency?.phone_number || row.agency?.phone || "-"}
               />
-              <AdminDetailItem label="Country" value={row.agency?.country || "-"} />
+              <AdminDetailItem label={t("common.country")} value={row.agency?.country || "-"} />
               <AdminDetailItem
-                label="Verification Status"
+                label={t("admin.users.table.verification")}
                 value={
                   <AdminStatusBadge
                     status={row.agency?.agency_verification_status || "unverified"}
@@ -683,12 +767,15 @@ function RfqDialog({
 }
 
 function CategoryPreview({ row }: { row: AdminRfq }) {
-  const categories = row.hotel_categories_v2?.length ? row.hotel_categories_v2 : ["Any"];
+  const { t } = useTranslation();
+  const categories = row.hotel_categories_v2?.length
+    ? row.hotel_categories_v2
+    : [ANY_HOTEL_CATEGORY];
   return (
     <div className="flex flex-wrap gap-1">
       {categories.slice(0, 2).map((category) => (
         <Badge key={category} variant="secondary">
-          {category}
+          {categoryLabel(category, t)}
         </Badge>
       ))}
       {categories.length > 2 ? <Badge variant="secondary">+{categories.length - 2}</Badge> : null}
@@ -714,19 +801,35 @@ function isExpired(row: Rfq) {
   return deadline < today && !["closed", "cancelled", "awarded"].includes(row.status);
 }
 
-function agencyName(profile?: Profile) {
+function agencyName(profile: Profile | undefined, t: TFunction) {
   return (
     profile?.legal_company_name ||
     profile?.trade_name ||
     profile?.company_name ||
     profile?.org_name ||
     profile?.full_name ||
-    "Unknown agency"
+    t("admin.groupRequests.fallbacks.unknownAgency")
   );
 }
 
 function contactEmail(profile?: Profile) {
   return profile?.contact_email || profile?.contact_person_email || profile?.billing_email || "-";
+}
+
+function categoryLabel(value: string, t: TFunction) {
+  if (value === ANY_HOTEL_CATEGORY) return t("rfq.categories.any");
+  const key = HOTEL_CATEGORY_TRANSLATION_KEYS[value as HotelCategory];
+  return key ? t(key) : value;
+}
+
+function mealPlanLabel(value: string | null, t: TFunction) {
+  if (!value) return t("rfq.mealPlans.room_only");
+  const mealKey = `rfq.mealPlans.${value}`;
+  const boardKey = `rfq.boards.${value}`;
+  const translatedMeal = t(mealKey);
+  if (translatedMeal !== mealKey) return translatedMeal;
+  const translatedBoard = t(boardKey);
+  return translatedBoard !== boardKey ? translatedBoard : value;
 }
 
 function shortId(id: string) {

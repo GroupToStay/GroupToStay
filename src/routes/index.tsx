@@ -43,21 +43,20 @@ import { useRoles } from "@/hooks/use-role";
 import { formatDistanceToNow } from "date-fns";
 import { HotelPhoto } from "@/components/hotel-photo";
 import { useApplicationLocale } from "@/lib/application-locale";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "GroupToStay — Group accommodation marketplace" },
+      { title: i18n.t("landing.meta.title") },
       {
         name: "description",
-        content:
-          "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing — Umrah, Hajj, tourism, corporate, sports and events.",
+        content: i18n.t("landing.meta.description"),
       },
-      { property: "og:title", content: "GroupToStay — Group accommodation marketplace" },
+      { property: "og:title", content: i18n.t("landing.meta.title") },
       {
         property: "og:description",
-        content:
-          "One request. Multiple hotels. The best group rate — for Umrah, Hajj, tourism, corporate, sports and events.",
+        content: i18n.t("landing.meta.ogDescription"),
       },
       { property: "og:url", content: "https://groupstay-connect.lovable.app/" },
     ],
@@ -68,12 +67,11 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Service",
-          name: "GroupToStay Group Accommodation Marketplace",
-          serviceType: "Group hotel sourcing and quotation marketplace",
+          name: i18n.t("landing.schema.name"),
+          serviceType: i18n.t("landing.schema.serviceType"),
           provider: { "@type": "Organization", name: "GroupToStay" },
-          areaServed: "Global",
-          description:
-            "B2B marketplace where verified group organizers post Group Requests and approved hotels return competing quotations for Umrah, Hajj, corporate, sports, and event groups.",
+          areaServed: i18n.t("landing.schema.areaServed"),
+          description: i18n.t("landing.schema.description"),
           url: "https://groupstay-connect.lovable.app/",
         }),
       },
@@ -91,7 +89,9 @@ function Landing() {
     return (
       <div className="min-h-screen flex flex-col bg-surface">
         <SiteHeader />
-        <div className="container-page py-20 text-center text-muted-foreground">Loading…</div>
+        <div className="container-page py-20 text-center text-muted-foreground">
+          {t("common.loading")}
+        </div>
         <SiteFooter />
       </div>
     );
@@ -147,6 +147,7 @@ function WelcomeBanner({
   isAdmin: boolean;
   isOrganizer: boolean;
 }) {
+  const { t } = useTranslation();
   const { data } = useQuery({
     queryKey: ["welcome-banner", userId, isHotel],
     queryFn: async () => {
@@ -163,34 +164,52 @@ function WelcomeBanner({
     },
   });
 
-  let title = "Welcome back";
+  let title = t("landing.welcome.default");
   let actions: { label: string; to: string; icon: any; search?: any }[] = [];
   let badgeText = "";
 
   if (isAdmin) {
-    title = "Welcome back, Admin";
-    badgeText = "Admin";
+    title = t("landing.welcome.adminTitle");
+    badgeText = t("role.admin");
     actions = [
-      { label: "View Dashboard", to: "/admin", icon: ClipboardList },
-      { label: "Review Hotels", to: "/admin/hotel-companies", icon: Hotel },
-      { label: "Review Listings", to: "/admin/hotel-listings", icon: Building2 },
-      { label: "Subscription Requests", to: "/admin/subscription-interest", icon: Inbox },
+      { label: t("landing.welcome.actions.viewDashboard"), to: "/admin", icon: ClipboardList },
+      {
+        label: t("landing.welcome.actions.reviewHotels"),
+        to: "/admin/hotel-companies",
+        icon: Hotel,
+      },
+      {
+        label: t("landing.welcome.actions.reviewListings"),
+        to: "/admin/hotel-listings",
+        icon: Building2,
+      },
+      {
+        label: t("landing.welcome.actions.subscriptionRequests"),
+        to: "/admin/subscription-interest",
+        icon: Inbox,
+      },
     ];
   } else if (isHotel) {
-    title = `Welcome back, ${data?.hotelName || data?.name || "Hotel"}`;
-    badgeText = "Hotel";
+    title = t("landing.welcome.namedTitle", {
+      name: data?.hotelName || data?.name || t("role.hotel"),
+    });
+    badgeText = t("role.hotel");
     actions = [
-      { label: "View Open Requests", to: "/requests", icon: ClipboardList },
-      { label: "My Quotations", to: "/dashboard/quotations", icon: FileText },
-      { label: "Manage Hotel Profile", to: "/dashboard/hotel", icon: Hotel },
+      {
+        label: t("landing.welcome.actions.viewOpenRequests"),
+        to: "/requests",
+        icon: ClipboardList,
+      },
+      { label: t("nav.myQuotations"), to: "/dashboard/quotations", icon: FileText },
+      { label: t("nav.manageHotelProfile"), to: "/dashboard/hotel", icon: Hotel },
     ];
   } else if (isOrganizer) {
-    title = `Welcome back, ${data?.name || "Agency"}`;
-    badgeText = "Agency";
+    title = t("landing.welcome.namedTitle", { name: data?.name || t("role.agency") });
+    badgeText = t("role.agency");
     actions = [
-      { label: "Create New Request", to: "/request-quote", icon: ClipboardList },
-      { label: "My Requests", to: "/dashboard/rfqs", icon: FileText },
-      { label: "Received Offers", to: "/dashboard/quotations", icon: Inbox },
+      { label: t("nav.createRequestShort"), to: "/request-quote", icon: ClipboardList },
+      { label: t("nav.myRequests"), to: "/dashboard/rfqs", icon: FileText },
+      { label: t("nav.receivedOffers"), to: "/dashboard/quotations", icon: Inbox },
     ];
   } else {
     return null;
@@ -228,6 +247,7 @@ function WelcomeBanner({
 /* ────────────────────────────  ADMIN EXECUTIVE DASHBOARD  ──────────────────────────── */
 
 function AdminExecutiveDashboard() {
+  const { t, i18n: activeI18n } = useTranslation();
   const { data: stats } = useQuery({
     queryKey: ["admin-exec-stats"],
     refetchInterval: 60_000,
@@ -311,7 +331,7 @@ function AdminExecutiveDashboard() {
   });
 
   const { data: activity } = useQuery({
-    queryKey: ["admin-exec-activity"],
+    queryKey: ["admin-exec-activity", activeI18n.language],
     refetchInterval: 60_000,
     queryFn: async () => {
       const [hotels, agencies, rfqs, quotes, subs] = await Promise.all([
@@ -344,22 +364,36 @@ function AdminExecutiveDashboard() {
       type Item = { ts: string; label: string; sub?: string; status?: string };
       const items: Item[] = [];
       (hotels.data ?? []).forEach((h: any) =>
-        items.push({ ts: h.created_at, label: `Hotel listing: ${h.name}`, status: h.status }),
+        items.push({
+          ts: h.created_at,
+          label: t("admin.overview.activity.hotelListing", { name: h.name }),
+          status: h.status,
+        }),
       );
       (agencies.data ?? []).forEach((p: any) =>
         items.push({
           ts: p.created_at,
-          label: `New registration: ${p.company_name || p.full_name || "User"}`,
+          label: t("admin.overview.activity.newRegistration", {
+            name: p.company_name || p.full_name || t("admin.overview.activity.fallbackUser"),
+          }),
         }),
       );
       (rfqs.data ?? []).forEach((r: any) =>
-        items.push({ ts: r.created_at, label: `New group request: ${r.title}` }),
+        items.push({
+          ts: r.created_at,
+          label: t("admin.overview.activity.newGroupRequest", { title: r.title }),
+        }),
       );
       (quotes.data ?? []).forEach((q: any) =>
-        items.push({ ts: q.created_at, label: `New quotation submitted` }),
+        items.push({ ts: q.created_at, label: t("admin.overview.activity.newQuotationSubmitted") }),
       );
       (subs.data ?? []).forEach((s: any) =>
-        items.push({ ts: s.created_at, label: `Subscription interest: ${s.full_name || "Lead"}` }),
+        items.push({
+          ts: s.created_at,
+          label: t("admin.overview.activity.subscriptionInterest", {
+            name: s.full_name || t("admin.overview.activity.fallbackLead"),
+          }),
+        }),
       );
       return items.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime()).slice(0, 12);
     },
@@ -367,89 +401,127 @@ function AdminExecutiveDashboard() {
 
   const kpis = [
     {
-      label: "Total Hotel Companies",
+      label: t("admin.overview.metrics.totalHotelCompanies"),
       value: stats?.companies ?? 0,
       icon: Building2,
       to: "/admin/hotel-companies",
     },
     {
-      label: "Approved Hotels",
+      label: t("admin.overview.metrics.approvedHotels"),
       value: stats?.hotelsApproved ?? 0,
       icon: CheckCircle2,
       to: "/admin/hotel-listings",
     },
     {
-      label: "Pending Hotel Reviews",
+      label: t("admin.overview.metrics.pendingHotelReviews"),
       value: stats?.hotelsPending ?? 0,
       icon: Clock,
       to: "/admin/hotel-listings",
     },
     {
-      label: "Rejected Hotels",
+      label: t("admin.overview.metrics.rejectedHotels"),
       value: stats?.hotelsRejected ?? 0,
       icon: ShieldCheck,
       to: "/admin/hotel-listings",
     },
     {
-      label: "Active Agency Accounts",
+      label: t("admin.overview.metrics.activeAgencyAccounts"),
       value: stats?.agencies ?? 0,
       icon: Users,
       to: "/admin/users",
     },
     {
-      label: "Open Group Requests",
+      label: t("admin.overview.metrics.openGroupRequests"),
       value: stats?.openRfqs ?? 0,
       icon: ClipboardList,
       to: "/admin/group-requests",
     },
-    { label: "Submitted Quotations", value: stats?.quotes ?? 0, icon: FileText, to: "/admin" },
-    { label: "Confirmed Deals", value: stats?.confirmedDeals ?? 0, icon: Handshake, to: "/admin" },
     {
-      label: "Subscription Interest Leads",
+      label: t("admin.overview.metrics.submittedQuotations"),
+      value: stats?.quotes ?? 0,
+      icon: FileText,
+      to: "/admin",
+    },
+    {
+      label: t("admin.overview.metrics.confirmedDeals"),
+      value: stats?.confirmedDeals ?? 0,
+      icon: Handshake,
+      to: "/admin",
+    },
+    {
+      label: t("admin.overview.metrics.subscriptionInterestLeads"),
       value: stats?.subInterest ?? 0,
       icon: Inbox,
       to: "/admin/subscription-interest",
     },
-    { label: "Total Platform Users", value: stats?.users ?? 0, icon: Globe2, to: "/admin/users" },
+    {
+      label: t("admin.overview.metrics.totalPlatformUsers"),
+      value: stats?.users ?? 0,
+      icon: Globe2,
+      to: "/admin/users",
+    },
   ];
 
   const quickActions = [
-    { label: "Review Hotel Companies", to: "/admin/hotel-companies", icon: Building2 },
-    { label: "Review Hotel Listings", to: "/admin/hotel-listings", icon: Hotel },
-    { label: "Review Subscription Interest", to: "/admin/subscription-interest", icon: Inbox },
-    { label: "View All Users", to: "/admin/users", icon: Users },
-    { label: "View Group Requests", to: "/admin/group-requests", icon: ClipboardList },
-    { label: "Platform Settings", to: "/admin/settings", icon: ShieldCheck },
+    {
+      label: t("admin.overview.actions.reviewHotelCompanies"),
+      to: "/admin/hotel-companies",
+      icon: Building2,
+    },
+    {
+      label: t("admin.overview.actions.reviewHotelListings"),
+      to: "/admin/hotel-listings",
+      icon: Hotel,
+    },
+    {
+      label: t("admin.overview.actions.reviewSubscriptionInterest"),
+      to: "/admin/subscription-interest",
+      icon: Inbox,
+    },
+    { label: t("admin.overview.actions.viewAllUsers"), to: "/admin/users", icon: Users },
+    {
+      label: t("admin.overview.actions.viewGroupRequests"),
+      to: "/admin/group-requests",
+      icon: ClipboardList,
+    },
+    {
+      label: t("admin.overview.actions.platformSettings"),
+      to: "/admin/settings",
+      icon: ShieldCheck,
+    },
   ];
 
   const pending = [
     {
-      label: "Hotels awaiting approval",
+      label: t("admin.overview.attention.hotelsAwaitingApproval"),
       value: stats?.hotelsPending ?? 0,
       to: "/admin/hotel-listings",
-      cta: "Review",
+      cta: t("admin.overview.actions.review"),
     },
     {
-      label: "Companies awaiting verification",
+      label: t("admin.overview.attention.companiesAwaitingVerification"),
       value: stats?.companies ?? 0,
       to: "/admin/hotel-companies",
-      cta: "Open",
+      cta: t("admin.overview.actions.open"),
     },
     {
-      label: "Subscription interest leads",
+      label: t("admin.overview.attention.subscriptionInterestLeads"),
       value: stats?.subInterest ?? 0,
       to: "/admin/subscription-interest",
-      cta: "View",
+      cta: t("admin.overview.actions.view"),
     },
   ];
 
   const health = [
-    { label: "Active hotels", value: stats?.hotelsApproved ?? 0 },
-    { label: "Hotels with PMS integration", value: stats?.pmsEnabled ?? 0 },
-    { label: "Hotels without PMS", value: stats?.pmsDisabled ?? 0 },
-    { label: "Agencies active this month", value: stats?.agenciesMonth ?? 0 },
-    { label: "Open requests this month", value: stats?.rfqsMonth ?? 0 },
-    { label: "Avg quotations per request", value: (stats?.avgQuotes ?? 0).toFixed(1) },
+    { label: t("admin.overview.health.activeHotels"), value: stats?.hotelsApproved ?? 0 },
+    { label: t("admin.overview.health.hotelsWithPms"), value: stats?.pmsEnabled ?? 0 },
+    { label: t("admin.overview.health.hotelsWithoutPms"), value: stats?.pmsDisabled ?? 0 },
+    { label: t("admin.overview.health.agenciesActiveThisMonth"), value: stats?.agenciesMonth ?? 0 },
+    { label: t("admin.overview.health.openRequestsThisMonth"), value: stats?.rfqsMonth ?? 0 },
+    {
+      label: t("admin.overview.health.avgQuotationsPerRequest"),
+      value: (stats?.avgQuotes ?? 0).toFixed(1),
+    },
   ];
 
   return (
@@ -457,11 +529,13 @@ function AdminExecutiveDashboard() {
       <section className="container-page py-10 md:py-14">
         <div className="rounded-2xl bg-gradient-to-br from-[oklch(0.18_0.04_265)] to-[oklch(0.32_0.10_264)] text-primary-foreground p-8 md:p-10">
           <Badge className="bg-premium text-premium-foreground border-0 mb-3 uppercase tracking-wider">
-            Admin Console
+            {t("admin.overview.console")}
           </Badge>
-          <h1 className="font-display text-3xl md:text-4xl font-semibold">Platform Overview</h1>
+          <h1 className="font-display text-3xl md:text-4xl font-semibold">
+            {t("admin.overview.title")}
+          </h1>
           <p className="mt-2 text-primary-foreground/80 max-w-2xl">
-            Manage hotels, listings, agencies, requests and platform growth from one place.
+            {t("admin.overview.description")}
           </p>
         </div>
 
@@ -486,9 +560,13 @@ function AdminExecutiveDashboard() {
         <div className="mt-10 grid lg:grid-cols-3 gap-6">
           <Card className="lg:col-span-2">
             <CardContent className="p-6">
-              <h2 className="font-display text-xl text-primary mb-4">Recent Platform Activity</h2>
+              <h2 className="font-display text-xl text-primary mb-4">
+                {t("admin.overview.recentActivity")}
+              </h2>
               {!activity?.length ? (
-                <div className="text-sm text-muted-foreground">No recent activity.</div>
+                <div className="text-sm text-muted-foreground">
+                  {t("admin.overview.noRecentActivity")}
+                </div>
               ) : (
                 <ul className="divide-y divide-border">
                   {activity.map((a, i) => (
@@ -501,7 +579,7 @@ function AdminExecutiveDashboard() {
                       </div>
                       {a.status && (
                         <Badge variant="secondary" className="capitalize shrink-0">
-                          {a.status}
+                          {t(`status.${a.status}`, { defaultValue: a.status })}
                         </Badge>
                       )}
                     </li>
@@ -513,7 +591,9 @@ function AdminExecutiveDashboard() {
 
           <Card>
             <CardContent className="p-6">
-              <h2 className="font-display text-xl text-primary mb-4">Requires Attention</h2>
+              <h2 className="font-display text-xl text-primary mb-4">
+                {t("admin.overview.requiresAttention")}
+              </h2>
               <ul className="space-y-3">
                 {pending.map((p) => (
                   <li
@@ -523,7 +603,7 @@ function AdminExecutiveDashboard() {
                     <div className="min-w-0">
                       <div className="text-sm font-medium text-foreground truncate">{p.label}</div>
                       <div className="text-xs text-muted-foreground">
-                        {p.value} item{p.value === 1 ? "" : "s"}
+                        {t("admin.overview.itemCount", { count: p.value })}
                       </div>
                     </div>
                     <Button asChild size="sm" variant="outline">
@@ -538,7 +618,9 @@ function AdminExecutiveDashboard() {
 
         {/* Quick Actions */}
         <div className="mt-10">
-          <h2 className="font-display text-xl text-primary mb-3">Quick Actions</h2>
+          <h2 className="font-display text-xl text-primary mb-3">
+            {t("admin.overview.quickActions")}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {quickActions.map((qa) => (
               <Link key={qa.label} to={qa.to}>
@@ -558,7 +640,9 @@ function AdminExecutiveDashboard() {
 
         {/* Platform Health */}
         <div className="mt-10">
-          <h2 className="font-display text-xl text-primary mb-3">Platform Health</h2>
+          <h2 className="font-display text-xl text-primary mb-3">
+            {t("admin.overview.platformHealth")}
+          </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {health.map((h) => (
               <div key={h.label} className="rounded-2xl bg-card border border-border p-5">
@@ -574,6 +658,7 @@ function AdminExecutiveDashboard() {
 }
 
 function AdminLanding() {
+  const { t } = useTranslation();
   const { data: stats } = useQuery({
     queryKey: ["admin-landing-stats"],
     refetchInterval: 60_000,
@@ -652,94 +737,100 @@ function AdminLanding() {
     cards: { label: string; value: number | string }[];
   }[] = [
     {
-      title: "Hotels",
+      title: t("admin.overview.sections.hotels"),
       tint: "text-brand-blue bg-brand-blue/10",
       cards: [
-        { label: "Total Hotel Companies", value: stats?.companiesTotal ?? 0 },
-        { label: "Approved", value: stats?.companiesApproved ?? 0 },
-        { label: "Pending", value: stats?.companiesPending ?? 0 },
-        { label: "Rejected", value: stats?.companiesRejected ?? 0 },
+        {
+          label: t("admin.overview.metrics.totalHotelCompanies"),
+          value: stats?.companiesTotal ?? 0,
+        },
+        { label: t("status.approved"), value: stats?.companiesApproved ?? 0 },
+        { label: t("status.pending"), value: stats?.companiesPending ?? 0 },
+        { label: t("status.rejected"), value: stats?.companiesRejected ?? 0 },
       ],
     },
     {
-      title: "Requests",
+      title: t("admin.overview.sections.requests"),
       tint: "text-premium bg-premium/15",
       cards: [
-        { label: "Total Requests", value: stats?.rfqsTotal ?? 0 },
-        { label: "Active (Open)", value: stats?.rfqsOpen ?? 0 },
-        { label: "Closed", value: stats?.rfqsClosed ?? 0 },
+        { label: t("admin.overview.metrics.totalRequests"), value: stats?.rfqsTotal ?? 0 },
+        { label: t("admin.overview.metrics.activeOpen"), value: stats?.rfqsOpen ?? 0 },
+        { label: t("status.closed"), value: stats?.rfqsClosed ?? 0 },
       ],
     },
     {
-      title: "Users",
+      title: t("admin.overview.sections.users"),
       tint: "text-success bg-success/10",
       cards: [
-        { label: "Total Agencies", value: stats?.agencies ?? 0 },
-        { label: "Total Hotel Users", value: stats?.hotelUsers ?? 0 },
+        { label: t("admin.overview.metrics.totalAgencies"), value: stats?.agencies ?? 0 },
+        { label: t("admin.overview.metrics.totalHotelUsers"), value: stats?.hotelUsers ?? 0 },
       ],
     },
     {
-      title: "Revenue",
+      title: t("admin.overview.sections.revenue"),
       tint: "text-primary bg-primary/10",
       cards: [
-        { label: "Active Subscriptions", value: stats?.subActive ?? 0 },
-        { label: "Pending Subscription Requests", value: stats?.subWaiting ?? 0 },
+        { label: t("admin.overview.metrics.activeSubscriptions"), value: stats?.subActive ?? 0 },
+        {
+          label: t("admin.overview.metrics.pendingSubscriptionRequests"),
+          value: stats?.subWaiting ?? 0,
+        },
       ],
     },
   ];
 
   const quickActions = [
     {
-      title: "Hotel Companies",
-      desc: "Review and approve hotel companies.",
+      title: t("admin.overview.actions.hotelCompaniesTitle"),
+      desc: t("admin.overview.actions.hotelCompanies"),
       to: "/admin/hotel-companies",
       search: undefined,
       icon: Building2,
       badge: null as string | null,
     },
     {
-      title: "Hotel Listings",
-      desc: "Review hotel listings.",
+      title: t("admin.overview.actions.hotelListingsTitle"),
+      desc: t("admin.overview.actions.hotelListings"),
       to: "/admin/hotel-listings",
       search: undefined,
       icon: Hotel,
       badge: null,
     },
     {
-      title: "Group Requests",
-      desc: "Review requests created by users.",
+      title: t("admin.overview.actions.groupRequestsTitle"),
+      desc: t("admin.overview.actions.groupRequests"),
       to: "/admin/group-requests",
       search: undefined,
       icon: FileText,
       badge: null,
     },
     {
-      title: "Users",
-      desc: "Review registered website users.",
+      title: t("admin.overview.actions.usersTitle"),
+      desc: t("admin.overview.actions.users"),
       to: "/admin/users",
       search: undefined,
       icon: Users,
       badge: null,
     },
     {
-      title: "Subscription Interest",
-      desc: "Hotels requesting subscriptions.",
+      title: t("admin.overview.actions.subscriptionInterestTitle"),
+      desc: t("admin.overview.actions.subscriptionInterest"),
       to: "/admin/subscription-interest",
       search: undefined,
       icon: Inbox,
       badge: null,
     },
     {
-      title: "Subscriptions",
-      desc: "Subscription billing module.",
+      title: t("admin.overview.actions.subscriptionsTitle"),
+      desc: t("admin.overview.actions.subscriptions"),
       to: "/admin/subscriptions",
       search: undefined,
       icon: BadgeCheck,
-      badge: "Not Active Yet",
+      badge: t("admin.overview.notActiveYet"),
     },
     {
-      title: "Settings",
-      desc: "Platform settings.",
+      title: t("admin.overview.actions.settingsTitle"),
+      desc: t("admin.overview.actions.settings"),
       to: "/admin/settings",
       search: undefined,
       icon: ShieldCheck,
@@ -751,11 +842,13 @@ function AdminLanding() {
     <section className="container-page py-10 md:py-14">
       <div className="rounded-2xl bg-gradient-to-br from-[oklch(0.18_0.04_265)] to-[oklch(0.32_0.10_264)] text-primary-foreground p-8 md:p-10">
         <Badge className="bg-premium text-premium-foreground border-0 mb-3 uppercase tracking-wider">
-          Admin Console
+          {t("admin.overview.console")}
         </Badge>
-        <h1 className="font-display text-3xl md:text-4xl font-semibold">Welcome Admin</h1>
+        <h1 className="font-display text-3xl md:text-4xl font-semibold">
+          {t("admin.overview.welcomeAdmin")}
+        </h1>
         <p className="mt-2 text-primary-foreground/80 max-w-2xl">
-          Manage hotels, subscriptions, approvals and platform performance.
+          {t("admin.overview.legacyDescription")}
         </p>
       </div>
 
@@ -786,7 +879,9 @@ function AdminLanding() {
       </div>
 
       <div className="mt-10">
-        <h2 className="font-display text-xl text-primary mb-3">Quick Actions</h2>
+        <h2 className="font-display text-xl text-primary mb-3">
+          {t("admin.overview.quickActions")}
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {quickActions.map((qa) => {
             const Inner = (
@@ -830,6 +925,7 @@ function AdminLanding() {
 /* ────────────────────────────────  HERO  ──────────────────────────────── */
 
 function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolean }) {
+  const { t } = useTranslation();
   const { formatNumber } = useApplicationLocale();
   const { data: counts } = useQuery({
     queryKey: ["hero-counts"],
@@ -846,18 +942,22 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
 
   const fmt = (n: number, base: number) => `${formatNumber(Math.max(n, base))}+`;
   const stats = [
-    { label: "Hotels Listed", value: "1,250+", icon: Hotel },
+    { label: t("landing.heroStats.hotelsListed"), value: "1,250+", icon: Hotel },
     {
-      label: "Open Group Requests",
+      label: t("landing.heroStats.openRequests"),
       value: "320+",
       icon: ClipboardList,
     },
     {
-      label: "Available Rooms",
+      label: t("landing.heroStats.availableRooms"),
       value: "25,000+",
       icon: BedDouble,
     },
-    { label: "Countries Served", value: counts ? fmt(counts.countries, 18) : "18+", icon: Globe2 },
+    {
+      label: t("landing.heroStats.countriesServed"),
+      value: counts ? fmt(counts.countries, 18) : "18+",
+      icon: Globe2,
+    },
   ];
 
   return (
@@ -869,15 +969,14 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
           {/* LEFT */}
           <div className="text-primary-foreground">
             <Badge className="bg-premium text-premium-foreground border-0 mb-4 uppercase tracking-wider">
-              B2B Group Accommodation Marketplace
+              {t("hero.eyebrow")}
             </Badge>
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.05]">
-              One Request. <br />
-              <span className="text-premium">Multiple Hotel Offers.</span>
+              {t("landing.hero.titleLine1")} <br />
+              <span className="text-premium">{t("landing.hero.titleLine2")}</span>
             </h1>
             <p className="mt-5 max-w-xl text-base md:text-lg text-primary-foreground/85">
-              Submit a group accommodation request and receive competitive hotel quotations from
-              trusted hotels across Saudi Arabia and beyond.
+              {t("landing.hero.subtitle")}
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               {isHotel ? (
@@ -888,7 +987,8 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
                     className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg"
                   >
                     <Link to="/requests">
-                      Browse Open Requests <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                      {t("landing.actions.browseOpenRequests")}{" "}
+                      <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                     </Link>
                   </Button>
                   <Button
@@ -897,7 +997,7 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
                     variant="outline"
                     className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground"
                   >
-                    <Link to="/dashboard/hotel">My Hotel Profile</Link>
+                    <Link to="/dashboard/hotel">{t("nav.manageHotelProfile")}</Link>
                   </Button>
                 </>
               ) : isOrganizer ? (
@@ -908,7 +1008,8 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
                     className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg"
                   >
                     <Link to="/request-quote">
-                      Create New Request <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                      {t("nav.createRequestShort")}{" "}
+                      <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                     </Link>
                   </Button>
                   <Button
@@ -917,7 +1018,7 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
                     variant="outline"
                     className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground"
                   >
-                    <Link to="/dashboard/rfqs">View My Requests</Link>
+                    <Link to="/dashboard/rfqs">{t("landing.actions.viewMyRequests")}</Link>
                   </Button>
                 </>
               ) : (
@@ -928,7 +1029,7 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
                     className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg"
                   >
                     <Link to="/request-quote">
-                      Create Group Request <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                      {t("nav.createRequest")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                     </Link>
                   </Button>
                   <Button
@@ -937,20 +1038,20 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
                     variant="outline"
                     className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground"
                   >
-                    <Link to="/requests">Browse Open Requests</Link>
+                    <Link to="/requests">{t("landing.actions.browseOpenRequests")}</Link>
                   </Button>
                 </>
               )}
             </div>
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-primary-foreground/70">
               <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="h-4 w-4 text-premium" /> Verified hotels only
+                <ShieldCheck className="h-4 w-4 text-premium" /> {t("hero.trustPillHotels")}
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <TimerReset className="h-4 w-4 text-premium" /> Quotes in hours
+                <TimerReset className="h-4 w-4 text-premium" /> {t("hero.trustPillQuotes")}
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <Lock className="h-4 w-4 text-premium" /> Secure platform
+                <Lock className="h-4 w-4 text-premium" /> {t("hero.trustPillSecure")}
               </span>
             </div>
           </div>
@@ -984,6 +1085,7 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
 /* ────────────────────  QUICK SEARCH PANEL  ──────────────────── */
 
 function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [values, setValues] = useState<RfqSharedValues>({
     destination_country_id: null,
@@ -1015,10 +1117,10 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
             <Sparkles className="h-5 w-5" />
           </span>
           <h2 className="font-display text-xl md:text-2xl text-primary">
-            Start Your Group Accommodation Request
+            {t("landing.quickRequest.title")}
           </h2>
           <span className="ml-auto hidden md:inline text-xs text-muted-foreground">
-            No budget needed — hotels compete with their best quotations
+            {t("landing.quickRequest.note")}
           </span>
         </div>
 
@@ -1026,7 +1128,7 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
           variant="compact"
           value={values}
           onChange={(patch) => setValues((v) => ({ ...v, ...patch }))}
-          requirementsHint="Optional. Any operational needs — carried over to the full request."
+          requirementsHint={t("landing.quickRequest.requirementsHint")}
         />
 
         <div className="mt-5 flex justify-end">
@@ -1035,7 +1137,7 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
             size="lg"
             className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90"
           >
-            Request Quotations <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            {t("landing.quickRequest.submit")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
           </Button>
         </div>
       </form>
@@ -1065,26 +1167,32 @@ function Field({
 /* ────────────────────  LIVE MARKETPLACE  ──────────────────── */
 
 function LiveStatsSection() {
+  const { t } = useTranslation();
   const items = [
     {
-      label: "Open Group Requests",
+      label: t("landing.liveStats.openRequests"),
       value: "320+",
       icon: ClipboardList,
       tint: "text-brand-blue bg-brand-blue/10",
     },
     {
-      label: "Verified Hotels",
+      label: t("landing.liveStats.verifiedHotels"),
       value: "1,250+",
       icon: Hotel,
       tint: "text-success bg-success/10",
     },
     {
-      label: "Quotation Cycle",
-      value: "24h",
+      label: t("landing.liveStats.quotationCycle"),
+      value: t("landing.liveStats.quotationCycleValue"),
       icon: FileText,
       tint: "text-premium bg-premium/15",
     },
-    { label: "Avg. Response Time", value: "< 4h", icon: Clock, tint: "text-primary bg-primary/10" },
+    {
+      label: t("landing.liveStats.avgResponseTime"),
+      value: t("landing.liveStats.avgResponseTimeValue"),
+      icon: Clock,
+      tint: "text-primary bg-primary/10",
+    },
   ];
 
   return (
@@ -1095,14 +1203,12 @@ function LiveStatsSection() {
             <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-75" />
             <span className="relative rounded-full h-2 w-2 bg-success" />
           </span>
-          Live
+          {t("landing.liveStats.eyebrow")}
         </div>
         <h2 className="mt-2 font-display text-3xl md:text-4xl text-primary">
-          Live Marketplace Activity
+          {t("landing.liveStats.title")}
         </h2>
-        <p className="mt-2 text-muted-foreground">
-          Real-time signals from agencies and hotels on the platform.
-        </p>
+        <p className="mt-2 text-muted-foreground">{t("landing.liveStats.subtitle")}</p>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {items.map((s) => (
@@ -1127,36 +1233,37 @@ function LiveStatsSection() {
 /* ────────────────────  HOW IT WORKS  ──────────────────── */
 
 function HowItWorks() {
+  const { t } = useTranslation();
   const steps = [
     {
       icon: ClipboardList,
-      title: "Create Group Request",
-      desc: "Submit your accommodation requirements once.",
+      title: t("landing.how.steps.create.title"),
+      desc: t("landing.how.steps.create.description"),
     },
     {
       icon: Hotel,
-      title: "Hotels Receive Invitations",
-      desc: "Matching hotels are automatically notified.",
+      title: t("landing.how.steps.invitations.title"),
+      desc: t("landing.how.steps.invitations.description"),
     },
     {
       icon: FileText,
-      title: "Receive Multiple Quotations",
-      desc: "Compare pricing and services from hotels.",
+      title: t("landing.how.steps.quotations.title"),
+      desc: t("landing.how.steps.quotations.description"),
     },
     {
       icon: CheckCircle2,
-      title: "Choose the Best Offer",
-      desc: "Negotiate and confirm with the selected hotel.",
+      title: t("landing.how.steps.choose.title"),
+      desc: t("landing.how.steps.choose.description"),
     },
   ];
   return (
     <section className="bg-card border-y border-border">
       <div className="container-page py-16 md:py-20">
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="font-display text-3xl md:text-4xl text-primary">How GroupToStay Works</h2>
-          <p className="mt-2 text-muted-foreground">
-            Four steps from group request to a confirmed booking.
-          </p>
+          <h2 className="font-display text-3xl md:text-4xl text-primary">
+            {t("landing.how.title")}
+          </h2>
+          <p className="mt-2 text-muted-foreground">{t("landing.how.subtitle")}</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {steps.map((s, i) => (
@@ -1183,6 +1290,8 @@ function HowItWorks() {
 /* ────────────────────  OPEN REQUESTS  ──────────────────── */
 
 function OpenRequestsSection() {
+  const { t } = useTranslation();
+  const { formatDate } = useApplicationLocale();
   const { data: rfqs = [] } = useQuery({
     queryKey: ["home-open-requests"],
     queryFn: async () => {
@@ -1204,14 +1313,14 @@ function OpenRequestsSection() {
     <section className="container-page py-16 md:py-20">
       <div className="flex items-end justify-between gap-4 flex-wrap mb-8">
         <div>
-          <h2 className="font-display text-3xl md:text-4xl text-primary">Latest Group Requests</h2>
-          <p className="mt-2 text-muted-foreground">
-            Live demand from agencies — open to all approved hotels.
-          </p>
+          <h2 className="font-display text-3xl md:text-4xl text-primary">
+            {t("landing.openRequests.title")}
+          </h2>
+          <p className="mt-2 text-muted-foreground">{t("landing.openRequests.subtitle")}</p>
         </div>
         <Button asChild variant="ghost">
           <Link to="/requests">
-            View all <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            {t("buttons.viewAll")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
           </Link>
         </Button>
       </div>
@@ -1227,9 +1336,7 @@ function OpenRequestsSection() {
                   {r.group_type}
                 </Badge>
                 <span className="text-xs text-muted-foreground">
-                  {r.created_at
-                    ? formatDistanceToNow(new Date(r.created_at), { addSuffix: true })
-                    : ""}
+                  {r.created_at ? formatDate(r.created_at) : ""}
                 </span>
               </div>
               <h3 className="font-display text-lg text-primary font-semibold line-clamp-2 min-h-[3.25rem]">
@@ -1242,10 +1349,12 @@ function OpenRequestsSection() {
                 <Meta icon={Calendar}>
                   {r.check_in} → {r.check_out}
                 </Meta>
-                <Meta icon={Users}>{r.guests_count} guests</Meta>
-                <Meta icon={BedDouble}>{r.rooms_needed} rooms</Meta>
+                <Meta icon={Users}>{t("dashboard.guestsCount", { count: r.guests_count })}</Meta>
+                <Meta icon={BedDouble}>{t("dashboard.roomsCount", { count: r.rooms_needed })}</Meta>
               </div>
-              <div className="mt-3 text-xs text-muted-foreground">Awaiting hotel quotations</div>
+              <div className="mt-3 text-xs text-muted-foreground">
+                {t("landing.openRequests.awaitingQuotations")}
+              </div>
 
               <div className="mt-5">
                 <Button
@@ -1254,7 +1363,8 @@ function OpenRequestsSection() {
                   className="w-full group-hover:bg-brand-blue group-hover:text-brand-blue-foreground group-hover:border-brand-blue transition"
                 >
                   <Link to="/requests/$id" params={{ id: r.id }}>
-                    View Details <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                    {t("admin.common.actions.viewDetails")}{" "}
+                    <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                   </Link>
                 </Button>
               </div>
@@ -1278,6 +1388,7 @@ function Meta({ icon: Icon, children }: { icon: any; children: React.ReactNode }
 /* ────────────────────  FEATURED HOTELS  ──────────────────── */
 
 function FeaturedHotelsSection() {
+  const { t } = useTranslation();
   const { data: featured = [] } = useQuery({
     queryKey: ["featured-hotels-home"],
     queryFn: async () => {
@@ -1297,14 +1408,14 @@ function FeaturedHotelsSection() {
       <div className="container-page py-16 md:py-20">
         <div className="flex items-end justify-between gap-4 flex-wrap mb-8">
           <div>
-            <h2 className="font-display text-3xl md:text-4xl text-primary">Featured Hotels</h2>
-            <p className="mt-2 text-muted-foreground">
-              Hand-picked, approved group-ready properties.
-            </p>
+            <h2 className="font-display text-3xl md:text-4xl text-primary">
+              {t("featured.title")}
+            </h2>
+            <p className="mt-2 text-muted-foreground">{t("featured.subtitle")}</p>
           </div>
           <Button asChild variant="ghost">
             <Link to="/hotels">
-              View all <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+              {t("buttons.viewAll")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
           </Button>
         </div>
@@ -1330,7 +1441,7 @@ function FeaturedHotelsSection() {
                   </div>
                 )}
                 <Badge className="absolute top-3 left-3 bg-premium text-premium-foreground border-0 uppercase tracking-wider text-[10px]">
-                  <Sparkles className="h-3 w-3 mr-1" /> Featured
+                  <Sparkles className="h-3 w-3 mr-1" /> {t("landing.featured.badge")}
                 </Badge>
               </div>
               <div className="p-5">
@@ -1348,7 +1459,8 @@ function FeaturedHotelsSection() {
                 )}
                 <div className="mt-4">
                   <span className="inline-flex items-center gap-1 text-sm font-medium text-brand-blue group-hover:gap-2 transition-all">
-                    View Hotel <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                    {t("admin.hotelListings.actions.viewHotel")}{" "}
+                    <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                   </span>
                 </div>
               </div>
@@ -1363,35 +1475,34 @@ function FeaturedHotelsSection() {
 /* ────────────────────  WHY GROUPTOSTAY  ──────────────────── */
 
 function WhyGroupToStay() {
+  const { t } = useTranslation();
   const items = [
     {
       icon: Clock,
-      title: "Save Time",
-      desc: "Replace dozens of emails and calls with a single, structured request.",
+      title: t("landing.why.items.saveTime.title"),
+      desc: t("landing.why.items.saveTime.description"),
     },
     {
       icon: FileText,
-      title: "Receive Multiple Offers",
-      desc: "Compare competitive quotations from matching hotels in one place.",
+      title: t("landing.why.items.multipleOffers.title"),
+      desc: t("landing.why.items.multipleOffers.description"),
     },
     {
       icon: MessageSquare,
-      title: "Direct Hotel Communication",
-      desc: "Negotiate directly with hotels through built-in messaging.",
+      title: t("landing.why.items.directCommunication.title"),
+      desc: t("landing.why.items.directCommunication.description"),
     },
     {
       icon: Handshake,
-      title: "Competitive Group Rates",
-      desc: "Hotels compete for your business — better rates, better terms.",
+      title: t("landing.why.items.groupRates.title"),
+      desc: t("landing.why.items.groupRates.description"),
     },
   ];
   return (
     <section className="container-page py-16 md:py-20">
       <div className="text-center max-w-2xl mx-auto mb-12">
-        <h2 className="font-display text-3xl md:text-4xl text-primary">Why Choose GroupToStay?</h2>
-        <p className="mt-2 text-muted-foreground">
-          A purpose-built marketplace for group hotel sourcing.
-        </p>
+        <h2 className="font-display text-3xl md:text-4xl text-primary">{t("landing.why.title")}</h2>
+        <p className="mt-2 text-muted-foreground">{t("landing.why.subtitle")}</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {items.map((s) => (
@@ -1423,26 +1534,27 @@ function TestimonialsSection() {
 /* ────────────────────  TRUST  ──────────────────── */
 
 function TrustSection() {
+  const { t } = useTranslation();
   const items = [
     {
       icon: BadgeCheck,
-      title: "Approved Hotels",
-      desc: "Every hotel is verified before going live.",
+      title: t("landing.trust.items.approvedHotels.title"),
+      desc: t("landing.trust.items.approvedHotels.description"),
     },
     {
       icon: ShieldCheck,
-      title: "Verified Companies",
-      desc: "VAT & CR verification for all hotel companies.",
+      title: t("landing.trust.items.verifiedCompanies.title"),
+      desc: t("landing.trust.items.verifiedCompanies.description"),
     },
     {
       icon: Lock,
-      title: "Secure Platform",
-      desc: "Encrypted traffic and role-based access control.",
+      title: t("landing.trust.items.securePlatform.title"),
+      desc: t("landing.trust.items.securePlatform.description"),
     },
     {
       icon: Handshake,
-      title: "Direct Communication",
-      desc: "Talk to hotels directly — no middlemen.",
+      title: t("landing.trust.items.directCommunication.title"),
+      desc: t("landing.trust.items.directCommunication.description"),
     },
   ];
   return (
@@ -1469,12 +1581,13 @@ function TrustSection() {
 /* ────────────────────  CTA + MESSAGES  ──────────────────── */
 
 function CtaBanner({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolean }) {
+  const { t } = useTranslation();
   const ctaTo = isHotel ? "/requests" : "/request-quote";
   const ctaLabel = isHotel
-    ? "Browse Open Requests"
+    ? t("landing.actions.browseOpenRequests")
     : isOrganizer
-      ? "Create New Request"
-      : "Create Group Request";
+      ? t("nav.createRequestShort")
+      : t("nav.createRequest");
   return (
     <section className="container-page py-16">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-brand-blue p-10 md:p-14 text-primary-foreground">
@@ -1483,12 +1596,10 @@ function CtaBanner({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: b
         <div className="relative grid md:grid-cols-[1fr_auto] items-center gap-6">
           <div>
             <h3 className="font-display text-3xl md:text-4xl">
-              {isHotel ? "Win more group business" : "Ready to source your next group?"}
+              {isHotel ? t("landing.cta.hotelTitle") : t("landing.cta.agencyTitle")}
             </h3>
             <p className="mt-2 text-primary-foreground/80 max-w-xl">
-              {isHotel
-                ? "See open Group Requests in your destinations and submit competitive quotes today."
-                : "Submit one Group Request and let matching hotels compete for your booking."}
+              {isHotel ? t("landing.cta.hotelDescription") : t("landing.cta.agencyDescription")}
             </p>
           </div>
           <Button

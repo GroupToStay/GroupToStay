@@ -1,0 +1,18 @@
+{
+  "notifications": {
+    "title": "Notifications",
+    "metaTitle": "Notifications - GroupToStay",
+    "markAllRead": "Mark all read",
+    "empty": "You're all caught up.",
+    "emptyDescription": "No notifications yet. We'll let you know when something happens on your account.",
+    "goToDashboard": "Go to dashboard",
+    "unreadCount_zero": "{{count}} unread",
+    "unreadCount_one": "{{count}} unread",
+    "unreadCount_two": "{{count}} unread",
+    "unreadCount_few": "{{count}} unread",
+    "unreadCount_many": "{{count}} unread",
+    "unreadCount_other": "{{count}} unread",
+    "delete": "Delete notification",
+    "viewAll": "View all notifications"
+  }
+}

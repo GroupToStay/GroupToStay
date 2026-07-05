@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Building2, CheckCircle2, Eye, Loader2, RotateCcw, Search, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,9 +45,10 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import type { Database } from "@/integrations/supabase/types";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/hotel-companies")({
-  head: () => ({ meta: [{ title: "Hotel Companies - Admin" }] }),
+  head: () => ({ meta: [{ title: i18n.t("admin.hotelCompanies.metaTitle") }] }),
   component: Page,
 });
 
@@ -55,13 +57,28 @@ type CompanyRow = Database["public"]["Tables"]["profiles"]["Row"];
 type CompanyPatch = Database["public"]["Tables"]["profiles"]["Update"];
 type PmsRow = Pick<CompanyRow, "pms_enabled" | "pms_provider">;
 
-const statusOptions: { value: CompanyStatus; label: string }[] = [
-  { value: "pending", label: "Pending Review" },
-  { value: "approved", label: "Approved" },
-  { value: "rejected", label: "Rejected" },
+const PMS_PROVIDERS = [
+  "MyCloud PMS",
+  "Oracle Opera PMS",
+  "Cloudbeds",
+  "Mews",
+  "eZee Absolute",
+  "Hotelogix",
+  "Protel",
+  "Other",
+] as const;
+const PMS_NO_PROVIDER = "No PMS";
+const PMS_NOT_SPECIFIED = "Not specified";
+const PMS_OTHER = "Other";
+
+const statusOptionKeys: { value: CompanyStatus; labelKey: string }[] = [
+  { value: "pending", labelKey: "status.pending_review" },
+  { value: "approved", labelKey: "status.approved" },
+  { value: "rejected", labelKey: "status.rejected" },
 ];
 
 function Page() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
   const [status, setStatus] = useState<CompanyStatus>("pending");
@@ -108,12 +125,12 @@ function Page() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Decision saved");
+      toast.success(t("admin.common.decisionSaved"));
       setSelected(null);
       setNotes("");
       qc.invalidateQueries({ queryKey: ["admin-companies"] });
     },
-    onError: (e: unknown) => toast.error(errorMessage(e, "Decision failed")),
+    onError: (e: unknown) => toast.error(errorMessage(e, t("admin.common.decisionFailed"))),
   });
 
   const filteredRows = useMemo(() => {
@@ -144,8 +161,8 @@ function Page() {
 
   return (
     <AdminManagementPage
-      title="Hotel Companies"
-      description="Approve, reject and review hotel company applications."
+      title={t("admin.hotelCompanies.title")}
+      description={t("admin.hotelCompanies.description")}
       icon={Building2}
     >
       <PmsStatistics />
@@ -157,7 +174,7 @@ function Page() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             className="pl-9"
-            placeholder="Search company, contact, country or PMS"
+            placeholder={t("admin.hotelCompanies.searchPlaceholder")}
           />
         </div>
         <Select value={status} onValueChange={(value) => setStatus(value as CompanyStatus)}>
@@ -165,9 +182,9 @@ function Page() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {statusOptions.map((option) => (
+            {statusOptionKeys.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -179,21 +196,21 @@ function Page() {
             setStatus("pending");
           }}
         >
-          Reset Filters
+          {t("admin.common.resetFilters")}
         </Button>
       </AdminToolbar>
 
       {isLoading ? (
         <Card>
           <CardContent className="flex items-center gap-2 p-6 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading hotel companies...
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("admin.hotelCompanies.loading")}
           </CardContent>
         </Card>
       ) : filteredRows.length === 0 ? (
         <EmptyState
           icon={Building2}
-          title="Nothing to review here."
-          description="No hotel company applications match these filters."
+          title={t("admin.hotelCompanies.empty.title")}
+          description={t("admin.hotelCompanies.empty.description")}
         />
       ) : (
         <AdminTableCard
@@ -211,13 +228,19 @@ function Page() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/30">
-                  <TableHead>Company</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead className="hidden lg:table-cell">Country</TableHead>
-                  <TableHead className="hidden xl:table-cell">PMS</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden lg:table-cell">Created</TableHead>
-                  <TableHead className="w-12 text-right">Actions</TableHead>
+                  <TableHead>{t("admin.hotelCompanies.table.company")}</TableHead>
+                  <TableHead>{t("admin.hotelCompanies.table.contact")}</TableHead>
+                  <TableHead className="hidden lg:table-cell">{t("common.country")}</TableHead>
+                  <TableHead className="hidden xl:table-cell">
+                    {t("admin.hotelCompanies.table.pms")}
+                  </TableHead>
+                  <TableHead>{t("admin.hotelCompanies.table.status")}</TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    {t("admin.hotelCompanies.table.created")}
+                  </TableHead>
+                  <TableHead className="w-12 text-right">
+                    {t("admin.hotelCompanies.table.actions")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -236,7 +259,7 @@ function Page() {
                       <div className="text-xs text-muted-foreground">{row.phone || "-"}</div>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">{row.country || "-"}</TableCell>
-                    <TableCell className="hidden xl:table-cell">{pmsLabel(row)}</TableCell>
+                    <TableCell className="hidden xl:table-cell">{pmsLabel(row, t)}</TableCell>
                     <TableCell>
                       <AdminStatusBadge status={row.hotel_approval_status} />
                     </TableCell>
@@ -303,45 +326,66 @@ function Page() {
             <>
               <DialogHeader>
                 <DialogTitle className="flex flex-wrap items-center gap-2">
-                  {selected.company_name || "Hotel Company"}
+                  {selected.company_name || t("admin.hotelCompanies.fallbacks.hotelCompany")}
                   <AdminStatusBadge status={selected.hotel_approval_status} />
                 </DialogTitle>
               </DialogHeader>
 
               <AdminDetailGrid>
-                <AdminDetailItem label="Company Name" value={selected.company_name} />
-                <AdminDetailItem label="Contact Name" value={selected.full_name} />
-                <AdminDetailItem label="Email" value={selected.contact_email} />
-                <AdminDetailItem label="Phone" value={selected.phone} />
-                <AdminDetailItem label="Country" value={selected.country} />
-                <AdminDetailItem label="VAT Number" value={selected.vat_number} />
-                <AdminDetailItem label="CR Number" value={selected.cr_number} />
-                <AdminDetailItem label="PMS" value={pmsLabel(selected)} />
-                <AdminDetailItem label="API Available" value={selected.api_available || "-"} />
                 <AdminDetailItem
-                  label="Technical Contact"
+                  label={t("admin.hotelCompanies.details.companyName")}
+                  value={selected.company_name}
+                />
+                <AdminDetailItem
+                  label={t("admin.hotelCompanies.details.contactName")}
+                  value={selected.full_name}
+                />
+                <AdminDetailItem
+                  label={t("admin.users.fields.email")}
+                  value={selected.contact_email}
+                />
+                <AdminDetailItem label={t("admin.users.table.phone")} value={selected.phone} />
+                <AdminDetailItem label={t("common.country")} value={selected.country} />
+                <AdminDetailItem
+                  label={t("admin.hotelCompanies.details.vatNumber")}
+                  value={selected.vat_number}
+                />
+                <AdminDetailItem
+                  label={t("admin.hotelCompanies.details.crNumber")}
+                  value={selected.cr_number}
+                />
+                <AdminDetailItem
+                  label={t("admin.hotelCompanies.table.pms")}
+                  value={pmsLabel(selected, t)}
+                />
+                <AdminDetailItem
+                  label={t("admin.hotelCompanies.details.apiAvailable")}
+                  value={selected.api_available || "-"}
+                />
+                <AdminDetailItem
+                  label={t("admin.hotelCompanies.details.technicalContact")}
                   value={selected.technical_contact_name || "-"}
                 />
                 <AdminDetailItem
-                  label="Technical Email"
+                  label={t("admin.hotelCompanies.details.technicalEmail")}
                   value={selected.technical_contact_email || "-"}
                 />
                 <AdminDetailItem
-                  label="Technical Phone"
+                  label={t("admin.hotelCompanies.details.technicalPhone")}
                   value={selected.technical_contact_phone || "-"}
                 />
               </AdminDetailGrid>
 
               <div>
                 <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Approval notes
+                  {t("admin.hotelCompanies.details.approvalNotes")}
                 </label>
                 <Textarea
                   rows={3}
                   value={notes}
                   onChange={(event) => setNotes(event.target.value)}
                   maxLength={500}
-                  placeholder="Optional review notes"
+                  placeholder={t("admin.hotelCompanies.details.approvalNotesPlaceholder")}
                 />
               </div>
 
@@ -350,7 +394,7 @@ function Page() {
                   <AdminStatusBadge status="locked" />
                 ) : selected.hotel_approval_status === "rejected" ? (
                   <Button variant="outline" onClick={() => makeDecision(selected, "pending")}>
-                    <RotateCcw className="h-4 w-4" /> Reconsider
+                    <RotateCcw className="h-4 w-4" /> {t("admin.common.actions.reconsider")}
                   </Button>
                 ) : (
                   <>
@@ -358,10 +402,10 @@ function Page() {
                       variant="destructive"
                       onClick={() => makeDecision(selected, "rejected")}
                     >
-                      <XCircle className="h-4 w-4" /> Reject
+                      <XCircle className="h-4 w-4" /> {t("admin.common.actions.reject")}
                     </Button>
                     <Button variant="gold" onClick={() => makeDecision(selected, "approved")}>
-                      <CheckCircle2 className="h-4 w-4" /> Approve
+                      <CheckCircle2 className="h-4 w-4" /> {t("admin.common.actions.approve")}
                     </Button>
                   </>
                 )}
@@ -375,6 +419,7 @@ function Page() {
 }
 
 function PmsStatistics() {
+  const { t } = useTranslation();
   const { data: counts = {}, isLoading } = useQuery({
     queryKey: ["admin-pms-stats"],
     queryFn: async () => {
@@ -383,31 +428,22 @@ function PmsStatistics() {
         .select("pms_enabled, pms_provider")
         .eq("hotel_approval_status", "approved");
       if (error) throw error;
-      const presets = [
-        "MyCloud PMS",
-        "Oracle Opera PMS",
-        "Cloudbeds",
-        "Mews",
-        "eZee Absolute",
-        "Hotelogix",
-        "Protel",
-        "Other",
-      ];
-      const c: Record<string, number> = { "No PMS": 0, "Not specified": 0 };
-      presets.forEach((provider) => {
+      const c: Record<string, number> = { [PMS_NO_PROVIDER]: 0, [PMS_NOT_SPECIFIED]: 0 };
+      PMS_PROVIDERS.forEach((provider) => {
         c[provider] = 0;
       });
       ((data ?? []) as PmsRow[]).forEach((row) => {
-        if (row.pms_enabled === false) c["No PMS"]++;
+        if (row.pms_enabled === false) c[PMS_NO_PROVIDER]++;
         else if (row.pms_enabled === true) {
           const provider =
-            row.pms_provider && presets.includes(row.pms_provider)
+            row.pms_provider &&
+            PMS_PROVIDERS.includes(row.pms_provider as (typeof PMS_PROVIDERS)[number])
               ? row.pms_provider
               : row.pms_provider
-                ? "Other"
-                : "Not specified";
+                ? PMS_OTHER
+                : PMS_NOT_SPECIFIED;
           c[provider] = (c[provider] ?? 0) + 1;
-        } else c["Not specified"]++;
+        } else c[PMS_NOT_SPECIFIED]++;
       });
       return c;
     },
@@ -418,9 +454,11 @@ function PmsStatistics() {
       <CardContent className="p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="font-display text-xl text-primary">PMS Statistics</h2>
+            <h2 className="font-display text-xl text-primary">
+              {t("admin.hotelCompanies.pms.title")}
+            </h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              Approved hotel companies by Property Management System.
+              {t("admin.hotelCompanies.pms.description")}
             </p>
           </div>
           {isLoading ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : null}
@@ -428,7 +466,9 @@ function PmsStatistics() {
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {Object.entries(counts).map(([label, count]) => (
             <div key={label} className="rounded-md border border-border bg-surface px-3 py-2">
-              <div className="truncate text-xs text-muted-foreground">{label}</div>
+              <div className="truncate text-xs text-muted-foreground">
+                {pmsProviderLabel(label, t)}
+              </div>
               <div className="font-display text-2xl text-primary">{count as number}</div>
             </div>
           ))}
@@ -451,23 +491,29 @@ function CompanyActions({
   onReject: () => void;
   onReconsider: () => void;
 }) {
+  const { t } = useTranslation();
   const approved = row.hotel_approval_status === "approved";
   const rejected = row.hotel_approval_status === "rejected";
   return (
     <AdminActionMenu
       items={[
-        { label: "View Details", icon: Eye, onSelect: onView },
+        { label: t("admin.common.actions.viewDetails"), icon: Eye, onSelect: onView },
         rejected
-          ? { label: "Reconsider", icon: RotateCcw, onSelect: onReconsider, separatorBefore: true }
+          ? {
+              label: t("admin.common.actions.reconsider"),
+              icon: RotateCcw,
+              onSelect: onReconsider,
+              separatorBefore: true,
+            }
           : {
-              label: "Approve",
+              label: t("admin.common.actions.approve"),
               icon: CheckCircle2,
               onSelect: onApprove,
               disabled: approved,
               separatorBefore: true,
             },
         {
-          label: "Reject",
+          label: t("admin.common.actions.reject"),
           icon: XCircle,
           onSelect: onReject,
           disabled: approved || rejected,
@@ -478,13 +524,24 @@ function CompanyActions({
   );
 }
 
-function pmsLabel(row: CompanyRow) {
-  if (row.pms_enabled === false) return "No PMS";
+function pmsLabel(row: CompanyRow, t: (key: string, options?: Record<string, string>) => string) {
+  if (row.pms_enabled === false) return t("admin.hotelCompanies.pms.noPms");
   if (row.pms_enabled === true)
-    return row.pms_provider === "Other" && row.pms_provider_other
-      ? `Other (${row.pms_provider_other})`
-      : row.pms_provider || "Not specified";
-  return "Not specified";
+    return row.pms_provider === PMS_OTHER && row.pms_provider_other
+      ? t("admin.hotelCompanies.pms.otherWithName", { name: row.pms_provider_other })
+      : pmsProviderLabel(row.pms_provider || PMS_NOT_SPECIFIED, t);
+  return t("admin.hotelCompanies.pms.notSpecified");
+}
+
+function pmsProviderLabel(
+  value: string,
+  t: (key: string, options?: Record<string, string>) => string,
+) {
+  const key = value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "");
+  return t(`admin.hotelCompanies.pms.providers.${key}`, { defaultValue: value });
 }
 
 function errorMessage(err: unknown, fallback: string) {

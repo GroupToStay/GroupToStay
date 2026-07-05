@@ -1,0 +1,136 @@
+{
+  "profile": {
+    "metaTitle": "My profile - GroupToStay",
+    "title": "My profile",
+    "subtitle": "Manage your personal contact details and account email.",
+    "personalInfo": "Personal information",
+    "fullName": "Full name",
+    "phone": "Phone",
+    "country": "Country",
+    "countryLockedHint": "Country is set at signup and cannot be changed here.",
+    "contactEmail": "Contact email",
+    "contactEmailHint": "Public-facing email shown to organizers.",
+    "orgName": "Display name / brand",
+    "email": "Email",
+    "save": "Save",
+    "savedToast": "Profile updated.",
+    "loginEmail": "Login email",
+    "loginEmailHint": "Changing this will send a confirmation link to the new address.",
+    "changeEmail": "Change email",
+    "emailChangeSent": "Confirmation email sent. Check your new inbox.",
+    "companyInfo": "Company details (read-only)",
+    "companyLockedHint": "Company name, VAT, and CR numbers are locked after verification. Contact support to request a change.",
+    "companyName": "Company name",
+    "vatNumber": "VAT number",
+    "crNumber": "Commercial registration",
+    "idNumber": "ID number",
+    "admin": {
+      "title": "Admin Account",
+      "description": "Read-only account information.",
+      "name": "Name"
+    },
+    "agency": {
+      "metaTitle": "Agency Profile - GroupToStay",
+      "title": "Agency Profile",
+      "description": "All information is confidential and used only for verification. Documents are visible to admins only.",
+      "sections": {
+        "companyInfo": "Company Information",
+        "businessRegistration": "Business Registration",
+        "contactPerson": "Contact Person",
+        "businessInfo": "Business Information",
+        "billingInfo": "Billing Information",
+        "legalAgreements": "Legal Agreements"
+      },
+      "fields": {
+        "legalCompanyName": "Legal Company Name",
+        "tradeName": "Trade Name",
+        "fullAddress": "Full Address",
+        "website": "Website",
+        "websitePlaceholder": "https://",
+        "yearEstablished": "Year Established",
+        "employees": "Number of Employees",
+        "crNumber": "Commercial Registration Number",
+        "crExpiryDate": "CR Expiry Date",
+        "issuingAuthority": "Issuing Authority",
+        "tourismLicenseNumber": "Tourism License Number",
+        "tourismLicenseAuthority": "Tourism License Authority",
+        "crDocument": "Commercial Registration Document",
+        "tourismLicenseDocument": "Tourism License Document",
+        "fullName": "Full Name",
+        "position": "Position",
+        "whatsapp": "WhatsApp",
+        "agencyType": "Agency Type",
+        "annualBookings": "Annual group bookings",
+        "averageRooms": "Average rooms per booking",
+        "legalBillingName": "Legal Billing Name",
+        "vatNumber": "VAT Number",
+        "billingAddress": "Billing Address",
+        "billingEmail": "Billing Email"
+      },
+      "agencyTypes": {
+        "travel": "Travel Agency",
+        "tourOperator": "Tour Operator",
+        "dmc": "Destination Management Company (DMC)",
+        "hajjUmrah": "Hajj & Umrah Company",
+        "event": "Event Organizer",
+        "corporate": "Corporate Travel",
+        "sports": "Sports Travel",
+        "government": "Government Organization",
+        "university": "University",
+        "other": "Other"
+      },
+      "status": {
+        "verifiedTitle": "Verified by GroupToStay",
+        "verifiedDescription": "Your agency is verified. To update information, contact support.",
+        "pendingTitle": "Verification in progress",
+        "pendingDescription": "Our team is reviewing your submission. This usually takes 1-2 business days.",
+        "rejectedTitle": "Verification rejected",
+        "rejectedDescription": "Please update the information below and resubmit.",
+        "draftDescription": "Complete all required fields and submit for verification. You cannot publish requests or contact hotels until verified."
+      },
+      "documentsHint": "Accepted formats: PDF, JPG, PNG (max 10 MB). Documents are visible to GroupToStay admins only.",
+      "agreements": {
+        "accurate": "I confirm all provided information is accurate.",
+        "terms": "I agree to the Terms & Conditions.",
+        "privacy": "I agree to the Privacy Policy.",
+        "falseInfo": "I understand that providing false information may result in account suspension."
+      },
+      "actions": {
+        "saveDraft": "Save Draft",
+        "resubmit": "Resubmit for verification",
+        "submit": "Submit for verification"
+      },
+      "upload": {
+        "uploading": "Uploading...",
+        "replace": "Replace",
+        "upload": "Upload",
+        "uploaded": "Uploaded"
+      },
+      "toasts": {
+        "draftSaved": "Draft saved",
+        "documentUploaded": "Document uploaded",
+        "submitted": "Submitted for verification"
+      },
+      "errors": {
+        "loadBoundary": "Failed to load Agency Profile: {{message}}",
+        "notFound": "Agency Profile not found.",
+        "loadFailed": "Failed to load profile",
+        "agencyOnly": "Agency Profile is only available to agency accounts.",
+        "saveFailed": "Failed to save",
+        "fileType": "Only PDF, JPG, PNG allowed",
+        "fileSize": "File must be under 10 MB",
+        "uploadFailed": "Upload failed",
+        "legalAgreements": "Please accept all legal agreements",
+        "submissionFailed": "Submission failed"
+      },
+      "validation": {
+        "legalCompanyName": "Legal company name is required",
+        "address": "Address is required",
+        "crNumber": "Commercial registration number is required",
+        "crExpiry": "CR expiry date is required",
+        "issuingAuthority": "Issuing authority is required",
+        "crDocument": "Please upload the Commercial Registration document"
+      }
+    }
+  }
+}

@@ -15,9 +15,10 @@ import { Lock, User as UserIcon, Mail, ShieldCheck } from "lucide-react";
 import { PhoneInput } from "@/components/phone-input";
 import { DEFAULT_PHONE_CODE } from "@/lib/phone-codes";
 import { PmsSection } from "@/components/pms-section";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/profile")({
-  head: () => ({ meta: [{ title: "My profile — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("profile.metaTitle") }] }),
   component: Page,
 });
 
@@ -83,16 +84,16 @@ function Page() {
       <div className="space-y-6 max-w-2xl">
         <div>
           <h1 className="font-display text-3xl text-primary flex items-center gap-2">
-            <ShieldCheck className="h-7 w-7" /> Admin Account
+            <ShieldCheck className="h-7 w-7" /> {t("profile.admin.title")}
           </h1>
-          <p className="mt-1 text-muted-foreground">Read-only account information.</p>
+          <p className="mt-1 text-muted-foreground">{t("profile.admin.description")}</p>
         </div>
         <Card>
           <CardContent className="p-6 space-y-4">
-            <ReadRow label="Name" value={profile?.full_name} />
-            <ReadRow label="Email" value={user?.email} />
-            <ReadRow label="Country" value={countryLabel} />
-            <ReadRow label="Phone" value={profile?.phone} />
+            <ReadRow label={t("profile.admin.name")} value={profile?.full_name} />
+            <ReadRow label={t("profile.email")} value={user?.email} />
+            <ReadRow label={t("profile.country")} value={countryLabel} />
+            <ReadRow label={t("profile.phone")} value={profile?.phone} />
           </CardContent>
         </Card>
       </div>
@@ -147,7 +148,7 @@ function Page() {
     <div className="space-y-6 max-w-2xl">
       <div>
         <h1 className="font-display text-3xl text-primary flex items-center gap-2">
-          <UserIcon className="h-7 w-7" /> My Profile
+          <UserIcon className="h-7 w-7" /> {t("profile.title")}
         </h1>
         <p className="mt-1 text-muted-foreground">{t("profile.subtitle")}</p>
       </div>
@@ -176,9 +177,7 @@ function Page() {
             <div>
               <Label>{t("profile.country")}</Label>
               <Input value={countryLabel} disabled readOnly />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Country is set at signup and cannot be changed here.
-              </p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("profile.countryLockedHint")}</p>
             </div>
             <div>
               <Label>{t("profile.contactEmail")}</Label>

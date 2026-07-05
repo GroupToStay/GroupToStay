@@ -23,19 +23,22 @@ import {
 import { MapPin, Calendar, Users, ArrowLeft, MessageSquare, LogIn, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useApplicationLocale } from "@/lib/application-locale";
+import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/requests/$id")({
-  head: () => ({ meta: [{ title: "Group request — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("rfq.detail.metaTitle") }] }),
   component: Page,
   errorComponent: () => (
-    <div className="p-8 text-center text-muted-foreground">Could not load this request.</div>
+    <div className="p-8 text-center text-muted-foreground">{i18n.t("rfq.detail.loadError")}</div>
   ),
   notFoundComponent: () => (
-    <div className="p-8 text-center text-muted-foreground">Request not found.</div>
+    <div className="p-8 text-center text-muted-foreground">{i18n.t("rfq.detail.notFound")}</div>
   ),
 });
 
 function Page() {
+  const { t } = useTranslation();
   const { id } = Route.useParams();
   const { user } = useAuth();
   const { isHotel, isOrganizer } = useRoles();
@@ -48,7 +51,9 @@ function Page() {
     },
   });
 
-  if (isLoading) return <div className="container-page py-20 text-muted-foreground">Loading…</div>;
+  if (isLoading) {
+    return <div className="container-page py-20 text-muted-foreground">{t("common.loading")}</div>;
+  }
   if (!rfq) throw notFound();
 
   const isOwner = user?.id === rfq.organizer_id;
@@ -62,14 +67,16 @@ function Page() {
           to="/requests"
           className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
         >
-          <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" /> All requests
+          <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" /> {t("rfq.detail.allRequests")}
         </Link>
 
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="font-display text-3xl text-primary">{rfq.title}</h1>
-              <Badge className="bg-success/15 text-success">{rfq.status}</Badge>
+              <Badge className="bg-success/15 text-success">
+                {t(`status.${rfq.status}`, { defaultValue: rfq.status })}
+              </Badge>
               <Badge variant="outline" className="uppercase tracking-wide">
                 {rfq.group_type}
               </Badge>
@@ -79,12 +86,12 @@ function Page() {
                 <MapPin className="h-3.5 w-3.5" /> {rfq.destination_city}, {rfq.destination_country}
               </span>
               <span className="flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5" /> {rfq.check_in} → {rfq.check_out} ({rfq.nights}
-                n)
+                <Calendar className="h-3.5 w-3.5" /> {rfq.check_in} - {rfq.check_out} (
+                {t("rfq.publicRequests.nightsShort", { count: rfq.nights })})
               </span>
               <span className="flex items-center gap-1">
-                <Users className="h-3.5 w-3.5" /> {rfq.guests_count} guests · {rfq.rooms_needed}{" "}
-                rooms
+                <Users className="h-3.5 w-3.5" /> {rfq.guests_count} {t("dashboard.guests")} ·{" "}
+                {rfq.rooms_needed} {t("dashboard.rooms")}
               </span>
             </div>
           </div>
@@ -95,30 +102,43 @@ function Page() {
 
         <Card>
           <CardContent className="p-5 grid sm:grid-cols-2 gap-4 text-sm">
-            <Detail label="Board" value={rfq.board_type} />
-            <Detail label="Room preference" value={rfq.room_type_pref || "—"} />
-            <Detail label="Pricing" value="Submit your competitive quotation" />
-            <Detail label="Deadline" value={rfq.deadline || "—"} />
+            <Detail
+              label={t("rfq.detail.details.board")}
+              value={t(`rfq.boards.${rfq.board_type}`)}
+            />
+            <Detail
+              label={t("rfq.detail.details.roomPreference")}
+              value={rfq.room_type_pref || t("common.notAvailable")}
+            />
+            <Detail
+              label={t("rfq.detail.details.pricing")}
+              value={t("rfq.detail.details.pricingValue")}
+            />
+            <Detail
+              label={t("rfq.detail.details.deadline")}
+              value={rfq.deadline || t("common.notAvailable")}
+            />
             <div className="sm:col-span-2">
-              <Detail label="Special requirements" value={rfq.special_requirements || "—"} />
+              <Detail
+                label={t("rfq.detail.details.specialRequirements")}
+                value={rfq.special_requirements || t("common.notAvailable")}
+              />
             </div>
           </CardContent>
         </Card>
 
         <div>
           <h2 className="font-display text-xl text-primary mb-3 flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" /> Message the organizer
+            <MessageSquare className="h-5 w-5" /> {t("rfq.detail.messageOrganizer")}
           </h2>
 
           {!user ? (
             <Card>
               <CardContent className="p-6 flex items-center justify-between gap-4 flex-wrap">
-                <p className="text-sm text-muted-foreground">
-                  Sign in as a hotel to message this agency and respond to the request.
-                </p>
+                <p className="text-sm text-muted-foreground">{t("rfq.detail.hotelSignInPrompt")}</p>
                 <Button asChild variant="gold">
                   <Link to="/auth">
-                    <LogIn className="h-4 w-4" /> Sign in
+                    <LogIn className="h-4 w-4" /> {t("auth.submitSignIn")}
                   </Link>
                 </Button>
               </CardContent>
@@ -133,8 +153,8 @@ function Page() {
           ) : (
             <Card>
               <CardContent className="p-6 text-sm text-muted-foreground">
-                Only hotel accounts can contact organizers about open requests.
-                {isOrganizer && " You're signed in as an agency."}
+                {t("rfq.detail.hotelOnlyContact")}
+                {isOrganizer && ` ${t("rfq.detail.signedInAsAgency")}`}
               </CardContent>
             </Card>
           )}
@@ -165,6 +185,7 @@ function Conversation({
   viewerId: string;
   isOwner: boolean;
 }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { formatDateTime } = useApplicationLocale();
   const [text, setText] = useState("");
@@ -211,7 +232,7 @@ function Conversation({
     mutationFn: async () => {
       if (!text.trim()) return;
       const recipient_id = isOwner ? activeHotelId : rfqOrganizerId;
-      if (!recipient_id) throw new Error("No recipient");
+      if (!recipient_id) throw new Error(t("rfq.detail.messages.noRecipient"));
       const { error } = await supabase.from("messages").insert({
         rfq_id: rfqId,
         sender_id: viewerId,
@@ -233,7 +254,9 @@ function Conversation({
         {isOwner && (
           <div className="flex flex-wrap gap-2">
             {hotelIds.length === 0 ? (
-              <span className="text-sm text-muted-foreground">No hotels have messaged yet.</span>
+              <span className="text-sm text-muted-foreground">
+                {t("rfq.detail.messages.noHotelsMessaged")}
+              </span>
             ) : (
               hotelIds.map((hid) => (
                 <Button
@@ -242,7 +265,7 @@ function Conversation({
                   variant={hid === activeHotelId ? "default" : "outline"}
                   onClick={() => setActiveHotelId(hid)}
                 >
-                  Hotel {hid.slice(0, 8)}
+                  {t("rfq.detail.messages.hotelLabel", { id: hid.slice(0, 8) })}
                 </Button>
               ))
             )}
@@ -252,9 +275,7 @@ function Conversation({
         <div className="space-y-2 max-h-72 overflow-y-auto rounded-md bg-muted/30 p-3 min-h-[80px]">
           {threadMsgs.length === 0 ? (
             <div className="text-xs text-muted-foreground text-center py-6">
-              {isOwner
-                ? "No messages in this conversation yet."
-                : "Start the conversation — introduce your hotel and ask any clarifying questions."}
+              {isOwner ? t("rfq.detail.messages.emptyOwner") : t("rfq.detail.messages.emptyHotel")}
             </div>
           ) : (
             threadMsgs.map((m) => (
@@ -278,7 +299,7 @@ function Conversation({
             <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Write a message…"
+              placeholder={t("rfq.detail.messages.placeholder")}
               rows={2}
               maxLength={1000}
             />
@@ -287,7 +308,7 @@ function Conversation({
               variant="gold"
               disabled={!text.trim() || send.isPending}
             >
-              Send
+              {t("common.send")}
             </Button>
           </div>
         )}
@@ -297,6 +318,7 @@ function Conversation({
 }
 
 function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { formatNumber } = useApplicationLocale();
   const [open, setOpen] = useState(false);
@@ -340,7 +362,7 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
 
   async function submit() {
     if (!hotelId) {
-      toast.error("Select a hotel");
+      toast.error(t("rfq.detail.quote.selectHotel"));
       return;
     }
     setSubmitting(true);
@@ -357,7 +379,7 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
         notes: notes || null,
       });
       if (error) throw error;
-      toast.success("Quote sent to the organizer");
+      toast.success(t("rfq.detail.quote.sentToast"));
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["my-quote-for-rfq", rfq.id, userId] });
     } catch (e: any) {
@@ -371,7 +393,7 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
     return (
       <div className="text-end">
         <Badge className="bg-gold/20 text-gold-foreground border border-gold/30">
-          Quote submitted
+          {t("rfq.detail.quote.submitted")}
         </Badge>
         <div className="mt-1 font-display text-lg text-primary">
           {existingQuote.currency} {formatNumber(existingQuote.total_price)}
@@ -383,7 +405,7 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
   if (hotels.length === 0) {
     return (
       <div className="text-xs text-muted-foreground max-w-[220px] text-end">
-        Add and get your hotel approved to send a quote.
+        {t("rfq.detail.quote.approvalRequired")}
       </div>
     );
   }
@@ -392,17 +414,17 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="gold">
-          <Send className="h-4 w-4" /> Submit quote
+          <Send className="h-4 w-4" /> {t("rfq.detail.quote.submit")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Submit a quote</DialogTitle>
+          <DialogTitle>{t("rfq.detail.quote.dialogTitle")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           {hotels.length > 1 && (
             <div>
-              <Label>Hotel</Label>
+              <Label>{t("rfq.detail.quote.hotel")}</Label>
               <select
                 className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={hotelId}
@@ -417,7 +439,9 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
             </div>
           )}
           <div>
-            <Label>Total price ({rfq.currency})</Label>
+            <Label>
+              {t("rfq.detail.quote.totalPrice")} ({rfq.currency})
+            </Label>
             <Input
               type="number"
               min={0}
@@ -426,7 +450,9 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
             />
           </div>
           <div>
-            <Label>Per room / night ({rfq.currency})</Label>
+            <Label>
+              {t("rfq.detail.quote.perRoomNight")} ({rfq.currency})
+            </Label>
             <Input
               type="number"
               min={0}
@@ -435,7 +461,7 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
             />
           </div>
           <div>
-            <Label>Board</Label>
+            <Label>{t("rfq.detail.details.board")}</Label>
             <select
               className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={board}
@@ -443,17 +469,17 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
             >
               {["room_only", "breakfast", "half_board", "full_board"].map((b) => (
                 <option key={b} value={b}>
-                  {b}
+                  {t(`rfq.boards.${b}`)}
                 </option>
               ))}
             </select>
           </div>
           <div>
-            <Label>Valid until</Label>
+            <Label>{t("rfq.detail.quote.validUntil")}</Label>
             <Input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
           </div>
           <div>
-            <Label>Inclusions</Label>
+            <Label>{t("rfq.detail.quote.inclusions")}</Label>
             <Input
               value={inclusions}
               onChange={(e) => setInclusions(e.target.value)}
@@ -461,7 +487,7 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
             />
           </div>
           <div>
-            <Label>Notes</Label>
+            <Label>{t("rfq.detail.quote.notes")}</Label>
             <Textarea
               rows={3}
               value={notes}
@@ -472,7 +498,7 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
         </div>
         <DialogFooter>
           <Button variant="gold" onClick={submit} disabled={!totalPrice || submitting}>
-            {submitting ? "Submitting…" : "Send quote"}
+            {submitting ? t("rfq.detail.quote.sending") : t("rfq.detail.quote.send")}
           </Button>
         </DialogFooter>
       </DialogContent>

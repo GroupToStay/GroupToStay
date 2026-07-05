@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Building2, CheckCircle2, Eye, Hotel, Loader2, Search, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,9 +44,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Database } from "@/integrations/supabase/types";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/hotel-listings")({
-  head: () => ({ meta: [{ title: "Hotel Listings - Admin" }] }),
+  head: () => ({ meta: [{ title: i18n.t("admin.hotelListings.metaTitle") }] }),
   component: Page,
 });
 
@@ -53,13 +55,14 @@ type HotelStatus = "pending" | "approved" | "suspended";
 type HotelRow = Database["public"]["Tables"]["hotels"]["Row"];
 type HotelPatch = Database["public"]["Tables"]["hotels"]["Update"];
 
-const statusOptions: { value: HotelStatus; label: string }[] = [
-  { value: "pending", label: "Pending Review" },
-  { value: "approved", label: "Approved" },
-  { value: "suspended", label: "Suspended" },
+const statusOptionKeys: { value: HotelStatus; labelKey: string }[] = [
+  { value: "pending", labelKey: "status.pending_review" },
+  { value: "approved", labelKey: "status.approved" },
+  { value: "suspended", labelKey: "status.suspended" },
 ];
 
 function Page() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [status, setStatus] = useState<HotelStatus>("pending");
   const [query, setQuery] = useState("");
@@ -93,11 +96,11 @@ function Page() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Decision saved");
+      toast.success(t("admin.common.decisionSaved"));
       setSelected(null);
       qc.invalidateQueries({ queryKey: ["admin-hotels"] });
     },
-    onError: (e: unknown) => toast.error(errorMessage(e, "Decision failed")),
+    onError: (e: unknown) => toast.error(errorMessage(e, t("admin.common.decisionFailed"))),
   });
 
   const filteredRows = useMemo(() => {
@@ -119,8 +122,8 @@ function Page() {
 
   return (
     <AdminManagementPage
-      title="Hotel Listings"
-      description="Approve, suspend and review individual hotel properties."
+      title={t("admin.hotelListings.title")}
+      description={t("admin.hotelListings.description")}
       icon={Hotel}
     >
       <AdminToolbar>
@@ -130,7 +133,7 @@ function Page() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             className="pl-9"
-            placeholder="Search hotel, city, country or rating"
+            placeholder={t("admin.hotelListings.searchPlaceholder")}
           />
         </div>
         <Select value={status} onValueChange={(value) => setStatus(value as HotelStatus)}>
@@ -138,9 +141,9 @@ function Page() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {statusOptions.map((option) => (
+            {statusOptionKeys.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -152,21 +155,21 @@ function Page() {
             setStatus("pending");
           }}
         >
-          Reset Filters
+          {t("admin.common.resetFilters")}
         </Button>
       </AdminToolbar>
 
       {isLoading ? (
         <Card>
           <CardContent className="flex items-center gap-2 p-6 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading hotel listings...
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("admin.hotelListings.loading")}
           </CardContent>
         </Card>
       ) : filteredRows.length === 0 ? (
         <EmptyState
           icon={Hotel}
-          title="No Hotel Listings"
-          description="No hotel listings match these filters yet."
+          title={t("admin.hotelListings.empty.title")}
+          description={t("admin.hotelListings.empty.description")}
         />
       ) : (
         <AdminTableCard
@@ -184,12 +187,18 @@ function Page() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/30">
-                  <TableHead>Hotel</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead className="hidden lg:table-cell">Rating</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden lg:table-cell">Created</TableHead>
-                  <TableHead className="w-12 text-right">Actions</TableHead>
+                  <TableHead>{t("admin.hotelListings.table.hotel")}</TableHead>
+                  <TableHead>{t("admin.hotelListings.table.location")}</TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    {t("admin.hotelListings.table.rating")}
+                  </TableHead>
+                  <TableHead>{t("admin.hotelListings.table.status")}</TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    {t("admin.hotelListings.table.created")}
+                  </TableHead>
+                  <TableHead className="w-12 text-right">
+                    {t("admin.hotelListings.table.actions")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -215,7 +224,7 @@ function Page() {
                         <div className="min-w-0">
                           <div className="truncate font-medium text-foreground">{row.name}</div>
                           <div className="truncate text-xs text-muted-foreground">
-                            {row.description || "No description"}
+                            {row.description || t("admin.hotelListings.fallbacks.noDescription")}
                           </div>
                         </div>
                       </div>
@@ -225,7 +234,7 @@ function Page() {
                       <div className="text-xs text-muted-foreground">{row.country || "-"}</div>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
-                      {row.star_rating ? `${row.star_rating} stars` : "-"}
+                      {ratingLabel(row.star_rating, t)}
                     </TableCell>
                     <TableCell>
                       <AdminStatusBadge status={row.status} />
@@ -275,7 +284,9 @@ function Page() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   <AdminStatusBadge status={row.status} />
                   <span className="text-xs text-muted-foreground">
-                    {row.star_rating ? `${row.star_rating} stars` : "No rating"}
+                    {row.star_rating
+                      ? ratingLabel(row.star_rating, t)
+                      : t("admin.hotelListings.fallbacks.noRating")}
                   </span>
                 </div>
               </div>
@@ -309,28 +320,40 @@ function Page() {
               ) : null}
 
               <AdminDetailGrid>
-                <AdminDetailItem label="Hotel Name" value={selected.name} />
-                <AdminDetailItem label="City" value={selected.city} />
-                <AdminDetailItem label="Country" value={selected.country} />
                 <AdminDetailItem
-                  label="Rating"
-                  value={selected.star_rating ? `${selected.star_rating} stars` : "-"}
+                  label={t("admin.hotelListings.details.hotelName")}
+                  value={selected.name}
+                />
+                <AdminDetailItem label={t("common.city")} value={selected.city} />
+                <AdminDetailItem label={t("common.country")} value={selected.country} />
+                <AdminDetailItem
+                  label={t("admin.hotelListings.table.rating")}
+                  value={ratingLabel(selected.star_rating, t)}
                 />
                 <AdminDetailItem
-                  label="Status"
+                  label={t("admin.hotelListings.table.status")}
                   value={<AdminStatusBadge status={selected.status} />}
                 />
-                <AdminDetailItem label="Archived" value={selected.archived ? "Yes" : "No"} />
-                <AdminDetailItem label="Owner ID" value={selected.owner_id || "-"} />
-                <AdminDetailItem label="Created" value={formatAdminDate(selected.created_at)} />
+                <AdminDetailItem
+                  label={t("admin.hotelListings.details.archived")}
+                  value={selected.archived ? t("common.yes") : t("common.no")}
+                />
+                <AdminDetailItem
+                  label={t("admin.hotelListings.details.ownerId")}
+                  value={selected.owner_id || "-"}
+                />
+                <AdminDetailItem
+                  label={t("admin.hotelListings.table.created")}
+                  value={formatAdminDate(selected.created_at)}
+                />
               </AdminDetailGrid>
 
               <div className="rounded-md border border-border bg-surface/60 p-3">
                 <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Description
+                  {t("admin.hotelListings.details.description")}
                 </div>
                 <p className="mt-2 whitespace-pre-wrap text-sm">
-                  {selected.description || "No description provided."}
+                  {selected.description || t("admin.hotelListings.fallbacks.noDescriptionProvided")}
                 </p>
               </div>
 
@@ -339,7 +362,7 @@ function Page() {
                   variant="outline"
                   onClick={() => window.open(`/hotels/${selected.id}`, "_blank")}
                 >
-                  <Eye className="h-4 w-4" /> View Hotel
+                  <Eye className="h-4 w-4" /> {t("admin.hotelListings.actions.viewHotel")}
                 </Button>
                 {selected.status === "approved" ? (
                   <AdminStatusBadge status="locked" />
@@ -351,13 +374,13 @@ function Page() {
                       variant="destructive"
                       onClick={() => setStatusFor.mutate({ id: selected.id, next: "suspended" })}
                     >
-                      <ShieldAlert className="h-4 w-4" /> Suspend
+                      <ShieldAlert className="h-4 w-4" /> {t("admin.common.actions.suspend")}
                     </Button>
                     <Button
                       variant="gold"
                       onClick={() => setStatusFor.mutate({ id: selected.id, next: "approved" })}
                     >
-                      <CheckCircle2 className="h-4 w-4" /> Approve
+                      <CheckCircle2 className="h-4 w-4" /> {t("admin.common.actions.approve")}
                     </Button>
                   </>
                 )}
@@ -383,22 +406,23 @@ function HotelActions({
   onApprove: () => void;
   onSuspend: () => void;
 }) {
+  const { t } = useTranslation();
   const approved = row.status === "approved";
   const suspended = row.status === "suspended";
   return (
     <AdminActionMenu
       items={[
-        { label: "View Details", icon: Eye, onSelect: onView },
-        { label: "Open Hotel Page", icon: Hotel, onSelect: onOpen },
+        { label: t("admin.common.actions.viewDetails"), icon: Eye, onSelect: onView },
+        { label: t("admin.hotelListings.actions.openHotelPage"), icon: Hotel, onSelect: onOpen },
         {
-          label: "Approve",
+          label: t("admin.common.actions.approve"),
           icon: CheckCircle2,
           onSelect: onApprove,
           disabled: approved || suspended,
           separatorBefore: true,
         },
         {
-          label: "Suspend",
+          label: t("admin.common.actions.suspend"),
           icon: ShieldAlert,
           onSelect: onSuspend,
           disabled: approved || suspended,
@@ -407,6 +431,14 @@ function HotelActions({
       ]}
     />
   );
+}
+
+function ratingLabel(
+  value: number | string | null,
+  t: (key: string, options?: Record<string, number>) => string,
+) {
+  if (!value) return "-";
+  return t("admin.hotelListings.details.stars", { count: Number(value) });
 }
 
 function errorMessage(err: unknown, fallback: string) {

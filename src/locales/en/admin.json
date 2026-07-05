@@ -1,0 +1,591 @@
+{
+  "admin": {
+    "title": "Admin review",
+    "tabs": {
+      "companies": "Hotel companies",
+      "hotels": "Hotel listings"
+    },
+    "approve": "Approve",
+    "reject": "Reject",
+    "suspend": "Suspend",
+    "decisionSaved": "Decision saved.",
+    "notesPh": "Internal note (optional, shared with the hotel owner)",
+    "empty": "Nothing to review here.",
+    "common": {
+      "openActions": "Open actions",
+      "resetFilters": "Reset Filters",
+      "decisionSaved": "Decision saved",
+      "decisionFailed": "Decision failed",
+      "actions": {
+        "viewDetails": "View Details",
+        "approve": "Approve",
+        "reject": "Reject",
+        "suspend": "Suspend",
+        "reconsider": "Reconsider",
+        "requestMoreInfo": "Request More Information"
+      }
+    },
+    "pagination": {
+      "showing": "Showing",
+      "of": "of",
+      "rowsPerPage": "Rows per page",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "users": {
+      "metaTitle": "Users - Admin",
+      "title": "User Management",
+      "description": "Manage all registered users, roles, verification state and account status.",
+      "searchPlaceholder": "Search by name, email, company or phone",
+      "loading": "Loading users...",
+      "filters": {
+        "allRoles": "All Roles",
+        "visitors": "Visitors",
+        "agencies": "Agencies",
+        "hotels": "Hotels",
+        "administrators": "Administrators",
+        "allVerification": "All Verification",
+        "verifiedApproved": "Verified / Approved",
+        "allAccountStatus": "All Account Status",
+        "allCountries": "All Countries"
+      },
+      "metrics": {
+        "allUsers": {
+          "label": "All Users",
+          "description": "Registered accounts"
+        },
+        "agencies": {
+          "label": "Agencies",
+          "description": "Marketplace buyers"
+        },
+        "hotels": {
+          "label": "Hotels",
+          "description": "Marketplace suppliers"
+        },
+        "admins": {
+          "label": "Admins",
+          "description": "Management users"
+        },
+        "active": {
+          "label": "Active",
+          "description": "Current active accounts"
+        }
+      },
+      "table": {
+        "user": "User",
+        "company": "Company",
+        "phone": "Phone",
+        "role": "Role",
+        "verification": "Verification",
+        "account": "Account",
+        "country": "Country",
+        "joined": "Joined",
+        "actions": "Actions"
+      },
+      "actions": {
+        "viewProfile": "View Profile",
+        "editUser": "Edit User",
+        "viewActivity": "View Activity",
+        "viewVerification": "View Verification",
+        "activateUser": "Activate User",
+        "suspendUser": "Suspend User",
+        "disableAccount": "Disable Account",
+        "resetPassword": "Reset Password"
+      },
+      "dialog": {
+        "userId": "User ID: {{id}}",
+        "editTitle": "Edit User Profile",
+        "editDescription": "Update public profile fields for this account.",
+        "activityTitle": "Activity - {{name}}",
+        "activityDescription": "Recent activity summary from marketplace tables.",
+        "verificationTitle": "Verification - {{name}}",
+        "verificationDescription": "Verification and approval status for this account."
+      },
+      "fields": {
+        "fullName": "Full Name",
+        "companyName": "Company Name",
+        "contactEmail": "Contact Email",
+        "phoneNumber": "Phone Number",
+        "email": "Email"
+      },
+      "details": {
+        "agencyVerification": "Agency Verification",
+        "hotelApproval": "Hotel Approval",
+        "trustLevel": "Trust Level",
+        "reviewedAt": "Reviewed At",
+        "submittedAt": "Submitted At",
+        "accountStatus": "Account Status",
+        "registrationDate": "Registration Date",
+        "lastLogin": "Last Login",
+        "userId": "User ID"
+      },
+      "activity": {
+        "loading": "Loading activity...",
+        "rfqsCreated": "RFQs Created",
+        "hotelsOwned": "Hotels Owned",
+        "messagesSent": "Messages Sent",
+        "notifications": "Notifications",
+        "verificationEvents": "Verification Events"
+      },
+      "empty": {
+        "title": "No Users Found",
+        "description": "No registered accounts match these filters."
+      },
+      "toasts": {
+        "accountStatusUpdated": "Account status updated",
+        "profileUpdated": "Profile updated",
+        "passwordResetSent": "Password reset email sent"
+      },
+      "errors": {
+        "loadFailed": "Could not load user management data.",
+        "accountStatusUpdateFailed": "Could not update account status",
+        "profileUpdateFailed": "Could not update profile",
+        "passwordResetFailed": "Password reset failed"
+      },
+      "fallbacks": {
+        "unnamedUser": "Unnamed user",
+        "notAssigned": "Not assigned",
+        "requiresAuthAdmin": "Requires Supabase Auth Admin"
+      }
+    },
+    "groupRequests": {
+      "metaTitle": "Group Requests - Admin",
+      "title": "Group Requests (RFQ)",
+      "description": "Manage all accommodation requests created by agencies.",
+      "searchPlaceholder": "Search by ID, agency, destination or city",
+      "loading": "Loading RFQs...",
+      "confirmDelete": "Delete this request permanently?",
+      "filters": {
+        "allStatus": "All Status"
+      },
+      "sort": {
+        "newest": "Newest First",
+        "oldest": "Oldest First",
+        "guests": "Guests",
+        "destination": "Destination"
+      },
+      "metrics": {
+        "allRequests": {
+          "label": "All Requests",
+          "description": "Total RFQs"
+        },
+        "pending": {
+          "description": "Awaiting quotes or review"
+        },
+        "open": {
+          "description": "Actively quoting"
+        },
+        "closed": {
+          "description": "Completed or awarded"
+        },
+        "cancelled": {
+          "description": "Cancelled requests"
+        }
+      },
+      "table": {
+        "rfq": "RFQ",
+        "agency": "Agency",
+        "destination": "Destination",
+        "guestsRooms": "Guests / Rooms",
+        "categories": "Categories",
+        "status": "Status",
+        "quotes": "Quotes",
+        "updated": "Updated",
+        "actions": "Actions",
+        "guestsCount_zero": "{{count}} guests",
+        "guestsCount_one": "{{count}} guest",
+        "guestsCount_two": "{{count}} guests",
+        "guestsCount_few": "{{count}} guests",
+        "guestsCount_many": "{{count}} guests",
+        "guestsCount_other": "{{count}} guests",
+        "roomsCount_zero": "{{count}} rooms",
+        "roomsCount_one": "{{count}} room",
+        "roomsCount_two": "{{count}} rooms",
+        "roomsCount_few": "{{count}} rooms",
+        "roomsCount_many": "{{count}} rooms",
+        "roomsCount_other": "{{count}} rooms"
+      },
+      "actions": {
+        "viewRequest": "View Request",
+        "viewQuotations": "View Quotations",
+        "viewAgency": "View Agency",
+        "closeRequest": "Close Request",
+        "suspendRequest": "Suspend Request",
+        "deleteRequest": "Delete Request"
+      },
+      "dialog": {
+        "requestId": "Request ID: {{id}}",
+        "quotationsTitle": "Quotations for {{title}}",
+        "quotationsReceived_zero": "No quotations received.",
+        "quotationsReceived_one": "{{count}} quotation received.",
+        "quotationsReceived_two": "{{count}} quotations received.",
+        "quotationsReceived_few": "{{count}} quotations received.",
+        "quotationsReceived_many": "{{count}} quotations received.",
+        "quotationsReceived_other": "{{count}} quotations received.",
+        "agencyDescription": "Agency profile connected to this RFQ."
+      },
+      "details": {
+        "created": "Created",
+        "lastUpdate": "Last Update",
+        "noRequirements": "No requirements provided."
+      },
+      "fallbacks": {
+        "unknownAgency": "Unknown agency"
+      },
+      "quotes": {
+        "quoteId": "Quote {{id}}",
+        "amountSubmitted": "{{amount}} - submitted {{date}}"
+      },
+      "empty": {
+        "title": "No Requests Available",
+        "description": "No group accommodation requests match these filters.",
+        "noQuotationsTitle": "No Quotations",
+        "noQuotationsDescription": "No hotel has submitted a quotation for this request yet."
+      },
+      "toasts": {
+        "updated": "Request updated",
+        "deleted": "Request deleted"
+      },
+      "errors": {
+        "loadFailed": "Could not load RFQ management data.",
+        "updateFailed": "Request update failed",
+        "deleteFailed": "Request delete failed"
+      }
+    },
+    "hotelCompanies": {
+      "metaTitle": "Hotel Companies - Admin",
+      "title": "Hotel Companies",
+      "description": "Approve, reject and review hotel company applications.",
+      "searchPlaceholder": "Search company, contact, country or PMS",
+      "loading": "Loading hotel companies...",
+      "table": {
+        "company": "Company",
+        "contact": "Contact",
+        "pms": "PMS",
+        "status": "Status",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "details": {
+        "companyName": "Company Name",
+        "contactName": "Contact Name",
+        "vatNumber": "VAT Number",
+        "crNumber": "CR Number",
+        "apiAvailable": "API Available",
+        "technicalContact": "Technical Contact",
+        "technicalEmail": "Technical Email",
+        "technicalPhone": "Technical Phone",
+        "approvalNotes": "Approval notes",
+        "approvalNotesPlaceholder": "Optional review notes"
+      },
+      "empty": {
+        "title": "Nothing to review here.",
+        "description": "No hotel company applications match these filters."
+      },
+      "fallbacks": {
+        "hotelCompany": "Hotel Company"
+      },
+      "pms": {
+        "title": "PMS Statistics",
+        "description": "Approved hotel companies by Property Management System.",
+        "noPms": "No PMS",
+        "notSpecified": "Not specified",
+        "otherWithName": "Other ({{name}})",
+        "providers": {
+          "no_pms": "No PMS",
+          "not_specified": "Not specified",
+          "mycloud_pms": "MyCloud PMS",
+          "oracle_opera_pms": "Oracle Opera PMS",
+          "cloudbeds": "Cloudbeds",
+          "mews": "Mews",
+          "ezee_absolute": "eZee Absolute",
+          "hotelogix": "Hotelogix",
+          "protel": "Protel",
+          "other": "Other"
+        }
+      }
+    },
+    "hotelListings": {
+      "metaTitle": "Hotel Listings - Admin",
+      "title": "Hotel Listings",
+      "description": "Approve, suspend and review individual hotel properties.",
+      "searchPlaceholder": "Search hotel, city, country or rating",
+      "loading": "Loading hotel listings...",
+      "table": {
+        "hotel": "Hotel",
+        "location": "Location",
+        "rating": "Rating",
+        "status": "Status",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "details": {
+        "hotelName": "Hotel Name",
+        "archived": "Archived",
+        "ownerId": "Owner ID",
+        "description": "Description",
+        "stars_zero": "No rating",
+        "stars_one": "{{count}} star",
+        "stars_two": "{{count}} stars",
+        "stars_few": "{{count}} stars",
+        "stars_many": "{{count}} stars",
+        "stars_other": "{{count}} stars"
+      },
+      "actions": {
+        "viewHotel": "View Hotel",
+        "openHotelPage": "Open Hotel Page"
+      },
+      "fallbacks": {
+        "noDescription": "No description",
+        "noDescriptionProvided": "No description provided.",
+        "noRating": "No rating"
+      },
+      "empty": {
+        "title": "No Hotel Listings",
+        "description": "No hotel listings match these filters yet."
+      }
+    },
+    "agencyVerifications": {
+      "metaTitle": "Agency Verifications - Admin",
+      "title": "Agency Verifications",
+      "description": "Review submitted agency profiles, documents and verification history.",
+      "searchPlaceholder": "Search by agency, country, type, email or phone",
+      "loading": "Loading agencies...",
+      "reviewNote": "Review note / rejection reason",
+      "reviewNotePlaceholder": "Required for Reject / Request more info",
+      "table": {
+        "agency": "Agency",
+        "location": "Location",
+        "agencyType": "Agency Type",
+        "contact": "Contact",
+        "status": "Status",
+        "submitted": "Submitted",
+        "actions": "Actions"
+      },
+      "sections": {
+        "companyInfo": "Company Information",
+        "businessRegistration": "Business Registration",
+        "contactPerson": "Contact Person",
+        "businessBilling": "Business and Billing",
+        "verificationHistory": "Verification History"
+      },
+      "details": {
+        "legalName": "Legal Name",
+        "tradeName": "Trade Name",
+        "address": "Address",
+        "website": "Website",
+        "yearEstablished": "Year Established",
+        "employees": "Employees",
+        "crNumber": "CR Number",
+        "crExpiry": "CR Expiry",
+        "issuingAuthority": "Issuing Authority",
+        "tourismLicense": "Tourism License",
+        "name": "Name",
+        "position": "Position",
+        "whatsapp": "WhatsApp",
+        "annualBookings": "Annual Bookings",
+        "averageRooms": "Average Rooms / Booking",
+        "legalBillingName": "Legal Billing Name",
+        "billingEmail": "Billing Email",
+        "billingAddress": "Billing Address"
+      },
+      "documents": {
+        "commercialRegistration": "Commercial Registration",
+        "tourismLicense": "Tourism License",
+        "notUploaded": "{{label}}: not uploaded"
+      },
+      "history": {
+        "noEvents": "No events yet.",
+        "reason": "Reason"
+      },
+      "actions": {
+        "requestMoreInfo": "Request more info"
+      },
+      "empty": {
+        "title": "No Submissions",
+        "description": "No agency verification submissions match these filters."
+      },
+      "toasts": {
+        "verified": "Agency verified",
+        "rejected": "Agency rejected",
+        "infoRequested": "Info requested"
+      },
+      "errors": {
+        "reasonRequired": "Please write a reason / note",
+        "actionFailed": "Action failed",
+        "documentOpenFailed": "Could not open document"
+      },
+      "fallbacks": {
+        "untitledAgency": "Untitled agency"
+      }
+    },
+    "settings": {
+      "metaTitle": "Settings - Admin",
+      "title": "Settings",
+      "description": "Admin account and platform settings.",
+      "profile": {
+        "title": "Admin Profile Settings",
+        "description": "Manage the current admin profile, contact details and account email from the existing profile settings workflow.",
+        "action": "Open Profile Settings"
+      }
+    },
+    "subscriptionInterest": {
+      "metaTitle": "Subscription Interest - Admin",
+      "title": "Subscription Interest",
+      "description": "Hotels who joined the waitlist for premium plans."
+    },
+    "subscriptions": {
+      "metaTitle": "Subscriptions - Admin",
+      "title": "Subscriptions",
+      "description": "Billing and active plan management.",
+      "empty": {
+        "title": "Coming Soon",
+        "description": "The subscription billing module will be available once the payment system is launched.",
+        "status": "Not Active Yet"
+      }
+    },
+    "overview": {
+      "metaTitle": "Admin Dashboard - GroupToStay",
+      "console": "Admin Console",
+      "title": "Platform Overview",
+      "description": "Manage hotels, listings, agencies, requests and platform growth from one place.",
+      "quickActions": "Quick Actions",
+      "recentActivity": "Recent Activity",
+      "noRecentActivity": "No recent activity.",
+      "sections": {
+        "hotels": "Hotels",
+        "listings": "Listings",
+        "users": "Users",
+        "subscriptions": "Subscriptions",
+        "requests": "Requests",
+        "revenue": "Revenue"
+      },
+      "metrics": {
+        "totalHotelCompanies": "Total Hotel Companies",
+        "approvedHotels": "Approved Hotels",
+        "pendingHotels": "Pending Hotels",
+        "rejectedHotels": "Rejected Hotels",
+        "totalListings": "Total Listings",
+        "activeListings": "Active Listings",
+        "pendingListings": "Pending Listings",
+        "totalAgencies": "Total Agencies",
+        "totalHotelAccounts": "Total Hotel Accounts",
+        "activeSubscriptions": "Active Subscriptions",
+        "pendingSubscriptionRequests": "Pending Subscription Requests",
+        "pendingHotelReviews": "Pending Hotel Reviews",
+        "activeAgencyAccounts": "Active Agency Accounts",
+        "openGroupRequests": "Open Group Requests",
+        "submittedQuotations": "Submitted Quotations",
+        "confirmedDeals": "Confirmed Deals",
+        "subscriptionInterestLeads": "Subscription Interest Leads",
+        "totalPlatformUsers": "Total Platform Users",
+        "totalRequests": "Total Requests",
+        "activeOpen": "Active (Open)",
+        "totalHotelUsers": "Total Hotel Users"
+      },
+      "actions": {
+        "hotelCompanies": "Review and approve hotel companies.",
+        "hotelListings": "Review hotel listings.",
+        "agencyVerifications": "Review agency verification submissions.",
+        "groupRequests": "Review marketplace RFQs.",
+        "users": "Review user accounts and roles.",
+        "subscriptionInterest": "Hotels requesting subscriptions.",
+        "subscriptions": "Subscription billing module.",
+        "settings": "Platform & profile settings.",
+        "review": "Review",
+        "open": "Open",
+        "view": "View",
+        "reviewHotelCompanies": "Review Hotel Companies",
+        "reviewHotelListings": "Review Hotel Listings",
+        "reviewSubscriptionInterest": "Review Subscription Interest",
+        "viewAllUsers": "View All Users",
+        "viewGroupRequests": "View Group Requests",
+        "platformSettings": "Platform Settings",
+        "hotelCompaniesTitle": "Hotel Companies",
+        "hotelListingsTitle": "Hotel Listings",
+        "groupRequestsTitle": "Group Requests",
+        "usersTitle": "Users",
+        "subscriptionInterestTitle": "Subscription Interest",
+        "subscriptionsTitle": "Subscriptions",
+        "settingsTitle": "Settings"
+      },
+      "activity": {
+        "hotelApproved": "Hotel approved: {{name}}",
+        "hotelRejected": "Hotel rejected: {{name}}",
+        "newListing": "New listing: {{name}}",
+        "subscriptionRequest": "Subscription request ({{plan}}) - {{name}}",
+        "hotelListing": "Hotel listing: {{name}}",
+        "newRegistration": "New registration: {{name}}",
+        "newGroupRequest": "New group request: {{title}}",
+        "newQuotationSubmitted": "New quotation submitted",
+        "subscriptionInterest": "Subscription interest: {{name}}",
+        "fallbackUser": "User",
+        "fallbackLead": "Lead"
+      },
+      "requiresAttention": "Requires Attention",
+      "platformHealth": "Platform Health",
+      "itemCount_zero": "{{count}} items",
+      "itemCount_one": "{{count}} item",
+      "itemCount_two": "{{count}} items",
+      "itemCount_few": "{{count}} items",
+      "itemCount_many": "{{count}} items",
+      "itemCount_other": "{{count}} items",
+      "attention": {
+        "hotelsAwaitingApproval": "Hotels awaiting approval",
+        "companiesAwaitingVerification": "Companies awaiting verification",
+        "subscriptionInterestLeads": "Subscription interest leads"
+      },
+      "health": {
+        "activeHotels": "Active hotels",
+        "hotelsWithPms": "Hotels with PMS integration",
+        "hotelsWithoutPms": "Hotels without PMS",
+        "agenciesActiveThisMonth": "Agencies active this month",
+        "openRequestsThisMonth": "Open requests this month",
+        "avgQuotationsPerRequest": "Avg quotations per request"
+      },
+      "welcomeAdmin": "Welcome Admin",
+      "legacyDescription": "Manage hotels, subscriptions, approvals and platform performance.",
+      "notActiveYet": "Not Active Yet"
+    },
+    "legacy": {
+      "metaTitle": "Admin - GroupToStay",
+      "redirectComment": "Legacy admin dashboard redirects to the new dedicated pages.",
+      "stats": {
+        "pendingReviews": "Pending Reviews",
+        "approvedListings": "Approved Listings",
+        "rejectedSuspended": "Rejected / Suspended",
+        "activeHotelAccounts": "Active Hotel Accounts"
+      },
+      "companiesEmpty": "No hotel company applications match this filter.",
+      "pmsStatistics": "PMS Statistics",
+      "pmsStatisticsDescription": "Approved hotel companies by Property Management System.",
+      "noPms": "No PMS",
+      "notSpecified": "Not specified",
+      "company": {
+        "pmsInformation": "PMS Information",
+        "usesPms": "Uses PMS",
+        "provider": "Provider",
+        "approvedLocked": "Approved - locked"
+      },
+      "hotels": {
+        "finalArchived": "Final - archived"
+      },
+      "interest": {
+        "plan": "Plan",
+        "status": "Status",
+        "allStatuses": "All",
+        "plans": {
+          "all": "All",
+          "professional": "Professional",
+          "featured": "Featured"
+        },
+        "emptyTitle": "No waitlist entries",
+        "emptyDescription": "Hotels who register interest in a paid plan will appear here.",
+        "hotel": "Hotel",
+        "registered": "Registered",
+        "markNotified": "Mark as Notified",
+        "markedNotified": "Marked as notified"
+      }
+    }
+  }
+}

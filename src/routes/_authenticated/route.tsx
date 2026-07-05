@@ -63,7 +63,7 @@ function AuthLayout() {
                   className={navItem}
                   activeProps={{ className: "active" }}
                 >
-                  <LayoutDashboard className="h-4 w-4" /> Overview
+                  <LayoutDashboard className="h-4 w-4" /> {t("nav.overview")}
                 </Link>
               ) : (
                 <Link
@@ -83,38 +83,38 @@ function AuthLayout() {
                     className={navItem}
                     activeProps={{ className: "active" }}
                   >
-                    <Building2 className="h-4 w-4" /> Hotel Companies
+                    <Building2 className="h-4 w-4" /> {t("admin.hotelCompanies.title")}
                   </Link>
                   <Link
                     to="/admin/hotel-listings"
                     className={navItem}
                     activeProps={{ className: "active" }}
                   >
-                    <Inbox className="h-4 w-4" /> Hotel Listings
+                    <Inbox className="h-4 w-4" /> {t("admin.hotelListings.title")}
                   </Link>
                   <Link
                     to="/admin/agency-verifications"
                     className={navItem}
                     activeProps={{ className: "active" }}
                   >
-                    <ShieldCheck className="h-4 w-4" /> Agency Verifications
+                    <ShieldCheck className="h-4 w-4" /> {t("admin.agencyVerifications.title")}
                   </Link>
                   <Link
                     to="/admin/group-requests"
                     className={navItem}
                     activeProps={{ className: "active" }}
                   >
-                    <FileText className="h-4 w-4" /> Group Requests
+                    <FileText className="h-4 w-4" /> {t("nav.groupRequests")}
                   </Link>
                   <Link to="/admin/users" className={navItem} activeProps={{ className: "active" }}>
-                    <Users className="h-4 w-4" /> Users
+                    <Users className="h-4 w-4" /> {t("nav.users")}
                   </Link>
                   <Link
                     to="/admin/subscription-interest"
                     className={navItem}
                     activeProps={{ className: "active" }}
                   >
-                    <ShieldCheck className="h-4 w-4" /> Subscription Interest
+                    <ShieldCheck className="h-4 w-4" /> {t("nav.subscriptionInterest")}
                   </Link>
 
                   <Link
@@ -123,9 +123,9 @@ function AuthLayout() {
                     activeProps={{ className: "active" }}
                   >
                     <CreditCard className="h-4 w-4" />
-                    <span className="flex-1">Subscriptions</span>
+                    <span className="flex-1">{t("nav.subscriptions")}</span>
                     <span className="ml-auto text-[10px] uppercase tracking-wide rounded bg-muted px-1.5 py-0.5 text-muted-foreground">
-                      Soon
+                      {t("common.soon")}
                     </span>
                   </Link>
                   <Link
@@ -153,7 +153,7 @@ function AuthLayout() {
                     activeProps={{ className: "active" }}
                   >
                     <MessageSquare className="h-4 w-4" />
-                    <span className="flex-1">{t("dashboard.messages")}</span>
+                    <span className="flex-1">{t("dashboard.messagesTitle")}</span>
                     {unread > 0 && (
                       <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-gold text-primary text-[11px] font-semibold">
                         {unread}
@@ -173,7 +173,7 @@ function AuthLayout() {
                     className={navItem}
                     activeProps={{ className: "active" }}
                   >
-                    <Server className="h-4 w-4" /> PMS Integration
+                    <Server className="h-4 w-4" /> {t("nav.pmsIntegration")}
                   </Link>
 
                   <Link to="/pricing" className={navItem} activeProps={{ className: "active" }}>
@@ -211,7 +211,7 @@ function AuthLayout() {
                     activeProps={{ className: "active" }}
                   >
                     <MessageSquare className="h-4 w-4" />
-                    <span className="flex-1">{t("dashboard.messages")}</span>
+                    <span className="flex-1">{t("dashboard.messagesTitle")}</span>
                     {unread > 0 && (
                       <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-gold text-primary text-[11px] font-semibold">
                         {unread}
@@ -223,14 +223,14 @@ function AuthLayout() {
                     className={navItem}
                     activeProps={{ className: "active" }}
                   >
-                    <ShieldCheck className="h-4 w-4" /> Agency Profile
+                    <ShieldCheck className="h-4 w-4" /> {t("nav.agencyProfile")}
                   </Link>
                   <Link
                     to="/dashboard/profile"
                     className={navItem}
                     activeProps={{ className: "active" }}
                   >
-                    <User className="h-4 w-4" /> My Profile
+                    <User className="h-4 w-4" /> {t("nav.myProfile")}
                   </Link>
                 </>
               )}

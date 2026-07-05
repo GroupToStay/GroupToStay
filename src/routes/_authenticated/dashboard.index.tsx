@@ -7,22 +7,25 @@ import { useRoles } from "@/hooks/use-role";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Inbox, CheckCircle2, Building2, Send, CreditCard } from "lucide-react";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
-  head: () => ({ meta: [{ title: "Dashboard — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("dashboard.meta.title") }] }),
   component: Page,
 });
 
 function Page() {
+  const { t } = useTranslation();
   const { isHotel, isAdmin, loading } = useRoles();
-  if (loading) return <div className="text-muted-foreground">Loading…</div>;
+  if (loading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
   if (isAdmin) return <AdminRedirect />;
   return isHotel ? <HotelHome /> : <OrganizerHome />;
 }
 
 function AdminRedirect() {
+  const { t } = useTranslation();
   if (typeof window !== "undefined") window.location.replace("/admin");
-  return <div className="text-muted-foreground">Redirecting to Admin Dashboard…</div>;
+  return <div className="text-muted-foreground">{t("dashboard.redirectingToAdmin")}</div>;
 }
 
 function OrganizerHome() {
@@ -160,7 +163,11 @@ function HotelHome() {
           { icon: Inbox, label: t("hotelDash.invitations"), value: stats?.invites ?? 0 },
           { icon: Send, label: t("dashboard.viewQuotes"), value: stats?.quotes ?? 0 },
           { icon: CheckCircle2, label: t("dashboard.status.awarded"), value: stats?.wins ?? 0 },
-          { icon: CreditCard, label: t("nav.subscription", "Active Subscription"), value: "Free" },
+          {
+            icon: CreditCard,
+            label: t("dashboard.subscription.active"),
+            value: t("dashboard.subscription.free"),
+          },
         ].map((s, i) => (
           <Card key={i}>
             <CardContent className="p-5 flex items-center gap-4">
@@ -179,7 +186,7 @@ function HotelHome() {
       <Card className="mt-6">
         <CardContent className="p-6">
           <h2 className="font-display text-xl text-primary flex items-center gap-2">
-            <Building2 className="h-5 w-5" /> {t("nav.hotelProfile", "My Hotel Profile")}
+            <Building2 className="h-5 w-5" /> {t("nav.hotelProfile")}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {hasHotels
@@ -190,7 +197,7 @@ function HotelHome() {
           </p>
           <div className="mt-4">
             <Button asChild variant="default">
-              <Link to="/dashboard/hotel">{t("nav.hotelProfile", "My Hotel Profile")}</Link>
+              <Link to="/dashboard/hotel">{t("nav.hotelProfile")}</Link>
             </Button>
           </div>
         </CardContent>

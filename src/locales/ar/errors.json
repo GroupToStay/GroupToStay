@@ -1,0 +1,25 @@
+{
+  "errors": {
+    "notFound": {
+      "title": "الصفحة غير موجودة",
+      "description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها."
+    },
+    "pageLoad": {
+      "title": "تعذر تحميل الصفحة",
+      "description": "حدث خطأ من جانبنا. يمكنك تحديث الصفحة أو العودة إلى الرئيسية."
+    },
+    "actions": {
+      "goHome": "العودة إلى الرئيسية"
+    },
+    "recoveringInterface": "جارٍ استعادة الواجهة",
+    "unknown": "خطأ غير معروف",
+    "accessDenied": {
+      "title": "الوصول غير مسموح",
+      "hotelDirectoryMessage": "هذه المنطقة مقيّدة. GroupToStay منصة طلبات عروض بين الشركات، وتصفح دليل الفنادق متاح للمسؤولين فقط.",
+      "returnHome": "العودة إلى الرئيسية",
+      "createRequest": "إنشاء طلب مجموعة",
+      "metaTitle": "الوصول غير مسموح - GroupToStay",
+      "hotelDirectoryDescription": "تصفح دليل الفنادق مقيّد بالمسؤولين."
+    }
+  }
+}

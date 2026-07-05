@@ -28,17 +28,28 @@ import {
   GitCompare,
 } from "lucide-react";
 import { useApplicationLocale } from "@/lib/application-locale";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/rfqs/$id")({
-  head: () => ({ meta: [{ title: "Request — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("dashboard.requests.detailMetaTitle") }] }),
   component: Page,
-  errorComponent: () => (
-    <div className="p-8 text-center text-muted-foreground">Could not load this request.</div>
-  ),
-  notFoundComponent: () => (
-    <div className="p-8 text-center text-muted-foreground">Request not found.</div>
-  ),
+  errorComponent: RequestError,
+  notFoundComponent: RequestNotFound,
 });
+
+function RequestError() {
+  const { t } = useTranslation();
+  return (
+    <div className="p-8 text-center text-muted-foreground">{t("dashboard.requests.loadError")}</div>
+  );
+}
+
+function RequestNotFound() {
+  const { t } = useTranslation();
+  return (
+    <div className="p-8 text-center text-muted-foreground">{t("dashboard.requests.notFound")}</div>
+  );
+}
 
 const statusColor: Record<string, string> = {
   open: "bg-success/15 text-success",
@@ -90,7 +101,7 @@ function Page() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Deleted");
+      toast.success(t("dashboard.requests.deleted"));
       window.location.href = "/dashboard/rfqs";
     },
   });

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   Activity,
@@ -62,9 +63,10 @@ import {
 } from "@/components/ui/table";
 import type { Database } from "@/integrations/supabase/types";
 import { useApplicationLocale } from "@/lib/application-locale";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
-  head: () => ({ meta: [{ title: "Users - Admin" }] }),
+  head: () => ({ meta: [{ title: i18n.t("admin.users.metaTitle") }] }),
   component: Page,
 });
 
@@ -94,32 +96,33 @@ type UserRow = {
   created_at: string;
 };
 
-const roleFilters: { value: RoleFilter; label: string }[] = [
-  { value: "all", label: "All Roles" },
-  { value: "visitor", label: "Visitors" },
-  { value: "organizer", label: "Agencies" },
-  { value: "hotel", label: "Hotels" },
-  { value: "admin", label: "Administrators" },
+const roleFilterKeys: { value: RoleFilter; labelKey: string }[] = [
+  { value: "all", labelKey: "admin.users.filters.allRoles" },
+  { value: "visitor", labelKey: "admin.users.filters.visitors" },
+  { value: "organizer", labelKey: "admin.users.filters.agencies" },
+  { value: "hotel", labelKey: "admin.users.filters.hotels" },
+  { value: "admin", labelKey: "admin.users.filters.administrators" },
 ];
 
-const verificationFilters: { value: VerificationFilter; label: string }[] = [
-  { value: "all", label: "All Verification" },
-  { value: "verified", label: "Verified / Approved" },
-  { value: "pending", label: "Pending" },
-  { value: "rejected", label: "Rejected" },
-  { value: "draft", label: "Draft" },
-  { value: "unverified", label: "Unverified" },
+const verificationFilterKeys: { value: VerificationFilter; labelKey: string }[] = [
+  { value: "all", labelKey: "admin.users.filters.allVerification" },
+  { value: "verified", labelKey: "admin.users.filters.verifiedApproved" },
+  { value: "pending", labelKey: "status.pending" },
+  { value: "rejected", labelKey: "status.rejected" },
+  { value: "draft", labelKey: "status.draft" },
+  { value: "unverified", labelKey: "status.unverified" },
 ];
 
-const accountFilters: { value: "all" | AccountStatus; label: string }[] = [
-  { value: "all", label: "All Account Status" },
-  { value: "active", label: "Active" },
-  { value: "suspended", label: "Suspended" },
-  { value: "disabled", label: "Disabled" },
+const accountFilterKeys: { value: "all" | AccountStatus; labelKey: string }[] = [
+  { value: "all", labelKey: "admin.users.filters.allAccountStatus" },
+  { value: "active", labelKey: "status.active" },
+  { value: "suspended", labelKey: "status.suspended" },
+  { value: "disabled", labelKey: "status.disabled" },
 ];
 
 function Page() {
   const qc = useQueryClient();
+  const { t } = useTranslation();
   const { compare, language } = useApplicationLocale();
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [countryFilter, setCountryFilter] = useState("all");
@@ -167,7 +170,7 @@ function Page() {
           return {
             user_id,
             roles,
-            roleLabel: roles.length ? roles.map(roleLabel).join(", ") : "Visitor",
+            roleLabel: roles.length ? roles.join(", ") : "visitor",
             profile,
             created_at:
               profile?.created_at ?? roleCreatedByUser.get(user_id) ?? new Date(0).toISOString(),
@@ -188,10 +191,11 @@ function Page() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Account status updated");
+      toast.success(t("admin.users.toasts.accountStatusUpdated"));
       qc.invalidateQueries({ queryKey: ["admin-user-management"] });
     },
-    onError: (err: unknown) => toast.error(errorMessage(err, "Could not update account status")),
+    onError: (err: unknown) =>
+      toast.error(errorMessage(err, t("admin.users.errors.accountStatusUpdateFailed"))),
   });
 
   const updateProfile = useMutation({
@@ -203,11 +207,12 @@ function Page() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Profile updated");
+      toast.success(t("admin.users.toasts.profileUpdated"));
       setDialog(null);
       qc.invalidateQueries({ queryKey: ["admin-user-management"] });
     },
-    onError: (err: unknown) => toast.error(errorMessage(err, "Could not update profile")),
+    onError: (err: unknown) =>
+      toast.error(errorMessage(err, t("admin.users.errors.profileUpdateFailed"))),
   });
 
   const resetPassword = useMutation({
@@ -217,8 +222,9 @@ function Page() {
       });
       if (error) throw error;
     },
-    onSuccess: () => toast.success("Password reset email sent"),
-    onError: (err: unknown) => toast.error(errorMessage(err, "Password reset failed")),
+    onSuccess: () => toast.success(t("admin.users.toasts.passwordResetSent")),
+    onError: (err: unknown) =>
+      toast.error(errorMessage(err, t("admin.users.errors.passwordResetFailed"))),
   });
 
   const countries = useMemo(() => {
@@ -270,37 +276,37 @@ function Page() {
 
   const metrics: AdminMetric[] = [
     {
-      label: "All Users",
+      label: t("admin.users.metrics.allUsers.label"),
       value: formatCompactNumber(roleCounts.all, language),
-      description: "Registered accounts",
+      description: t("admin.users.metrics.allUsers.description"),
       icon: Users,
       tone: "info",
     },
     {
-      label: "Agencies",
+      label: t("admin.users.metrics.agencies.label"),
       value: formatCompactNumber(roleCounts.agencies, language),
-      description: "Marketplace buyers",
+      description: t("admin.users.metrics.agencies.description"),
       icon: UserCheck,
       tone: "success",
     },
     {
-      label: "Hotels",
+      label: t("admin.users.metrics.hotels.label"),
       value: formatCompactNumber(roleCounts.hotels, language),
-      description: "Marketplace suppliers",
+      description: t("admin.users.metrics.hotels.description"),
       icon: UserRound,
       tone: "gold",
     },
     {
-      label: "Admins",
+      label: t("admin.users.metrics.admins.label"),
       value: formatCompactNumber(roleCounts.admins, language),
-      description: "Management users",
+      description: t("admin.users.metrics.admins.description"),
       icon: ShieldCheck,
       tone: "purple",
     },
     {
-      label: "Active",
+      label: t("admin.users.metrics.active.label"),
       value: formatCompactNumber(roleCounts.active, language),
-      description: "Current active accounts",
+      description: t("admin.users.metrics.active.description"),
       icon: UserCheck,
       tone: "success",
     },
@@ -308,8 +314,8 @@ function Page() {
 
   return (
     <AdminManagementPage
-      title="User Management"
-      description="Manage all registered users, roles, verification state and account status."
+      title={t("admin.users.title")}
+      description={t("admin.users.description")}
       icon={Users}
       metrics={metrics}
     >
@@ -320,7 +326,7 @@ function Page() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             className="pl-9"
-            placeholder="Search by name, email, company or phone"
+            placeholder={t("admin.users.searchPlaceholder")}
           />
         </div>
         <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as RoleFilter)}>
@@ -328,19 +334,19 @@ function Page() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {roleFilters.map((item) => (
+            {roleFilterKeys.map((item) => (
               <SelectItem key={item.value} value={item.value}>
-                {item.label}
+                {t(item.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={countryFilter} onValueChange={setCountryFilter}>
           <SelectTrigger className="w-full lg:w-[170px]">
-            <SelectValue placeholder="Country" />
+            <SelectValue placeholder={t("common.country")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Countries</SelectItem>
+            <SelectItem value="all">{t("admin.users.filters.allCountries")}</SelectItem>
             {countries.map((country) => (
               <SelectItem key={country} value={country}>
                 {country}
@@ -356,9 +362,9 @@ function Page() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {verificationFilters.map((item) => (
+            {verificationFilterKeys.map((item) => (
               <SelectItem key={item.value} value={item.value}>
-                {item.label}
+                {t(item.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -371,9 +377,9 @@ function Page() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {accountFilters.map((item) => (
+            {accountFilterKeys.map((item) => (
               <SelectItem key={item.value} value={item.value}>
-                {item.label}
+                {t(item.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -388,27 +394,27 @@ function Page() {
             setAccountFilter("all");
           }}
         >
-          Reset Filters
+          {t("admin.common.resetFilters")}
         </Button>
       </AdminToolbar>
 
       {isLoading ? (
         <Card>
           <CardContent className="flex items-center gap-2 p-6 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading users...
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("admin.users.loading")}
           </CardContent>
         </Card>
       ) : error ? (
         <Card>
           <CardContent className="p-6 text-sm text-error">
-            Could not load user management data.
+            {t("admin.users.errors.loadFailed")}
           </CardContent>
         </Card>
       ) : filteredRows.length === 0 ? (
         <EmptyState
           icon={UserRound}
-          title="No Users Found"
-          description="No registered accounts match these filters."
+          title={t("admin.users.empty.title")}
+          description={t("admin.users.empty.description")}
         />
       ) : (
         <AdminTableCard
@@ -426,15 +432,25 @@ function Page() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/30">
-                  <TableHead>User</TableHead>
-                  <TableHead className="hidden xl:table-cell">Company</TableHead>
-                  <TableHead className="hidden lg:table-cell">Phone</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Verification</TableHead>
-                  <TableHead>Account</TableHead>
-                  <TableHead className="hidden xl:table-cell">Country</TableHead>
-                  <TableHead className="hidden lg:table-cell">Joined</TableHead>
-                  <TableHead className="w-12 text-right">Actions</TableHead>
+                  <TableHead>{t("admin.users.table.user")}</TableHead>
+                  <TableHead className="hidden xl:table-cell">
+                    {t("admin.users.table.company")}
+                  </TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    {t("admin.users.table.phone")}
+                  </TableHead>
+                  <TableHead>{t("admin.users.table.role")}</TableHead>
+                  <TableHead>{t("admin.users.table.verification")}</TableHead>
+                  <TableHead>{t("admin.users.table.account")}</TableHead>
+                  <TableHead className="hidden xl:table-cell">
+                    {t("admin.users.table.country")}
+                  </TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    {t("admin.users.table.joined")}
+                  </TableHead>
+                  <TableHead className="w-12 text-right">
+                    {t("admin.users.table.actions")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -609,37 +625,48 @@ function UserActions({
   onDisable: () => void;
   onReset: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <AdminActionMenu
       items={[
-        { label: "View Profile", icon: Eye, onSelect: onProfile },
-        { label: "Edit User", icon: Edit, onSelect: onEdit, disabled: !row.profile },
-        { label: "View Activity", icon: Activity, onSelect: onActivity },
-        { label: "View Verification", icon: ShieldCheck, onSelect: onVerification },
+        { label: t("admin.users.actions.viewProfile"), icon: Eye, onSelect: onProfile },
+        {
+          label: t("admin.users.actions.editUser"),
+          icon: Edit,
+          onSelect: onEdit,
+          disabled: !row.profile,
+        },
+        { label: t("admin.users.actions.viewActivity"), icon: Activity, onSelect: onActivity },
+        {
+          label: t("admin.users.actions.viewVerification"),
+          icon: ShieldCheck,
+          onSelect: onVerification,
+        },
         status === "suspended"
           ? {
-              label: "Activate User",
+              label: t("admin.users.actions.activateUser"),
               icon: UserCheck,
               onSelect: onActivate,
               disabled: !row.profile,
               separatorBefore: true,
             }
           : {
-              label: "Suspend User",
+              label: t("admin.users.actions.suspendUser"),
               icon: UserX,
               onSelect: onSuspend,
               disabled: !row.profile,
               separatorBefore: true,
             },
         {
-          label: "Disable Account",
+          label: t("admin.users.actions.disableAccount"),
           icon: UserX,
           onSelect: onDisable,
           disabled: !row.profile || status === "disabled",
           destructive: true,
         },
         {
-          label: "Reset Password",
+          label: t("admin.users.actions.resetPassword"),
           icon: KeyRound,
           onSelect: onReset,
           disabled: !email || email === "-",
@@ -659,8 +686,16 @@ function UserDialogContent({
   onOpenChange: (open: boolean) => void;
   onSave: (id: string, patch: Record<string, string | null>) => void;
 }) {
+  const { t } = useTranslation();
   const row = dialog?.row;
   const [draft, setDraft] = useState<Record<string, string>>({});
+  const editFields = [
+    { name: "full_name", label: t("admin.users.fields.fullName") },
+    { name: "company_name", label: t("admin.users.fields.companyName") },
+    { name: "contact_email", label: t("admin.users.fields.contactEmail") },
+    { name: "phone_number", label: t("admin.users.fields.phoneNumber") },
+    { name: "country", label: t("common.country") },
+  ];
 
   useEffect(() => {
     if (dialog?.type !== "edit" || !row?.profile) {
@@ -689,7 +724,9 @@ function UserDialogContent({
           <>
             <DialogHeader>
               <DialogTitle>{displayName(row.profile)}</DialogTitle>
-              <DialogDescription>User ID: {row.user_id}</DialogDescription>
+              <DialogDescription>
+                {t("admin.users.dialog.userId", { id: row.user_id })}
+              </DialogDescription>
             </DialogHeader>
             <ProfileDetails row={row} />
           </>
@@ -698,32 +735,30 @@ function UserDialogContent({
         {dialog?.type === "edit" && row?.profile ? (
           <>
             <DialogHeader>
-              <DialogTitle>Edit User Profile</DialogTitle>
-              <DialogDescription>Update public profile fields for this account.</DialogDescription>
+              <DialogTitle>{t("admin.users.dialog.editTitle")}</DialogTitle>
+              <DialogDescription>{t("admin.users.dialog.editDescription")}</DialogDescription>
             </DialogHeader>
             <div className="grid gap-3 sm:grid-cols-2">
-              {["full_name", "company_name", "contact_email", "phone_number", "country"].map(
-                (field) => (
-                  <label key={field} className="text-sm">
-                    <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      {field.replace("_", " ")}
-                    </span>
-                    <Input
-                      value={draft[field] ?? ""}
-                      onChange={(event) =>
-                        setDraft((prev) => ({ ...prev, [field]: event.target.value }))
-                      }
-                    />
-                  </label>
-                ),
-              )}
+              {editFields.map((field) => (
+                <label key={field.name} className="text-sm">
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {field.label}
+                  </span>
+                  <Input
+                    value={draft[field.name] ?? ""}
+                    onChange={(event) =>
+                      setDraft((prev) => ({ ...prev, [field.name]: event.target.value }))
+                    }
+                  />
+                </label>
+              ))}
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button variant="gold" onClick={() => onSave(row.user_id, draft)}>
-                Save
+                {t("common.save")}
               </Button>
             </div>
           </>
@@ -732,10 +767,10 @@ function UserDialogContent({
         {dialog?.type === "activity" && row ? (
           <>
             <DialogHeader>
-              <DialogTitle>Activity - {displayName(row.profile)}</DialogTitle>
-              <DialogDescription>
-                Recent activity summary from marketplace tables.
-              </DialogDescription>
+              <DialogTitle>
+                {t("admin.users.dialog.activityTitle", { name: displayName(row.profile) })}
+              </DialogTitle>
+              <DialogDescription>{t("admin.users.dialog.activityDescription")}</DialogDescription>
             </DialogHeader>
             <ActivitySummary userId={row.user_id} />
           </>
@@ -744,37 +779,44 @@ function UserDialogContent({
         {dialog?.type === "verification" && row ? (
           <>
             <DialogHeader>
-              <DialogTitle>Verification - {displayName(row.profile)}</DialogTitle>
+              <DialogTitle>
+                {t("admin.users.dialog.verificationTitle", { name: displayName(row.profile) })}
+              </DialogTitle>
               <DialogDescription>
-                Verification and approval status for this account.
+                {t("admin.users.dialog.verificationDescription")}
               </DialogDescription>
             </DialogHeader>
             <AdminDetailGrid>
-              <AdminDetailItem label="Role" value={<RoleBadges row={row} />} />
               <AdminDetailItem
-                label="Agency Verification"
+                label={t("admin.users.table.role")}
+                value={<RoleBadges row={row} />}
+              />
+              <AdminDetailItem
+                label={t("admin.users.details.agencyVerification")}
                 value={
                   <AdminStatusBadge
-                    status={row.profile?.agency_verification_status || "not required"}
+                    status={row.profile?.agency_verification_status || "not_required"}
                   />
                 }
               />
               <AdminDetailItem
-                label="Hotel Approval"
+                label={t("admin.users.details.hotelApproval")}
                 value={
-                  <AdminStatusBadge status={row.profile?.hotel_approval_status || "not required"} />
+                  <AdminStatusBadge status={row.profile?.hotel_approval_status || "not_required"} />
                 }
               />
               <AdminDetailItem
-                label="Trust Level"
-                value={row.profile?.verification_trust_level || "Not assigned"}
+                label={t("admin.users.details.trustLevel")}
+                value={
+                  row.profile?.verification_trust_level || t("admin.users.fallbacks.notAssigned")
+                }
               />
               <AdminDetailItem
-                label="Reviewed At"
+                label={t("admin.users.details.reviewedAt")}
                 value={formatAdminDate(row.profile?.verification_reviewed_at ?? null)}
               />
               <AdminDetailItem
-                label="Submitted At"
+                label={t("admin.users.details.submittedAt")}
                 value={formatAdminDate(row.profile?.verification_submitted_at ?? null)}
               />
             </AdminDetailGrid>
@@ -786,6 +828,7 @@ function UserDialogContent({
 }
 
 function ActivitySummary({ userId }: { userId: string }) {
+  const { t } = useTranslation();
   const { data, isLoading } = useQuery({
     queryKey: ["admin-user-activity", userId],
     queryFn: async () => {
@@ -813,16 +856,16 @@ function ActivitySummary({ userId }: { userId: string }) {
   if (isLoading)
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" /> Loading activity...
+        <Loader2 className="h-4 w-4 animate-spin" /> {t("admin.users.activity.loading")}
       </div>
     );
 
   const cards = [
-    { label: "RFQs Created", value: data?.rfqs.length ?? 0 },
-    { label: "Hotels Owned", value: data?.hotels.length ?? 0 },
-    { label: "Messages Sent", value: data?.messages.length ?? 0 },
-    { label: "Notifications", value: data?.notifications.length ?? 0 },
-    { label: "Verification Events", value: data?.events.length ?? 0 },
+    { label: t("admin.users.activity.rfqsCreated"), value: data?.rfqs.length ?? 0 },
+    { label: t("admin.users.activity.hotelsOwned"), value: data?.hotels.length ?? 0 },
+    { label: t("admin.users.activity.messagesSent"), value: data?.messages.length ?? 0 },
+    { label: t("admin.users.activity.notifications"), value: data?.notifications.length ?? 0 },
+    { label: t("admin.users.activity.verificationEvents"), value: data?.events.length ?? 0 },
   ];
 
   return (
@@ -840,24 +883,32 @@ function ActivitySummary({ userId }: { userId: string }) {
 }
 
 function ProfileDetails({ row }: { row: UserRow }) {
+  const { t } = useTranslation();
+
   return (
     <AdminDetailGrid>
-      <AdminDetailItem label="Full Name" value={displayName(row.profile)} />
-      <AdminDetailItem label="Company" value={companyName(row.profile)} />
-      <AdminDetailItem label="Email" value={contactEmail(row.profile)} />
+      <AdminDetailItem label={t("admin.users.fields.fullName")} value={displayName(row.profile)} />
+      <AdminDetailItem label={t("admin.users.table.company")} value={companyName(row.profile)} />
+      <AdminDetailItem label={t("admin.users.fields.email")} value={contactEmail(row.profile)} />
       <AdminDetailItem
-        label="Phone"
+        label={t("admin.users.table.phone")}
         value={row.profile?.phone_number || row.profile?.phone || "-"}
       />
-      <AdminDetailItem label="Role" value={<RoleBadges row={row} />} />
+      <AdminDetailItem label={t("admin.users.table.role")} value={<RoleBadges row={row} />} />
       <AdminDetailItem
-        label="Account Status"
+        label={t("admin.users.details.accountStatus")}
         value={<AdminStatusBadge status={accountStatus(row.profile)} />}
       />
-      <AdminDetailItem label="Country" value={row.profile?.country || "-"} />
-      <AdminDetailItem label="Registration Date" value={formatAdminDate(row.created_at)} />
-      <AdminDetailItem label="Last Login" value="Requires Supabase Auth Admin" />
-      <AdminDetailItem label="User ID" value={row.user_id} />
+      <AdminDetailItem label={t("common.country")} value={row.profile?.country || "-"} />
+      <AdminDetailItem
+        label={t("admin.users.details.registrationDate")}
+        value={formatAdminDate(row.created_at)}
+      />
+      <AdminDetailItem
+        label={t("admin.users.details.lastLogin")}
+        value={t("admin.users.fallbacks.requiresAuthAdmin")}
+      />
+      <AdminDetailItem label={t("admin.users.details.userId")} value={row.user_id} />
     </AdminDetailGrid>
   );
 }
@@ -896,7 +947,7 @@ function verificationLabel(row: UserRow) {
   if (row.roles.includes("organizer"))
     return row.profile?.agency_verification_status?.replace("_", " ") || "unverified";
   if (row.roles.includes("hotel")) return row.profile?.hotel_approval_status || "unverified";
-  return "not required";
+  return "not_required";
 }
 
 function accountStatus(profile?: ProfileWithStatus): AccountStatus {
@@ -910,7 +961,7 @@ function displayName(profile?: ProfileWithStatus) {
     profile?.trade_name ||
     profile?.company_name ||
     profile?.org_name ||
-    "Unnamed user"
+    i18n.t("admin.users.fallbacks.unnamedUser")
   );
 }
 
@@ -926,14 +977,6 @@ function companyName(profile?: ProfileWithStatus) {
 
 function contactEmail(profile?: ProfileWithStatus) {
   return profile?.contact_email || profile?.contact_person_email || profile?.billing_email || "-";
-}
-
-function roleLabel(role: RoleFilter) {
-  if (role === "all") return "All";
-  if (role === "organizer") return "Agency";
-  if (role === "hotel") return "Hotel";
-  if (role === "admin") return "Admin";
-  return "Visitor";
 }
 
 function initials(profile?: ProfileWithStatus) {

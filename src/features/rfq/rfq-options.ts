@@ -23,6 +23,26 @@ export const HOTEL_CATEGORIES = [
 
 export type HotelCategory = (typeof HOTEL_CATEGORIES)[number];
 
+export const HOTEL_CATEGORY_TRANSLATION_KEYS: Record<HotelCategory, string> = {
+  Budget: "rfq.categories.budget",
+  Economy: "rfq.categories.economy",
+  Midscale: "rfq.categories.midscale",
+  "Upper Midscale": "rfq.categories.upperMidscale",
+  Upscale: "rfq.categories.upscale",
+  Luxury: "rfq.categories.luxury",
+  Resort: "rfq.categories.resort",
+  "Boutique Hotel": "rfq.categories.boutiqueHotel",
+  "Business Hotel": "rfq.categories.businessHotel",
+  "Airport Hotel": "rfq.categories.airportHotel",
+  "Beach Resort": "rfq.categories.beachResort",
+  "City Hotel": "rfq.categories.cityHotel",
+  "Convention Hotel": "rfq.categories.conventionHotel",
+  "Serviced Apartments": "rfq.categories.servicedApartments",
+  Hostel: "rfq.categories.hostel",
+  Villa: "rfq.categories.villa",
+  Other: "rfq.categories.other",
+};
+
 // Backward-compat aliases: normalize legacy stored category values into the
 // current canonical list so old RFQs keep matching.
 const CATEGORY_ALIASES: Record<string, HotelCategory> = {
@@ -60,13 +80,5 @@ export const MEAL_PLAN_TO_BOARD: Record<MealPlan, string> = {
   hb: "half_board",
   fb: "full_board",
 };
-
-export const REQUIREMENTS_PLACEHOLDER = `Airport transfer required
-Twin beds preferred
-Meeting room required
-Wheelchair accessibility
-Parking
-Special meals
-Any additional operational requirements...`;
 
 export const REQUIREMENTS_MAX = 4000;

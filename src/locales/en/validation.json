@@ -1,0 +1,20 @@
+{
+  "validation": {
+    "countryRequired": "Country is required",
+    "cityRequired": "City is required",
+    "completeRequiredFields": "Please complete all required fields",
+    "rfq": {
+      "country": "Please select a country.",
+      "city": "Please select a city.",
+      "title": "Please enter a request title (min 3 characters).",
+      "destinationCountry": "Please select a destination country.",
+      "destinationCity": "Please select a destination city.",
+      "checkIn": "Please select a check-in date.",
+      "checkOut": "Please select a check-out date.",
+      "checkInPast": "Check-in cannot be in the past.",
+      "checkoutAfterCheckin": "Check-out must be after check-in.",
+      "guestsRange": "Number of guests must be between 1 and 100,000.",
+      "roomsRange": "Number of rooms must be between 1 and 10,000."
+    }
+  }
+}

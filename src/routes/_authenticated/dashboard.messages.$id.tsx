@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -17,9 +18,10 @@ import {
 } from "lucide-react";
 import { ensureNotificationPermission, notify } from "@/lib/notifications";
 import { useApplicationLocale } from "@/lib/application-locale";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/messages/$id")({
-  head: () => ({ meta: [{ title: "Chat — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("dashboard.messages.chatMetaTitle") }] }),
   component: ChatPage,
 });
 
@@ -49,6 +51,7 @@ type Conversation = {
 };
 
 function ChatPage() {
+  const { t } = useTranslation();
   const { id } = Route.useParams();
   const { user } = useAuth();
   const userId = user?.id;
@@ -84,7 +87,7 @@ function ChatPage() {
         .maybeSingle();
       if (cancelled) return;
       if (cErr || !c) {
-        toast.error("Conversation not found");
+        toast.error(t("dashboard.messages.errors.notFound"));
         return;
       }
       setConv(c as Conversation);
@@ -142,8 +145,8 @@ function ChatPage() {
               .update({ last_read_at: new Date().toISOString() })
               .eq("conversation_id", id)
               .eq("user_id", userId);
-            notify("New message", {
-              body: m.body || "Attachment",
+            notify(t("dashboard.messages.browserNotification.title"), {
+              body: m.body || t("dashboard.messages.browserNotification.attachment"),
               onClick: () => {
                 window.location.href = `/dashboard/messages/${id}`;
               },
@@ -165,7 +168,7 @@ function ChatPage() {
       supabase.removeChannel(channel);
       typingChannelRef.current = null;
     };
-  }, [id, userId, conv?.id]);
+  }, [id, userId, conv?.id, t]);
 
   function broadcastTyping() {
     if (!typingChannelRef.current || !user) return;
@@ -180,13 +183,13 @@ function ChatPage() {
     () => user?.id === conv?.organizer_id,
     [user?.id, conv?.organizer_id],
   );
-  const counterpart = isOrganizer ? (conv?.hotels?.name ?? "Hotel") : "Organizer";
+  const counterpart = isOrganizer ? (conv?.hotels?.name ?? t("role.hotel")) : t("role.agency");
 
   function onPickFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
     const valid = files.filter((f) => {
       if (f.size > 10 * 1024 * 1024) {
-        toast.error(`${f.name} is over 10MB`);
+        toast.error(t("dashboard.messages.errors.fileTooLarge", { name: f.name }));
         return false;
       }
       return true;
@@ -206,7 +209,12 @@ function ChatPage() {
         upsert: false,
       });
       if (error) {
-        toast.error(`Failed to upload ${file.name}: ${error.message}`);
+        toast.error(
+          t("dashboard.messages.errors.uploadFailed", {
+            name: file.name,
+            message: error.message,
+          }),
+        );
         throw error;
       }
       uploaded.push({ path, name: file.name, size: file.size, type: file.type });
@@ -230,7 +238,7 @@ function ChatPage() {
       setBody("");
       setPendingFiles([]);
     } catch (e: any) {
-      toast.error(e?.message ?? "Failed to send message");
+      toast.error(e?.message ?? t("dashboard.messages.errors.sendFailed"));
     } finally {
       setSending(false);
     }
@@ -255,7 +263,7 @@ function ChatPage() {
         {conv?.rfq_id && (
           <Button asChild variant="outline" size="sm">
             <Link to="/requests/$id" params={{ id: conv.rfq_id }}>
-              View request
+              {t("dashboard.messages.viewRequest")}
             </Link>
           </Button>
         )}
@@ -268,7 +276,7 @@ function ChatPage() {
       >
         {messages.length === 0 && (
           <div className="text-center text-muted-foreground text-sm py-8">
-            Start the negotiation. All messages are private between you and {counterpart}.
+            {t("dashboard.messages.startConversation", { counterpart })}
           </div>
         )}
         {messages.map((m) => {
@@ -299,7 +307,9 @@ function ChatPage() {
           );
         })}
         {otherTyping && (
-          <div className="text-xs text-muted-foreground italic">{counterpart} is typing…</div>
+          <div className="text-xs text-muted-foreground italic">
+            {t("dashboard.messages.typing", { counterpart })}
+          </div>
         )}
       </div>
 
@@ -313,6 +323,7 @@ function ChatPage() {
               <button
                 onClick={() => setPendingFiles((p) => p.filter((_, j) => j !== i))}
                 className="text-muted-foreground hover:text-destructive"
+                aria-label={t("dashboard.messages.removeAttachment", { name: f.name })}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -336,6 +347,7 @@ function ChatPage() {
           variant="ghost"
           size="icon"
           onClick={() => fileInputRef.current?.click()}
+          aria-label={t("dashboard.messages.attachFiles")}
         >
           <Paperclip className="h-4 w-4" />
         </Button>
@@ -351,7 +363,7 @@ function ChatPage() {
               void handleSend();
             }
           }}
-          placeholder={`Message ${counterpart}…`}
+          placeholder={t("dashboard.messages.messagePlaceholder", { counterpart })}
           className="min-h-[44px] max-h-[120px] resize-none"
           disabled={sending}
         />
@@ -359,6 +371,7 @@ function ChatPage() {
           onClick={() => void handleSend()}
           disabled={sending || (!body.trim() && pendingFiles.length === 0)}
           variant="gold"
+          aria-label={t("dashboard.sendMessage")}
         >
           <Send className="h-4 w-4" />
         </Button>

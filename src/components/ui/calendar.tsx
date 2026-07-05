@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { arSA, enUS } from "date-fns/locale";
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
 
@@ -14,6 +15,7 @@ function Calendar({
   showOutsideDays = true,
   captionLayout = "label",
   buttonVariant = "ghost",
+  locale,
   formatters,
   components,
   ...props
@@ -21,11 +23,12 @@ function Calendar({
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
 }) {
   const defaultClassNames = getDefaultClassNames();
-  const { formatMonthShort } = useApplicationLocale();
+  const { formatMonthShort, language } = useApplicationLocale();
 
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
+      locale={locale ?? (language === "ar" ? arSA : enUS)}
       className={cn(
         "notranslate bg-background group/calendar p-3 [--cell-size:2rem] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,9 +9,10 @@ import { Input } from "@/components/ui/input";
 import { MessageSquare, Hotel as HotelIcon, User as UserIcon, Search } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { useApplicationLocale } from "@/lib/application-locale";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/messages/")({
-  head: () => ({ meta: [{ title: "Negotiation Center — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("dashboard.messages.centerMetaTitle") }] }),
   component: MessagesIndex,
 });
 
@@ -28,6 +30,7 @@ type ConvRow = {
 };
 
 function MessagesIndex() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const userId = user?.id;
   const [convs, setConvs] = useState<ConvRow[]>([]);
@@ -91,27 +94,33 @@ function MessagesIndex() {
     <div>
       <div className="flex items-center gap-3 mb-4">
         <MessageSquare className="h-6 w-6 text-primary" />
-        <h1 className="font-display text-3xl text-primary">Negotiation Center</h1>
+        <h1 className="font-display text-3xl text-primary">
+          {t("dashboard.messages.centerTitle")}
+        </h1>
       </div>
       <div className="relative mb-4 max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by hotel, request, or message…"
-          className="pl-9"
+          placeholder={t("dashboard.messages.searchPlaceholder")}
+          className="ps-9"
         />
       </div>
       {loading ? (
-        <div className="text-muted-foreground">Loading…</div>
+        <div className="text-muted-foreground">{t("common.loading")}</div>
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={MessageSquare}
-          title={convs.length === 0 ? "No conversations yet" : "No matching conversations"}
+          title={
+            convs.length === 0
+              ? t("dashboard.messages.emptyTitle")
+              : t("dashboard.messages.noMatchesTitle")
+          }
           description={
             convs.length === 0
-              ? "Conversations are created automatically when a hotel submits a quotation on one of your requests."
-              : "Try a different hotel, request, or keyword."
+              ? t("dashboard.messages.emptyDescription")
+              : t("dashboard.messages.noMatchesDescription")
           }
         />
       ) : (
@@ -122,7 +131,7 @@ function MessagesIndex() {
               ? new Date(c.last_message_at).getTime() > new Date(myRead).getTime()
               : true;
             const isOrganizer = user?.id === c.organizer_id;
-            const counterpart = isOrganizer ? c.hotels?.name : "Organizer";
+            const counterpart = isOrganizer ? c.hotels?.name : t("role.agency");
             const Icon = isOrganizer ? HotelIcon : UserIcon;
             return (
               <Link key={c.id} to="/dashboard/messages/$id" params={{ id: c.id }} className="block">
@@ -136,16 +145,17 @@ function MessagesIndex() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <div className="font-medium text-primary truncate">
-                          {counterpart ?? "Conversation"}
+                          {counterpart ?? t("dashboard.messages.conversationFallback")}
                         </div>
                         {unread && (
                           <Badge variant="default" className="bg-gold text-primary-foreground">
-                            New
+                            {t("dashboard.messages.new")}
                           </Badge>
                         )}
                       </div>
                       <div className="text-xs text-muted-foreground truncate">
-                        Group Request: {c.rfqs?.title ?? c.rfq_id.slice(0, 8)}
+                        {t("dashboard.messages.groupRequestLabel")}{" "}
+                        {c.rfqs?.title ?? c.rfq_id.slice(0, 8)}
                       </div>
                       <div className="text-sm text-muted-foreground truncate mt-1">
                         {c.last_message_preview ?? "—"}

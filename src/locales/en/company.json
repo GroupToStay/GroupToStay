@@ -1,0 +1,20 @@
+{
+  "about": {
+    "metaTitle": "About - GroupToStay",
+    "metaDescription": "GroupToStay is the B2B marketplace built exclusively for group accommodation sourcing and hotel quotations.",
+    "ogDescription": "Learn how GroupToStay connects group organizers with verified hotels for competitive group quotations.",
+    "title": "About GroupToStay",
+    "body": "GroupToStay is a B2B marketplace built exclusively for group accommodation. We connect operators who book at scale with hotels that specialize in serving them. Our mission is to remove the friction from group hotel sourcing — replacing dozens of emails and phone calls with a single, transparent workflow."
+  },
+  "contact": {
+    "metaTitle": "Contact - GroupToStay",
+    "metaDescription": "Get in touch with the GroupToStay team.",
+    "title": "Contact us",
+    "subtitle": "Tell us about your group sourcing needs.",
+    "name": "Your name",
+    "email": "Email",
+    "message": "Message",
+    "send": "Send message",
+    "sent": "Thanks — we'll get back to you shortly."
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "hero": {
+    "eyebrow": "B2B Group Accommodation Marketplace",
+    "title": "One Request. Multiple Hotel Offers.",
+    "subtitle": "GroupToStay connects travel agencies with verified hotels. Submit one request and receive competitive quotations from multiple hotels. Compare prices, services, and hotel quality in one place — and choose the best offer for your group.",
+    "ctaPrimary": "Create Request",
+    "ctaSecondary": "Browse hotels",
+    "ctaBrowseRequests": "Open Group Requests",
+    "hotelCtaSubtitle": "See open Group Requests that match your hotel and respond with a quotation.",
+    "trust": "Trusted by travel agencies and verified hotels across MENA, Europe and Asia.",
+    "trustPillHotels": "Verified hotels only",
+    "trustPillQuotes": "Quotes in hours",
+    "trustPillSecure": "Secure platform"
+  },
+  "home": {
+    "messages": {
+      "title": "Messages",
+      "subtitle": "Stay in touch with hotels and organizers about your active requests.",
+      "openInbox": "Open inbox",
+      "empty": "No messages yet. Conversations from your requests will appear here.",
+      "thread": "Conversation",
+      "youPrefix": "You:"
+    }
+  },
+  "audiences": {
+    "title": "Built for serious group buyers",
+    "subtitle": "GroupToStay does not serve individual travelers. Every workflow is designed for groups of 10 to 10,000.",
+    "list": {
+      "umrah": "Umrah operators",
+      "hajj": "Hajj missions",
+      "tourism": "Tourism agencies",
+      "corporate": "Corporate travel",
+      "government": "Government delegations",
+      "sports": "Sports teams",
+      "education": "Schools & universities",
+      "event": "Event organizers"
+    }
+  },
+  "how": {
+    "metaTitle": "How it works - GroupToStay",
+    "metaDescription": "From Group Request to confirmed group booking in four steps. See how GroupToStay sources competing hotel quotations.",
+    "metaOgDescription": "Post a Group Request, receive competing hotel quotations, and confirm the best offer in four steps.",
+    "title": "How it works",
+    "subtitle": "Four steps from request to confirmed group booking — no budget guessing, no email chains.",
+    "step1Title": "Agency creates a request",
+    "step1Body": "Pick destination, dates, group size, hotel category and meal plan. No budget required — let hotels compete on price.",
+    "step2Title": "Matching hotels send quotations",
+    "step2Body": "Verified hotels in your destination submit competitive quotations within hours.",
+    "step3Title": "Compare side-by-side",
+    "step3Body": "Open the comparison view, evaluate price, services and hotel quality at a glance, message hotels directly.",
+    "step4Title": "Award the winning hotel",
+    "step4Body": "Pick your preferred offer. The hotel and your agency continue the booking process directly."
+  },
+  "featured": {
+    "title": "Featured group hotels",
+    "subtitle": "A sample of approved properties on the platform.",
+    "viewAll": "View all hotels"
+  },
+  "landing": {
+    "meta": {
+      "title": "GroupToStay - Group accommodation marketplace",
+      "description": "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing - Umrah, Hajj, tourism, corporate, sports and events.",
+      "ogDescription": "One request. Multiple hotels. The best group rate - for Umrah, Hajj, tourism, corporate, sports and events.",
+      "shortDescription": "Submit one Group Request, receive competing hotel quotations. The B2B platform for group hotel sourcing."
+    },
+    "schema": {
+      "name": "GroupToStay Group Accommodation Marketplace",
+      "serviceType": "Group hotel sourcing and quotation marketplace",
+      "areaServed": "Global",
+      "description": "B2B marketplace where verified group organizers post Group Requests and approved hotels return competing quotations for Umrah, Hajj, corporate, sports, and event groups.",
+      "organizationDescription": "B2B marketplace connecting group organizers with approved hotels for competitive group quotations."
+    },
+    "welcome": {
+      "default": "Welcome back",
+      "adminTitle": "Welcome back, Admin",
+      "namedTitle": "Welcome back, {{name}}",
+      "actions": {
+        "viewDashboard": "View Dashboard",
+        "reviewHotels": "Review Hotels",
+        "reviewListings": "Review Listings",
+        "subscriptionRequests": "Subscription Requests",
+        "viewOpenRequests": "View Open Requests"
+      }
+    },
+    "hero": {
+      "titleLine1": "One Request.",
+      "titleLine2": "Multiple Hotel Offers.",
+      "subtitle": "Submit a group accommodation request and receive competitive hotel quotations from trusted hotels across Saudi Arabia and beyond."
+    },
+    "heroStats": {
+      "hotelsListed": "Hotels Listed",
+      "openRequests": "Open Group Requests",
+      "availableRooms": "Available Rooms",
+      "countriesServed": "Countries Served"
+    },
+    "actions": {
+      "browseOpenRequests": "Browse Open Requests",
+      "viewMyRequests": "View My Requests"
+    },
+    "quickRequest": {
+      "title": "Start Your Group Accommodation Request",
+      "note": "No budget needed - hotels compete with their best quotations",
+      "requirementsHint": "Optional. Any operational needs are carried over to the full request.",
+      "submit": "Request Quotations"
+    },
+    "liveStats": {
+      "eyebrow": "Live",
+      "title": "Live Marketplace Activity",
+      "subtitle": "Real-time signals from agencies and hotels on the platform.",
+      "openRequests": "Open Group Requests",
+      "verifiedHotels": "Verified Hotels",
+      "quotationCycle": "Quotation Cycle",
+      "quotationCycleValue": "24h",
+      "avgResponseTime": "Avg. Response Time",
+      "avgResponseTimeValue": "< 4h"
+    },
+    "how": {
+      "title": "How GroupToStay Works",
+      "subtitle": "Four steps from group request to a confirmed booking.",
+      "steps": {
+        "create": {
+          "title": "Create Group Request",
+          "description": "Submit your accommodation requirements once."
+        },
+        "invitations": {
+          "title": "Hotels Receive Invitations",
+          "description": "Matching hotels are automatically notified."
+        },
+        "quotations": {
+          "title": "Receive Multiple Quotations",
+          "description": "Compare pricing and services from hotels."
+        },
+        "choose": {
+          "title": "Choose the Best Offer",
+          "description": "Negotiate and confirm with the selected hotel."
+        }
+      }
+    },
+    "openRequests": {
+      "title": "Latest Group Requests",
+      "subtitle": "Live demand from agencies - open to all approved hotels.",
+      "awaitingQuotations": "Awaiting hotel quotations"
+    },
+    "featured": {
+      "badge": "Featured"
+    },
+    "why": {
+      "title": "Why Choose GroupToStay?",
+      "subtitle": "A purpose-built marketplace for group hotel sourcing.",
+      "items": {
+        "saveTime": {
+          "title": "Save Time",
+          "description": "Replace dozens of emails and calls with a single, structured request."
+        },
+        "multipleOffers": {
+          "title": "Receive Multiple Offers",
+          "description": "Compare competitive quotations from matching hotels in one place."
+        },
+        "directCommunication": {
+          "title": "Direct Hotel Communication",
+          "description": "Negotiate directly with hotels through built-in messaging."
+        },
+        "groupRates": {
+          "title": "Competitive Group Rates",
+          "description": "Hotels compete for your business - better rates, better terms."
+        }
+      }
+    },
+    "trust": {
+      "items": {
+        "approvedHotels": {
+          "title": "Approved Hotels",
+          "description": "Every hotel is verified before going live."
+        },
+        "verifiedCompanies": {
+          "title": "Verified Companies",
+          "description": "VAT & CR verification for all hotel companies."
+        },
+        "securePlatform": {
+          "title": "Secure Platform",
+          "description": "Encrypted traffic and role-based access control."
+        },
+        "directCommunication": {
+          "title": "Direct Communication",
+          "description": "Talk to hotels directly - no middlemen."
+        }
+      }
+    },
+    "cta": {
+      "hotelTitle": "Win more group business",
+      "agencyTitle": "Ready to source your next group?",
+      "hotelDescription": "See open Group Requests in your destinations and submit competitive quotes today.",
+      "agencyDescription": "Submit one Group Request and let matching hotels compete for your booking."
+    }
+  }
+}

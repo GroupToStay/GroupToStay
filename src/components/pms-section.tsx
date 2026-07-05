@@ -7,19 +7,28 @@ import { toast } from "sonner";
 import { Server } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 const PROVIDERS = [
-  "MyCloud PMS",
-  "Oracle Opera PMS",
-  "Cloudbeds",
-  "Mews",
-  "eZee Absolute",
-  "Hotelogix",
-  "Protel",
-  "Other",
-];
+  { value: "MyCloud PMS", labelKey: "auth.pms.providers.mycloud" },
+  { value: "Oracle Opera PMS", labelKey: "auth.pms.providers.oracleOpera" },
+  { value: "Cloudbeds", labelKey: "auth.pms.providers.cloudbeds" },
+  { value: "Mews", labelKey: "auth.pms.providers.mews" },
+  { value: "eZee Absolute", labelKey: "auth.pms.providers.ezeeAbsolute" },
+  { value: "Hotelogix", labelKey: "auth.pms.providers.hotelogix" },
+  { value: "Protel", labelKey: "auth.pms.providers.protel" },
+  { value: "Other", labelKey: "auth.pms.providers.other" },
+] as const;
+
+const API_AVAILABILITY_OPTIONS = [
+  { value: "Yes", labelKey: "auth.pms.yes" },
+  { value: "No", labelKey: "auth.pms.no" },
+  { value: "Not Sure", labelKey: "auth.pms.notSure" },
+] as const;
+const PMS_OTHER_PROVIDER = "Other";
 
 export function PmsSection({ userId, profile }: { userId: string; profile: any }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [enabled, setEnabled] = useState<"yes" | "no" | "">("");
   const [provider, setProvider] = useState("");
@@ -47,19 +56,20 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
     try {
       if (enabled === "yes") {
         const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!provider) throw new Error("Please select your PMS provider");
-        if (provider === "Other" && !otherProvider.trim())
-          throw new Error("Please specify your PMS provider");
-        if (!api) throw new Error("Please select API availability");
-        if (!name.trim()) throw new Error("Technical contact name is required");
-        if (!emailRx.test(email.trim())) throw new Error("Invalid technical contact email");
+        if (!provider) throw new Error(t("auth.pms.errors.providerRequired"));
+        if (provider === PMS_OTHER_PROVIDER && !otherProvider.trim())
+          throw new Error(t("auth.pms.errors.providerOtherRequired"));
+        if (!api) throw new Error(t("auth.pms.errors.apiRequired"));
+        if (!name.trim()) throw new Error(t("auth.pms.errors.techNameRequired"));
+        if (!emailRx.test(email.trim())) throw new Error(t("auth.pms.errors.techEmailInvalid"));
         if (!/^[+\d][\d\s\-()]{5,}$/.test(phone.trim()))
-          throw new Error("Invalid technical contact phone");
+          throw new Error(t("auth.pms.errors.techPhoneInvalid"));
       }
       const patch: any = {
         pms_enabled: enabled === "" ? null : enabled === "yes",
         pms_provider: enabled === "yes" ? provider : null,
-        pms_provider_other: enabled === "yes" && provider === "Other" ? otherProvider.trim() : null,
+        pms_provider_other:
+          enabled === "yes" && provider === PMS_OTHER_PROVIDER ? otherProvider.trim() : null,
         api_available: enabled === "yes" ? api : null,
         technical_contact_name: enabled === "yes" ? name.trim() : null,
         technical_contact_email: enabled === "yes" ? email.trim() : null,
@@ -67,10 +77,10 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
       };
       const { error } = await supabase.from("profiles").update(patch).eq("id", userId);
       if (error) throw error;
-      toast.success("PMS information saved");
+      toast.success(t("auth.pms.saved"));
       qc.invalidateQueries({ queryKey: ["my-profile-full", userId] });
     } catch (err: any) {
-      toast.error(err.message ?? "Could not save");
+      toast.error(err.message ?? t("auth.pms.errors.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -80,14 +90,12 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
     <Card>
       <CardContent className="p-6">
         <h2 className="font-display text-xl text-primary flex items-center gap-2">
-          <Server className="h-5 w-5" /> PMS Information
+          <Server className="h-5 w-5" /> {t("auth.pms.title")}
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Optional. Helps us prepare future PMS integrations.
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("auth.pms.intro")}</p>
         <form onSubmit={save} className="mt-4 space-y-4">
           <div>
-            <Label>Do you use a Property Management System?</Label>
+            <Label>{t("auth.pms.question")}</Label>
             <div className="mt-1 grid grid-cols-2 gap-2 max-w-xs">
               {(["yes", "no"] as const).map((v) => (
                 <button
@@ -96,7 +104,7 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
                   onClick={() => setEnabled(v)}
                   className={`rounded-md border px-3 py-2 text-sm capitalize ${enabled === v ? "border-gold bg-gold/10 text-foreground" : "border-input bg-background text-muted-foreground"}`}
                 >
-                  {v}
+                  {t(`auth.pms.${v}`)}
                 </button>
               ))}
             </div>
@@ -104,23 +112,23 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
           {enabled === "yes" && (
             <>
               <div>
-                <Label>PMS Provider</Label>
+                <Label>{t("auth.pms.provider")}</Label>
                 <select
                   className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                   value={provider}
                   onChange={(e) => setProvider(e.target.value)}
                 >
-                  <option value="">Select…</option>
+                  <option value="">{t("auth.pms.select")}</option>
                   {PROVIDERS.map((p) => (
-                    <option key={p} value={p}>
-                      {p}
+                    <option key={p.value} value={p.value}>
+                      {t(p.labelKey)}
                     </option>
                   ))}
                 </select>
               </div>
-              {provider === "Other" && (
+              {provider === PMS_OTHER_PROVIDER && (
                 <div>
-                  <Label>Please specify PMS</Label>
+                  <Label>{t("auth.pms.specifyProvider")}</Label>
                   <Input
                     value={otherProvider}
                     onChange={(e) => setOtherProvider(e.target.value)}
@@ -129,25 +137,27 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
                 </div>
               )}
               <div>
-                <Label>API Available?</Label>
+                <Label>{t("auth.pms.apiAvailable")}</Label>
                 <select
                   className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                   value={api}
                   onChange={(e) => setApi(e.target.value as any)}
                 >
-                  <option value="">Select…</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                  <option value="Not Sure">Not Sure</option>
+                  <option value="">{t("auth.pms.select")}</option>
+                  {API_AVAILABILITY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {t(option.labelKey)}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <Label>Technical Contact Name</Label>
+                  <Label>{t("auth.pms.technicalContactName")}</Label>
                   <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={160} />
                 </div>
                 <div>
-                  <Label>Technical Contact Email</Label>
+                  <Label>{t("auth.pms.technicalContactEmail")}</Label>
                   <Input
                     type="email"
                     value={email}
@@ -156,7 +166,7 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <Label>Technical Contact Phone</Label>
+                  <Label>{t("auth.pms.technicalContactPhone")}</Label>
                   <Input
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -168,7 +178,7 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
             </>
           )}
           <Button type="submit" variant="gold" disabled={saving}>
-            {saving ? "Saving…" : "Save PMS Information"}
+            {saving ? t("auth.pms.saving") : t("auth.pms.save")}
           </Button>
         </form>
       </CardContent>

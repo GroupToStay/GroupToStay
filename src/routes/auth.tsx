@@ -15,8 +15,27 @@ import { PhoneInput } from "@/components/phone-input";
 import { CountrySelect } from "@/components/country-select";
 import { useCountries } from "@/hooks/use-master-data";
 import { DEFAULT_PHONE_CODE } from "@/lib/phone-codes";
+import i18n from "@/lib/i18n";
 
 type Search = { redirect?: string };
+
+const PMS_PROVIDER_OPTIONS = [
+  { value: "MyCloud PMS", labelKey: "auth.pms.providers.mycloud" },
+  { value: "Oracle Opera PMS", labelKey: "auth.pms.providers.oracleOpera" },
+  { value: "Cloudbeds", labelKey: "auth.pms.providers.cloudbeds" },
+  { value: "Mews", labelKey: "auth.pms.providers.mews" },
+  { value: "eZee Absolute", labelKey: "auth.pms.providers.ezeeAbsolute" },
+  { value: "Hotelogix", labelKey: "auth.pms.providers.hotelogix" },
+  { value: "Protel", labelKey: "auth.pms.providers.protel" },
+  { value: "Other", labelKey: "auth.pms.providers.other" },
+] as const;
+const OTHER_PMS_PROVIDER = "Other";
+const API_AVAILABILITY_OPTIONS = [
+  { value: "Yes", labelKey: "auth.pms.yes" },
+  { value: "No", labelKey: "auth.pms.no" },
+  { value: "Not Sure", labelKey: "auth.pms.notSure" },
+] as const;
+type ApiAvailability = (typeof API_AVAILABILITY_OPTIONS)[number]["value"];
 
 function safeAuthRedirect(redirect?: string): string {
   const fallback = "/dashboard";
@@ -36,7 +55,7 @@ function safeAuthRedirect(redirect?: string): string {
 }
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Sign in — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("auth.metaTitle") }] }),
   validateSearch: (s: Record<string, unknown>): Search => ({
     redirect: typeof s.redirect === "string" ? s.redirect : undefined,
   }),
@@ -68,7 +87,7 @@ function Page() {
   const [pmsEnabled, setPmsEnabled] = useState<"yes" | "no" | "">("");
   const [pmsProvider, setPmsProvider] = useState("");
   const [pmsProviderOther, setPmsProviderOther] = useState("");
-  const [apiAvailable, setApiAvailable] = useState<"" | "Yes" | "No" | "Not Sure">("");
+  const [apiAvailable, setApiAvailable] = useState<"" | ApiAvailability>("");
   const [techName, setTechName] = useState("");
   const [techEmail, setTechEmail] = useState("");
   const [techPhone, setTechPhone] = useState("");
@@ -104,8 +123,8 @@ function Page() {
         if (role === "hotel" && (!companyName.trim() || !vatNumber.trim() || !crNumber.trim())) {
           throw new Error(t("auth.errors.companyRequired"));
         }
-        if (role === "hotel" && !countryId) throw new Error("Please select your country");
-        if (!phoneNumber.trim()) throw new Error("Please enter your phone number");
+        if (role === "hotel" && !countryId) throw new Error(t("auth.errors.countryRequired"));
+        if (!phoneNumber.trim()) throw new Error(t("auth.errors.phoneRequired"));
 
         const country = countries.find((c) => c.id === countryId);
         const fullPhone = `${phoneCode}${phoneNumber}`;
@@ -131,17 +150,18 @@ function Page() {
             data.pms_enabled = pmsEnabled === "yes" ? "true" : "false";
             if (pmsEnabled === "yes") {
               const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-              if (!pmsProvider) throw new Error("Please select your PMS provider");
-              if (pmsProvider === "Other" && !pmsProviderOther.trim())
-                throw new Error("Please specify your PMS provider");
-              if (!apiAvailable) throw new Error("Please select API availability");
-              if (!techName.trim()) throw new Error("Technical contact name is required");
+              if (!pmsProvider) throw new Error(t("auth.pms.errors.providerRequired"));
+              if (pmsProvider === OTHER_PMS_PROVIDER && !pmsProviderOther.trim())
+                throw new Error(t("auth.pms.errors.providerOtherRequired"));
+              if (!apiAvailable) throw new Error(t("auth.pms.errors.apiRequired"));
+              if (!techName.trim()) throw new Error(t("auth.pms.errors.techNameRequired"));
               if (!emailRx.test(techEmail.trim()))
-                throw new Error("Invalid technical contact email");
+                throw new Error(t("auth.pms.errors.techEmailInvalid"));
               if (!/^[+\d][\d\s\-()]{5,}$/.test(techPhone.trim()))
-                throw new Error("Invalid technical contact phone");
+                throw new Error(t("auth.pms.errors.techPhoneInvalid"));
               data.pms_provider = pmsProvider;
-              if (pmsProvider === "Other") data.pms_provider_other = pmsProviderOther.trim();
+              if (pmsProvider === OTHER_PMS_PROVIDER)
+                data.pms_provider_other = pmsProviderOther.trim();
               data.api_available = apiAvailable;
               data.technical_contact_name = techName.trim();
               data.technical_contact_email = techEmail.trim();
@@ -292,13 +312,11 @@ function Page() {
                   {role === "hotel" && (
                     <div className="rounded-md border border-border bg-accent/30 p-3 space-y-3">
                       <div className="font-display text-base text-primary">
-                        Property Management System (PMS)
+                        {t("auth.pms.title")}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        Optional — helps us prepare future integrations.
-                      </div>
+                      <div className="text-xs text-muted-foreground">{t("auth.pms.intro")}</div>
                       <div>
-                        <Label>Do you use a Property Management System?</Label>
+                        <Label>{t("auth.pms.question")}</Label>
                         <div className="mt-1 grid grid-cols-2 gap-2">
                           {(["yes", "no"] as const).map((v) => (
                             <button
@@ -307,7 +325,7 @@ function Page() {
                               onClick={() => setPmsEnabled(v)}
                               className={`rounded-md border px-3 py-2 text-sm capitalize ${pmsEnabled === v ? "border-gold bg-gold/10 text-foreground" : "border-input bg-background text-muted-foreground"}`}
                             >
-                              {v}
+                              {t(`auth.pms.${v}`)}
                             </button>
                           ))}
                         </div>
@@ -315,32 +333,23 @@ function Page() {
                       {pmsEnabled === "yes" && (
                         <>
                           <div>
-                            <Label>PMS Provider</Label>
+                            <Label>{t("auth.pms.provider")}</Label>
                             <select
                               className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                               value={pmsProvider}
                               onChange={(e) => setPmsProvider(e.target.value)}
                             >
-                              <option value="">Select…</option>
-                              {[
-                                "MyCloud PMS",
-                                "Oracle Opera PMS",
-                                "Cloudbeds",
-                                "Mews",
-                                "eZee Absolute",
-                                "Hotelogix",
-                                "Protel",
-                                "Other",
-                              ].map((p) => (
-                                <option key={p} value={p}>
-                                  {p}
+                              <option value="">{t("auth.pms.select")}</option>
+                              {PMS_PROVIDER_OPTIONS.map((provider) => (
+                                <option key={provider.value} value={provider.value}>
+                                  {t(provider.labelKey)}
                                 </option>
                               ))}
                             </select>
                           </div>
-                          {pmsProvider === "Other" && (
+                          {pmsProvider === OTHER_PMS_PROVIDER && (
                             <div>
-                              <Label>Please specify PMS</Label>
+                              <Label>{t("auth.pms.specifyProvider")}</Label>
                               <Input
                                 value={pmsProviderOther}
                                 onChange={(e) => setPmsProviderOther(e.target.value)}
@@ -349,20 +358,22 @@ function Page() {
                             </div>
                           )}
                           <div>
-                            <Label>API Available?</Label>
+                            <Label>{t("auth.pms.apiAvailable")}</Label>
                             <select
                               className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                               value={apiAvailable}
                               onChange={(e) => setApiAvailable(e.target.value as any)}
                             >
-                              <option value="">Select…</option>
-                              <option value="Yes">Yes</option>
-                              <option value="No">No</option>
-                              <option value="Not Sure">Not Sure</option>
+                              <option value="">{t("auth.pms.select")}</option>
+                              {API_AVAILABILITY_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {t(option.labelKey)}
+                                </option>
+                              ))}
                             </select>
                           </div>
                           <div>
-                            <Label>Technical Contact Name</Label>
+                            <Label>{t("auth.pms.technicalContactName")}</Label>
                             <Input
                               value={techName}
                               onChange={(e) => setTechName(e.target.value)}
@@ -370,7 +381,7 @@ function Page() {
                             />
                           </div>
                           <div>
-                            <Label>Technical Contact Email</Label>
+                            <Label>{t("auth.pms.technicalContactEmail")}</Label>
                             <Input
                               type="email"
                               value={techEmail}
@@ -379,7 +390,7 @@ function Page() {
                             />
                           </div>
                           <div>
-                            <Label>Technical Contact Phone</Label>
+                            <Label>{t("auth.pms.technicalContactPhone")}</Label>
                             <Input
                               value={techPhone}
                               onChange={(e) => setTechPhone(e.target.value)}
@@ -394,9 +405,7 @@ function Page() {
 
                   {role === "organizer" && (
                     <div className="rounded-md border border-border bg-accent/30 p-3 text-xs text-muted-foreground">
-                      After you verify your email, you'll be asked to complete a short Agency
-                      Profile so our team can verify your account. You won't be able to publish
-                      requests or contact hotels until verification is approved.
+                      {t("auth.agencyVerificationNotice")}
                     </div>
                   )}
                 </>
@@ -426,7 +435,7 @@ function Page() {
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
                       className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-muted-foreground hover:text-foreground"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -460,7 +469,7 @@ function Page() {
               {mode === "signin" ? t("auth.noAccount") : t("auth.haveAccount")}
             </button>
             <div className="mt-4 text-center text-xs text-muted-foreground">
-              <Link to="/">← Home</Link>
+              <Link to="/">{t("auth.backHome")}</Link>
             </div>
           </CardContent>
         </Card>

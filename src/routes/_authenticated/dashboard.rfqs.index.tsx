@@ -10,9 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, MapPin, Users, Calendar, FileText } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/rfqs/")({
-  head: () => ({ meta: [{ title: "My requests — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("dashboard.requests.metaTitle") }] }),
   component: Page,
 });
 
@@ -40,8 +41,8 @@ function Page() {
       return data ?? [];
     },
   });
-  if (rolesLoading) return <div className="text-muted-foreground">Loading…</div>;
-  if (!isOrganizer) return <AccessDenied message="Only organizers can view group requests." />;
+  if (rolesLoading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
+  if (!isOrganizer) return <AccessDenied message={t("dashboard.requests.organizerOnly")} />;
 
   return (
     <div>
@@ -61,7 +62,7 @@ function Page() {
           <EmptyState
             icon={FileText}
             title={t("dashboard.noRfqs")}
-            description="Post your first group request and start receiving competitive quotations from vetted hotels."
+            description={t("dashboard.requests.emptyDescription")}
             actionLabel={t("dashboard.createFirst")}
             actionTo="/dashboard/rfqs/new"
           />

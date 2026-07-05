@@ -41,13 +41,19 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { HotelPhoto } from "@/components/hotel-photo";
 import { useApplicationLocale } from "@/lib/application-locale";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/$id")({
-  head: () => ({ meta: [{ title: "Manage hotel — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("hotelDash.meta.manageHotel") }] }),
   component: Page,
   errorComponent: ({ error }) => <div className="text-error">{error.message}</div>,
-  notFoundComponent: () => <div className="text-muted-foreground">Not found</div>,
+  notFoundComponent: HotelNotFound,
 });
+
+function HotelNotFound() {
+  const { t } = useTranslation();
+  return <div className="text-muted-foreground">{t("hotelDash.errors.notFound")}</div>;
+}
 
 function Page() {
   const { id } = Route.useParams();
@@ -136,13 +142,11 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
   async function saveInfo(e: React.FormEvent) {
     e.preventDefault();
     if (!countryId || !cityId) {
-      toast.error(
-        t("common.selectCountryCity", { defaultValue: "Please select a country and city." }),
-      );
+      toast.error(t("common.selectCountryCity"));
       return;
     }
     if (!hotelTypeId) {
-      toast.error(t("common.selectHotelType", { defaultValue: "Please select a hotel type." }));
+      toast.error(t("common.selectHotelType"));
       return;
     }
     setSavingInfo(true);
@@ -382,14 +386,10 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <Label>{t("hotelDash.fields.hotelType", { defaultValue: "Hotel type" })} *</Label>
+                <Label>{t("hotelDash.fields.hotelType")} *</Label>
                 <Select value={hotelTypeId ?? ""} onValueChange={(v) => setHotelTypeId(v || null)}>
                   <SelectTrigger>
-                    <SelectValue
-                      placeholder={t("common.selectHotelType", {
-                        defaultValue: "Select hotel type",
-                      })}
-                    />
+                    <SelectValue placeholder={t("common.selectHotelType")} />
                   </SelectTrigger>
                   <SelectContent>
                     {hotelTypes.map((ht) => (
@@ -525,7 +525,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
               <Label>{t("hotelDash.fields.roomType")}</Label>
               <Select value={roomTypeId} onValueChange={(v) => setRoomTypeId(v)}>
                 <SelectTrigger>
-                  <SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} />
+                  <SelectValue placeholder={t("common.select")} />
                 </SelectTrigger>
                 <SelectContent>
                   {roomTypes.map((rt) => (
@@ -537,10 +537,10 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
               </Select>
             </div>
             <div className="sm:col-span-2">
-              <Label>{t("hotelDash.fields.mealPlan", { defaultValue: "Meal plan" })}</Label>
+              <Label>{t("hotelDash.fields.mealPlan")}</Label>
               <Select value={mealPlanId} onValueChange={(v) => setMealPlanId(v)}>
                 <SelectTrigger>
-                  <SelectValue placeholder={t("common.select", { defaultValue: "Select…" })} />
+                  <SelectValue placeholder={t("common.select")} />
                 </SelectTrigger>
                 <SelectContent>
                   {mealPlans.map((mp) => (
@@ -612,8 +612,12 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
                     <span className="font-medium">{r.room_type}</span>
                     <span className="text-muted-foreground">
                       {" "}
-                      · {r.capacity} pax · {r.count_available} avail · {r.currency}{" "}
-                      {formatNumber(r.base_price)}
+                      ·{" "}
+                      {t("hotelDash.roomAvailability", {
+                        capacity: r.capacity,
+                        available: r.count_available,
+                      })}{" "}
+                      · {r.currency} {formatNumber(r.base_price)}
                       {t("hotels.perNight")}
                     </span>
                   </div>

@@ -33,7 +33,7 @@ describe("locale manager", () => {
     expect(formatDateValue(date, "en", { month: "2-digit", day: "2-digit", year: "numeric" })).toBe(
       "07/04/2026",
     );
-    expect(() => formatMonthShort(date, normalizeAppLanguage("ar-SA"))).not.toThrow();
+    expect(formatMonthShort(date, normalizeAppLanguage("ar-SA"))).toContain("يوليو");
     expect(formatNumberValue(25000, normalizeAppLanguage("ar-EG"))).toBe("25,000");
   });
 

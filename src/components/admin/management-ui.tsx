@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useApplicationLocale } from "@/lib/application-locale";
+import { useTranslation } from "react-i18next";
 
 type Tone = "neutral" | "success" | "warning" | "error" | "info" | "gold" | "purple";
 
@@ -180,12 +181,14 @@ export function AdminTableCard({
 }
 
 export function AdminActionMenu({ items }: { items: AdminActionItem[] }) {
+  const { t } = useTranslation();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" className="h-8 w-8">
           <EllipsisVertical className="h-4 w-4" />
-          <span className="sr-only">Open actions</span>
+          <span className="sr-only">{t("admin.common.openActions")}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
@@ -213,6 +216,7 @@ export function AdminActionMenu({ items }: { items: AdminActionItem[] }) {
 }
 
 export function AdminStatusBadge({ status }: { status?: string | null }) {
+  const { t } = useTranslation();
   const normalized = String(status || "unknown")
     .toLowerCase()
     .replace(/\s+/g, "_");
@@ -226,25 +230,28 @@ export function AdminStatusBadge({ status }: { status?: string | null }) {
       )}
     >
       <Icon className="h-3.5 w-3.5" />
-      {config.label ?? normalized.replace(/_/g, " ")}
+      {t(`status.${normalized}`, {
+        defaultValue: config.labelKey ? t(config.labelKey) : normalized,
+      })}
     </Badge>
   );
 }
 
 export function AdminRoleBadge({ role }: { role?: string | null }) {
+  const { t } = useTranslation();
   const normalized = String(role || "visitor").toLowerCase();
   const config =
     normalized === "admin" || normalized === "super_admin"
       ? {
-          label: normalized === "super_admin" ? "Super Admin" : "Admin",
+          labelKey: normalized === "super_admin" ? "role.superAdmin" : "role.admin",
           icon: ShieldCheck,
           tone: "purple" as Tone,
         }
       : normalized === "hotel"
-        ? { label: "Hotel", icon: Hotel, tone: "info" as Tone }
+        ? { labelKey: "role.hotel", icon: Hotel, tone: "info" as Tone }
         : normalized === "organizer" || normalized === "agency"
-          ? { label: "Agency", icon: Building2, tone: "success" as Tone }
-          : { label: "Visitor", icon: UserRound, tone: "neutral" as Tone };
+          ? { labelKey: "role.agency", icon: Building2, tone: "success" as Tone }
+          : { labelKey: "role.visitor", icon: UserRound, tone: "neutral" as Tone };
   const Icon = config.icon;
   return (
     <Badge
@@ -254,7 +261,7 @@ export function AdminRoleBadge({ role }: { role?: string | null }) {
       )}
     >
       <Icon className="h-3.5 w-3.5" />
-      {config.label}
+      {t(config.labelKey)}
     </Badge>
   );
 }
@@ -287,6 +294,7 @@ export function AdminPagination({
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
 }) {
+  const { t } = useTranslation();
   const { formatNumber } = useApplicationLocale();
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(page, pageCount);
@@ -297,14 +305,15 @@ export function AdminPagination({
   return (
     <div className="flex flex-col gap-3 text-sm text-muted-foreground lg:flex-row lg:items-center lg:justify-between">
       <div>
-        Showing{" "}
+        {t("admin.pagination.showing")}{" "}
         <span className="font-medium text-foreground">
           {start}-{end}
         </span>{" "}
-        of <span className="font-medium text-foreground">{formatNumber(total)}</span>
+        {t("admin.pagination.of")}{" "}
+        <span className="font-medium text-foreground">{formatNumber(total)}</span>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs">Rows per page</span>
+        <span className="text-xs">{t("admin.pagination.rowsPerPage")}</span>
         <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange(Number(value))}>
           <SelectTrigger className="h-8 w-[82px]">
             <SelectValue />
@@ -323,7 +332,7 @@ export function AdminPagination({
           disabled={safePage <= 1}
           onClick={() => onPageChange(safePage - 1)}
         >
-          Previous
+          {t("admin.pagination.previous")}
         </Button>
         {pages.map((item, index) =>
           item === "dots" ? (
@@ -348,14 +357,14 @@ export function AdminPagination({
           disabled={safePage >= pageCount}
           onClick={() => onPageChange(safePage + 1)}
         >
-          Next
+          {t("admin.pagination.next")}
         </Button>
       </div>
     </div>
   );
 }
 
-function getStatusConfig(status: string): { tone: Tone; icon: LucideIcon; label?: string } {
+function getStatusConfig(status: string): { tone: Tone; icon: LucideIcon; labelKey?: string } {
   if (["approved", "verified", "active", "open", "awarded", "success"].includes(status))
     return { tone: "success", icon: CheckCircle2 };
   if (
@@ -376,7 +385,7 @@ function getStatusConfig(status: string): { tone: Tone; icon: LucideIcon; label?
     return { tone: "neutral", icon: CircleSlash };
   if (["trusted", "premium"].includes(status)) return { tone: "gold", icon: BadgeCheck };
   if (["unverified", "not_required", "unknown"].includes(status))
-    return { tone: "neutral", icon: Shield, label: status.replace(/_/g, " ") };
+    return { tone: "neutral", icon: Shield, labelKey: `status.${status}` };
   if (status === "reconsider") return { tone: "info", icon: RotateCcw };
   if (status === "blocked") return { tone: "error", icon: Ban };
   return { tone: "neutral", icon: Circle };

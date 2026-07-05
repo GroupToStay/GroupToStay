@@ -11,20 +11,7 @@ import {
   type AccommodationType,
   type MealPlan,
 } from "./rfq-options";
-
-const ACC_LABELS: Record<AccommodationType, string> = {
-  any: "Any",
-  hotel: "Hotel",
-  hotel_apartment: "Hotel Apartment",
-  resort: "Resort",
-};
-
-const MEAL_LABELS: Record<MealPlan, string> = {
-  room_only: "Room Only",
-  bb: "Bed & Breakfast",
-  hb: "Half Board",
-  fb: "Full Board",
-};
+import { useTranslation } from "react-i18next";
 
 export function RfqAccommodationSelect({
   value,
@@ -33,6 +20,8 @@ export function RfqAccommodationSelect({
   value: AccommodationType;
   onChange: (v: AccommodationType) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <Select value={value} onValueChange={(v) => onChange(v as AccommodationType)}>
       <SelectTrigger>
@@ -41,7 +30,7 @@ export function RfqAccommodationSelect({
       <SelectContent>
         {ACCOMMODATION_TYPES.map((k) => (
           <SelectItem key={k} value={k}>
-            {ACC_LABELS[k]}
+            {t(`rfq.accommodationTypes.${k}`)}
           </SelectItem>
         ))}
       </SelectContent>
@@ -56,6 +45,8 @@ export function RfqMealPlanSelect({
   value: MealPlan;
   onChange: (v: MealPlan) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <Select value={value} onValueChange={(v) => onChange(v as MealPlan)}>
       <SelectTrigger>
@@ -64,7 +55,7 @@ export function RfqMealPlanSelect({
       <SelectContent>
         {MEAL_PLANS.map((k) => (
           <SelectItem key={k} value={k}>
-            {MEAL_LABELS[k]}
+            {t(`rfq.mealPlans.${k}`)}
           </SelectItem>
         ))}
       </SelectContent>

@@ -1,21 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Shield, Lock, Database, UserCheck, Cookie, Mail, FileText, Server } from "lucide-react";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/trust")({
   head: () => ({
     meta: [
-      { title: "Trust & Security — GroupToStay" },
+      { title: i18n.t("legal.trust.metaTitle") },
       {
         name: "description",
-        content:
-          "How GroupToStay handles security, privacy, and data protection for hotels, group organizers, and corporate partners.",
+        content: i18n.t("legal.trust.metaDescription"),
       },
-      { property: "og:title", content: "Trust & Security — GroupToStay" },
+      { property: "og:title", content: i18n.t("legal.trust.metaTitle") },
       {
         property: "og:description",
-        content: "Security, privacy, and data handling practices for the GroupToStay marketplace.",
+        content: i18n.t("legal.trust.metaOgDescription"),
       },
     ],
   }),
@@ -45,6 +46,17 @@ function Section({
 }
 
 function TrustPage() {
+  const { t } = useTranslation();
+  const sections = [
+    { key: "authentication", icon: UserCheck },
+    { key: "hosting", icon: Server },
+    { key: "data", icon: Database },
+    { key: "sharing", icon: Lock },
+    { key: "cookies", icon: Cookie },
+    { key: "retention", icon: FileText },
+    { key: "responsibility", icon: Shield },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
@@ -53,110 +65,39 @@ function TrustPage() {
           <div className="container-page py-14">
             <div className="flex items-center gap-3">
               <Shield className="h-7 w-7" />
-              <h1 className="font-display text-4xl md:text-5xl">Trust & Security</h1>
+              <h1 className="font-display text-4xl md:text-5xl">{t("legal.trust.title")}</h1>
             </div>
             <p className="mt-4 max-w-2xl text-primary-foreground/85 leading-relaxed">
-              This page is maintained by GroupToStay to answer common security and privacy questions
-              about the GroupToStay marketplace. It describes practices currently in effect and is
-              not an independent certification.
+              {t("legal.trust.intro")}
             </p>
           </div>
         </section>
 
         <div className="container-page py-12 grid gap-6 md:grid-cols-2">
-          <Section icon={UserCheck} title="Authentication & Access">
-            <p>
-              Access to GroupToStay requires an authenticated account. Roles (organizer, hotel
-              partner, administrator) determine which actions and records a user can reach. Hotel
-              and company accounts are reviewed by GroupToStay administrators before they are
-              activated on the marketplace.
-            </p>
-            <p>
-              Sessions are managed by our authentication provider. Passwords are never stored in
-              plaintext by GroupToStay.
-            </p>
-          </Section>
+          {sections.map(({ key, icon }) => {
+            const body = t(`legal.trust.sections.${key}.body`, { returnObjects: true }) as string[];
+            return (
+              <Section key={key} icon={icon} title={t(`legal.trust.sections.${key}.title`)}>
+                {body.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </Section>
+            );
+          })}
 
-          <Section icon={Server} title="Platform & Hosting">
+          <Section icon={Mail} title={t("legal.trust.sections.contact.title")}>
             <p>
-              GroupToStay runs on the Lovable platform, with a managed Postgres database provided by
-              Supabase. Database access from the application is governed by row-level security
-              policies scoped to the signed-in user.
-            </p>
-            <p>
-              Connections between your browser, the application, and the database are encrypted in
-              transit using TLS.
-            </p>
-          </Section>
-
-          <Section icon={Database} title="Data We Collect">
-            <p>
-              GroupToStay stores the information you provide to operate the marketplace: account and
-              company details, hotel profiles, group requests (RFQs), quotations, bookings, and
-              messages exchanged between organizers and hotels.
-            </p>
-            <p>
-              We do not sell personal data. Payment card details, when applicable, are handled by
-              our payment processor and are not stored on our servers.
-            </p>
-          </Section>
-
-          <Section icon={Lock} title="Data Access & Sharing">
-            <p>
-              Hotels see only the group requests they are invited to and the messages and quotations
-              tied to those requests. Agencies see only their own requests, the responses they
-              receive, and their bookings. Administrators may access records as needed to operate
-              and support the platform.
-            </p>
-            <p>
-              Public hotel listings show approved hotels and their published details only; internal
-              account identifiers are not exposed to anonymous visitors.
-            </p>
-          </Section>
-
-          <Section icon={Cookie} title="Cookies & Analytics">
-            <p>
-              GroupToStay uses cookies and local storage strictly necessary to keep you signed in
-              and to remember your interface preferences (such as language). We do not use
-              third-party advertising trackers.
-            </p>
-          </Section>
-
-          <Section icon={FileText} title="Retention & Deletion">
-            <p>
-              Account, transaction, and messaging records are retained while your account is active
-              and for the period required by applicable law or to resolve disputes. To request
-              deletion or export of data tied to your account, contact us using the address below.
-            </p>
-          </Section>
-
-          <Section icon={Shield} title="Shared Responsibility">
-            <p>
-              Security on GroupToStay is a shared responsibility. GroupToStay maintains the
-              application, access controls, and infrastructure integrations; account holders are
-              responsible for safeguarding their credentials, keeping company information accurate,
-              and promptly reporting suspicious activity.
-            </p>
-          </Section>
-
-          <Section icon={Mail} title="Security Contact">
-            <p>
-              To report a security concern, suspected vulnerability, or privacy request, contact
-              GroupToStay through the{" "}
+              {t("legal.trust.sections.contact.bodyBefore")}{" "}
               <Link to="/contact" className="text-primary underline">
-                contact page
+                {t("legal.contactPage")}
               </Link>
-              . We aim to acknowledge security reports promptly and will follow up with next steps.
+              {t("legal.trust.sections.contact.bodyAfter")}
             </p>
           </Section>
         </div>
 
         <div className="container-page pb-16">
-          <p className="text-sm text-muted-foreground">
-            This page describes current practices and may be updated as the platform evolves. It is
-            provided for transparency and does not create contractual commitments beyond those in
-            our Terms of Service.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("legal.trust.footer")}</p>
         </div>
       </main>
       <SiteFooter />

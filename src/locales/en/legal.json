@@ -1,0 +1,194 @@
+{
+  "legal": {
+    "trust": {
+      "title": "Trust & Security",
+      "metaTitle": "Trust & Security - GroupToStay",
+      "metaDescription": "How GroupToStay handles security, privacy, and data protection for hotels, group organizers, and corporate partners.",
+      "metaOgDescription": "Security, privacy, and data handling practices for the GroupToStay marketplace.",
+      "intro": "This page is maintained by GroupToStay to answer common security and privacy questions about the GroupToStay marketplace. It describes practices currently in effect and is not an independent certification.",
+      "footer": "This page describes current practices and may be updated as the platform evolves. It is provided for transparency and does not create contractual commitments beyond those in our Terms of Service.",
+      "sections": {
+        "authentication": {
+          "title": "Authentication & Access",
+          "body": [
+            "Access to GroupToStay requires an authenticated account. Roles (organizer, hotel partner, administrator) determine which actions and records a user can reach. Hotel and company accounts are reviewed by GroupToStay administrators before they are activated on the marketplace.",
+            "Sessions are managed by our authentication provider. Passwords are never stored in plaintext by GroupToStay."
+          ]
+        },
+        "hosting": {
+          "title": "Platform & Hosting",
+          "body": [
+            "GroupToStay runs on the Lovable platform, with a managed Postgres database provided by Supabase. Database access from the application is governed by row-level security policies scoped to the signed-in user.",
+            "Connections between your browser, the application, and the database are encrypted in transit using TLS."
+          ]
+        },
+        "data": {
+          "title": "Data We Collect",
+          "body": [
+            "GroupToStay stores the information you provide to operate the marketplace: account and company details, hotel profiles, group requests (RFQs), quotations, bookings, and messages exchanged between organizers and hotels.",
+            "We do not sell personal data. Payment card details, when applicable, are handled by our payment processor and are not stored on our servers."
+          ]
+        },
+        "sharing": {
+          "title": "Data Access & Sharing",
+          "body": [
+            "Hotels see only the group requests they are invited to and the messages and quotations tied to those requests. Agencies see only their own requests, the responses they receive, and their bookings. Administrators may access records as needed to operate and support the platform.",
+            "Public hotel listings show approved hotels and their published details only; internal account identifiers are not exposed to anonymous visitors."
+          ]
+        },
+        "cookies": {
+          "title": "Cookies & Analytics",
+          "body": [
+            "GroupToStay uses cookies and local storage strictly necessary to keep you signed in and to remember your interface preferences (such as language). We do not use third-party advertising trackers."
+          ]
+        },
+        "retention": {
+          "title": "Retention & Deletion",
+          "body": [
+            "Account, transaction, and messaging records are retained while your account is active and for the period required by applicable law or to resolve disputes. To request deletion or export of data tied to your account, contact us using the address below."
+          ]
+        },
+        "responsibility": {
+          "title": "Shared Responsibility",
+          "body": [
+            "Security on GroupToStay is a shared responsibility. GroupToStay maintains the application, access controls, and infrastructure integrations; account holders are responsible for safeguarding their credentials, keeping company information accurate, and promptly reporting suspicious activity."
+          ]
+        },
+        "contact": {
+          "title": "Security Contact",
+          "bodyBefore": "To report a security concern, suspected vulnerability, or privacy request, contact GroupToStay through the",
+          "bodyAfter": ". We aim to acknowledge security reports promptly and will follow up with next steps."
+        }
+      }
+    },
+    "terms": {
+      "title": "Terms & Conditions",
+      "metaTitle": "Terms & Conditions - GroupToStay",
+      "metaDescription": "The terms that govern use of the GroupToStay B2B group hospitality marketplace.",
+      "sections": {
+        "acceptance": {
+          "title": "1. Acceptance",
+          "body": "By creating an account or using GroupToStay you agree to these Terms. If you do not agree, do not use the service."
+        },
+        "service": {
+          "title": "2. The service",
+          "body": "GroupToStay is a B2B marketplace where verified travel agencies submit group accommodation requests and verified hotels submit competing quotations. GroupToStay is not the accommodation provider and does not itself contract for the stay."
+        },
+        "verification": {
+          "title": "3. Accounts & verification",
+          "body": "Hotels must submit accurate business details (company name, VAT, CR). Approval is required before a hotel can quote or list. Agencies must complete business verification by providing accurate company information and uploading valid business registration documents, such as a commercial registration, trade license, or tax certificate. GroupToStay verifies the business entity, not individuals; personal national or Iqama ID documents are not required."
+        },
+        "quotations": {
+          "title": "4. Quotations & bookings",
+          "body": "A quotation is an offer from a hotel and is binding on the hotel until its stated validity date. Acceptance by an agency creates a booking between the agency and the hotel. Cancellation and modification policies are as stated on the quotation."
+        },
+        "fees": {
+          "title": "5. Fees",
+          "body": "Use of the marketplace is free unless otherwise stated on the pricing page or in a written subscription agreement."
+        },
+        "prohibited": {
+          "title": "6. Prohibited use",
+          "items": [
+            "Submitting false company information or forged business registration documents.",
+            "Attempting to bypass the platform to contract directly and avoid fees where a subscription applies.",
+            "Uploading unlawful, misleading, or infringing content."
+          ]
+        },
+        "liability": {
+          "title": "7. Liability",
+          "body": "GroupToStay provides the marketplace as is. To the maximum extent permitted by law, we are not liable for the acts or omissions of any hotel or agency, or for indirect or consequential loss."
+        },
+        "law": {
+          "title": "8. Governing law",
+          "body": "These Terms are governed by the laws of the Kingdom of Saudi Arabia unless otherwise agreed in writing."
+        },
+        "contact": {
+          "title": "9. Contact"
+        }
+      }
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "metaTitle": "Privacy Policy - GroupToStay",
+      "metaDescription": "How GroupToStay collects, uses, and protects your personal and business data.",
+      "sections": {
+        "introduction": {
+          "title": "1. Introduction",
+          "body": "GroupToStay operates a B2B marketplace connecting group travel agencies with hotels. This Privacy Policy explains what information we collect, how we use it, and the choices you have."
+        },
+        "information": {
+          "title": "2. Information we collect",
+          "items": [
+            "Account data: name, email, phone, country, role (Agency or Hotel), and, for hotels and agencies, company name, VAT and commercial registration numbers.",
+            "Agency verification documents: business registration files uploaded by agencies to prove their company identity. We do not collect personal national or Iqama IDs for agency verification.",
+            "Business data: group requests, destinations, dates, guests, quotations, bookings, and messages between agencies and hotels.",
+            "Technical data: device, browser, IP, and log data used for security and analytics."
+          ]
+        },
+        "usage": {
+          "title": "3. How we use your data",
+          "items": [
+            "To operate the marketplace, match requests to relevant hotels, deliver quotations, and enable messaging.",
+            "To verify hotel and agency companies using commercial registration, VAT, and uploaded business documents.",
+            "To secure the platform, prevent abuse, and comply with law.",
+            "To communicate service updates. Marketing emails are opt-in."
+          ]
+        },
+        "sharing": {
+          "title": "4. Sharing",
+          "body": "We share only what is required for the marketplace to function. An agency's group request is visible to eligible hotels, and a hotel's quotation is visible to the requesting agency. Hotels see only approved public agency fields, never uploaded verification documents. Agency verification documents are accessible only to GroupToStay administrators and the owning agency. We do not sell personal data."
+        },
+        "retention": {
+          "title": "5. Data retention",
+          "body": "We keep account and transactional records while your account is active and for as long as required by law thereafter."
+        },
+        "rights": {
+          "title": "6. Your rights",
+          "body": "Subject to applicable law, you may request access, correction, or deletion of your personal data by emailing us."
+        },
+        "security": {
+          "title": "7. Security",
+          "bodyBefore": "Data is stored on managed cloud infrastructure with encryption in transit and at rest. Row-level access controls restrict data to the parties who need it. See our",
+          "link": "Trust & Security",
+          "bodyAfter": "page for more information."
+        },
+        "contact": {
+          "title": "8. Contact",
+          "body": "Questions about this policy? Email us at"
+        }
+      }
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "metaTitle": "Cookie Policy - GroupToStay",
+      "metaDescription": "How GroupToStay uses cookies and similar technologies.",
+      "intro": "We use a small number of cookies and browser storage items to run the site securely and remember your preferences. We do not use cookies for advertising.",
+      "sections": {
+        "necessary": {
+          "title": "Strictly necessary",
+          "items": [
+            "Authentication: set by Supabase Auth to keep you signed in.",
+            "CSRF and session protection: protects sensitive requests."
+          ]
+        },
+        "preferences": {
+          "title": "Preferences",
+          "body": "The language preference stores your selected application language."
+        },
+        "analytics": {
+          "title": "Analytics",
+          "body": "We may use privacy-friendly, aggregate analytics to understand feature usage. No personal profiles are built."
+        },
+        "management": {
+          "title": "Managing cookies",
+          "body": "You can clear cookies and site storage from your browser settings at any time. Doing so will sign you out and reset your language preference."
+        },
+        "contact": {
+          "title": "Contact"
+        }
+      }
+    },
+    "lastUpdated": "Last updated: {{date}}",
+    "contactPage": "contact page"
+  }
+}

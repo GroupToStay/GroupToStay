@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { formatDistanceToNow } from "date-fns";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   BadgeCheck,
@@ -56,9 +56,10 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import type { Database } from "@/integrations/supabase/types";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/agency-verifications")({
-  head: () => ({ meta: [{ title: "Agency Verifications - Admin" }] }),
+  head: () => ({ meta: [{ title: i18n.t("admin.agencyVerifications.metaTitle") }] }),
   component: Page,
 });
 
@@ -67,14 +68,15 @@ type ProfilePatch = Database["public"]["Tables"]["profiles"]["Update"];
 type AgencyEvent = Database["public"]["Tables"]["agency_verification_events"]["Row"];
 type Tab = "pending" | "verified" | "rejected" | "all";
 
-const tabOptions: { value: Tab; label: string }[] = [
-  { value: "pending", label: "Pending Review" },
-  { value: "verified", label: "Verified" },
-  { value: "rejected", label: "Rejected" },
-  { value: "all", label: "All Status" },
+const tabOptionKeys: { value: Tab; labelKey: string }[] = [
+  { value: "pending", labelKey: "status.pending_review" },
+  { value: "verified", labelKey: "status.verified" },
+  { value: "rejected", labelKey: "status.rejected" },
+  { value: "all", labelKey: "admin.groupRequests.filters.allStatus" },
 ];
 
 function Page() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("pending");
@@ -159,7 +161,7 @@ function Page() {
   async function act(kind: "approve" | "reject" | "info", row = selected) {
     if (!row || !user) return;
     if ((kind === "reject" || kind === "info") && !note.trim())
-      return toast.error("Please write a reason / note");
+      return toast.error(t("admin.agencyVerifications.errors.reasonRequired"));
     setBusy(true);
     try {
       const status =
@@ -182,16 +184,16 @@ function Page() {
       });
       toast.success(
         kind === "approve"
-          ? "Agency verified"
+          ? t("admin.agencyVerifications.toasts.verified")
           : kind === "reject"
-            ? "Agency rejected"
-            : "Info requested",
+            ? t("admin.agencyVerifications.toasts.rejected")
+            : t("admin.agencyVerifications.toasts.infoRequested"),
       );
       setSelected(null);
       setNote("");
       qc.invalidateQueries({ queryKey: ["admin-agency-verifications"] });
     } catch (e: unknown) {
-      toast.error(errorMessage(e, "Action failed"));
+      toast.error(errorMessage(e, t("admin.agencyVerifications.errors.actionFailed")));
     } finally {
       setBusy(false);
     }
@@ -199,8 +201,8 @@ function Page() {
 
   return (
     <AdminManagementPage
-      title="Agency Verifications"
-      description="Review submitted agency profiles, documents and verification history."
+      title={t("admin.agencyVerifications.title")}
+      description={t("admin.agencyVerifications.description")}
       icon={BadgeCheck}
     >
       <AdminToolbar>
@@ -210,7 +212,7 @@ function Page() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             className="pl-9"
-            placeholder="Search by agency, country, type, email or phone"
+            placeholder={t("admin.agencyVerifications.searchPlaceholder")}
           />
         </div>
         <Select value={tab} onValueChange={(value) => setTab(value as Tab)}>
@@ -218,9 +220,9 @@ function Page() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {tabOptions.map((option) => (
+            {tabOptionKeys.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -232,21 +234,21 @@ function Page() {
             setTab("pending");
           }}
         >
-          Reset Filters
+          {t("admin.common.resetFilters")}
         </Button>
       </AdminToolbar>
 
       {isLoading ? (
         <Card>
           <CardContent className="flex items-center gap-2 p-6 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading agencies...
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("admin.agencyVerifications.loading")}
           </CardContent>
         </Card>
       ) : filteredRows.length === 0 ? (
         <EmptyState
           icon={ShieldCheck}
-          title="No Submissions"
-          description="No agency verification submissions match these filters."
+          title={t("admin.agencyVerifications.empty.title")}
+          description={t("admin.agencyVerifications.empty.description")}
         />
       ) : (
         <AdminTableCard
@@ -264,13 +266,21 @@ function Page() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/30">
-                  <TableHead>Agency</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead className="hidden lg:table-cell">Agency Type</TableHead>
-                  <TableHead className="hidden xl:table-cell">Contact</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden lg:table-cell">Submitted</TableHead>
-                  <TableHead className="w-12 text-right">Actions</TableHead>
+                  <TableHead>{t("admin.agencyVerifications.table.agency")}</TableHead>
+                  <TableHead>{t("admin.agencyVerifications.table.location")}</TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    {t("admin.agencyVerifications.table.agencyType")}
+                  </TableHead>
+                  <TableHead className="hidden xl:table-cell">
+                    {t("admin.agencyVerifications.table.contact")}
+                  </TableHead>
+                  <TableHead>{t("admin.agencyVerifications.table.status")}</TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    {t("admin.agencyVerifications.table.submitted")}
+                  </TableHead>
+                  <TableHead className="w-12 text-right">
+                    {t("admin.agencyVerifications.table.actions")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -305,9 +315,7 @@ function Page() {
                     </TableCell>
                     <TableCell className="hidden text-muted-foreground lg:table-cell">
                       {row.verification_submitted_at
-                        ? formatDistanceToNow(new Date(row.verification_submitted_at), {
-                            addSuffix: true,
-                          })
+                        ? formatAdminDate(row.verification_submitted_at)
                         : "-"}
                     </TableCell>
                     <TableCell onClick={(event) => event.stopPropagation()}>
@@ -397,67 +405,124 @@ function Page() {
               </DialogHeader>
 
               <div className="space-y-4 text-sm">
-                <DetailGroup title="Company Information">
-                  <AdminDetailItem label="Legal Name" value={selected.legal_company_name} />
-                  <AdminDetailItem label="Trade Name" value={selected.trade_name} />
-                  <AdminDetailItem label="Country" value={selected.country} />
-                  <AdminDetailItem label="City" value={selected.city} />
-                  <AdminDetailItem label="Address" value={selected.full_address} />
-                  <AdminDetailItem label="Website" value={selected.website} />
-                  <AdminDetailItem label="Year Established" value={selected.year_established} />
-                  <AdminDetailItem label="Employees" value={selected.employees_count} />
+                <DetailGroup title={t("admin.agencyVerifications.sections.companyInfo")}>
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.legalName")}
+                    value={selected.legal_company_name}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.tradeName")}
+                    value={selected.trade_name}
+                  />
+                  <AdminDetailItem label={t("common.country")} value={selected.country} />
+                  <AdminDetailItem label={t("common.city")} value={selected.city} />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.address")}
+                    value={selected.full_address}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.website")}
+                    value={selected.website}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.yearEstablished")}
+                    value={selected.year_established}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.employees")}
+                    value={selected.employees_count}
+                  />
                 </DetailGroup>
 
-                <DetailGroup title="Business Registration">
-                  <AdminDetailItem label="CR Number" value={selected.cr_number} />
+                <DetailGroup title={t("admin.agencyVerifications.sections.businessRegistration")}>
                   <AdminDetailItem
-                    label="CR Expiry"
+                    label={t("admin.agencyVerifications.details.crNumber")}
+                    value={selected.cr_number}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.crExpiry")}
                     value={formatAdminDate(selected.cr_expiry_date)}
                   />
-                  <AdminDetailItem label="Issuing Authority" value={selected.issuing_authority} />
                   <AdminDetailItem
-                    label="Tourism License"
+                    label={t("admin.agencyVerifications.details.issuingAuthority")}
+                    value={selected.issuing_authority}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.tourismLicense")}
                     value={selected.tourism_license_number}
                   />
                   <div className="sm:col-span-2 flex flex-wrap gap-2">
                     <DocButton
-                      label="Commercial Registration"
+                      label={t("admin.agencyVerifications.documents.commercialRegistration")}
                       path={selected.cr_document_path}
                       get={getDocUrl}
                     />
                     <DocButton
-                      label="Tourism License"
+                      label={t("admin.agencyVerifications.documents.tourismLicense")}
                       path={selected.tourism_license_document_path}
                       get={getDocUrl}
                     />
                   </div>
                 </DetailGroup>
 
-                <DetailGroup title="Contact Person">
-                  <AdminDetailItem label="Name" value={selected.contact_person_name} />
-                  <AdminDetailItem label="Position" value={selected.contact_person_position} />
-                  <AdminDetailItem label="Email" value={selected.contact_person_email} />
-                  <AdminDetailItem label="Phone" value={selected.contact_person_phone} />
-                  <AdminDetailItem label="WhatsApp" value={selected.contact_person_whatsapp} />
+                <DetailGroup title={t("admin.agencyVerifications.sections.contactPerson")}>
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.name")}
+                    value={selected.contact_person_name}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.position")}
+                    value={selected.contact_person_position}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.users.fields.email")}
+                    value={selected.contact_person_email}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.users.table.phone")}
+                    value={selected.contact_person_phone}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.whatsapp")}
+                    value={selected.contact_person_whatsapp}
+                  />
                 </DetailGroup>
 
-                <DetailGroup title="Business and Billing">
-                  <AdminDetailItem label="Agency Type" value={selected.agency_type} />
-                  <AdminDetailItem label="Annual Bookings" value={selected.annual_group_bookings} />
+                <DetailGroup title={t("admin.agencyVerifications.sections.businessBilling")}>
                   <AdminDetailItem
-                    label="Average Rooms / Booking"
+                    label={t("admin.agencyVerifications.table.agencyType")}
+                    value={selected.agency_type}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.annualBookings")}
+                    value={selected.annual_group_bookings}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.averageRooms")}
                     value={selected.avg_rooms_per_booking}
                   />
-                  <AdminDetailItem label="Legal Billing Name" value={selected.legal_billing_name} />
-                  <AdminDetailItem label="VAT" value={selected.vat_billing_number} />
-                  <AdminDetailItem label="Billing Email" value={selected.billing_email} />
-                  <AdminDetailItem label="Billing Address" value={selected.billing_address} />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.legalBillingName")}
+                    value={selected.legal_billing_name}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.hotelCompanies.details.vatNumber")}
+                    value={selected.vat_billing_number}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.billingEmail")}
+                    value={selected.billing_email}
+                  />
+                  <AdminDetailItem
+                    label={t("admin.agencyVerifications.details.billingAddress")}
+                    value={selected.billing_address}
+                  />
                 </DetailGroup>
 
-                <DetailGroup title="Verification History">
+                <DetailGroup title={t("admin.agencyVerifications.sections.verificationHistory")}>
                   {events.length === 0 ? (
                     <div className="sm:col-span-2 text-xs text-muted-foreground">
-                      No events yet.
+                      {t("admin.agencyVerifications.history.noEvents")}
                     </div>
                   ) : (
                     <ul className="sm:col-span-2 space-y-2">
@@ -469,12 +534,15 @@ function Page() {
                           <div className="flex items-center gap-2">
                             <AdminStatusBadge status={String(event.event_type).replace("_", " ")} />
                             <span className="ml-auto text-muted-foreground">
-                              {formatDistanceToNow(new Date(event.created_at), { addSuffix: true })}
+                              {formatAdminDate(event.created_at)}
                             </span>
                           </div>
                           {event.notes ? (
                             <div className="mt-2 text-foreground">
-                              <span className="font-medium">Reason:</span> {event.notes}
+                              <span className="font-medium">
+                                {t("admin.agencyVerifications.history.reason")}:
+                              </span>{" "}
+                              {event.notes}
                             </div>
                           ) : null}
                         </li>
@@ -485,26 +553,27 @@ function Page() {
 
                 <div>
                   <label className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
-                    <MessageSquare className="h-3 w-3" /> Review note / rejection reason
+                    <MessageSquare className="h-3 w-3" />{" "}
+                    {t("admin.agencyVerifications.reviewNote")}
                   </label>
                   <Textarea
                     rows={3}
                     value={note}
                     onChange={(event) => setNote(event.target.value)}
-                    placeholder="Required for Reject / Request more info"
+                    placeholder={t("admin.agencyVerifications.reviewNotePlaceholder")}
                   />
                 </div>
               </div>
 
               <DialogFooter className="flex-wrap gap-2">
                 <Button variant="outline" onClick={() => act("info")} disabled={busy}>
-                  Request more info
+                  {t("admin.agencyVerifications.actions.requestMoreInfo")}
                 </Button>
                 <Button variant="destructive" onClick={() => act("reject")} disabled={busy}>
-                  Reject
+                  {t("admin.common.actions.reject")}
                 </Button>
                 <Button variant="gold" onClick={() => act("approve")} disabled={busy}>
-                  Approve
+                  {t("admin.common.actions.approve")}
                 </Button>
               </DialogFooter>
             </>
@@ -528,14 +597,24 @@ function AgencyActions({
   onReject: () => void;
   onInfo: () => void;
 }) {
+  const { t } = useTranslation();
   const verified = row.agency_verification_status === "verified";
   return (
     <AdminActionMenu
       items={[
-        { label: "View Details", icon: Eye, onSelect: onView },
-        { label: "Approve", icon: CheckCircle2, onSelect: onApprove, disabled: verified },
-        { label: "Reject", icon: XCircle, onSelect: onReject },
-        { label: "Request More Information", icon: MessageSquare, onSelect: onInfo },
+        { label: t("admin.common.actions.viewDetails"), icon: Eye, onSelect: onView },
+        {
+          label: t("admin.common.actions.approve"),
+          icon: CheckCircle2,
+          onSelect: onApprove,
+          disabled: verified,
+        },
+        { label: t("admin.common.actions.reject"), icon: XCircle, onSelect: onReject },
+        {
+          label: t("admin.agencyVerifications.actions.requestMoreInfo"),
+          icon: MessageSquare,
+          onSelect: onInfo,
+        },
       ]}
     />
   );
@@ -561,11 +640,12 @@ function DocButton({
   path?: string | null;
   get: (p?: string | null) => Promise<string | null>;
 }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   if (!path)
     return (
       <Badge variant="secondary" className="opacity-60">
-        {label}: not uploaded
+        {t("admin.agencyVerifications.documents.notUploaded", { label })}
       </Badge>
     );
   return (
@@ -578,7 +658,7 @@ function DocButton({
         const url = await get(path);
         setLoading(false);
         if (url) window.open(url, "_blank");
-        else toast.error("Could not open document");
+        else toast.error(t("admin.agencyVerifications.errors.documentOpenFailed"));
       }}
     >
       <FileText className="h-4 w-4" /> {label}
@@ -593,7 +673,7 @@ function agencyName(row: Row) {
     row.company_name ||
     row.org_name ||
     row.full_name ||
-    "Untitled agency"
+    i18n.t("admin.agencyVerifications.fallbacks.untitledAgency")
   );
 }
 

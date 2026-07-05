@@ -1,0 +1,111 @@
+{
+  "pricing": {
+    "title": "Simple, transparent pricing",
+    "subtitle": "Free forever for organizers. Hotels choose the plan that fits their goals — all prices in Saudi Riyal (SAR).",
+    "perMonth": "/ month",
+    "currency": "SAR",
+    "organizer": "For Organizers — Free Forever",
+    "organizerPrice": "SAR 0",
+    "organizerDesc": "Unlimited Group Requests, compare hotel quotations, message hotels directly, negotiate and manage contracts. No platform fees, ever.",
+    "organizerCta": "Create Group Request",
+    "hotelBasic": "Hotel — Free Listing",
+    "hotelBasicPrice": "SAR 0",
+    "hotelBasicDesc": "List your hotel, receive matching Group Requests, submit quotations. Commission only on awarded bookings.",
+    "hotelBasicCta": "List Your Hotel",
+    "hotelPro": "Professional Hotel",
+    "hotelProPrice": "SAR 199",
+    "hotelProDesc": "Everything in Free Listing, plus priority placement, priority Group Requests, analytics dashboard, enhanced profile, additional images and priority support.",
+    "hotelProCta": "Upgrade Now",
+    "hotelPremium": "Featured Hotel",
+    "hotelPremiumPrice": "SAR 399",
+    "hotelPremiumDesc": "Everything in Professional, plus featured badge, homepage placement, top search placement, featured destination listings and premium support.",
+    "hotelPremiumCta": "Become Featured",
+    "enterprise": "Enterprise",
+    "enterprisePrice": "Custom",
+    "enterpriseDesc": "For hotel chains, large hospitality groups and multi-property operators. Multi-property management, dedicated account manager, API access, PMS integrations, custom reporting, unlimited team members and custom workflows.",
+    "enterpriseCta": "Contact Sales",
+    "meta": {
+      "title": "Pricing - GroupToStay",
+      "description": "Free forever for organizers. Hotels choose the plan that fits their goals. All prices in SAR.",
+      "ogDescription": "Transparent plans for hotels and free access for group organizers. Pay only when you win group business."
+    },
+    "comingSoon": "Coming Soon",
+    "manageFromDashboard": "Manage your subscription from your dashboard.",
+    "features": {
+      "organizer": [
+        "Unlimited Group Requests",
+        "Compare hotel quotations",
+        "Direct messaging",
+        "Hotel negotiation",
+        "Contract management",
+        "Multi-hotel selection",
+        "No platform fees"
+      ],
+      "hotelBasic": [
+        "Hotel profile",
+        "Receive matching Group Requests",
+        "Submit quotations",
+        "Messaging",
+        "Hotel gallery",
+        "Availability management",
+        "Commission only on awarded bookings"
+      ],
+      "hotelPro": [
+        "Everything in Free Listing",
+        "Priority placement",
+        "Priority Group Requests",
+        "Analytics dashboard",
+        "Enhanced hotel profile",
+        "Additional images",
+        "Priority support"
+      ],
+      "hotelPremium": [
+        "Everything in Professional",
+        "Featured badge",
+        "Homepage placement",
+        "Top search placement",
+        "Featured destination listings",
+        "Highest marketplace visibility",
+        "Premium support"
+      ],
+      "enterprise": [
+        "Multi-property management",
+        "Dedicated account manager",
+        "API access",
+        "PMS integrations",
+        "Custom reporting",
+        "Unlimited team members",
+        "Custom workflows"
+      ]
+    },
+    "subscriptions": {
+      "metaTitle": "Subscription Plans Coming Soon - GroupToStay",
+      "metaDescription": "Hotel subscription plans are launching soon. Join the waitlist to be notified.",
+      "badge": "Coming Soon",
+      "title": "Subscription Plans Coming Soon",
+      "description": "We are currently preparing secure online payment services. Hotel subscription plans will be available soon. Join the waiting list and we will notify you immediately when subscriptions become available.",
+      "notifyMe": "Notify Me",
+      "launchNote": "Estimated launch: very soon. We'll email you the moment payments go live.",
+      "professionalTitle": "Professional Hotel",
+      "professionalPrice": "SAR 199/month",
+      "featuredTitle": "Featured Hotel",
+      "featuredPrice": "SAR 399/month",
+      "professionalFeatures": [
+        "Priority Group Requests",
+        "Analytics Dashboard",
+        "Enhanced Profile",
+        "Extra Images",
+        "Priority Support"
+      ],
+      "featuredFeatures": [
+        "Featured Badge",
+        "Homepage Placement",
+        "Search Priority",
+        "Destination Placement",
+        "Premium Support"
+      ],
+      "upgradeTitle": "Upgrade Your Hotel",
+      "paymentLaunchingSoon": "Payment Services Launching Soon"
+    }
+  }
+}

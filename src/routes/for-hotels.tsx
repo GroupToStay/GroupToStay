@@ -7,21 +7,20 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/for-hotels")({
   head: () => ({
     meta: [
-      { title: "For hotels — GroupToStay" },
+      { title: i18n.t("forHotels.metaTitle") },
       {
         name: "description",
-        content:
-          "List your hotel on GroupToStay and receive pre-qualified Group Requests. Pay only when you win group business.",
+        content: i18n.t("forHotels.metaDescription"),
       },
-      { property: "og:title", content: "GroupToStay — Win more group business" },
+      { property: "og:title", content: i18n.t("forHotels.metaOgTitle") },
       {
         property: "og:description",
-        content:
-          "Reach verified group organizers, respond to matched Group Requests, and grow group revenue with GroupToStay.",
+        content: i18n.t("forHotels.metaOgDescription"),
       },
       { property: "og:url", content: "https://groupstay-connect.lovable.app/for-hotels" },
     ],

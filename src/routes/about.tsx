@@ -2,21 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — GroupToStay" },
+      { title: i18n.t("about.metaTitle") },
       {
         name: "description",
-        content:
-          "GroupToStay — the B2B marketplace built exclusively for group accommodation sourcing and hotel quotations.",
+        content: i18n.t("about.metaDescription"),
       },
-      { property: "og:title", content: "About — GroupToStay" },
+      { property: "og:title", content: i18n.t("about.metaTitle") },
       {
         property: "og:description",
-        content:
-          "Learn how GroupToStay connects group organizers with verified hotels for competitive group quotations.",
+        content: i18n.t("about.ogDescription"),
       },
       { property: "og:url", content: "https://groupstay-connect.lovable.app/about" },
     ],

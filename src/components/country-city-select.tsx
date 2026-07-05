@@ -43,7 +43,7 @@ export function CountryCitySelect({
     <div className="grid sm:grid-cols-2 gap-3">
       <div>
         <Label>
-          {labelCountry ?? t("common.country", { defaultValue: "Country" })}
+          {labelCountry ?? t("common.country")}
           {required && " *"}
         </Label>
         <Select
@@ -51,9 +51,7 @@ export function CountryCitySelect({
           onValueChange={(v) => onChange({ countryId: v || null, cityId: null })}
         >
           <SelectTrigger>
-            <SelectValue
-              placeholder={t("common.selectCountry", { defaultValue: "Select country" })}
-            />
+            <SelectValue placeholder={t("common.selectCountry")} />
           </SelectTrigger>
           <SelectContent>
             {countries.map((c) => (
@@ -66,7 +64,7 @@ export function CountryCitySelect({
       </div>
       <div>
         <Label>
-          {labelCity ?? t("common.city", { defaultValue: "City" })}
+          {labelCity ?? t("common.city")}
           {required && " *"}
         </Label>
         <Select
@@ -76,11 +74,7 @@ export function CountryCitySelect({
         >
           <SelectTrigger>
             <SelectValue
-              placeholder={
-                countryId
-                  ? t("common.selectCity", { defaultValue: "Select city" })
-                  : t("common.selectCountryFirst", { defaultValue: "Select country first" })
-              }
+              placeholder={countryId ? t("common.selectCity") : t("common.selectCountryFirst")}
             />
           </SelectTrigger>
           <SelectContent>

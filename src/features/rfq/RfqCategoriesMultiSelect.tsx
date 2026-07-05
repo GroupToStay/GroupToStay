@@ -12,7 +12,12 @@ import {
 } from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { HOTEL_CATEGORIES, type HotelCategory } from "./rfq-options";
+import {
+  HOTEL_CATEGORIES,
+  HOTEL_CATEGORY_TRANSLATION_KEYS,
+  type HotelCategory,
+} from "./rfq-options";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   value: HotelCategory[];
@@ -25,12 +30,8 @@ type Props = {
  * Shared searchable multi-select for RFQ Categories.
  * Empty selection === "Any" (backward compatible with existing RFQ storage).
  */
-export function RfqCategoriesMultiSelect({
-  value,
-  onChange,
-  placeholder = "Any (all categories)",
-  className,
-}: Props) {
+export function RfqCategoriesMultiSelect({ value, onChange, placeholder, className }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const selectedSet = useMemo(() => new Set(value), [value]);
 
@@ -52,7 +53,9 @@ export function RfqCategoriesMultiSelect({
             className="w-full justify-between font-normal"
           >
             <span className={cn("truncate", value.length === 0 && "text-muted-foreground")}>
-              {value.length === 0 ? placeholder : `${value.length} selected`}
+              {value.length === 0
+                ? (placeholder ?? t("rfq.categories.any"))
+                : t("rfq.categories.selectedCount", { count: value.length })}
             </span>
             <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
           </Button>
@@ -62,16 +65,16 @@ export function RfqCategoriesMultiSelect({
           align="start"
         >
           <Command>
-            <CommandInput placeholder="Search categories…" />
+            <CommandInput placeholder={t("rfq.categories.searchPlaceholder")} />
             <CommandList>
-              <CommandEmpty>No category found.</CommandEmpty>
+              <CommandEmpty>{t("rfq.categories.empty")}</CommandEmpty>
               <CommandGroup>
                 {HOTEL_CATEGORIES.map((c) => {
                   const active = selectedSet.has(c);
                   return (
                     <CommandItem key={c} value={c} onSelect={() => toggle(c)}>
                       <Check className={cn("mr-2 h-4 w-4", active ? "opacity-100" : "opacity-0")} />
-                      {c}
+                      {t(HOTEL_CATEGORY_TRANSLATION_KEYS[c])}
                     </CommandItem>
                   );
                 })}
@@ -85,11 +88,13 @@ export function RfqCategoriesMultiSelect({
         <div className="mt-2 flex flex-wrap gap-1.5">
           {value.map((v) => (
             <Badge key={v} variant="secondary" className="gap-1">
-              {v}
+              {t(HOTEL_CATEGORY_TRANSLATION_KEYS[v])}
               <button
                 type="button"
                 onClick={() => toggle(v)}
-                aria-label={`Remove ${v}`}
+                aria-label={t("rfq.categories.remove", {
+                  category: t(HOTEL_CATEGORY_TRANSLATION_KEYS[v]),
+                })}
                 className="hover:text-destructive"
               >
                 <X className="h-3 w-3" />
@@ -101,7 +106,7 @@ export function RfqCategoriesMultiSelect({
             onClick={clear}
             className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
           >
-            Clear
+            {t("buttons.clear")}
           </button>
         </div>
       )}

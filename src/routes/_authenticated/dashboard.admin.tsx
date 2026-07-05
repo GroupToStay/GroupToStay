@@ -24,11 +24,24 @@ import {
 import { EmptyState } from "@/components/empty-state";
 import { HotelPhoto } from "@/components/hotel-photo";
 import { useApplicationLocale } from "@/lib/application-locale";
+import i18n from "@/lib/i18n";
 
 type Tab = "companies" | "hotels" | "interest" | "requests" | "users";
 
+const PMS_PROVIDERS = [
+  "MyCloud PMS",
+  "Oracle Opera PMS",
+  "Cloudbeds",
+  "Mews",
+  "eZee Absolute",
+  "Hotelogix",
+  "Protel",
+  "Other",
+] as const;
+const PMS_OTHER = "Other";
+
 export const Route = createFileRoute("/_authenticated/dashboard/admin")({
-  head: () => ({ meta: [{ title: "Admin — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("admin.legacy.metaTitle") }] }),
   validateSearch: (s: Record<string, unknown>): { tab?: Tab } => {
     const t = s.tab;
     return t === "companies" ||
@@ -64,6 +77,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/admin")({
 });
 
 export function ReviewStats() {
+  const { t } = useTranslation();
   const { data } = useQuery({
     queryKey: ["admin-review-stats"],
     queryFn: async () => {
@@ -98,10 +112,10 @@ export function ReviewStats() {
     },
   });
   const items = [
-    { label: "Pending Reviews", value: data?.pending ?? 0 },
-    { label: "Approved Listings", value: data?.approved ?? 0 },
-    { label: "Rejected / Suspended", value: data?.rejected ?? 0 },
-    { label: "Active Hotel Accounts", value: data?.activeHotelUsers ?? 0 },
+    { label: t("admin.legacy.stats.pendingReviews"), value: data?.pending ?? 0 },
+    { label: t("admin.legacy.stats.approvedListings"), value: data?.approved ?? 0 },
+    { label: t("admin.legacy.stats.rejectedSuspended"), value: data?.rejected ?? 0 },
+    { label: t("admin.legacy.stats.activeHotelAccounts"), value: data?.activeHotelUsers ?? 0 },
   ];
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -186,7 +200,7 @@ export function CompaniesPanel() {
         <EmptyState
           icon={Building2}
           title={t("admin.empty")}
-          description="No hotel company applications match this filter."
+          description={t("admin.legacy.companiesEmpty")}
         />
       ) : (
         rows.map((r: any) => (
@@ -202,6 +216,7 @@ export function CompaniesPanel() {
 }
 
 function PmsStatistics() {
+  const { t } = useTranslation();
   const { data: counts = {}, isLoading } = useQuery({
     queryKey: ["admin-pms-stats"],
     queryFn: async () => {
@@ -210,31 +225,22 @@ function PmsStatistics() {
         .select("pms_enabled, pms_provider")
         .eq("hotel_approval_status", "approved");
       if (error) throw error;
-      const presets = [
-        "MyCloud PMS",
-        "Oracle Opera PMS",
-        "Cloudbeds",
-        "Mews",
-        "eZee Absolute",
-        "Hotelogix",
-        "Protel",
-        "Other",
-      ];
-      const c: Record<string, number> = { "No PMS": 0, "Not specified": 0 };
-      presets.forEach((p) => {
+      const c: Record<string, number> = { noPms: 0, notSpecified: 0 };
+      PMS_PROVIDERS.forEach((p) => {
         c[p] = 0;
       });
       (data ?? []).forEach((r: any) => {
-        if (r.pms_enabled === false) c["No PMS"]++;
+        if (r.pms_enabled === false) c.noPms++;
         else if (r.pms_enabled === true) {
           const p =
-            r.pms_provider && presets.includes(r.pms_provider)
+            r.pms_provider &&
+            PMS_PROVIDERS.includes(r.pms_provider as (typeof PMS_PROVIDERS)[number])
               ? r.pms_provider
               : r.pms_provider
-                ? "Other"
-                : "Not specified";
+                ? PMS_OTHER
+                : "notSpecified";
           c[p] = (c[p] ?? 0) + 1;
-        } else c["Not specified"]++;
+        } else c.notSpecified++;
       });
       return c;
     },
@@ -243,17 +249,23 @@ function PmsStatistics() {
   return (
     <Card>
       <CardContent className="p-5">
-        <h2 className="font-display text-xl text-primary">PMS Statistics</h2>
+        <h2 className="font-display text-xl text-primary">{t("admin.legacy.pmsStatistics")}</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Approved hotel companies by Property Management System.
+          {t("admin.legacy.pmsStatisticsDescription")}
         </p>
         {isLoading ? (
-          <div className="mt-3 text-sm text-muted-foreground">Loading…</div>
+          <div className="mt-3 text-sm text-muted-foreground">{t("common.loading")}</div>
         ) : (
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {Object.entries(counts).map(([label, n]) => (
               <div key={label} className="rounded-md border border-border bg-surface px-3 py-2">
-                <div className="text-xs text-muted-foreground truncate">{label}</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {label === "noPms"
+                    ? t("admin.legacy.noPms")
+                    : label === "notSpecified"
+                      ? t("admin.legacy.notSpecified")
+                      : pmsProviderLabel(label, t)}
+                </div>
                 <div className="font-display text-2xl text-primary">{n as number}</div>
               </div>
             ))}
@@ -309,33 +321,46 @@ function CompanyRow({
         </div>
         <div className="mt-4 rounded-md border border-border bg-surface p-3">
           <div className="text-xs uppercase tracking-wide text-muted-foreground">
-            PMS Information
+            {t("admin.legacy.company.pmsInformation")}
           </div>
           <div className="mt-2 grid sm:grid-cols-2 gap-2 text-sm">
             <div>
-              <span className="text-muted-foreground">Uses PMS:</span>{" "}
-              {row.pms_enabled === true ? "Yes" : row.pms_enabled === false ? "No" : "—"}
+              <span className="text-muted-foreground">{t("admin.legacy.company.usesPms")}:</span>{" "}
+              {row.pms_enabled === true
+                ? t("common.yes")
+                : row.pms_enabled === false
+                  ? t("common.no")
+                  : "—"}
             </div>
             <div>
-              <span className="text-muted-foreground">Provider:</span> {row.pms_provider ?? "—"}
-              {row.pms_provider === "Other" && row.pms_provider_other
+              <span className="text-muted-foreground">{t("admin.legacy.company.provider")}:</span>{" "}
+              {row.pms_provider ? pmsProviderLabel(row.pms_provider, t) : "—"}
+              {row.pms_provider === PMS_OTHER && row.pms_provider_other
                 ? ` (${row.pms_provider_other})`
                 : ""}
             </div>
             <div>
-              <span className="text-muted-foreground">API Available:</span>{" "}
+              <span className="text-muted-foreground">
+                {t("admin.hotelCompanies.details.apiAvailable")}:
+              </span>{" "}
               {row.api_available ?? "—"}
             </div>
             <div>
-              <span className="text-muted-foreground">Tech Contact:</span>{" "}
+              <span className="text-muted-foreground">
+                {t("admin.hotelCompanies.details.technicalContact")}:
+              </span>{" "}
               {row.technical_contact_name ?? "—"}
             </div>
             <div>
-              <span className="text-muted-foreground">Tech Email:</span>{" "}
+              <span className="text-muted-foreground">
+                {t("admin.hotelCompanies.details.technicalEmail")}:
+              </span>{" "}
               {row.technical_contact_email ?? "—"}
             </div>
             <div>
-              <span className="text-muted-foreground">Tech Phone:</span>{" "}
+              <span className="text-muted-foreground">
+                {t("admin.hotelCompanies.details.technicalPhone")}:
+              </span>{" "}
               {row.technical_contact_phone ?? "—"}
             </div>
           </div>
@@ -354,11 +379,11 @@ function CompanyRow({
         <div className="mt-3 flex gap-2 flex-wrap">
           {locked ? (
             <Badge className="bg-muted text-muted-foreground">
-              <Lock className="h-3 w-3 mr-1" /> Approved — locked
+              <Lock className="h-3 w-3 me-1" /> {t("admin.legacy.company.approvedLocked")}
             </Badge>
           ) : rejected ? (
             <Button size="sm" variant="outline" onClick={() => onDecide("pending", notes)}>
-              <RotateCcw className="h-4 w-4" /> Reconsider
+              <RotateCcw className="h-4 w-4" /> {t("admin.common.actions.reconsider")}
             </Button>
           ) : (
             <>
@@ -432,7 +457,7 @@ export function HotelsPanel() {
         <EmptyState
           icon={HotelIcon}
           title={t("admin.empty")}
-          description="No hotel listings match this filter yet."
+          description={t("admin.hotelListings.empty.description")}
         />
       ) : (
         rows.map((h: any) => {
@@ -475,15 +500,17 @@ export function HotelsPanel() {
                 <div className="flex gap-2 flex-wrap">
                   <Button asChild size="sm" variant="outline">
                     <Link to="/hotels/$id" params={{ id: h.id }} target="_blank">
-                      <Eye className="h-4 w-4" /> View Hotel
+                      <Eye className="h-4 w-4" /> {t("admin.hotelListings.actions.viewHotel")}
                     </Link>
                   </Button>
                   {isApproved ? (
                     <Badge className="bg-muted text-muted-foreground">
-                      <Lock className="h-3 w-3 mr-1" /> Locked
+                      <Lock className="h-3 w-3 me-1" /> {t("status.locked")}
                     </Badge>
                   ) : isSuspended ? (
-                    <Badge className="bg-muted text-muted-foreground">Final — archived</Badge>
+                    <Badge className="bg-muted text-muted-foreground">
+                      {t("admin.legacy.hotels.finalArchived")}
+                    </Badge>
                   ) : (
                     <>
                       <Button
@@ -513,6 +540,7 @@ export function HotelsPanel() {
 }
 
 export function InterestPanel() {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const { formatDateTime } = useApplicationLocale();
   const [planFilter, setPlanFilter] = useState<"all" | "professional" | "featured">("all");
@@ -545,7 +573,7 @@ export function InterestPanel() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Marked as notified");
+      toast.success(t("admin.legacy.interest.markedNotified"));
       qc.invalidateQueries({ queryKey: ["admin-interest"] });
     },
     onError: (e: any) => toast.error(e.message),
@@ -554,34 +582,38 @@ export function InterestPanel() {
   return (
     <div className="space-y-4">
       <div className="flex gap-2 flex-wrap text-xs">
-        <span className="text-muted-foreground self-center">Plan:</span>
+        <span className="text-muted-foreground self-center">
+          {t("admin.legacy.interest.plan")}:
+        </span>
         {(["all", "professional", "featured"] as const).map((p) => (
           <button
             key={p}
             onClick={() => setPlanFilter(p)}
             className={`rounded-md border px-3 py-1 capitalize ${planFilter === p ? "border-gold bg-gold/10" : "border-input text-muted-foreground"}`}
           >
-            {p}
+            {t(`admin.legacy.interest.plans.${p}`)}
           </button>
         ))}
-        <span className="text-muted-foreground self-center ml-3">Status:</span>
+        <span className="text-muted-foreground self-center ms-3">
+          {t("admin.legacy.interest.status")}:
+        </span>
         {(["all", "waiting", "notified"] as const).map((s) => (
           <button
             key={s}
             onClick={() => setStatusFilter(s)}
             className={`rounded-md border px-3 py-1 capitalize ${statusFilter === s ? "border-gold bg-gold/10" : "border-input text-muted-foreground"}`}
           >
-            {s}
+            {t(s === "all" ? "admin.legacy.interest.allStatuses" : `status.${s}`)}
           </button>
         ))}
       </div>
       {isLoading ? (
-        <div className="text-muted-foreground">Loading…</div>
+        <div className="text-muted-foreground">{t("common.loading")}</div>
       ) : rows.length === 0 ? (
         <EmptyState
           icon={Inbox}
-          title="No waitlist entries"
-          description="Hotels who register interest in a paid plan will appear here."
+          title={t("admin.legacy.interest.emptyTitle")}
+          description={t("admin.legacy.interest.emptyDescription")}
         />
       ) : (
         rows.map((r: any) => (
@@ -593,13 +625,15 @@ export function InterestPanel() {
                   <Mail className="h-3 w-3" /> {r.email}
                 </div>
                 {r.hotel_name && (
-                  <div className="text-xs text-muted-foreground">Hotel: {r.hotel_name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("admin.legacy.interest.hotel")}: {r.hotel_name}
+                  </div>
                 )}
                 <div className="text-xs text-muted-foreground">
-                  Registered: {formatDateTime(r.created_at)}
+                  {t("admin.legacy.interest.registered")}: {formatDateTime(r.created_at)}
                 </div>
               </div>
-              <Badge className="capitalize">{r.requested_plan}</Badge>
+              <Badge>{t(`admin.legacy.interest.plans.${r.requested_plan}`)}</Badge>
               <Badge
                 className={
                   r.status === "notified"
@@ -607,11 +641,11 @@ export function InterestPanel() {
                     : "bg-muted text-muted-foreground"
                 }
               >
-                {r.status}
+                {t(`status.${r.status}`)}
               </Badge>
               {r.status === "waiting" && (
                 <Button size="sm" variant="gold" onClick={() => mark.mutate(r.id)}>
-                  Mark as Notified
+                  {t("admin.legacy.interest.markNotified")}
                 </Button>
               )}
             </CardContent>
@@ -620,4 +654,15 @@ export function InterestPanel() {
       )}
     </div>
   );
+}
+
+function pmsProviderLabel(
+  value: string,
+  t: (key: string, options?: Record<string, string>) => string,
+) {
+  const key = value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "");
+  return t(`admin.hotelCompanies.pms.providers.${key}`, { defaultValue: value });
 }

@@ -1,9 +1,31 @@
+import i18n from "@/lib/i18n";
+import { getHtmlLang, getTextDirection, normalizeAppLanguage } from "@/lib/locale";
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (character) => {
+    const entities: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    };
+    return entities[character];
+  });
+}
+
 export function renderErrorPage(): string {
+  const language = normalizeAppLanguage(i18n.language);
+  const title = escapeHtml(i18n.t("errors.pageLoad.title"));
+  const description = escapeHtml(i18n.t("errors.pageLoad.description"));
+  const retry = escapeHtml(i18n.t("common.retry"));
+  const goHome = escapeHtml(i18n.t("errors.actions.goHome"));
+
   return `<!doctype html>
-<html lang="en">
+<html lang="${getHtmlLang(language)}" dir="${getTextDirection(language)}">
   <head>
     <meta charset="utf-8" />
-    <title>This page didn't load</title>
+    <title>${title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       body { font: 15px/1.5 system-ui, -apple-system, sans-serif; background: #fafafa; color: #111; display: grid; place-items: center; min-height: 100vh; margin: 0; padding: 1.5rem; }
@@ -18,11 +40,11 @@ export function renderErrorPage(): string {
   </head>
   <body>
     <div class="card">
-      <h1>This page didn't load</h1>
-      <p>Something went wrong on our end. You can try refreshing or head back home.</p>
+      <h1>${title}</h1>
+      <p>${description}</p>
       <div class="actions">
-        <button class="primary" onclick="location.reload()">Try again</button>
-        <a class="secondary" href="/">Go home</a>
+        <button class="primary" onclick="location.reload()">${retry}</button>
+        <a class="secondary" href="/">${goHome}</a>
       </div>
     </div>
   </body>

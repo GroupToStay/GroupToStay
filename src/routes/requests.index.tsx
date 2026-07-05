@@ -18,21 +18,21 @@ import { MapPin, Calendar, Users, ArrowRight, Inbox } from "lucide-react";
 import { useRoles } from "@/hooks/use-role";
 import { EmptyState } from "@/components/empty-state";
 import { useApplicationLocale } from "@/lib/application-locale";
+import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/requests/")({
   head: () => ({
     meta: [
-      { title: "Open group requests — GroupToStay" },
+      { title: i18n.t("rfq.publicRequests.metaTitle") },
       {
         name: "description",
-        content:
-          "Browse open group accommodation requests from organizers worldwide. Hotels can respond directly to win the booking.",
+        content: i18n.t("rfq.publicRequests.metaDescription"),
       },
-      { property: "og:title", content: "Open group requests — GroupToStay" },
+      { property: "og:title", content: i18n.t("rfq.publicRequests.metaTitle") },
       {
         property: "og:description",
-        content:
-          "Live Group Requests from travel agencies. Hotels: respond and message the agency to close the deal.",
+        content: i18n.t("rfq.publicRequests.metaOgDescription"),
       },
     ],
   }),
@@ -40,8 +40,9 @@ export const Route = createFileRoute("/requests/")({
 });
 
 function Page() {
+  const { t } = useTranslation();
   const { isOrganizer, loading } = useRoles();
-  const { compare, formatDate } = useApplicationLocale();
+  const { compare, formatDate, formatNumber } = useApplicationLocale();
   const [q, setQ] = useState("");
   const [city, setCity] = useState("__any");
   const [type, setType] = useState("__any");
@@ -92,26 +93,23 @@ function Page() {
       <main className="flex-1">
         <section className="bg-primary text-primary-foreground">
           <div className="container-page py-14">
-            <h1 className="font-display text-4xl">Open group requests</h1>
-            <p className="mt-2 text-primary-foreground/80">
-              Live Group Requests from agencies. Hotels — review and message the agency to win the
-              deal.
-            </p>
+            <h1 className="font-display text-4xl">{t("rfq.publicRequests.title")}</h1>
+            <p className="mt-2 text-primary-foreground/80">{t("rfq.publicRequests.subtitle")}</p>
           </div>
         </section>
 
         <div className="container-page py-6 grid md:grid-cols-[1fr_200px_200px] gap-3 sticky top-16 bg-background z-30 border-b border-border">
           <Input
-            placeholder="Search by destination, title…"
+            placeholder={t("rfq.publicRequests.searchPlaceholder")}
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
           <Select value={city} onValueChange={setCity}>
             <SelectTrigger>
-              <SelectValue placeholder="Destination" />
+              <SelectValue placeholder={t("rfq.publicRequests.destinationPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__any">Any destination</SelectItem>
+              <SelectItem value="__any">{t("rfq.publicRequests.anyDestination")}</SelectItem>
               {cities.map((c) => (
                 <SelectItem key={c} value={c}>
                   {c}
@@ -121,10 +119,10 @@ function Page() {
           </Select>
           <Select value={type} onValueChange={setType}>
             <SelectTrigger>
-              <SelectValue placeholder="Group type" />
+              <SelectValue placeholder={t("rfq.publicRequests.groupTypePlaceholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__any">Any type</SelectItem>
+              <SelectItem value="__any">{t("rfq.publicRequests.anyType")}</SelectItem>
               {types.map((c) => (
                 <SelectItem key={c} value={c}>
                   {c}
@@ -138,9 +136,9 @@ function Page() {
           {filtered.length === 0 ? (
             <EmptyState
               icon={Inbox}
-              title="No open requests right now"
-              description="New group requests appear here as agencies post them. Check back soon or update your hotel profile so you're matched automatically."
-              actionLabel="Go to dashboard"
+              title={t("rfq.publicRequests.emptyTitle")}
+              description={t("rfq.publicRequests.emptyDescription")}
+              actionLabel={t("rfq.publicRequests.dashboardAction")}
               actionTo="/dashboard"
             />
           ) : (
@@ -164,16 +162,18 @@ function Page() {
                           {r.destination_country}
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <Calendar className="h-3.5 w-3.5" /> {r.check_in} → {r.check_out} (
-                          {r.nights}n)
+                          <Calendar className="h-3.5 w-3.5" /> {r.check_in} - {r.check_out} (
+                          {t("rfq.publicRequests.nightsShort", { count: r.nights })})
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <Users className="h-3.5 w-3.5" /> {r.guests_count} guests ·{" "}
-                          {r.rooms_needed} rooms
+                          <Users className="h-3.5 w-3.5" /> {formatNumber(r.guests_count)}{" "}
+                          {t("dashboard.guests")} · {formatNumber(r.rooms_needed)}{" "}
+                          {t("dashboard.rooms")}
                         </div>
                       </div>
                       <div className="pt-2 text-sm text-primary font-medium inline-flex items-center gap-1">
-                        View & respond <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                        {t("rfq.publicRequests.viewRespond")}{" "}
+                        <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
                       </div>
                     </CardContent>
                   </Card>

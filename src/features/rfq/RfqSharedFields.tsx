@@ -13,6 +13,7 @@ import { RfqAccommodationSelect, RfqMealPlanSelect } from "./RfqEnumSelects";
 import { RfqRequirementsField } from "./RfqRequirementsField";
 import { BedDouble, Calendar, Hotel, Star, Users } from "lucide-react";
 import type { AccommodationType, HotelCategory, MealPlan } from "./rfq-options";
+import { useTranslation } from "react-i18next";
 
 export type RfqSharedValues = {
   destination_country_id: string | null;
@@ -62,6 +63,7 @@ export function RfqSharedFields({
   destinationLabels,
   requirementsHint,
 }: Props) {
+  const { t } = useTranslation();
   const has = (s: RfqSharedSection) => sections.includes(s);
   const compact = variant === "compact";
 
@@ -72,14 +74,14 @@ export function RfqSharedFields({
       onChange={({ countryId, cityId }) =>
         onChange({ destination_country_id: countryId, destination_city_id: cityId })
       }
-      labelCountry={destinationLabels?.country ?? "Destination Country"}
-      labelCity={destinationLabels?.city ?? "Destination City"}
+      labelCountry={destinationLabels?.country ?? t("rfq.fields.destCountry")}
+      labelCity={destinationLabels?.city ?? t("rfq.fields.destCity")}
       required={destinationRequired}
     />
   );
 
   const groupSize = has("counts") && (
-    <LabeledField compact={compact} icon={Users} label="Group Size">
+    <LabeledField compact={compact} icon={Users} label={t("rfq.fields.groupSize")}>
       <Input
         type="number"
         min={1}
@@ -90,7 +92,7 @@ export function RfqSharedFields({
     </LabeledField>
   );
   const rooms = has("counts") && (
-    <LabeledField compact={compact} icon={BedDouble} label="Rooms">
+    <LabeledField compact={compact} icon={BedDouble} label={t("rfq.fields.rooms")}>
       <Input
         type="number"
         min={1}
@@ -101,12 +103,12 @@ export function RfqSharedFields({
     </LabeledField>
   );
   const checkIn = has("dates") && (
-    <LabeledField compact={compact} icon={Calendar} label="Check-In">
+    <LabeledField compact={compact} icon={Calendar} label={t("rfq.fields.checkIn")}>
       <RfqDatePickerField value={value.check_in} onChange={(v) => onChange({ check_in: v })} />
     </LabeledField>
   );
   const checkOut = has("dates") && (
-    <LabeledField compact={compact} icon={Calendar} label="Check-Out">
+    <LabeledField compact={compact} icon={Calendar} label={t("rfq.fields.checkOut")}>
       <RfqDatePickerField
         value={value.check_out}
         onChange={(v) => onChange({ check_out: v })}
@@ -116,7 +118,7 @@ export function RfqSharedFields({
   );
 
   const categories = has("categories") && (
-    <LabeledField compact={compact} icon={Star} label="Categories">
+    <LabeledField compact={compact} icon={Star} label={t("rfq.fields.categories")}>
       <RfqCategoriesMultiSelect
         value={value.hotel_categories_v2}
         onChange={(v) => onChange({ hotel_categories_v2: v })}
@@ -124,7 +126,7 @@ export function RfqSharedFields({
     </LabeledField>
   );
   const accommodation = has("accommodation") && (
-    <LabeledField compact={compact} icon={Hotel} label="Accommodation Type">
+    <LabeledField compact={compact} icon={Hotel} label={t("rfq.fields.accommodation")}>
       <RfqAccommodationSelect
         value={value.accommodation_type}
         onChange={(v) => onChange({ accommodation_type: v })}
@@ -132,7 +134,7 @@ export function RfqSharedFields({
     </LabeledField>
   );
   const mealPlan = has("mealPlan") && (
-    <LabeledField compact={compact} icon={BedDouble} label="Meal Plan">
+    <LabeledField compact={compact} icon={BedDouble} label={t("rfq.fields.mealPlan")}>
       <RfqMealPlanSelect
         value={value.meal_plan_code}
         onChange={(v) => onChange({ meal_plan_code: v })}
@@ -143,7 +145,7 @@ export function RfqSharedFields({
   const requirements = has("requirements") && (
     <div>
       <Label className={compact ? "text-xs text-muted-foreground font-medium" : ""}>
-        Requirements (optional)
+        {t("rfq.fields.requirementsOptional")}
       </Label>
       {requirementsHint ? (
         <p className="text-xs text-muted-foreground mt-0.5">{requirementsHint}</p>

@@ -1,0 +1,39 @@
+{
+  "forms": {
+    "select": "Select",
+    "optional": "Optional",
+    "country": {
+      "select": "Select country",
+      "loading": "Loading countries...",
+      "search": "Search country...",
+      "empty": "No country found."
+    },
+    "waitlist": {
+      "success": "You have been added to the subscription waiting list. We will notify you as soon as subscription payments become available.",
+      "title": "Join Subscription Waitlist",
+      "requestedPlan": "Requested plan:",
+      "hotelPlan": "{{plan}}",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "hotelName": "Hotel Name",
+      "joining": "Joining...",
+      "join": "Join Waitlist"
+    },
+    "agencyType": {
+      "label": "Agency type",
+      "placeholder": "Select agency type..."
+    },
+    "agencyTypes": {
+      "umrah": "Umrah Agency",
+      "hajj": "Hajj Agency",
+      "travel": "Travel Agency",
+      "tour_operator": "Tour Operator",
+      "corporate": "Corporate Travel",
+      "event": "Event Organizer",
+      "sports": "Sports Team",
+      "school": "School / University",
+      "government": "Government Entity",
+      "other": "Other"
+    }
+  }
+}

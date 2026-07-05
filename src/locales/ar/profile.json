@@ -1,0 +1,136 @@
+{
+  "profile": {
+    "metaTitle": "ملفي الشخصي - GroupToStay",
+    "title": "ملفي الشخصي",
+    "subtitle": "إدارة بيانات التواصل الشخصية والبريد الإلكتروني للحساب.",
+    "personalInfo": "المعلومات الشخصية",
+    "fullName": "الاسم الكامل",
+    "phone": "رقم الهاتف",
+    "country": "الدولة",
+    "countryLockedHint": "تُحدَّد الدولة عند التسجيل ولا يمكن تغييرها من هنا.",
+    "contactEmail": "بريد التواصل",
+    "contactEmailHint": "البريد الظاهر للوكالات.",
+    "orgName": "الاسم المعروض أو العلامة التجارية",
+    "email": "البريد الإلكتروني",
+    "save": "حفظ",
+    "savedToast": "تم تحديث الملف الشخصي.",
+    "loginEmail": "بريد تسجيل الدخول",
+    "loginEmailHint": "سيؤدي تغييره إلى إرسال رابط تأكيد إلى العنوان الجديد.",
+    "changeEmail": "تغيير البريد الإلكتروني",
+    "emailChangeSent": "تم إرسال رسالة التأكيد. تحقق من بريدك الجديد.",
+    "companyInfo": "بيانات الشركة (للقراءة فقط)",
+    "companyLockedHint": "يتم قفل اسم الشركة والرقم الضريبي والسجل التجاري بعد التوثيق. تواصل مع الدعم لطلب تعديلها.",
+    "companyName": "اسم الشركة",
+    "vatNumber": "الرقم الضريبي",
+    "crNumber": "السجل التجاري",
+    "idNumber": "رقم الهوية",
+    "admin": {
+      "title": "حساب المسؤول",
+      "description": "معلومات حساب للقراءة فقط.",
+      "name": "الاسم"
+    },
+    "agency": {
+      "metaTitle": "ملف الوكالة - GroupToStay",
+      "title": "ملف الوكالة",
+      "description": "جميع المعلومات سرية وتُستخدم لأغراض التوثيق فقط. المستندات متاحة للمسؤولين وحدهم.",
+      "sections": {
+        "companyInfo": "معلومات الشركة",
+        "businessRegistration": "التسجيل التجاري",
+        "contactPerson": "مسؤول التواصل",
+        "businessInfo": "معلومات النشاط",
+        "billingInfo": "معلومات الفوترة",
+        "legalAgreements": "الإقرارات القانونية"
+      },
+      "fields": {
+        "legalCompanyName": "الاسم القانوني للشركة",
+        "tradeName": "الاسم التجاري",
+        "fullAddress": "العنوان الكامل",
+        "website": "الموقع الإلكتروني",
+        "websitePlaceholder": "https://",
+        "yearEstablished": "سنة التأسيس",
+        "employees": "عدد الموظفين",
+        "crNumber": "رقم السجل التجاري",
+        "crExpiryDate": "تاريخ انتهاء السجل التجاري",
+        "issuingAuthority": "جهة الإصدار",
+        "tourismLicenseNumber": "رقم الترخيص السياحي",
+        "tourismLicenseAuthority": "جهة الترخيص السياحي",
+        "crDocument": "مستند السجل التجاري",
+        "tourismLicenseDocument": "مستند الترخيص السياحي",
+        "fullName": "الاسم الكامل",
+        "position": "المنصب",
+        "whatsapp": "واتساب",
+        "agencyType": "نوع الوكالة",
+        "annualBookings": "حجوزات المجموعات السنوية",
+        "averageRooms": "متوسط الغرف لكل حجز",
+        "legalBillingName": "اسم الفوترة القانوني",
+        "vatNumber": "الرقم الضريبي",
+        "billingAddress": "عنوان الفوترة",
+        "billingEmail": "بريد الفوترة"
+      },
+      "agencyTypes": {
+        "travel": "وكالة سفر",
+        "tourOperator": "منظم رحلات",
+        "dmc": "شركة إدارة وجهات (DMC)",
+        "hajjUmrah": "شركة حج وعمرة",
+        "event": "منظم فعاليات",
+        "corporate": "سفر الشركات",
+        "sports": "سفر رياضي",
+        "government": "جهة حكومية",
+        "university": "جامعة",
+        "other": "أخرى"
+      },
+      "status": {
+        "verifiedTitle": "موثقة من GroupToStay",
+        "verifiedDescription": "وكالتك موثقة. لتحديث المعلومات، تواصل مع الدعم.",
+        "pendingTitle": "التوثيق قيد المراجعة",
+        "pendingDescription": "يراجع فريقنا طلبك، ويستغرق ذلك عادة يومًا إلى يومي عمل.",
+        "rejectedTitle": "تم رفض التوثيق",
+        "rejectedDescription": "يرجى تحديث المعلومات أدناه ثم إعادة الإرسال.",
+        "draftDescription": "أكمل جميع الحقول المطلوبة وأرسلها للتوثيق. لن تتمكن من نشر الطلبات أو التواصل مع الفنادق قبل اعتمادك."
+      },
+      "documentsHint": "الصيغ المقبولة: PDF وJPG وPNG بحد أقصى 10 ميجابايت. المستندات متاحة لمسؤولي GroupToStay فقط.",
+      "agreements": {
+        "accurate": "أؤكد أن جميع المعلومات المقدمة صحيحة.",
+        "terms": "أوافق على الشروط والأحكام.",
+        "privacy": "أوافق على سياسة الخصوصية.",
+        "falseInfo": "أدرك أن تقديم معلومات غير صحيحة قد يؤدي إلى إيقاف الحساب."
+      },
+      "actions": {
+        "saveDraft": "حفظ المسودة",
+        "resubmit": "إعادة الإرسال للتوثيق",
+        "submit": "إرسال للتوثيق"
+      },
+      "upload": {
+        "uploading": "جارٍ الرفع…",
+        "replace": "استبدال",
+        "upload": "رفع",
+        "uploaded": "تم الرفع"
+      },
+      "toasts": {
+        "draftSaved": "تم حفظ المسودة",
+        "documentUploaded": "تم رفع المستند",
+        "submitted": "تم الإرسال للتوثيق"
+      },
+      "errors": {
+        "loadBoundary": "تعذر تحميل ملف الوكالة: {{message}}",
+        "notFound": "لم يتم العثور على ملف الوكالة.",
+        "loadFailed": "تعذر تحميل الملف",
+        "agencyOnly": "ملف الوكالة متاح لحسابات الوكالات فقط.",
+        "saveFailed": "تعذر الحفظ",
+        "fileType": "يُسمح بملفات PDF وJPG وPNG فقط",
+        "fileSize": "يجب ألا يتجاوز حجم الملف 10 ميجابايت",
+        "uploadFailed": "تعذر رفع الملف",
+        "legalAgreements": "يرجى الموافقة على جميع الإقرارات القانونية",
+        "submissionFailed": "تعذر الإرسال"
+      },
+      "validation": {
+        "legalCompanyName": "الاسم القانوني للشركة مطلوب",
+        "address": "العنوان مطلوب",
+        "crNumber": "رقم السجل التجاري مطلوب",
+        "crExpiry": "تاريخ انتهاء السجل التجاري مطلوب",
+        "issuingAuthority": "جهة الإصدار مطلوبة",
+        "crDocument": "يرجى رفع مستند السجل التجاري"
+      }
+    }
+  }
+}

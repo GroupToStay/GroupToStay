@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 export function WaitlistModal({
   open,
@@ -23,6 +24,7 @@ export function WaitlistModal({
   onOpenChange: (o: boolean) => void;
   plan: "professional" | "featured";
 }) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -66,9 +68,7 @@ export function WaitlistModal({
         requested_plan: plan,
       });
       if (error) throw error;
-      toast.success(
-        "You have been added to the subscription waiting list. We will notify you as soon as subscription payments become available.",
-      );
+      toast.success(t("forms.waitlist.success"));
       onOpenChange(false);
     } catch (err: any) {
       toast.error(err.message);
@@ -81,14 +81,19 @@ export function WaitlistModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Join Subscription Waitlist</DialogTitle>
+          <DialogTitle>{t("forms.waitlist.title")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Requested plan: <span className="font-medium capitalize">{plan} Hotel</span>
+            {t("forms.waitlist.requestedPlan")}{" "}
+            <span className="font-medium capitalize">
+              {t("forms.waitlist.hotelPlan", {
+                plan: t(`pricing.subscriptions.${plan}Title`),
+              })}
+            </span>
           </p>
           <div>
-            <Label>Full Name</Label>
+            <Label>{t("forms.waitlist.fullName")}</Label>
             <Input
               required
               value={fullName}
@@ -97,7 +102,7 @@ export function WaitlistModal({
             />
           </div>
           <div>
-            <Label>Email Address</Label>
+            <Label>{t("forms.waitlist.email")}</Label>
             <Input
               type="email"
               required
@@ -107,7 +112,7 @@ export function WaitlistModal({
             />
           </div>
           <div>
-            <Label>Hotel Name</Label>
+            <Label>{t("forms.waitlist.hotelName")}</Label>
             <Input
               value={hotelName}
               onChange={(e) => setHotelName(e.target.value)}
@@ -116,7 +121,7 @@ export function WaitlistModal({
           </div>
           <DialogFooter>
             <Button type="submit" variant="gold" disabled={submitting}>
-              {submitting ? "Joining…" : "Join Waitlist"}
+              {submitting ? t("forms.waitlist.joining") : t("forms.waitlist.join")}
             </Button>
           </DialogFooter>
         </form>

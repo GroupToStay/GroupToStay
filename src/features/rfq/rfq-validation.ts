@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ACCOMMODATION_TYPES, MEAL_PLANS, HOTEL_CATEGORIES, REQUIREMENTS_MAX } from "./rfq-options";
+import i18n from "@/lib/i18n";
 
 export const RfqSchema = z.object({
   title: z.string().min(3).max(160),
@@ -14,8 +15,8 @@ export const RfqSchema = z.object({
     "event",
     "other",
   ]),
-  destination_country_id: z.string().uuid({ message: "Please select a country." }),
-  destination_city_id: z.string().uuid({ message: "Please select a city." }),
+  destination_country_id: z.string().uuid({ message: i18n.t("validation.rfq.country") }),
+  destination_city_id: z.string().uuid({ message: i18n.t("validation.rfq.city") }),
   check_in: z.string().min(1),
   check_out: z.string().min(1),
   guests_count: z.number().int().min(1).max(100000),
@@ -37,11 +38,10 @@ export function validateDestination(form: {
   destination_city_id: string | null;
 }): string | null {
   if (form.title !== undefined) {
-    if (!form.title.trim() || form.title.trim().length < 3)
-      return "Please enter a request title (min 3 characters).";
+    if (!form.title.trim() || form.title.trim().length < 3) return i18n.t("validation.rfq.title");
   }
-  if (!form.destination_country_id) return "Please select a destination country.";
-  if (!form.destination_city_id) return "Please select a destination city.";
+  if (!form.destination_country_id) return i18n.t("validation.rfq.destinationCountry");
+  if (!form.destination_city_id) return i18n.t("validation.rfq.destinationCity");
   return null;
 }
 
@@ -51,17 +51,17 @@ export function validateDatesAndCounts(form: {
   guests_count: number;
   rooms_needed: number;
 }): string | null {
-  if (!form.check_in) return "Please select a check-in date.";
-  if (!form.check_out) return "Please select a check-out date.";
+  if (!form.check_in) return i18n.t("validation.rfq.checkIn");
+  if (!form.check_out) return i18n.t("validation.rfq.checkOut");
   const ci = new Date(form.check_in);
   const co = new Date(form.check_out);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  if (ci < today) return "Check-in cannot be in the past.";
-  if (co <= ci) return "Check-out must be after check-in.";
+  if (ci < today) return i18n.t("validation.rfq.checkInPast");
+  if (co <= ci) return i18n.t("validation.rfq.checkoutAfterCheckin");
   if (!(form.guests_count > 0) || form.guests_count > 100000)
-    return "Number of guests must be between 1 and 100,000.";
+    return i18n.t("validation.rfq.guestsRange");
   if (!(form.rooms_needed > 0) || form.rooms_needed > 10000)
-    return "Number of rooms must be between 1 and 10,000.";
+    return i18n.t("validation.rfq.roomsRange");
   return null;
 }

@@ -1,5 +1,6 @@
 import { Textarea } from "@/components/ui/textarea";
-import { REQUIREMENTS_MAX, REQUIREMENTS_PLACEHOLDER } from "./rfq-options";
+import { REQUIREMENTS_MAX } from "./rfq-options";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   value: string;
@@ -10,6 +11,8 @@ type Props = {
 
 /** Shared optional Requirements textarea with auto-expand and preserved line breaks. */
 export function RfqRequirementsField({ value, onChange, rows = 6, className }: Props) {
+  const { t } = useTranslation();
+
   return (
     <Textarea
       rows={rows}
@@ -21,7 +24,7 @@ export function RfqRequirementsField({ value, onChange, rows = 6, className }: P
         el.style.height = "auto";
         el.style.height = `${el.scrollHeight}px`;
       }}
-      placeholder={REQUIREMENTS_PLACEHOLDER}
+      placeholder={t("rfq.fields.requirementsPlaceholder")}
       className={"whitespace-pre-wrap " + (className ?? "")}
     />
   );

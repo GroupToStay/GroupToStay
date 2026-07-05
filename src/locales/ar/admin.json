@@ -1,0 +1,591 @@
+{
+  "admin": {
+    "title": "مراجعة المسؤول",
+    "tabs": {
+      "companies": "شركات الفنادق",
+      "hotels": "منشآت الفنادق"
+    },
+    "approve": "اعتماد",
+    "reject": "رفض",
+    "suspend": "إيقاف",
+    "decisionSaved": "تم حفظ القرار.",
+    "notesPh": "ملاحظة داخلية (اختيارية وتُشارك مع مالك الفندق)",
+    "empty": "لا توجد عناصر للمراجعة.",
+    "common": {
+      "openActions": "فتح الإجراءات",
+      "resetFilters": "إعادة ضبط عوامل التصفية",
+      "decisionSaved": "تم حفظ القرار",
+      "decisionFailed": "تعذر حفظ القرار",
+      "actions": {
+        "viewDetails": "عرض التفاصيل",
+        "approve": "اعتماد",
+        "reject": "رفض",
+        "suspend": "إيقاف",
+        "reconsider": "إعادة النظر",
+        "requestMoreInfo": "طلب معلومات إضافية"
+      }
+    },
+    "pagination": {
+      "showing": "عرض",
+      "of": "من",
+      "rowsPerPage": "الصفوف في الصفحة",
+      "previous": "السابق",
+      "next": "التالي"
+    },
+    "users": {
+      "metaTitle": "المستخدمون - المسؤول",
+      "title": "إدارة المستخدمين",
+      "description": "إدارة جميع المستخدمين المسجلين والأدوار وحالة التوثيق والحساب.",
+      "searchPlaceholder": "ابحث بالاسم أو البريد أو الشركة أو الهاتف",
+      "loading": "جارٍ تحميل المستخدمين...",
+      "filters": {
+        "allRoles": "جميع الأدوار",
+        "visitors": "الزوار",
+        "agencies": "الوكالات",
+        "hotels": "الفنادق",
+        "administrators": "المسؤولون",
+        "allVerification": "جميع حالات التوثيق",
+        "verifiedApproved": "موثّق أو معتمد",
+        "allAccountStatus": "جميع حالات الحساب",
+        "allCountries": "جميع الدول"
+      },
+      "metrics": {
+        "allUsers": {
+          "label": "جميع المستخدمين",
+          "description": "الحسابات المسجلة"
+        },
+        "agencies": {
+          "label": "الوكالات",
+          "description": "المشترون في السوق"
+        },
+        "hotels": {
+          "label": "الفنادق",
+          "description": "الموردون في السوق"
+        },
+        "admins": {
+          "label": "المسؤولون",
+          "description": "مستخدمو الإدارة"
+        },
+        "active": {
+          "label": "نشط",
+          "description": "الحسابات النشطة حاليًا"
+        }
+      },
+      "table": {
+        "user": "المستخدم",
+        "company": "الشركة",
+        "phone": "الهاتف",
+        "role": "الدور",
+        "verification": "التوثيق",
+        "account": "الحساب",
+        "country": "الدولة",
+        "joined": "تاريخ الانضمام",
+        "actions": "الإجراءات"
+      },
+      "actions": {
+        "viewProfile": "عرض الملف",
+        "editUser": "تعديل المستخدم",
+        "viewActivity": "عرض النشاط",
+        "viewVerification": "عرض التوثيق",
+        "activateUser": "تنشيط المستخدم",
+        "suspendUser": "إيقاف المستخدم",
+        "disableAccount": "تعطيل الحساب",
+        "resetPassword": "إعادة تعيين كلمة المرور"
+      },
+      "dialog": {
+        "userId": "معرف المستخدم: {{id}}",
+        "editTitle": "تعديل ملف المستخدم",
+        "editDescription": "تحديث حقول الملف العامة لهذا الحساب.",
+        "activityTitle": "النشاط - {{name}}",
+        "activityDescription": "ملخص النشاط الأخير من جداول السوق.",
+        "verificationTitle": "التوثيق - {{name}}",
+        "verificationDescription": "حالة التوثيق والاعتماد لهذا الحساب."
+      },
+      "fields": {
+        "fullName": "الاسم الكامل",
+        "companyName": "اسم الشركة",
+        "contactEmail": "بريد التواصل",
+        "phoneNumber": "رقم الهاتف",
+        "email": "البريد الإلكتروني"
+      },
+      "details": {
+        "agencyVerification": "توثيق الوكالة",
+        "hotelApproval": "اعتماد الفندق",
+        "trustLevel": "مستوى الثقة",
+        "reviewedAt": "تاريخ المراجعة",
+        "submittedAt": "تاريخ الإرسال",
+        "accountStatus": "حالة الحساب",
+        "registrationDate": "تاريخ التسجيل",
+        "lastLogin": "آخر تسجيل دخول",
+        "userId": "معرف المستخدم"
+      },
+      "activity": {
+        "loading": "جارٍ تحميل النشاط...",
+        "rfqsCreated": "طلبات عروض الأسعار المنشأة",
+        "hotelsOwned": "الفنادق المملوكة",
+        "messagesSent": "الرسائل المرسلة",
+        "notifications": "الإشعارات",
+        "verificationEvents": "أحداث التوثيق"
+      },
+      "empty": {
+        "title": "لم يتم العثور على مستخدمين",
+        "description": "لا توجد حسابات مسجلة تطابق عوامل التصفية."
+      },
+      "toasts": {
+        "accountStatusUpdated": "تم تحديث حالة الحساب",
+        "profileUpdated": "تم تحديث الملف",
+        "passwordResetSent": "تم إرسال رسالة إعادة تعيين كلمة المرور"
+      },
+      "errors": {
+        "loadFailed": "تعذر تحميل بيانات إدارة المستخدمين.",
+        "accountStatusUpdateFailed": "تعذر تحديث حالة الحساب",
+        "profileUpdateFailed": "تعذر تحديث الملف",
+        "passwordResetFailed": "تعذرت إعادة تعيين كلمة المرور"
+      },
+      "fallbacks": {
+        "unnamedUser": "مستخدم بلا اسم",
+        "notAssigned": "غير معيّن",
+        "requiresAuthAdmin": "يتطلب مسؤول مصادقة Supabase"
+      }
+    },
+    "groupRequests": {
+      "metaTitle": "طلبات المجموعات - المسؤول",
+      "title": "طلبات المجموعات (RFQ)",
+      "description": "إدارة جميع طلبات الإقامة التي أنشأتها الوكالات.",
+      "searchPlaceholder": "ابحث بالمعرف أو الوكالة أو الوجهة أو المدينة",
+      "loading": "جارٍ تحميل الطلبات...",
+      "confirmDelete": "هل تريد حذف هذا الطلب نهائيًا؟",
+      "filters": {
+        "allStatus": "جميع الحالات"
+      },
+      "sort": {
+        "newest": "الأحدث أولًا",
+        "oldest": "الأقدم أولًا",
+        "guests": "الضيوف",
+        "destination": "الوجهة"
+      },
+      "metrics": {
+        "allRequests": {
+          "label": "جميع الطلبات",
+          "description": "إجمالي طلبات عروض الأسعار"
+        },
+        "pending": {
+          "description": "بانتظار العروض أو المراجعة"
+        },
+        "open": {
+          "description": "تستقبل عروضًا حاليًا"
+        },
+        "closed": {
+          "description": "مكتملة أو تمت ترسيتها"
+        },
+        "cancelled": {
+          "description": "طلبات ملغاة"
+        }
+      },
+      "table": {
+        "rfq": "طلب العرض",
+        "agency": "الوكالة",
+        "destination": "الوجهة",
+        "guestsRooms": "الضيوف / الغرف",
+        "categories": "الفئات",
+        "status": "الحالة",
+        "quotes": "العروض",
+        "updated": "آخر تحديث",
+        "actions": "الإجراءات",
+        "guestsCount_zero": "{{count}} ضيوف",
+        "guestsCount_one": "{{count}} ضيف",
+        "guestsCount_two": "{{count}} ضيفان",
+        "guestsCount_few": "{{count}} ضيوف",
+        "guestsCount_many": "{{count}} ضيفًا",
+        "guestsCount_other": "{{count}} ضيف",
+        "roomsCount_zero": "{{count}} غرف",
+        "roomsCount_one": "{{count}} غرفة",
+        "roomsCount_two": "{{count}} غرفتان",
+        "roomsCount_few": "{{count}} غرف",
+        "roomsCount_many": "{{count}} غرفة",
+        "roomsCount_other": "{{count}} غرفة"
+      },
+      "actions": {
+        "viewRequest": "عرض الطلب",
+        "viewQuotations": "عرض عروض الأسعار",
+        "viewAgency": "عرض الوكالة",
+        "closeRequest": "إغلاق الطلب",
+        "suspendRequest": "إيقاف الطلب",
+        "deleteRequest": "حذف الطلب"
+      },
+      "dialog": {
+        "requestId": "معرف الطلب: {{id}}",
+        "quotationsTitle": "عروض الأسعار للطلب {{title}}",
+        "quotationsReceived_zero": "لم يتم استلام عروض أسعار.",
+        "quotationsReceived_one": "تم استلام {{count}} عرض سعر.",
+        "quotationsReceived_two": "تم استلام {{count}} عرضي سعر.",
+        "quotationsReceived_few": "تم استلام {{count}} عروض أسعار.",
+        "quotationsReceived_many": "تم استلام {{count}} عرض سعر.",
+        "quotationsReceived_other": "تم استلام {{count}} عرض سعر.",
+        "agencyDescription": "ملف الوكالة المرتبط بطلب عرض السعر."
+      },
+      "details": {
+        "created": "تاريخ الإنشاء",
+        "lastUpdate": "آخر تحديث",
+        "noRequirements": "لم تُذكر متطلبات."
+      },
+      "fallbacks": {
+        "unknownAgency": "وكالة غير معروفة"
+      },
+      "quotes": {
+        "quoteId": "العرض {{id}}",
+        "amountSubmitted": "{{amount}} - أُرسل في {{date}}"
+      },
+      "empty": {
+        "title": "لا توجد طلبات متاحة",
+        "description": "لا توجد طلبات إقامة جماعية تطابق عوامل التصفية.",
+        "noQuotationsTitle": "لا توجد عروض أسعار",
+        "noQuotationsDescription": "لم يقدم أي فندق عرض سعر لهذا الطلب حتى الآن."
+      },
+      "toasts": {
+        "updated": "تم تحديث الطلب",
+        "deleted": "تم حذف الطلب"
+      },
+      "errors": {
+        "loadFailed": "تعذر تحميل بيانات إدارة طلبات عروض الأسعار.",
+        "updateFailed": "تعذر تحديث الطلب",
+        "deleteFailed": "تعذر حذف الطلب"
+      }
+    },
+    "hotelCompanies": {
+      "metaTitle": "شركات الفنادق - المسؤول",
+      "title": "شركات الفنادق",
+      "description": "اعتماد طلبات شركات الفنادق أو رفضها ومراجعتها.",
+      "searchPlaceholder": "ابحث بالشركة أو جهة التواصل أو الدولة أو نظام الإدارة",
+      "loading": "جارٍ تحميل شركات الفنادق...",
+      "table": {
+        "company": "الشركة",
+        "contact": "جهة التواصل",
+        "pms": "نظام الإدارة",
+        "status": "الحالة",
+        "created": "تاريخ الإنشاء",
+        "actions": "الإجراءات"
+      },
+      "details": {
+        "companyName": "اسم الشركة",
+        "contactName": "اسم جهة التواصل",
+        "vatNumber": "الرقم الضريبي",
+        "crNumber": "رقم السجل التجاري",
+        "apiAvailable": "توفر واجهة برمجة التطبيقات",
+        "technicalContact": "مسؤول التواصل التقني",
+        "technicalEmail": "البريد التقني",
+        "technicalPhone": "الهاتف التقني",
+        "approvalNotes": "ملاحظات الاعتماد",
+        "approvalNotesPlaceholder": "ملاحظات مراجعة اختيارية"
+      },
+      "empty": {
+        "title": "لا توجد عناصر للمراجعة.",
+        "description": "لا توجد طلبات شركات فنادق تطابق عوامل التصفية."
+      },
+      "fallbacks": {
+        "hotelCompany": "شركة فندقية"
+      },
+      "pms": {
+        "title": "إحصاءات أنظمة إدارة الفنادق",
+        "description": "شركات الفنادق المعتمدة حسب نظام إدارة الفنادق.",
+        "noPms": "لا يوجد نظام",
+        "notSpecified": "غير محدد",
+        "otherWithName": "آخر ({{name}})",
+        "providers": {
+          "no_pms": "لا يوجد نظام",
+          "not_specified": "غير محدد",
+          "mycloud_pms": "MyCloud PMS",
+          "oracle_opera_pms": "Oracle Opera PMS",
+          "cloudbeds": "Cloudbeds",
+          "mews": "Mews",
+          "ezee_absolute": "eZee Absolute",
+          "hotelogix": "Hotelogix",
+          "protel": "Protel",
+          "other": "آخر"
+        }
+      }
+    },
+    "hotelListings": {
+      "metaTitle": "منشآت الفنادق - المسؤول",
+      "title": "منشآت الفنادق",
+      "description": "اعتماد منشآت الفنادق الفردية أو إيقافها ومراجعتها.",
+      "searchPlaceholder": "ابحث بالفندق أو المدينة أو الدولة أو التقييم",
+      "loading": "جارٍ تحميل منشآت الفنادق...",
+      "table": {
+        "hotel": "الفندق",
+        "location": "الموقع",
+        "rating": "التقييم",
+        "status": "الحالة",
+        "created": "تاريخ الإنشاء",
+        "actions": "الإجراءات"
+      },
+      "details": {
+        "hotelName": "اسم الفندق",
+        "archived": "مؤرشف",
+        "ownerId": "معرف المالك",
+        "description": "الوصف",
+        "stars_zero": "دون تقييم",
+        "stars_one": "{{count}} نجمة",
+        "stars_two": "{{count}} نجمتان",
+        "stars_few": "{{count}} نجوم",
+        "stars_many": "{{count}} نجمة",
+        "stars_other": "{{count}} نجمة"
+      },
+      "actions": {
+        "viewHotel": "عرض الفندق",
+        "openHotelPage": "فتح صفحة الفندق"
+      },
+      "fallbacks": {
+        "noDescription": "لا يوجد وصف",
+        "noDescriptionProvided": "لم يتم تقديم وصف.",
+        "noRating": "دون تقييم"
+      },
+      "empty": {
+        "title": "لا توجد منشآت فندقية",
+        "description": "لا توجد منشآت فندقية تطابق عوامل التصفية حاليًا."
+      }
+    },
+    "agencyVerifications": {
+      "metaTitle": "توثيق الوكالات - المسؤول",
+      "title": "توثيق الوكالات",
+      "description": "مراجعة ملفات الوكالات المقدمة ومستنداتها وسجل التوثيق.",
+      "searchPlaceholder": "ابحث بالوكالة أو الدولة أو النوع أو البريد أو الهاتف",
+      "loading": "جارٍ تحميل الوكالات...",
+      "reviewNote": "ملاحظة المراجعة أو سبب الرفض",
+      "reviewNotePlaceholder": "مطلوب عند الرفض أو طلب معلومات إضافية",
+      "table": {
+        "agency": "الوكالة",
+        "location": "الموقع",
+        "agencyType": "نوع الوكالة",
+        "contact": "جهة التواصل",
+        "status": "الحالة",
+        "submitted": "تاريخ الإرسال",
+        "actions": "الإجراءات"
+      },
+      "sections": {
+        "companyInfo": "معلومات الشركة",
+        "businessRegistration": "التسجيل التجاري",
+        "contactPerson": "مسؤول التواصل",
+        "businessBilling": "النشاط والفوترة",
+        "verificationHistory": "سجل التوثيق"
+      },
+      "details": {
+        "legalName": "الاسم القانوني",
+        "tradeName": "الاسم التجاري",
+        "address": "العنوان",
+        "website": "الموقع الإلكتروني",
+        "yearEstablished": "سنة التأسيس",
+        "employees": "الموظفون",
+        "crNumber": "رقم السجل التجاري",
+        "crExpiry": "انتهاء السجل التجاري",
+        "issuingAuthority": "جهة الإصدار",
+        "tourismLicense": "الترخيص السياحي",
+        "name": "الاسم",
+        "position": "المنصب",
+        "whatsapp": "واتساب",
+        "annualBookings": "الحجوزات السنوية",
+        "averageRooms": "متوسط الغرف لكل حجز",
+        "legalBillingName": "اسم الفوترة القانوني",
+        "billingEmail": "بريد الفوترة",
+        "billingAddress": "عنوان الفوترة"
+      },
+      "documents": {
+        "commercialRegistration": "السجل التجاري",
+        "tourismLicense": "الترخيص السياحي",
+        "notUploaded": "{{label}}: لم يتم الرفع"
+      },
+      "history": {
+        "noEvents": "لا توجد أحداث حتى الآن.",
+        "reason": "السبب"
+      },
+      "actions": {
+        "requestMoreInfo": "طلب معلومات إضافية"
+      },
+      "empty": {
+        "title": "لا توجد طلبات",
+        "description": "لا توجد طلبات توثيق وكالات تطابق عوامل التصفية."
+      },
+      "toasts": {
+        "verified": "تم توثيق الوكالة",
+        "rejected": "تم رفض الوكالة",
+        "infoRequested": "تم طلب معلومات إضافية"
+      },
+      "errors": {
+        "reasonRequired": "يرجى كتابة سبب أو ملاحظة",
+        "actionFailed": "تعذر تنفيذ الإجراء",
+        "documentOpenFailed": "تعذر فتح المستند"
+      },
+      "fallbacks": {
+        "untitledAgency": "وكالة بلا اسم"
+      }
+    },
+    "settings": {
+      "metaTitle": "الإعدادات - الإدارة",
+      "title": "الإعدادات",
+      "description": "إعدادات حساب المسؤول والمنصة.",
+      "profile": {
+        "title": "إعدادات ملف المسؤول",
+        "description": "إدارة ملف المسؤول الحالي وبيانات الاتصال والبريد الإلكتروني للحساب من خلال مسار إعدادات الملف القائم.",
+        "action": "فتح إعدادات الملف"
+      }
+    },
+    "subscriptionInterest": {
+      "metaTitle": "طلبات الاشتراك - الإدارة",
+      "title": "طلبات الاشتراك",
+      "description": "الفنادق المنضمة إلى قائمة انتظار الخطط المميزة."
+    },
+    "subscriptions": {
+      "metaTitle": "الاشتراكات - الإدارة",
+      "title": "الاشتراكات",
+      "description": "إدارة الفوترة والخطط النشطة.",
+      "empty": {
+        "title": "قريبًا",
+        "description": "ستتوفر وحدة فوترة الاشتراكات بعد إطلاق نظام المدفوعات.",
+        "status": "غير مفعّلة بعد"
+      }
+    },
+    "overview": {
+      "metaTitle": "لوحة تحكم المسؤول - GroupToStay",
+      "console": "وحدة تحكم المسؤول",
+      "title": "نظرة عامة على المنصة",
+      "description": "إدارة الفنادق والمنشآت والوكالات والطلبات ونمو المنصة من مكان واحد.",
+      "quickActions": "إجراءات سريعة",
+      "recentActivity": "النشاط الأخير",
+      "noRecentActivity": "لا يوجد نشاط حديث.",
+      "sections": {
+        "hotels": "الفنادق",
+        "listings": "المنشآت",
+        "users": "المستخدمون",
+        "subscriptions": "الاشتراكات",
+        "requests": "الطلبات",
+        "revenue": "الإيرادات"
+      },
+      "metrics": {
+        "totalHotelCompanies": "إجمالي شركات الفنادق",
+        "approvedHotels": "الفنادق المعتمدة",
+        "pendingHotels": "الفنادق قيد المراجعة",
+        "rejectedHotels": "الفنادق المرفوضة",
+        "totalListings": "إجمالي المنشآت",
+        "activeListings": "المنشآت النشطة",
+        "pendingListings": "المنشآت قيد المراجعة",
+        "totalAgencies": "إجمالي الوكالات",
+        "totalHotelAccounts": "إجمالي حسابات الفنادق",
+        "activeSubscriptions": "الاشتراكات النشطة",
+        "pendingSubscriptionRequests": "طلبات الاشتراك المعلقة",
+        "pendingHotelReviews": "مراجعات الفنادق المعلقة",
+        "activeAgencyAccounts": "حسابات الوكالات النشطة",
+        "openGroupRequests": "طلبات المجموعات المفتوحة",
+        "submittedQuotations": "عروض الأسعار المقدمة",
+        "confirmedDeals": "الصفقات المؤكدة",
+        "subscriptionInterestLeads": "عملاء محتملون للاشتراك",
+        "totalPlatformUsers": "إجمالي مستخدمي المنصة",
+        "totalRequests": "إجمالي الطلبات",
+        "activeOpen": "نشط (مفتوح)",
+        "totalHotelUsers": "إجمالي مستخدمي الفنادق"
+      },
+      "actions": {
+        "hotelCompanies": "مراجعة شركات الفنادق واعتمادها.",
+        "hotelListings": "مراجعة منشآت الفنادق.",
+        "agencyVerifications": "مراجعة طلبات توثيق الوكالات.",
+        "groupRequests": "مراجعة طلبات عروض الأسعار في السوق.",
+        "users": "مراجعة حسابات المستخدمين وأدوارهم.",
+        "subscriptionInterest": "الفنادق المهتمة بالاشتراكات.",
+        "subscriptions": "وحدة فوترة الاشتراكات.",
+        "settings": "إعدادات المنصة والملف.",
+        "review": "مراجعة",
+        "open": "فتح",
+        "view": "عرض",
+        "reviewHotelCompanies": "مراجعة شركات الفنادق",
+        "reviewHotelListings": "مراجعة منشآت الفنادق",
+        "reviewSubscriptionInterest": "مراجعة طلبات الاشتراك",
+        "viewAllUsers": "عرض جميع المستخدمين",
+        "viewGroupRequests": "عرض طلبات المجموعات",
+        "platformSettings": "إعدادات المنصة",
+        "hotelCompaniesTitle": "شركات الفنادق",
+        "hotelListingsTitle": "منشآت الفنادق",
+        "groupRequestsTitle": "طلبات المجموعات",
+        "usersTitle": "المستخدمون",
+        "subscriptionInterestTitle": "طلبات الاشتراك",
+        "subscriptionsTitle": "الاشتراكات",
+        "settingsTitle": "الإعدادات"
+      },
+      "activity": {
+        "hotelApproved": "تم اعتماد الفندق: {{name}}",
+        "hotelRejected": "تم رفض الفندق: {{name}}",
+        "newListing": "منشأة جديدة: {{name}}",
+        "subscriptionRequest": "طلب اشتراك ({{plan}}) - {{name}}",
+        "hotelListing": "منشأة فندقية: {{name}}",
+        "newRegistration": "تسجيل جديد: {{name}}",
+        "newGroupRequest": "طلب مجموعة جديد: {{title}}",
+        "newQuotationSubmitted": "تم تقديم عرض سعر جديد",
+        "subscriptionInterest": "اهتمام بالاشتراك: {{name}}",
+        "fallbackUser": "مستخدم",
+        "fallbackLead": "عميل محتمل"
+      },
+      "requiresAttention": "يتطلب الانتباه",
+      "platformHealth": "حالة المنصة",
+      "itemCount_zero": "{{count}} عناصر",
+      "itemCount_one": "{{count}} عنصر",
+      "itemCount_two": "{{count}} عنصران",
+      "itemCount_few": "{{count}} عناصر",
+      "itemCount_many": "{{count}} عنصرًا",
+      "itemCount_other": "{{count}} عنصر",
+      "attention": {
+        "hotelsAwaitingApproval": "فنادق بانتظار الاعتماد",
+        "companiesAwaitingVerification": "شركات بانتظار التوثيق",
+        "subscriptionInterestLeads": "عملاء محتملون للاشتراك"
+      },
+      "health": {
+        "activeHotels": "الفنادق النشطة",
+        "hotelsWithPms": "فنادق لديها تكامل مع نظام الإدارة",
+        "hotelsWithoutPms": "فنادق دون نظام إدارة",
+        "agenciesActiveThisMonth": "وكالات نشطة هذا الشهر",
+        "openRequestsThisMonth": "طلبات مفتوحة هذا الشهر",
+        "avgQuotationsPerRequest": "متوسط عروض الأسعار لكل طلب"
+      },
+      "welcomeAdmin": "مرحبًا أيها المسؤول",
+      "legacyDescription": "إدارة الفنادق والاشتراكات والاعتمادات وأداء المنصة.",
+      "notActiveYet": "غير نشط بعد"
+    },
+    "legacy": {
+      "metaTitle": "المسؤول - GroupToStay",
+      "redirectComment": "تعيد لوحة المسؤول القديمة التوجيه إلى الصفحات المخصصة الجديدة.",
+      "stats": {
+        "pendingReviews": "المراجعات المعلقة",
+        "approvedListings": "المنشآت المعتمدة",
+        "rejectedSuspended": "مرفوضة أو موقوفة",
+        "activeHotelAccounts": "حسابات الفنادق النشطة"
+      },
+      "companiesEmpty": "لا توجد طلبات شركات فنادق تطابق عامل التصفية.",
+      "pmsStatistics": "إحصاءات أنظمة إدارة الفنادق",
+      "pmsStatisticsDescription": "شركات الفنادق المعتمدة حسب نظام إدارة الفنادق.",
+      "noPms": "لا يوجد نظام إدارة",
+      "notSpecified": "غير محدد",
+      "company": {
+        "pmsInformation": "معلومات نظام إدارة الفندق",
+        "usesPms": "يستخدم نظام إدارة فندق",
+        "provider": "المزوّد",
+        "approvedLocked": "معتمد - مقفل"
+      },
+      "hotels": {
+        "finalArchived": "نهائي - مؤرشف"
+      },
+      "interest": {
+        "plan": "الخطة",
+        "status": "الحالة",
+        "allStatuses": "الكل",
+        "plans": {
+          "all": "الكل",
+          "professional": "احترافية",
+          "featured": "مميزة"
+        },
+        "emptyTitle": "لا توجد إدخالات في قائمة الانتظار",
+        "emptyDescription": "ستظهر هنا الفنادق التي تسجّل اهتمامها بإحدى الخطط المدفوعة.",
+        "hotel": "الفندق",
+        "registered": "تاريخ التسجيل",
+        "markNotified": "تحديد كمُبلّغ",
+        "markedNotified": "تم تحديده كمُبلّغ"
+      }
+    }
+  }
+}

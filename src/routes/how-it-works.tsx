@@ -3,21 +3,20 @@ import { useTranslation } from "react-i18next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Card, CardContent } from "@/components/ui/card";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
     meta: [
-      { title: "How it works — GroupToStay" },
+      { title: i18n.t("how.metaTitle") },
       {
         name: "description",
-        content:
-          "From Group Request to confirmed group booking in three steps. See how GroupToStay sources competing hotel quotations.",
+        content: i18n.t("how.metaDescription"),
       },
-      { property: "og:title", content: "How it works — GroupToStay" },
+      { property: "og:title", content: i18n.t("how.metaTitle") },
       {
         property: "og:description",
-        content:
-          "Post a Group Request, receive competing hotel quotations, and confirm the best offer in three steps.",
+        content: i18n.t("how.metaOgDescription"),
       },
       { property: "og:url", content: "https://groupstay-connect.lovable.app/how-it-works" },
     ],

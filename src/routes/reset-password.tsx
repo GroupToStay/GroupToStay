@@ -10,9 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: [{ title: "Reset password — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("auth.resetMetaTitle") }] }),
   component: Page,
 });
 
@@ -91,7 +92,7 @@ function Page() {
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
                       className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-muted-foreground hover:text-foreground"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>

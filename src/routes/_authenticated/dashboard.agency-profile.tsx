@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
@@ -24,29 +25,32 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { z } from "zod";
 import { AlertCircle, Clock, ShieldCheck, Upload, FileText } from "lucide-react";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/agency-profile")({
-  head: () => ({ meta: [{ title: "Agency Profile — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("profile.agency.metaTitle") }] }),
   component: Page,
   errorComponent: ({ error }) => (
     <div className="rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
-      Failed to load Agency Profile: {error?.message ?? "Unknown error"}
+      {i18n.t("profile.agency.errors.loadBoundary", {
+        message: error?.message ?? i18n.t("errors.unknown"),
+      })}
     </div>
   ),
-  notFoundComponent: () => <AccessDenied message="Agency Profile not found." />,
+  notFoundComponent: () => <AccessDenied message={i18n.t("profile.agency.errors.notFound")} />,
 });
 
 const AGENCY_TYPES = [
-  ["travel", "Travel Agency"],
-  ["tour_operator", "Tour Operator"],
-  ["dmc", "Destination Management Company (DMC)"],
-  ["hajj_umrah", "Hajj & Umrah Company"],
-  ["event", "Event Organizer"],
-  ["corporate", "Corporate Travel"],
-  ["sports", "Sports Travel"],
-  ["government", "Government Organization"],
-  ["university", "University"],
-  ["other", "Other"],
+  ["travel", "profile.agency.agencyTypes.travel"],
+  ["tour_operator", "profile.agency.agencyTypes.tourOperator"],
+  ["dmc", "profile.agency.agencyTypes.dmc"],
+  ["hajj_umrah", "profile.agency.agencyTypes.hajjUmrah"],
+  ["event", "profile.agency.agencyTypes.event"],
+  ["corporate", "profile.agency.agencyTypes.corporate"],
+  ["sports", "profile.agency.agencyTypes.sports"],
+  ["government", "profile.agency.agencyTypes.government"],
+  ["university", "profile.agency.agencyTypes.university"],
+  ["other", "profile.agency.agencyTypes.other"],
 ] as const;
 
 const BOOKINGS = ["<10", "10-50", "50-100", ">100"];
@@ -56,6 +60,7 @@ const EMPLOYEES = ["1-10", "11-50", "51-200", "200+"];
 type Profile = Record<string, any>;
 
 function Page() {
+  const { t } = useTranslation();
   const { user, loading: authLoading } = useAuth();
   const { isOrganizer, isAdmin, isHotel, loading: rolesLoading } = useRoles();
   const {
@@ -92,7 +97,7 @@ function Page() {
       if (cancelled) return;
       if (error) {
         console.error("[agency-profile] load error", error);
-        toast.error(error.message || "Failed to load profile");
+        toast.error(error.message || t("profile.agency.errors.loadFailed"));
       }
       // Normalize date to YYYY-MM-DD for <input type="date">
       const row: Profile = { ...(data ?? {}) };
@@ -109,7 +114,7 @@ function Page() {
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [t, user]);
 
   if (authLoading || rolesLoading || loading || !profile) {
     return (
@@ -122,10 +127,10 @@ function Page() {
     );
   }
   if (isHotel) {
-    return <AccessDenied message="Agency Profile is only available to agency accounts." />;
+    return <AccessDenied message={t("profile.agency.errors.agencyOnly")} />;
   }
   if (!isOrganizer && !isAdmin) {
-    return <AccessDenied message="Agency Profile is only available to agency accounts." />;
+    return <AccessDenied message={t("profile.agency.errors.agencyOnly")} />;
   }
 
   const readOnly = isPending || isVerified;
@@ -152,9 +157,9 @@ function Page() {
         .update(patch as any)
         .eq("id", user.id);
       if (error) throw error;
-      toast.success("Draft saved");
+      toast.success(t("profile.agency.toasts.draftSaved"));
     } catch (e: any) {
-      toast.error(e?.message ?? "Failed to save");
+      toast.error(e?.message ?? t("profile.agency.errors.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -163,8 +168,8 @@ function Page() {
   async function upload(kind: "cr" | "tl", file: File) {
     if (!user) return;
     const allowed = ["application/pdf", "image/jpeg", "image/png"];
-    if (!allowed.includes(file.type)) return toast.error("Only PDF, JPG, PNG allowed");
-    if (file.size > 10 * 1024 * 1024) return toast.error("File must be under 10 MB");
+    if (!allowed.includes(file.type)) return toast.error(t("profile.agency.errors.fileType"));
+    if (file.size > 10 * 1024 * 1024) return toast.error(t("profile.agency.errors.fileSize"));
     setUploading(kind);
     try {
       const ext = file.name.split(".").pop() ?? "bin";
@@ -179,22 +184,22 @@ function Page() {
         .from("profiles")
         .update({ [col]: path } as any)
         .eq("id", user.id);
-      toast.success("Document uploaded");
+      toast.success(t("profile.agency.toasts.documentUploaded"));
     } catch (e: any) {
-      toast.error(e?.message ?? "Upload failed");
+      toast.error(e?.message ?? t("profile.agency.errors.uploadFailed"));
     } finally {
       setUploading(null);
     }
   }
 
   const schema = z.object({
-    legal_company_name: z.string().min(2, "Legal company name is required"),
-    country_id: z.string().uuid("Country is required"),
-    city_id: z.string().uuid("City is required"),
-    full_address: z.string().min(4, "Address is required"),
-    cr_number: z.string().min(2, "Commercial registration number is required"),
-    cr_expiry_date: z.string().min(4, "CR expiry date is required"),
-    issuing_authority: z.string().min(2, "Issuing authority is required"),
+    legal_company_name: z.string().min(2, t("profile.agency.validation.legalCompanyName")),
+    country_id: z.string().uuid(t("validation.countryRequired")),
+    city_id: z.string().uuid(t("validation.cityRequired")),
+    full_address: z.string().min(4, t("profile.agency.validation.address")),
+    cr_number: z.string().min(2, t("profile.agency.validation.crNumber")),
+    cr_expiry_date: z.string().min(4, t("profile.agency.validation.crExpiry")),
+    issuing_authority: z.string().min(2, t("profile.agency.validation.issuingAuthority")),
     contact_person_name: z.string().min(2),
     contact_person_position: z.string().min(2),
     contact_person_email: z.string().email(),
@@ -206,17 +211,17 @@ function Page() {
     vat_billing_number: z.string().min(2),
     billing_address: z.string().min(4),
     billing_email: z.string().email(),
-    cr_document_path: z.string().min(1, "Please upload the Commercial Registration document"),
+    cr_document_path: z.string().min(1, t("profile.agency.validation.crDocument")),
   });
 
   async function submit() {
     if (!user) return;
     if (!(agree1 && agree2 && agree3 && agree4))
-      return toast.error("Please accept all legal agreements");
+      return toast.error(t("profile.agency.errors.legalAgreements"));
     try {
       schema.parse(profile);
     } catch (e: any) {
-      const msg = e?.errors?.[0]?.message ?? "Please complete all required fields";
+      const msg = e?.errors?.[0]?.message ?? t("validation.completeRequiredFields");
       return toast.error(msg);
     }
     setSaving(true);
@@ -238,11 +243,11 @@ function Page() {
         event_type: isRejected ? "resubmitted" : "submitted",
         actor_id: user.id,
       });
-      toast.success("Submitted for verification");
+      toast.success(t("profile.agency.toasts.submitted"));
       await refetchStatus();
       navigate({ to: "/dashboard" });
     } catch (e: any) {
-      toast.error(e?.message ?? "Submission failed");
+      toast.error(e?.message ?? t("profile.agency.errors.submissionFailed"));
     } finally {
       setSaving(false);
     }
@@ -254,9 +259,11 @@ function Page() {
         <div className="rounded-md border border-emerald-500/40 bg-emerald-500/10 p-4 flex items-center gap-3">
           <ShieldCheck className="h-5 w-5 text-emerald-600" />
           <div>
-            <div className="font-medium text-emerald-800">Verified by GroupToStay</div>
+            <div className="font-medium text-emerald-800">
+              {t("profile.agency.status.verifiedTitle")}
+            </div>
             <div className="text-sm text-emerald-700">
-              Your agency is verified. To update information, contact support.
+              {t("profile.agency.status.verifiedDescription")}
             </div>
           </div>
         </div>
@@ -266,9 +273,11 @@ function Page() {
         <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-4 flex items-center gap-3">
           <Clock className="h-5 w-5 text-amber-600" />
           <div>
-            <div className="font-medium text-amber-800">Verification in progress</div>
+            <div className="font-medium text-amber-800">
+              {t("profile.agency.status.pendingTitle")}
+            </div>
             <div className="text-sm text-amber-700">
-              Our team is reviewing your submission. This usually takes 1–2 business days.
+              {t("profile.agency.status.pendingDescription")}
             </div>
           </div>
         </div>
@@ -278,22 +287,26 @@ function Page() {
         <div className="rounded-md border border-destructive/40 bg-destructive/10 p-4 flex items-start gap-3">
           <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
           <div>
-            <div className="font-medium text-destructive">Verification rejected</div>
+            <div className="font-medium text-destructive">
+              {t("profile.agency.status.rejectedTitle")}
+            </div>
             {rejectionReason && (
               <div className="text-sm mt-1">
-                <span className="font-medium">Reason:</span> {rejectionReason}
+                <span className="font-medium">
+                  {t("admin.agencyVerifications.history.reason")}:
+                </span>{" "}
+                {rejectionReason}
               </div>
             )}
             <div className="text-sm text-muted-foreground mt-1">
-              Please update the information below and resubmit.
+              {t("profile.agency.status.rejectedDescription")}
             </div>
           </div>
         </div>
       );
     return (
       <div className="rounded-md border border-border bg-accent/30 p-4 text-sm text-muted-foreground">
-        Complete all required fields and submit for verification. You cannot publish requests or
-        contact hotels until verified.
+        {t("profile.agency.status.draftDescription")}
       </div>
     );
   };
@@ -301,30 +314,27 @@ function Page() {
   return (
     <div className="max-w-3xl">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-display text-3xl text-primary">Agency Profile</h1>
+        <h1 className="font-display text-3xl text-primary">{t("profile.agency.title")}</h1>
         <Badge variant={isVerified ? "default" : "secondary"} className="capitalize">
           {status.replace("_", " ")}
         </Badge>
       </div>
-      <p className="mt-1 text-muted-foreground text-sm">
-        All information is confidential and used only for verification. Documents are visible to
-        admins only.
-      </p>
+      <p className="mt-1 text-muted-foreground text-sm">{t("profile.agency.description")}</p>
 
       <div className="mt-4">
         <StatusBanner />
       </div>
 
       <fieldset disabled={readOnly} className="mt-6 space-y-6">
-        <Section title="Company Information">
-          <Field label="Legal Company Name" required>
+        <Section title={t("profile.agency.sections.companyInfo")}>
+          <Field label={t("profile.agency.fields.legalCompanyName")} required>
             <Input
               value={profile.legal_company_name ?? ""}
               onChange={(e) => set("legal_company_name", e.target.value)}
               maxLength={200}
             />
           </Field>
-          <Field label="Trade Name">
+          <Field label={t("profile.agency.fields.tradeName")}>
             <Input
               value={profile.trade_name ?? ""}
               onChange={(e) => set("trade_name", e.target.value)}
@@ -332,7 +342,7 @@ function Page() {
             />
           </Field>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field label="Country" required>
+            <Field label={t("common.country")} required>
               <Select
                 value={profile.country_id ?? ""}
                 onValueChange={(v) => {
@@ -341,7 +351,7 @@ function Page() {
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select…" />
+                  <SelectValue placeholder={t("forms.select")} />
                 </SelectTrigger>
                 <SelectContent>
                   {countries.map((c) => (
@@ -352,7 +362,7 @@ function Page() {
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="City" required>
+            <Field label={t("common.city")} required>
               <Select
                 value={profile.city_id ?? ""}
                 onValueChange={(v) => set("city_id", v)}
@@ -360,7 +370,9 @@ function Page() {
               >
                 <SelectTrigger>
                   <SelectValue
-                    placeholder={profile.country_id ? "Select…" : "Choose country first"}
+                    placeholder={
+                      profile.country_id ? t("forms.select") : t("common.selectCountryFirst")
+                    }
                   />
                 </SelectTrigger>
                 <SelectContent>
@@ -373,7 +385,7 @@ function Page() {
               </Select>
             </Field>
           </div>
-          <Field label="Full Address" required>
+          <Field label={t("profile.agency.fields.fullAddress")} required>
             <Textarea
               rows={2}
               value={profile.full_address ?? ""}
@@ -382,14 +394,14 @@ function Page() {
             />
           </Field>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Field label="Website">
+            <Field label={t("profile.agency.fields.website")}>
               <Input
                 value={profile.website ?? ""}
                 onChange={(e) => set("website", e.target.value)}
-                placeholder="https://"
+                placeholder={t("profile.agency.fields.websitePlaceholder")}
               />
             </Field>
-            <Field label="Year Established">
+            <Field label={t("profile.agency.fields.yearEstablished")}>
               <Input
                 type="number"
                 min={1900}
@@ -400,13 +412,13 @@ function Page() {
                 }
               />
             </Field>
-            <Field label="Number of Employees">
+            <Field label={t("profile.agency.fields.employees")}>
               <Select
                 value={profile.employees_count ?? ""}
                 onValueChange={(v) => set("employees_count", v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Optional" />
+                  <SelectValue placeholder={t("forms.optional")} />
                 </SelectTrigger>
                 <SelectContent>
                   {EMPLOYEES.map((v) => (
@@ -420,16 +432,16 @@ function Page() {
           </div>
         </Section>
 
-        <Section title="Business Registration">
+        <Section title={t("profile.agency.sections.businessRegistration")}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field label="Commercial Registration Number" required>
+            <Field label={t("profile.agency.fields.crNumber")} required>
               <Input
                 value={profile.cr_number ?? ""}
                 onChange={(e) => set("cr_number", e.target.value)}
                 maxLength={80}
               />
             </Field>
-            <Field label="CR Expiry Date" required>
+            <Field label={t("profile.agency.fields.crExpiryDate")} required>
               <Input
                 type="date"
                 value={profile.cr_expiry_date ?? ""}
@@ -437,7 +449,7 @@ function Page() {
               />
             </Field>
           </div>
-          <Field label="Issuing Authority" required>
+          <Field label={t("profile.agency.fields.issuingAuthority")} required>
             <Input
               value={profile.issuing_authority ?? ""}
               onChange={(e) => set("issuing_authority", e.target.value)}
@@ -445,14 +457,14 @@ function Page() {
             />
           </Field>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field label="Tourism License Number">
+            <Field label={t("profile.agency.fields.tourismLicenseNumber")}>
               <Input
                 value={profile.tourism_license_number ?? ""}
                 onChange={(e) => set("tourism_license_number", e.target.value)}
                 maxLength={80}
               />
             </Field>
-            <Field label="Tourism License Authority">
+            <Field label={t("profile.agency.fields.tourismLicenseAuthority")}>
               <Input
                 value={profile.tourism_license_authority ?? ""}
                 onChange={(e) => set("tourism_license_authority", e.target.value)}
@@ -462,7 +474,7 @@ function Page() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <UploadField
-              label="Commercial Registration Document"
+              label={t("profile.agency.fields.crDocument")}
               required
               current={profile.cr_document_path}
               onFile={(f) => upload("cr", f)}
@@ -470,47 +482,44 @@ function Page() {
               disabled={readOnly}
             />
             <UploadField
-              label="Tourism License Document"
+              label={t("profile.agency.fields.tourismLicenseDocument")}
               current={profile.tourism_license_document_path}
               onFile={(f) => upload("tl", f)}
               loading={uploading === "tl"}
               disabled={readOnly}
             />
           </div>
-          <p className="text-xs text-muted-foreground">
-            Accepted formats: PDF, JPG, PNG (max 10 MB). Documents are visible to GroupToStay admins
-            only.
-          </p>
+          <p className="text-xs text-muted-foreground">{t("profile.agency.documentsHint")}</p>
         </Section>
 
-        <Section title="Contact Person">
+        <Section title={t("profile.agency.sections.contactPerson")}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field label="Full Name" required>
+            <Field label={t("profile.agency.fields.fullName")} required>
               <Input
                 value={profile.contact_person_name ?? ""}
                 onChange={(e) => set("contact_person_name", e.target.value)}
               />
             </Field>
-            <Field label="Position" required>
+            <Field label={t("profile.agency.fields.position")} required>
               <Input
                 value={profile.contact_person_position ?? ""}
                 onChange={(e) => set("contact_person_position", e.target.value)}
               />
             </Field>
-            <Field label="Email" required>
+            <Field label={t("admin.users.fields.email")} required>
               <Input
                 type="email"
                 value={profile.contact_person_email ?? ""}
                 onChange={(e) => set("contact_person_email", e.target.value)}
               />
             </Field>
-            <Field label="Phone" required>
+            <Field label={t("admin.users.table.phone")} required>
               <Input
                 value={profile.contact_person_phone ?? ""}
                 onChange={(e) => set("contact_person_phone", e.target.value)}
               />
             </Field>
-            <Field label="WhatsApp">
+            <Field label={t("profile.agency.fields.whatsapp")}>
               <Input
                 value={profile.contact_person_whatsapp ?? ""}
                 onChange={(e) => set("contact_person_whatsapp", e.target.value)}
@@ -519,29 +528,29 @@ function Page() {
           </div>
         </Section>
 
-        <Section title="Business Information">
-          <Field label="Agency Type" required>
+        <Section title={t("profile.agency.sections.businessInfo")}>
+          <Field label={t("profile.agency.fields.agencyType")} required>
             <Select value={profile.agency_type ?? ""} onValueChange={(v) => set("agency_type", v)}>
               <SelectTrigger>
-                <SelectValue placeholder="Select…" />
+                <SelectValue placeholder={t("forms.select")} />
               </SelectTrigger>
               <SelectContent>
                 {AGENCY_TYPES.map(([v, l]) => (
                   <SelectItem key={v} value={v}>
-                    {l}
+                    {t(l)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </Field>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field label="Annual group bookings" required>
+            <Field label={t("profile.agency.fields.annualBookings")} required>
               <Select
                 value={profile.annual_group_bookings ?? ""}
                 onValueChange={(v) => set("annual_group_bookings", v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select…" />
+                  <SelectValue placeholder={t("forms.select")} />
                 </SelectTrigger>
                 <SelectContent>
                   {BOOKINGS.map((v) => (
@@ -552,13 +561,13 @@ function Page() {
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Average rooms per booking" required>
+            <Field label={t("profile.agency.fields.averageRooms")} required>
               <Select
                 value={profile.avg_rooms_per_booking ?? ""}
                 onValueChange={(v) => set("avg_rooms_per_booking", v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select…" />
+                  <SelectValue placeholder={t("forms.select")} />
                 </SelectTrigger>
                 <SelectContent>
                   {ROOMS.map((v) => (
@@ -572,29 +581,29 @@ function Page() {
           </div>
         </Section>
 
-        <Section title="Billing Information">
+        <Section title={t("profile.agency.sections.billingInfo")}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field label="Legal Billing Name" required>
+            <Field label={t("profile.agency.fields.legalBillingName")} required>
               <Input
                 value={profile.legal_billing_name ?? ""}
                 onChange={(e) => set("legal_billing_name", e.target.value)}
               />
             </Field>
-            <Field label="VAT Number" required>
+            <Field label={t("profile.agency.fields.vatNumber")} required>
               <Input
                 value={profile.vat_billing_number ?? ""}
                 onChange={(e) => set("vat_billing_number", e.target.value)}
               />
             </Field>
           </div>
-          <Field label="Billing Address" required>
+          <Field label={t("profile.agency.fields.billingAddress")} required>
             <Textarea
               rows={2}
               value={profile.billing_address ?? ""}
               onChange={(e) => set("billing_address", e.target.value)}
             />
           </Field>
-          <Field label="Billing Email" required>
+          <Field label={t("profile.agency.fields.billingEmail")} required>
             <Input
               type="email"
               value={profile.billing_email ?? ""}
@@ -604,22 +613,22 @@ function Page() {
         </Section>
 
         {!readOnly && (
-          <Section title="Legal Agreements">
+          <Section title={t("profile.agency.sections.legalAgreements")}>
             <label className="flex items-start gap-2 text-sm">
-              <Checkbox checked={agree1} onCheckedChange={(v) => setAgree1(!!v)} /> I confirm all
-              provided information is accurate.
+              <Checkbox checked={agree1} onCheckedChange={(v) => setAgree1(!!v)} />{" "}
+              {t("profile.agency.agreements.accurate")}
             </label>
             <label className="flex items-start gap-2 text-sm">
-              <Checkbox checked={agree2} onCheckedChange={(v) => setAgree2(!!v)} /> I agree to the
-              Terms &amp; Conditions.
+              <Checkbox checked={agree2} onCheckedChange={(v) => setAgree2(!!v)} />{" "}
+              {t("profile.agency.agreements.terms")}
             </label>
             <label className="flex items-start gap-2 text-sm">
-              <Checkbox checked={agree3} onCheckedChange={(v) => setAgree3(!!v)} /> I agree to the
-              Privacy Policy.
+              <Checkbox checked={agree3} onCheckedChange={(v) => setAgree3(!!v)} />{" "}
+              {t("profile.agency.agreements.privacy")}
             </label>
             <label className="flex items-start gap-2 text-sm">
-              <Checkbox checked={agree4} onCheckedChange={(v) => setAgree4(!!v)} /> I understand
-              that providing false information may result in account suspension.
+              <Checkbox checked={agree4} onCheckedChange={(v) => setAgree4(!!v)} />{" "}
+              {t("profile.agency.agreements.falseInfo")}
             </label>
           </Section>
         )}
@@ -628,14 +637,14 @@ function Page() {
       {!readOnly && (
         <div className="mt-6 flex gap-3 justify-end">
           <Button variant="outline" onClick={saveDraft} disabled={saving}>
-            Save Draft
+            {t("profile.agency.actions.saveDraft")}
           </Button>
           <Button variant="gold" onClick={submit} disabled={saving}>
             {saving
-              ? "Submitting…"
+              ? t("rfq.submitting")
               : isRejected
-                ? "Resubmit for verification"
-                : "Submit for verification"}
+                ? t("profile.agency.actions.resubmit")
+                : t("profile.agency.actions.submit")}
           </Button>
         </div>
       )}
@@ -688,6 +697,8 @@ function UploadField({
   loading: boolean;
   disabled?: boolean;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div>
       <Label>
@@ -698,7 +709,11 @@ function UploadField({
           className={`inline-flex items-center gap-2 rounded-md border border-input px-3 py-2 text-sm cursor-pointer hover:bg-accent ${disabled ? "opacity-50 pointer-events-none" : ""}`}
         >
           <Upload className="h-4 w-4" />
-          {loading ? "Uploading…" : current ? "Replace" : "Upload"}
+          {loading
+            ? t("profile.agency.upload.uploading")
+            : current
+              ? t("profile.agency.upload.replace")
+              : t("profile.agency.upload.upload")}
           <input
             type="file"
             accept="application/pdf,image/jpeg,image/png"
@@ -711,7 +726,7 @@ function UploadField({
         </label>
         {current && (
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-            <FileText className="h-3 w-3" /> Uploaded
+            <FileText className="h-3 w-3" /> {t("profile.agency.upload.uploaded")}
           </span>
         )}
       </div>

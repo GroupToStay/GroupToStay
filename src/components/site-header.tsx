@@ -39,33 +39,33 @@ export function SiteHeader() {
   let items: NavItem[] = [];
   if (isAdmin) {
     items = [
-      { to: "/", label: "Home" },
-      { to: "/admin/hotel-listings", label: "Hotels" },
-      { to: "/admin/agency-verifications", label: "Agencies" },
-      { to: "/admin/group-requests", label: "Group Requests" },
-      { to: "/admin/users", label: "Users" },
-      { to: "/admin", label: "Dashboard" },
+      { to: "/", label: t("nav.home") },
+      { to: "/admin/hotel-listings", label: t("nav.hotels") },
+      { to: "/admin/agency-verifications", label: t("nav.agencies") },
+      { to: "/admin/group-requests", label: t("nav.groupRequests") },
+      { to: "/admin/users", label: t("nav.users") },
+      { to: "/admin", label: t("nav.dashboard") },
     ];
   } else if (isHotel) {
     items = [
-      { to: "/", label: "Home" },
-      { to: "/dashboard/invitations", label: "Open Requests" },
-      { to: "/dashboard/invitations", label: "My Quotations" },
-      { to: "/dashboard/hotel", label: "Manage Hotel Profile" },
-      { to: "/dashboard/hotel", label: "Dashboard" },
+      { to: "/", label: t("nav.home") },
+      { to: "/dashboard/invitations", label: t("nav.openRequests") },
+      { to: "/dashboard/invitations", label: t("nav.myQuotations") },
+      { to: "/dashboard/hotel", label: t("nav.manageHotelProfile") },
+      { to: "/dashboard/hotel", label: t("nav.dashboard") },
     ];
   } else if (user && isOrganizer) {
     items = [
-      { to: "/", label: "Home" },
-      { to: "/dashboard/rfqs/new", label: "Create Request" },
-      { to: "/dashboard/rfqs", label: "My Requests" },
-      { to: "/dashboard/quotations", label: "Received Offers" },
-      { to: "/dashboard", label: "Dashboard" },
+      { to: "/", label: t("nav.home") },
+      { to: "/dashboard/rfqs/new", label: t("nav.createRequestShort") },
+      { to: "/dashboard/rfqs", label: t("nav.myRequests") },
+      { to: "/dashboard/quotations", label: t("nav.receivedOffers") },
+      { to: "/dashboard", label: t("nav.dashboard") },
     ];
   } else {
     // Visitor
     items = [
-      { to: "/", label: "Home" },
+      { to: "/", label: t("nav.home") },
       { to: "/how-it-works", label: t("nav.howItWorks") },
       { to: "/pricing", label: t("nav.pricing") },
       { to: "/about", label: t("nav.about") },
@@ -93,7 +93,9 @@ export function SiteHeader() {
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-gold">
             <Building2 className="h-5 w-5" />
           </span>
-          <span className="font-display text-xl font-semibold tracking-tight">{t("brand")}</span>
+          <span className="font-display text-xl font-semibold tracking-tight">
+            {t("common.brand.name")}
+          </span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">{navLinks}</nav>
@@ -119,7 +121,7 @@ export function SiteHeader() {
               </Button>
               <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
                 <Link to="/auth" search={{ mode: "signup" } as any}>
-                  Register
+                  {t("nav.register")}
                 </Link>
               </Button>
             </>
@@ -129,7 +131,11 @@ export function SiteHeader() {
               <Link to="/request-quote">{t("nav.getQuote")}</Link>
             </Button>
           )}
-          <button className="md:hidden p-2" onClick={() => setOpen((v) => !v)} aria-label="Menu">
+          <button
+            className="md:hidden p-2"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={t("navigation:nav.menu")}
+          >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
@@ -148,7 +154,7 @@ export function SiteHeader() {
                   {t("nav.signIn")}
                 </Link>
                 <Link to="/auth" search={{ mode: "signup" } as any} className="text-sm font-medium">
-                  Register
+                  {t("nav.register")}
                 </Link>
               </>
             )}

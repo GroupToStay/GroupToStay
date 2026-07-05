@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,13 +20,15 @@ import {
   FileText,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
-  head: () => ({ meta: [{ title: "Admin Dashboard — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("admin.overview.metaTitle") }] }),
   component: AdminHome,
 });
 
 function AdminHome() {
+  const { t } = useTranslation();
   const { data: stats } = useQuery({
     queryKey: ["admin-home-stats"],
     refetchInterval: 60_000,
@@ -107,95 +110,101 @@ function AdminHome() {
     cards: { label: string; value: number | string }[];
   }[] = [
     {
-      title: "Hotels",
+      title: t("admin.overview.sections.hotels"),
       tint: "text-brand-blue bg-brand-blue/10",
       cards: [
-        { label: "Total Hotel Companies", value: stats?.companiesTotal ?? 0 },
-        { label: "Approved Hotels", value: stats?.companiesApproved ?? 0 },
-        { label: "Pending Hotels", value: stats?.companiesPending ?? 0 },
-        { label: "Rejected Hotels", value: stats?.companiesRejected ?? 0 },
+        {
+          label: t("admin.overview.metrics.totalHotelCompanies"),
+          value: stats?.companiesTotal ?? 0,
+        },
+        { label: t("admin.overview.metrics.approvedHotels"), value: stats?.companiesApproved ?? 0 },
+        { label: t("admin.overview.metrics.pendingHotels"), value: stats?.companiesPending ?? 0 },
+        { label: t("admin.overview.metrics.rejectedHotels"), value: stats?.companiesRejected ?? 0 },
       ],
     },
     {
-      title: "Listings",
+      title: t("admin.overview.sections.listings"),
       tint: "text-premium bg-premium/15",
       cards: [
-        { label: "Total Listings", value: stats?.listingsTotal ?? 0 },
-        { label: "Active Listings", value: stats?.listingsApproved ?? 0 },
-        { label: "Pending Listings", value: stats?.listingsPending ?? 0 },
+        { label: t("admin.overview.metrics.totalListings"), value: stats?.listingsTotal ?? 0 },
+        { label: t("admin.overview.metrics.activeListings"), value: stats?.listingsApproved ?? 0 },
+        { label: t("admin.overview.metrics.pendingListings"), value: stats?.listingsPending ?? 0 },
       ],
     },
     {
-      title: "Users",
+      title: t("admin.overview.sections.users"),
       tint: "text-success bg-success/10",
       cards: [
-        { label: "Total Agencies", value: stats?.agencies ?? 0 },
-        { label: "Total Hotel Accounts", value: stats?.hotelUsers ?? 0 },
+        { label: t("admin.overview.metrics.totalAgencies"), value: stats?.agencies ?? 0 },
+        { label: t("admin.overview.metrics.totalHotelAccounts"), value: stats?.hotelUsers ?? 0 },
       ],
     },
     {
-      title: "Subscriptions",
+      title: t("admin.overview.sections.subscriptions"),
       tint: "text-primary bg-primary/10",
       cards: [
-        { label: "Active Subscriptions", value: stats?.subActive ?? 0 },
-        { label: "Pending Subscription Requests", value: stats?.subWaiting ?? 0 },
+        { label: t("admin.overview.metrics.activeSubscriptions"), value: stats?.subActive ?? 0 },
+        {
+          label: t("admin.overview.metrics.pendingSubscriptionRequests"),
+          value: stats?.subWaiting ?? 0,
+        },
       ],
     },
   ];
 
   const quickActions = [
     {
-      title: "Hotel Companies",
-      desc: "Review and approve hotel companies.",
+      title: t("admin.hotelCompanies.title"),
+      desc: t("admin.overview.actions.hotelCompanies"),
       to: "/admin/hotel-companies",
       icon: Building2,
       badge: null as string | null,
     },
     {
-      title: "Hotel Listings",
-      desc: "Review hotel listings.",
+      title: t("admin.hotelListings.title"),
+      desc: t("admin.overview.actions.hotelListings"),
       to: "/admin/hotel-listings",
       icon: Hotel,
       badge: null,
     },
     {
-      title: "Agency Verifications",
-      desc: "Review agency verification submissions.",
+      title: t("admin.agencyVerifications.title"),
+      desc: t("admin.overview.actions.agencyVerifications"),
       to: "/admin/agency-verifications",
       icon: BadgeCheck,
       badge: null,
     },
     {
-      title: "Group Requests",
-      desc: "Review marketplace RFQs.",
+      title: t("nav.groupRequests"),
+      desc: t("admin.overview.actions.groupRequests"),
       to: "/admin/group-requests",
       icon: FileText,
       badge: null,
     },
     {
-      title: "Users",
-      desc: "Review user accounts and roles.",
+      title: t("nav.users"),
+      desc: t("admin.overview.actions.users"),
       to: "/admin/users",
       icon: Users,
       badge: null,
     },
     {
-      title: "Subscription Interest",
-      desc: "Hotels requesting subscriptions.",
+      title: t("nav.subscriptionInterest"),
+      desc: t("admin.overview.actions.subscriptionInterest"),
       to: "/admin/subscription-interest",
       icon: Inbox,
       badge: null,
     },
     {
-      title: "Subscriptions",
-      desc: "Subscription billing module.",
+      title: t("nav.subscriptions"),
+      desc: t("admin.overview.actions.subscriptions"),
       to: "/admin/subscriptions",
       icon: CreditCard,
-      badge: "Coming Soon",
+      badge: t("common.comingSoon"),
     },
     {
-      title: "Settings",
-      desc: "Platform & profile settings.",
+      title: t("nav.settings"),
+      desc: t("admin.overview.actions.settings"),
       to: "/admin/settings",
       icon: ShieldCheck,
       badge: null,
@@ -206,12 +215,13 @@ function AdminHome() {
     <section className="space-y-8">
       <div className="rounded-2xl bg-gradient-to-br from-[oklch(0.18_0.04_265)] to-[oklch(0.32_0.10_264)] text-primary-foreground p-8 md:p-10">
         <Badge className="bg-premium text-premium-foreground border-0 mb-3 uppercase tracking-wider">
-          Admin Console
+          {t("admin.overview.console")}
         </Badge>
-        <h1 className="font-display text-3xl md:text-4xl font-semibold">Admin Dashboard</h1>
+        <h1 className="font-display text-3xl md:text-4xl font-semibold">
+          {t("admin.overview.title")}
+        </h1>
         <p className="mt-2 text-primary-foreground/80 max-w-2xl">
-          Management statistics and platform overview. Use the sidebar to manage hotel companies,
-          listings, and subscriptions.
+          {t("admin.overview.description")}
         </p>
       </div>
 
@@ -242,7 +252,9 @@ function AdminHome() {
       </div>
 
       <div>
-        <h2 className="font-display text-xl text-primary mb-3">Quick Actions</h2>
+        <h2 className="font-display text-xl text-primary mb-3">
+          {t("admin.overview.quickActions")}
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {quickActions.map((qa) => {
             const Inner = (
@@ -282,6 +294,7 @@ function AdminHome() {
 }
 
 function RecentActivity() {
+  const { t } = useTranslation();
   const { data: activity = [] } = useQuery({
     queryKey: ["admin-recent-activity"],
     refetchInterval: 60_000,
@@ -313,10 +326,10 @@ function RecentActivity() {
               ? "text-error bg-error/10"
               : "text-muted-foreground bg-muted",
           text: isApproved
-            ? `Hotel approved: ${h.name}`
+            ? i18n.t("admin.overview.activity.hotelApproved", { name: h.name })
             : isSuspended
-              ? `Hotel rejected: ${h.name}`
-              : `New listing: ${h.name}`,
+              ? i18n.t("admin.overview.activity.hotelRejected", { name: h.name })
+              : i18n.t("admin.overview.activity.newListing", { name: h.name }),
         });
       });
       (interest.data ?? []).forEach((r: any) => {
@@ -325,7 +338,10 @@ function RecentActivity() {
           when: r.created_at,
           icon: CreditCard,
           tint: "text-premium bg-premium/15",
-          text: `Subscription request (${r.requested_plan}) — ${r.hotel_name ?? r.full_name}`,
+          text: i18n.t("admin.overview.activity.subscriptionRequest", {
+            plan: r.requested_plan,
+            name: r.hotel_name ?? r.full_name,
+          }),
         });
       });
       return items
@@ -337,12 +353,14 @@ function RecentActivity() {
   return (
     <div>
       <h2 className="font-display text-xl text-primary mb-3 flex items-center gap-2">
-        <Users className="h-5 w-5" /> Recent Activity
+        <Users className="h-5 w-5" /> {t("admin.overview.recentActivity")}
       </h2>
       <Card>
         <CardContent className="p-0">
           {activity.length === 0 ? (
-            <div className="p-6 text-sm text-muted-foreground">No recent activity.</div>
+            <div className="p-6 text-sm text-muted-foreground">
+              {t("admin.overview.noRecentActivity")}
+            </div>
           ) : (
             <ul className="divide-y divide-border">
               {activity.map((a) => (

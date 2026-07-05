@@ -22,9 +22,10 @@ import { toast } from "sonner";
 import { Inbox, MapPin, Calendar, Users, Building2, ShieldCheck } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { useApplicationLocale } from "@/lib/application-locale";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invitations")({
-  head: () => ({ meta: [{ title: "Invitations — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("hotelDash.meta.invitations") }] }),
   beforeLoad: async () => {
     const {
       data: { user },
@@ -99,8 +100,8 @@ function Page() {
       <EmptyState
         icon={Building2}
         title={t("hotelDash.needsHotel")}
-        description="Add your hotel profile to start receiving matching group requests from verified agencies."
-        actionLabel="Add hotel"
+        description={t("hotelDash.needsHotelDescription")}
+        actionLabel={t("hotelDash.addHotelShort")}
         actionTo="/dashboard/hotel"
       />
     );
@@ -111,12 +112,9 @@ function Page() {
     return (
       <EmptyState
         icon={ShieldCheck}
-        title="Waiting for approval"
-        description={t(
-          "hotelDash.profileNotApprovedYet",
-          "Complete and verify your hotel profile before participating in Group Requests. Only approved hotels may receive Group Requests and submit quotations.",
-        )}
-        actionLabel="Review hotel profile"
+        title={t("hotelDash.waitingApproval")}
+        description={t("hotelDash.profileNotApprovedYet")}
+        actionLabel={t("hotelDash.reviewHotelProfile")}
         actionTo="/dashboard/hotel"
       />
     );
@@ -134,7 +132,7 @@ function Page() {
           <EmptyState
             icon={Inbox}
             title={t("hotelDash.noInvitations")}
-            description="You'll be notified as soon as a group request matches your hotel."
+            description={t("hotelDash.noInvitationsDescription")}
           />
         </div>
       ) : (

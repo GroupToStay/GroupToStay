@@ -8,12 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — GroupToStay" },
-      { name: "description", content: "Get in touch with the GroupToStay team." },
+      { title: i18n.t("contact.metaTitle") },
+      { name: "description", content: i18n.t("contact.metaDescription") },
     ],
   }),
   component: Page,

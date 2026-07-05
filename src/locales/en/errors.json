@@ -1,0 +1,25 @@
+{
+  "errors": {
+    "notFound": {
+      "title": "Page not found",
+      "description": "The page you're looking for doesn't exist or has been moved."
+    },
+    "pageLoad": {
+      "title": "This page didn't load",
+      "description": "Something went wrong on our end. You can try refreshing or head back home."
+    },
+    "actions": {
+      "goHome": "Go home"
+    },
+    "recoveringInterface": "Recovering interface",
+    "unknown": "Unknown error",
+    "accessDenied": {
+      "title": "Access denied",
+      "hotelDirectoryMessage": "This area is restricted. GroupToStay is a B2B RFQ marketplace - hotel directory browsing is available to administrators only.",
+      "returnHome": "Return home",
+      "createRequest": "Create a group request",
+      "metaTitle": "Access denied - GroupToStay",
+      "hotelDirectoryDescription": "Hotel directory browsing is restricted to administrators."
+    }
+  }
+}

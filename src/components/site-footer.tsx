@@ -14,17 +14,17 @@ export function SiteFooter() {
             <span className="grid h-9 w-9 place-items-center rounded-lg bg-premium text-premium-foreground">
               <Building2 className="h-5 w-5" />
             </span>
-            <span className="font-display text-xl font-semibold">{t("brand")}</span>
+            <span className="font-display text-xl font-semibold">{t("common.brand.name")}</span>
           </div>
           <p className="mt-3 text-sm text-primary-foreground/70 max-w-xs">
-            The B2B group accommodation marketplace. One request — competing hotel quotations.
+            {t("footer.description")}
           </p>
           <div className="mt-5 text-xs text-primary-foreground/60">support@grouptostay.com</div>
         </div>
 
         {/* Quick links */}
         <div>
-          <h4 className="font-semibold mb-3 text-premium">Quick Links</h4>
+          <h4 className="font-semibold mb-3 text-premium">{t("footer.quickLinks")}</h4>
           <ul className="space-y-2 text-sm text-primary-foreground/80">
             <li>
               <Link to="/how-it-works" className="hover:text-premium">
@@ -51,7 +51,7 @@ export function SiteFooter() {
 
         {/* Contact */}
         <div>
-          <h4 className="font-semibold mb-3 text-premium">Contact</h4>
+          <h4 className="font-semibold mb-3 text-premium">{t("footer.contact")}</h4>
           <ul className="space-y-3 text-sm text-primary-foreground/80">
             <li className="flex items-start gap-2">
               <Mail className="h-4 w-4 mt-0.5 text-premium" /> support@grouptostay.com
@@ -60,7 +60,7 @@ export function SiteFooter() {
               <Phone className="h-4 w-4 mt-0.5 text-premium" /> +966 11 000 0000
             </li>
             <li className="flex items-start gap-2">
-              <MapPin className="h-4 w-4 mt-0.5 text-premium" /> Riyadh, Saudi Arabia
+              <MapPin className="h-4 w-4 mt-0.5 text-premium" /> {t("footer.location")}
             </li>
             <li>
               <Link to="/contact" className="hover:text-premium underline-offset-2 hover:underline">
@@ -72,26 +72,26 @@ export function SiteFooter() {
 
         {/* Legal */}
         <div>
-          <h4 className="font-semibold mb-3 text-premium">Legal</h4>
+          <h4 className="font-semibold mb-3 text-premium">{t("footer.legal")}</h4>
           <ul className="space-y-2 text-sm text-primary-foreground/80">
             <li>
               <Link to="/trust" className="hover:text-premium">
-                Trust &amp; Security
+                {t("legal.trust.title")}
               </Link>
             </li>
             <li>
               <Link to="/terms" className="hover:text-premium">
-                Terms &amp; Conditions
+                {t("legal.terms.title")}
               </Link>
             </li>
             <li>
               <Link to="/privacy" className="hover:text-premium">
-                Privacy Policy
+                {t("legal.privacy.title")}
               </Link>
             </li>
             <li>
               <Link to="/cookies" className="hover:text-premium">
-                Cookie Policy
+                {t("legal.cookies.title")}
               </Link>
             </li>
           </ul>
@@ -100,9 +100,9 @@ export function SiteFooter() {
       <div className="border-t border-primary-foreground/10">
         <div className="container-page py-4 flex flex-wrap items-center justify-between gap-2 text-xs text-primary-foreground/60">
           <span>
-            © {new Date().getFullYear()} {t("brand")}. {t("footer.rights")}
+            © {new Date().getFullYear()} {t("common.brand.name")}. {t("footer.rights")}
           </span>
-          <span>Made for group hospitality.</span>
+          <span>{t("footer.madeFor")}</span>
         </div>
       </div>
     </footer>

@@ -6,32 +6,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AGENCY_TYPES, AGENCY_TYPE_LABELS, type AgencyType } from "@/lib/role-label";
+import { AGENCY_TYPES, type AgencyType } from "@/lib/role-label";
+import { useTranslation } from "react-i18next";
 
 export function AgencyTypeSelect({
   value,
   onChange,
   required,
-  label = "Agency type",
+  label,
 }: {
   value: string | null;
   onChange: (v: AgencyType) => void;
   required?: boolean;
   label?: string;
 }) {
+  const { t } = useTranslation();
+  const displayLabel = label ?? t("forms.agencyType.label");
+
   return (
     <div>
       <Label>
-        {label} {required && <span className="text-destructive">*</span>}
+        {displayLabel} {required && <span className="text-destructive">*</span>}
       </Label>
       <Select value={value ?? ""} onValueChange={(v) => onChange(v as AgencyType)}>
         <SelectTrigger>
-          <SelectValue placeholder="Select agency type…" />
+          <SelectValue placeholder={t("forms.agencyType.placeholder")} />
         </SelectTrigger>
         <SelectContent>
           {AGENCY_TYPES.map((k) => (
             <SelectItem key={k} value={k}>
-              {AGENCY_TYPE_LABELS[k]}
+              {t(`forms.agencyTypes.${k}`)}
             </SelectItem>
           ))}
         </SelectContent>

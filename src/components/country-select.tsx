@@ -12,27 +12,28 @@ import {
 } from "@/components/ui/command";
 import { useCountries, useLocalizedName, type LookupRow } from "@/hooks/use-master-data";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 // Hard-coded fallback (matches DB seed) so the dropdown is never empty
 // even if the network/RLS fails. id === code so the auth form can still
 // resolve the country name; the trigger persists the ISO code as country.
 const FALLBACK: LookupRow[] = [
-  { id: "SA", name_en: "Saudi Arabia", name_ar: "المملكة العربية السعودية" },
-  { id: "AE", name_en: "United Arab Emirates", name_ar: "الإمارات العربية المتحدة" },
-  { id: "EG", name_en: "Egypt", name_ar: "مصر" },
-  { id: "KW", name_en: "Kuwait", name_ar: "الكويت" },
-  { id: "BH", name_en: "Bahrain", name_ar: "البحرين" },
-  { id: "OM", name_en: "Oman", name_ar: "عُمان" },
-  { id: "QA", name_en: "Qatar", name_ar: "قطر" },
-  { id: "JO", name_en: "Jordan", name_ar: "الأردن" },
-  { id: "MA", name_en: "Morocco", name_ar: "المغرب" },
-  { id: "TR", name_en: "Turkey", name_ar: "تركيا" },
+  { id: "SA", name_en: "Saudi Arabia", name_ar: "??????? ??????? ????????" },
+  { id: "AE", name_en: "United Arab Emirates", name_ar: "???????? ??????? ???????" },
+  { id: "EG", name_en: "Egypt", name_ar: "???" },
+  { id: "KW", name_en: "Kuwait", name_ar: "??????" },
+  { id: "BH", name_en: "Bahrain", name_ar: "???????" },
+  { id: "OM", name_en: "Oman", name_ar: "????" },
+  { id: "QA", name_en: "Qatar", name_ar: "???" },
+  { id: "JO", name_en: "Jordan", name_ar: "??????" },
+  { id: "MA", name_en: "Morocco", name_ar: "??????" },
+  { id: "TR", name_en: "Turkey", name_ar: "?????" },
 ];
 
 export function CountrySelect({
   value,
   onChange,
-  placeholder = "Select country",
+  placeholder,
   filterCodes,
 }: {
   value: string | null;
@@ -41,9 +42,11 @@ export function CountrySelect({
   /** If provided, only countries with these ISO codes (case-insensitive) are shown. */
   filterCodes?: string[];
 }) {
+  const { t } = useTranslation();
   const { data, isLoading, isError } = useCountries();
   const localized = useLocalizedName();
   const [open, setOpen] = useState(false);
+  const displayPlaceholder = placeholder ?? t("forms.country.select");
 
   const countries = useMemo(() => {
     const base = (data && data.length > 0 ? data : isError || !isLoading ? FALLBACK : []) as Array<
@@ -73,8 +76,8 @@ export function CountrySelect({
             {selected
               ? localized(selected)
               : isLoading && countries.length === 0
-                ? "Loading countries..."
-                : placeholder}
+                ? t("forms.country.loading")
+                : displayPlaceholder}
           </span>
           {isLoading && countries.length === 0 ? (
             <Loader2 className="ml-2 h-4 w-4 shrink-0 opacity-50 animate-spin" />
@@ -85,9 +88,9 @@ export function CountrySelect({
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search country..." />
+          <CommandInput placeholder={t("forms.country.search")} />
           <CommandList>
-            <CommandEmpty>No country found.</CommandEmpty>
+            <CommandEmpty>{t("forms.country.empty")}</CommandEmpty>
             <CommandGroup>
               {countries.map((c) => {
                 const label = localized(c);

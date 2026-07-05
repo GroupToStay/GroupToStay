@@ -10,21 +10,20 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "Pricing — GroupToStay" },
+      { title: i18n.t("pricing.meta.title") },
       {
         name: "description",
-        content:
-          "Free forever for organizers. Hotels choose the plan that fits their goals. All prices in SAR.",
+        content: i18n.t("pricing.meta.description"),
       },
-      { property: "og:title", content: "Pricing — GroupToStay" },
+      { property: "og:title", content: i18n.t("pricing.meta.title") },
       {
         property: "og:description",
-        content:
-          "Transparent plans for hotels and free access for group organizers. Pay only when you win group business.",
+        content: i18n.t("pricing.meta.ogDescription"),
       },
       { property: "og:url", content: "https://groupstay-connect.lovable.app/pricing" },
     ],
@@ -37,7 +36,7 @@ type Plan = {
   key: "organizer" | "hotelBasic" | "hotelPro" | "hotelPremium" | "enterprise";
   featured?: boolean;
   cta: string;
-  items: string[];
+  itemsKey: string;
   audience: "organizer" | "hotel";
 };
 
@@ -71,72 +70,32 @@ function Page() {
       key: "organizer",
       cta: "/request-quote",
       audience: "organizer",
-      items: [
-        "Unlimited Group Requests",
-        "Compare hotel quotations",
-        "Direct messaging",
-        "Hotel negotiation",
-        "Contract management",
-        "Multi-hotel selection",
-        "No platform fees",
-      ],
+      itemsKey: "pricing.features.organizer",
     },
     {
       key: "hotelBasic",
       cta: "/for-hotels",
       audience: "hotel",
-      items: [
-        "Hotel profile",
-        "Receive matching Group Requests",
-        "Submit quotations",
-        "Messaging",
-        "Hotel gallery",
-        "Availability management",
-        "Commission only on awarded bookings",
-      ],
+      itemsKey: "pricing.features.hotelBasic",
     },
     {
       key: "hotelPro",
       featured: true,
       cta: "/for-hotels",
       audience: "hotel",
-      items: [
-        "Everything in Free Listing",
-        "Priority placement",
-        "Priority Group Requests",
-        "Analytics dashboard",
-        "Enhanced hotel profile",
-        "Additional images",
-        "Priority support",
-      ],
+      itemsKey: "pricing.features.hotelPro",
     },
     {
       key: "hotelPremium",
       cta: "/for-hotels",
       audience: "hotel",
-      items: [
-        "Everything in Professional",
-        "Featured badge",
-        "Homepage placement",
-        "Top search placement",
-        "Featured destination listings",
-        "Highest marketplace visibility",
-        "Premium support",
-      ],
+      itemsKey: "pricing.features.hotelPremium",
     },
     {
       key: "enterprise",
       cta: "/contact",
       audience: "hotel",
-      items: [
-        "Multi-property management",
-        "Dedicated account manager",
-        "API access",
-        "PMS integrations",
-        "Custom reporting",
-        "Unlimited team members",
-        "Custom workflows",
-      ],
+      itemsKey: "pricing.features.enterprise",
     },
   ];
 
@@ -161,6 +120,7 @@ function Page() {
               const price = t(`pricing.${p.key}Price`);
               const showMonthly = p.key === "hotelPro" || p.key === "hotelPremium";
               const isPaidHotelPlan = p.key === "hotelPro" || p.key === "hotelPremium";
+              const items = t(p.itemsKey, { returnObjects: true }) as string[];
               return (
                 <Card
                   key={p.key}
@@ -183,7 +143,7 @@ function Page() {
                       {t(`pricing.${p.key}Desc`)}
                     </p>
                     <ul className="mt-5 space-y-2 text-sm flex-1">
-                      {p.items.map((i) => (
+                      {items.map((i) => (
                         <li key={i} className="flex gap-2">
                           <Check className="h-4 w-4 text-success mt-0.5 shrink-0" /> {i}
                         </li>
@@ -196,7 +156,7 @@ function Page() {
                             to="/subscription/coming-soon"
                             search={{ plan: p.key === "hotelPro" ? "professional" : "featured" }}
                           >
-                            Coming Soon
+                            {t("pricing.comingSoon")}
                           </Link>
                         </Button>
                       ) : (
@@ -211,7 +171,7 @@ function Page() {
         </div>
         {isHotel && (
           <p className="mt-8 text-center text-sm text-muted-foreground">
-            Manage your subscription from your dashboard.
+            {t("pricing.manageFromDashboard")}
           </p>
         )}
       </main>

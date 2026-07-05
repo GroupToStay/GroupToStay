@@ -1,13 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AccessDenied } from "@/components/access-denied";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/hotel-list")({
   head: () => ({
     meta: [
-      { title: "Access denied - GroupToStay" },
+      { title: i18n.t("errors.accessDenied.metaTitle") },
       {
         name: "description",
-        content: "Hotel directory browsing is restricted to administrators.",
+        content: i18n.t("errors.accessDenied.hotelDirectoryDescription"),
       },
     ],
   }),
@@ -15,7 +16,5 @@ export const Route = createFileRoute("/hotel-list")({
 });
 
 function HotelListAccessDenied() {
-  return (
-    <AccessDenied message="GroupToStay is a B2B RFQ marketplace. Hotel directory browsing is available to administrators only." />
-  );
+  return <AccessDenied />;
 }

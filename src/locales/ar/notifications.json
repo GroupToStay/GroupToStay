@@ -1,0 +1,18 @@
+{
+  "notifications": {
+    "title": "الإشعارات",
+    "metaTitle": "الإشعارات - GroupToStay",
+    "markAllRead": "تحديد الكل كمقروء",
+    "empty": "اطلعت على جميع الإشعارات.",
+    "emptyDescription": "لا توجد إشعارات بعد. سنخبرك عند حدوث أي نشاط في حسابك.",
+    "goToDashboard": "الانتقال إلى لوحة التحكم",
+    "unreadCount_zero": "{{count}} إشعارات غير مقروءة",
+    "unreadCount_one": "{{count}} إشعار غير مقروء",
+    "unreadCount_two": "{{count}} إشعاران غير مقروءين",
+    "unreadCount_few": "{{count}} إشعارات غير مقروءة",
+    "unreadCount_many": "{{count}} إشعارًا غير مقروء",
+    "unreadCount_other": "{{count}} إشعار غير مقروء",
+    "delete": "حذف الإشعار",
+    "viewAll": "عرض جميع الإشعارات"
+  }
+}

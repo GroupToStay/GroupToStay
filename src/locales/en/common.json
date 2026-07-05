@@ -1,0 +1,103 @@
+{
+  "common": {
+    "brand": {
+      "name": "GroupToStay",
+      "tagline": "One Request. Multiple Hotel Offers."
+    },
+    "languageNames": {
+      "englishShort": "EN",
+      "arabicShort": "Arabic"
+    },
+    "accessibility": {
+      "breadcrumb": "Breadcrumb",
+      "more": "More",
+      "previousSlide": "Previous slide",
+      "nextSlide": "Next slide",
+      "close": "Close",
+      "pagination": "Pagination",
+      "previousPage": "Go to previous page",
+      "previous": "Previous",
+      "nextPage": "Go to next page",
+      "next": "Next",
+      "morePages": "More pages",
+      "sidebar": "Sidebar",
+      "mobileSidebarDescription": "Displays the mobile sidebar.",
+      "toggleSidebar": "Toggle sidebar"
+    },
+    "loading": "Loading…",
+    "error": "Something went wrong.",
+    "retry": "Try again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "language": "Language",
+    "city": "City",
+    "country": "Country",
+    "yes": "Yes",
+    "no": "No",
+    "soon": "Soon",
+    "comingSoon": "Coming Soon",
+    "other": "Other",
+    "notAvailable": "Not available",
+    "send": "Send",
+    "selectCountry": "Select country",
+    "selectCity": "Select city",
+    "selectCountryFirst": "Select country first",
+    "selectCountryCity": "Please select a country and city.",
+    "selectHotelType": "Please select a hotel type.",
+    "select": "Select"
+  },
+  "role": {
+    "agency": "Agency",
+    "hotel": "Hotel",
+    "admin": "Admin",
+    "visitor": "Visitor",
+    "superAdmin": "Super Admin"
+  },
+  "stats": {
+    "rooms": "Rooms quoted",
+    "destinations": "Destinations",
+    "responseTime": "Avg. response",
+    "save": "Avg. savings"
+  },
+  "status": {
+    "unknown": "Unknown",
+    "approved": "Approved",
+    "verified": "Verified",
+    "active": "Active",
+    "open": "Open",
+    "awarded": "Awarded",
+    "success": "Success",
+    "submitted": "Submitted",
+    "pending": "Pending",
+    "pending_review": "Pending Review",
+    "quoting": "Quoting",
+    "under_review": "Under Review",
+    "draft": "Draft",
+    "waiting": "Waiting",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled",
+    "suspended": "Suspended",
+    "disabled": "Disabled",
+    "expired": "Expired",
+    "error": "Error",
+    "closed": "Closed",
+    "locked": "Locked",
+    "archived": "Archived",
+    "notified": "Notified",
+    "trusted": "Trusted",
+    "premium": "Premium",
+    "unverified": "Unverified",
+    "not_required": "Not Required",
+    "reconsider": "Request More Information",
+    "blocked": "Blocked",
+    "inactive": "Inactive"
+  },
+  "footer": {
+    "description": "The B2B group accommodation marketplace. One request, competing hotel quotations.",
+    "quickLinks": "Quick Links",
+    "contact": "Contact",
+    "legal": "Legal",
+    "location": "Riyadh, Saudi Arabia",
+    "madeFor": "Made for group hospitality."
+  }
+}

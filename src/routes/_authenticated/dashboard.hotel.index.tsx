@@ -25,21 +25,26 @@ import { CountryCitySelect } from "@/components/country-city-select";
 import { useCountries, useCities } from "@/hooks/use-master-data";
 import { EmptyState } from "@/components/empty-state";
 import { HotelPhoto } from "@/components/hotel-photo";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/")({
-  head: () => ({ meta: [{ title: "My hotels — GroupToStay" }] }),
+  head: () => ({ meta: [{ title: i18n.t("hotelDash.meta.myHotels") }] }),
   component: Page,
   errorComponent: ({ error, reset }) => (
     <div className="space-y-3">
-      <h2 className="font-display text-xl text-primary">Unable to load hotel profile.</h2>
-      <p className="text-sm text-muted-foreground">Please refresh or contact support.</p>
+      <h2 className="font-display text-xl text-primary">
+        {i18n.t("hotelDash.errors.unableToLoadProfile")}
+      </h2>
+      <p className="text-sm text-muted-foreground">{i18n.t("hotelDash.errors.refreshOrContact")}</p>
       <pre className="text-xs text-error whitespace-pre-wrap">{error?.message}</pre>
       <button className="text-sm underline" onClick={() => reset()}>
-        Try again
+        {i18n.t("hotelDash.errors.tryAgain")}
       </button>
     </div>
   ),
-  notFoundComponent: () => <div className="text-muted-foreground">Not found</div>,
+  notFoundComponent: () => (
+    <div className="text-muted-foreground">{i18n.t("hotelDash.errors.notFound")}</div>
+  ),
 });
 
 function slugify(s: string) {
@@ -130,23 +135,14 @@ function Page() {
       <div className="space-y-6">
         <div>
           <h1 className="font-display text-3xl text-primary flex items-center gap-2">
-            <Building2 className="h-7 w-7" />{" "}
-            {t("hotelDash.completeProfileTitle", "Complete Your Hotel Profile")}
+            <Building2 className="h-7 w-7" /> {t("hotelDash.completeProfileTitle")}
           </h1>
-          <p className="mt-1 text-muted-foreground">
-            {t(
-              "hotelDash.completeProfileSubtitle",
-              "Add your hotel details so organizers can find you. Group Requests appear here after your profile is approved.",
-            )}
-          </p>
+          <p className="mt-1 text-muted-foreground">{t("hotelDash.completeProfileSubtitle")}</p>
         </div>
         <EmptyState
           icon={Building2}
-          title={t("hotelDash.noProfileYet", "You haven't created your hotel profile yet.")}
-          description={t(
-            "hotelDash.completeProfileSubtitle",
-            "Add your hotel details so organizers can find you.",
-          )}
+          title={t("hotelDash.noProfileYet")}
+          description={t("hotelDash.completeProfileSubtitle")}
         >
           <div className="flex justify-center">
             <AddHotelDialog
@@ -176,7 +172,7 @@ function Page() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-3xl text-primary flex items-center gap-2">
-          <Building2 className="h-7 w-7" /> {t("hotelDash.myHotel", "My Hotel Profile")}
+          <Building2 className="h-7 w-7" /> {t("hotelDash.myHotel")}
         </h1>
       </div>
 
@@ -184,7 +180,7 @@ function Page() {
         <CardContent className="p-5">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="text-sm font-medium">
-              {t("hotelDash.profileCompletion", "Profile completion")}: {completion}%
+              {t("hotelDash.profileCompletion")}: {completion}%
             </div>
             <Badge
               className={
@@ -200,12 +196,7 @@ function Page() {
             <div className="h-full bg-gold transition-all" style={{ width: `${completion}%` }} />
           </div>
           {completion < 80 && (
-            <p className="mt-3 text-xs text-muted-foreground">
-              {t(
-                "hotelDash.completionHint",
-                "Reach 80% completion to unlock subscription upgrades and featured placement.",
-              )}
-            </p>
+            <p className="mt-3 text-xs text-muted-foreground">{t("hotelDash.completionHint")}</p>
           )}
         </CardContent>
       </Card>
@@ -270,7 +261,7 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
     e.preventDefault();
     if (!user) return;
     if (!countryId || !cityId) {
-      toast.error("Please select country and city");
+      toast.error(t("hotelDash.selectCountryCity"));
       return;
     }
     setSubmitting(true);
