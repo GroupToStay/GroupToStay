@@ -10,6 +10,7 @@ import {
   setStoredAppLanguage,
   SUPPORTED_APP_LANGUAGES,
 } from "@/lib/locale";
+import { applyNoTranslateAttributes } from "@/lib/translation-hardening";
 
 // Default language is ALWAYS English so first render is deterministic
 // (SSR + client) and never mixes Arabic with English. Arabic is opt-in
@@ -48,5 +49,6 @@ export function applyLocale(lang: string) {
   const language = normalizeAppLanguage(lang);
   document.documentElement.lang = getHtmlLang(language);
   document.documentElement.dir = getTextDirection(language);
+  applyNoTranslateAttributes(language);
   setStoredAppLanguage(language);
 }

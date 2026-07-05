@@ -1,7 +1,16 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  type ReactNode,
+} from "react";
 import { useTranslation } from "react-i18next";
 
 import { applyLocale } from "@/lib/i18n";
+import { installNoTranslateAttributeGuard } from "@/lib/translation-hardening";
 import {
   compareText,
   formatDateKey,
@@ -53,10 +62,16 @@ const ApplicationLocaleContext = createContext<ApplicationLocaleContextValue>(de
 export function ApplicationLocaleProvider({ children }: { children: ReactNode }) {
   const { i18n } = useTranslation();
   const language = normalizeAppLanguage(i18n.language);
+  const languageRef = useRef<AppLanguage>(language);
 
   useEffect(() => {
+    languageRef.current = language;
     applyLocale(language);
   }, [language]);
+
+  useEffect(() => {
+    return installNoTranslateAttributeGuard(() => languageRef.current);
+  }, []);
 
   const setLanguage = useCallback(
     async (nextLanguage: string) => {

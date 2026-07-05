@@ -16,6 +16,13 @@ import i18n from "@/lib/i18n";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Toaster } from "@/components/ui/sonner";
 import { ApplicationLocaleProvider } from "@/lib/application-locale";
+import {
+  applyNoTranslateAttributes,
+  installExternalDomMutationRecovery,
+  isExternalDomMutationError,
+} from "@/lib/translation-hardening";
+
+installExternalDomMutationRecovery();
 
 function NotFoundComponent() {
   return (
@@ -40,11 +47,32 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
+  const isTranslatedDomMutation = isExternalDomMutationError(error);
+  if (!isTranslatedDomMutation) {
+    console.error(error);
+  }
+
   useEffect(() => {
+    if (isTranslatedDomMutation) {
+      applyNoTranslateAttributes(i18n.language);
+      const resetTimer = window.setTimeout(() => {
+        router.invalidate();
+        reset();
+      }, 0);
+      return () => window.clearTimeout(resetTimer);
+    }
+
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
+  }, [error, isTranslatedDomMutation, reset, router]);
+
+  if (isTranslatedDomMutation) {
+    return (
+      <div className="notranslate sr-only" translate="no" role="status" aria-live="polite">
+        Recovering interface
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -82,6 +110,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "google", content: "notranslate" },
+      { name: "googlebot", content: "notranslate" },
       { title: "GroupToStay — Group accommodation marketplace" },
       {
         name: "description",
@@ -146,11 +176,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" dir="ltr">
+    <html lang="en" dir="ltr" translate="no" className="notranslate" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body translate="no" className="notranslate" suppressHydrationWarning>
         {children}
         <Scripts />
       </body>
@@ -165,8 +195,10 @@ function RootComponent() {
       <I18nextProvider i18n={i18n}>
         <ApplicationLocaleProvider>
           <AuthProvider>
-            <Outlet />
-            <Toaster richColors position="top-center" />
+            <div id="gts-app-root" className="notranslate contents" translate="no">
+              <Outlet />
+              <Toaster richColors position="top-center" />
+            </div>
           </AuthProvider>
         </ApplicationLocaleProvider>
       </I18nextProvider>
