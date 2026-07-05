@@ -16,6 +16,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check --ignore-unknown .",
+    "i18n:audit": "node scripts/i18n-audit.mjs",
     "test": "vitest run",
     "test:rls": "vitest run tests/rls"
   },
