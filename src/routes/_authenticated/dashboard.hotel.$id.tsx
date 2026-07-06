@@ -361,10 +361,11 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
       <Card>
         <CardContent className="p-5">
           <h2 className="font-display text-xl text-primary">{t("hotelDash.editInfo")}</h2>
-          <form onSubmit={saveInfo} className="mt-4 space-y-4">
+          <form method="post" onSubmit={saveInfo} className="mt-4 space-y-4">
             <div>
-              <Label>{t("hotelDash.fields.name")}</Label>
+              <Label htmlFor="hotel-name">{t("hotelDash.fields.name")}</Label>
               <Input
+                id="hotel-name"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -381,14 +382,19 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
               required
             />
             <div>
-              <Label>{t("hotelDash.fields.address")}</Label>
-              <Input value={address} onChange={(e) => setAddress(e.target.value)} maxLength={240} />
+              <Label htmlFor="hotel-address">{t("hotelDash.fields.address")}</Label>
+              <Input
+                id="hotel-address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                maxLength={240}
+              />
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <Label>{t("hotelDash.fields.hotelType")} *</Label>
+                <Label htmlFor="hotel-type">{t("hotelDash.fields.hotelType")} *</Label>
                 <Select value={hotelTypeId ?? ""} onValueChange={(v) => setHotelTypeId(v || null)}>
-                  <SelectTrigger>
+                  <SelectTrigger id="hotel-type" aria-label={t("hotelDash.fields.hotelType")}>
                     <SelectValue placeholder={t("common.selectHotelType")} />
                   </SelectTrigger>
                   <SelectContent>
@@ -401,8 +407,9 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
                 </Select>
               </div>
               <div>
-                <Label>{t("hotelDash.fields.stars")}</Label>
+                <Label htmlFor="hotel-stars">{t("hotelDash.fields.stars")}</Label>
                 <select
+                  id="hotel-stars"
                   className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                   value={starRating}
                   onChange={(e) => setStarRating(e.target.value)}
@@ -416,8 +423,9 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
               </div>
             </div>
             <div>
-              <Label>{t("hotelDash.fields.description")}</Label>
+              <Label htmlFor="hotel-description">{t("hotelDash.fields.description")}</Label>
               <Textarea
+                id="hotel-description"
                 rows={3}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -425,8 +433,12 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
               />
             </div>
             <div>
-              <Label>{t("hotelDash.fields.amenities")}</Label>
-              <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <Label id="hotel-amenities-label">{t("hotelDash.fields.amenities")}</Label>
+              <div
+                className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2"
+                role="group"
+                aria-labelledby="hotel-amenities-label"
+              >
                 {allAmenities.map((a) => (
                   <label
                     key={a.id}
@@ -501,7 +513,12 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
                         ? t("hotelDash.coverBadge")
                         : t("hotelDash.setCover")}
                     </Button>
-                    <Button size="icon" variant="destructive" onClick={() => removePhoto(url)}>
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      aria-label={t("common.accessibility.removePhoto")}
+                      onClick={() => removePhoto(url)}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -522,9 +539,9 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
           <h2 className="font-display text-xl text-primary">{t("hotelDash.rooms")}</h2>
           <div className="mt-4 grid sm:grid-cols-6 gap-2 items-end">
             <div className="sm:col-span-2">
-              <Label>{t("hotelDash.fields.roomType")}</Label>
+              <Label htmlFor="hotel-room-type">{t("hotelDash.fields.roomType")}</Label>
               <Select value={roomTypeId} onValueChange={(v) => setRoomTypeId(v)}>
-                <SelectTrigger>
+                <SelectTrigger id="hotel-room-type" aria-label={t("hotelDash.fields.roomType")}>
                   <SelectValue placeholder={t("common.select")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -537,9 +554,9 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
               </Select>
             </div>
             <div className="sm:col-span-2">
-              <Label>{t("hotelDash.fields.mealPlan")}</Label>
+              <Label htmlFor="hotel-meal-plan">{t("hotelDash.fields.mealPlan")}</Label>
               <Select value={mealPlanId} onValueChange={(v) => setMealPlanId(v)}>
-                <SelectTrigger>
+                <SelectTrigger id="hotel-meal-plan" aria-label={t("hotelDash.fields.mealPlan")}>
                   <SelectValue placeholder={t("common.select")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -552,8 +569,9 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
               </Select>
             </div>
             <div>
-              <Label>{t("hotelDash.fields.capacity")}</Label>
+              <Label htmlFor="hotel-room-capacity">{t("hotelDash.fields.capacity")}</Label>
               <Input
+                id="hotel-room-capacity"
                 type="number"
                 min={1}
                 max={20}
@@ -562,8 +580,9 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
               />
             </div>
             <div>
-              <Label>{t("hotelDash.fields.count")}</Label>
+              <Label htmlFor="hotel-room-count">{t("hotelDash.fields.count")}</Label>
               <Input
+                id="hotel-room-count"
                 type="number"
                 min={0}
                 value={count}
@@ -571,8 +590,9 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
               />
             </div>
             <div>
-              <Label>{t("hotelDash.fields.price")}</Label>
+              <Label htmlFor="hotel-room-price">{t("hotelDash.fields.price")}</Label>
               <Input
+                id="hotel-room-price"
                 type="number"
                 min={0}
                 value={price}
@@ -582,6 +602,7 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
           </div>
           <div className="mt-3 flex items-center gap-2">
             <select
+              aria-label={t("rfq.fields.currency")}
               className="flex h-9 rounded-md border border-input bg-background px-3 text-sm"
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
@@ -621,7 +642,12 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
                       {t("hotels.perNight")}
                     </span>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => delRoom.mutate(r.id)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t("hotelDash.removeRoom")}
+                    onClick={() => delRoom.mutate(r.id)}
+                  >
                     <Trash2 className="h-4 w-4 text-error" />
                   </Button>
                 </div>

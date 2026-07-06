@@ -3,6 +3,7 @@ import { REQUIREMENTS_MAX } from "./rfq-options";
 import { useTranslation } from "react-i18next";
 
 type Props = {
+  id?: string;
   value: string;
   onChange: (v: string) => void;
   rows?: number;
@@ -10,11 +11,12 @@ type Props = {
 };
 
 /** Shared optional Requirements textarea with auto-expand and preserved line breaks. */
-export function RfqRequirementsField({ value, onChange, rows = 6, className }: Props) {
+export function RfqRequirementsField({ id, value, onChange, rows = 6, className }: Props) {
   const { t } = useTranslation();
 
   return (
     <Textarea
+      id={id}
       rows={rows}
       maxLength={REQUIREMENTS_MAX}
       value={value}

@@ -424,8 +424,9 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
         <div className="space-y-3">
           {hotels.length > 1 && (
             <div>
-              <Label>{t("rfq.detail.quote.hotel")}</Label>
+              <Label htmlFor="quote-hotel">{t("rfq.detail.quote.hotel")}</Label>
               <select
+                id="quote-hotel"
                 className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 value={hotelId}
                 onChange={(e) => setHotelId(e.target.value)}
@@ -439,10 +440,11 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
             </div>
           )}
           <div>
-            <Label>
+            <Label htmlFor="quote-total-price">
               {t("rfq.detail.quote.totalPrice")} ({rfq.currency})
             </Label>
             <Input
+              id="quote-total-price"
               type="number"
               min={0}
               value={totalPrice}
@@ -450,10 +452,11 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
             />
           </div>
           <div>
-            <Label>
+            <Label htmlFor="quote-per-room-night">
               {t("rfq.detail.quote.perRoomNight")} ({rfq.currency})
             </Label>
             <Input
+              id="quote-per-room-night"
               type="number"
               min={0}
               value={perNight}
@@ -461,8 +464,9 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
             />
           </div>
           <div>
-            <Label>{t("rfq.detail.details.board")}</Label>
+            <Label htmlFor="quote-board">{t("rfq.detail.details.board")}</Label>
             <select
+              id="quote-board"
               className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={board}
               onChange={(e) => setBoard(e.target.value)}
@@ -475,20 +479,27 @@ function SubmitQuoteForHotel({ rfq, userId }: { rfq: any; userId: string }) {
             </select>
           </div>
           <div>
-            <Label>{t("rfq.detail.quote.validUntil")}</Label>
-            <Input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
+            <Label htmlFor="quote-valid-until">{t("rfq.detail.quote.validUntil")}</Label>
+            <Input
+              id="quote-valid-until"
+              type="date"
+              value={validUntil}
+              onChange={(e) => setValidUntil(e.target.value)}
+            />
           </div>
           <div>
-            <Label>{t("rfq.detail.quote.inclusions")}</Label>
+            <Label htmlFor="quote-inclusions">{t("rfq.detail.quote.inclusions")}</Label>
             <Input
+              id="quote-inclusions"
               value={inclusions}
               onChange={(e) => setInclusions(e.target.value)}
               maxLength={500}
             />
           </div>
           <div>
-            <Label>{t("rfq.detail.quote.notes")}</Label>
+            <Label htmlFor="quote-notes">{t("rfq.detail.quote.notes")}</Label>
             <Textarea
+              id="quote-notes"
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}

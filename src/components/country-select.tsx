@@ -18,24 +18,28 @@ import { useTranslation } from "react-i18next";
 // even if the network/RLS fails. id === code so the auth form can still
 // resolve the country name; the trigger persists the ISO code as country.
 const FALLBACK: LookupRow[] = [
-  { id: "SA", name_en: "Saudi Arabia", name_ar: "??????? ??????? ????????" },
-  { id: "AE", name_en: "United Arab Emirates", name_ar: "???????? ??????? ???????" },
-  { id: "EG", name_en: "Egypt", name_ar: "???" },
-  { id: "KW", name_en: "Kuwait", name_ar: "??????" },
-  { id: "BH", name_en: "Bahrain", name_ar: "???????" },
-  { id: "OM", name_en: "Oman", name_ar: "????" },
-  { id: "QA", name_en: "Qatar", name_ar: "???" },
-  { id: "JO", name_en: "Jordan", name_ar: "??????" },
-  { id: "MA", name_en: "Morocco", name_ar: "??????" },
-  { id: "TR", name_en: "Turkey", name_ar: "?????" },
+  { id: "SA", name_en: "Saudi Arabia", name_ar: "المملكة العربية السعودية" },
+  { id: "AE", name_en: "United Arab Emirates", name_ar: "الإمارات العربية المتحدة" },
+  { id: "EG", name_en: "Egypt", name_ar: "مصر" },
+  { id: "KW", name_en: "Kuwait", name_ar: "الكويت" },
+  { id: "BH", name_en: "Bahrain", name_ar: "البحرين" },
+  { id: "OM", name_en: "Oman", name_ar: "عُمان" },
+  { id: "QA", name_en: "Qatar", name_ar: "قطر" },
+  { id: "JO", name_en: "Jordan", name_ar: "الأردن" },
+  { id: "MA", name_en: "Morocco", name_ar: "المغرب" },
+  { id: "TR", name_en: "Turkey", name_ar: "تركيا" },
 ];
 
 export function CountrySelect({
+  id,
+  "aria-label": ariaLabel,
   value,
   onChange,
   placeholder,
   filterCodes,
 }: {
+  id?: string;
+  "aria-label"?: string;
   value: string | null;
   onChange: (id: string | null) => void;
   placeholder?: string;
@@ -66,6 +70,8 @@ export function CountrySelect({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          id={id}
+          aria-label={ariaLabel}
           type="button"
           variant="outline"
           role="combobox"

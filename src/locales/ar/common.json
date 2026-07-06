@@ -22,7 +22,8 @@
       "morePages": "صفحات إضافية",
       "sidebar": "الشريط الجانبي",
       "mobileSidebarDescription": "يعرض الشريط الجانبي على الجوال.",
-      "toggleSidebar": "تبديل الشريط الجانبي"
+      "toggleSidebar": "تبديل الشريط الجانبي",
+      "removePhoto": "إزالة الصورة"
     },
     "loading": "جارٍ التحميل…",
     "error": "حدث خطأ ما.",

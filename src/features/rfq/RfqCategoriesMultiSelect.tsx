@@ -20,6 +20,8 @@ import {
 import { useTranslation } from "react-i18next";
 
 type Props = {
+  id?: string;
+  "aria-label"?: string;
   value: HotelCategory[];
   onChange: (v: HotelCategory[]) => void;
   placeholder?: string;
@@ -30,7 +32,14 @@ type Props = {
  * Shared searchable multi-select for RFQ Categories.
  * Empty selection === "Any" (backward compatible with existing RFQ storage).
  */
-export function RfqCategoriesMultiSelect({ value, onChange, placeholder, className }: Props) {
+export function RfqCategoriesMultiSelect({
+  id,
+  "aria-label": ariaLabel,
+  value,
+  onChange,
+  placeholder,
+  className,
+}: Props) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const selectedSet = useMemo(() => new Set(value), [value]);
@@ -46,6 +55,8 @@ export function RfqCategoriesMultiSelect({ value, onChange, placeholder, classNa
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
+            id={id}
+            aria-label={ariaLabel}
             type="button"
             variant="outline"
             role="combobox"

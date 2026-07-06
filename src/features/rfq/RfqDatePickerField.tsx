@@ -6,6 +6,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
 type Props = {
+  id?: string;
+  "aria-label"?: string;
   value: string; // YYYY-MM-DD
   onChange: (v: string) => void;
   min?: string; // YYYY-MM-DD
@@ -16,6 +18,8 @@ type Props = {
 
 /** Shared MM/DD/YYYY date picker used by all RFQ forms. */
 export function RfqDatePickerField({
+  id,
+  "aria-label": ariaLabel,
   value,
   onChange,
   min,
@@ -29,6 +33,8 @@ export function RfqDatePickerField({
     <Popover>
       <PopoverTrigger asChild>
         <Button
+          id={id}
+          aria-label={ariaLabel}
           type="button"
           variant="outline"
           className={cn(

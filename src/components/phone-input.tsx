@@ -9,12 +9,20 @@ import {
 import { PHONE_CODES, DEFAULT_PHONE_CODE } from "@/lib/phone-codes";
 
 export function PhoneInput({
+  codeId,
+  numberId,
+  codeAriaLabel,
+  numberAriaLabel,
   code,
   number,
   onCodeChange,
   onNumberChange,
   required,
 }: {
+  codeId?: string;
+  numberId?: string;
+  codeAriaLabel?: string;
+  numberAriaLabel?: string;
   code: string | null | undefined;
   number: string;
   onCodeChange: (c: string) => void;
@@ -24,7 +32,7 @@ export function PhoneInput({
   return (
     <div className="grid grid-cols-[140px_1fr] gap-2">
       <Select value={code || DEFAULT_PHONE_CODE} onValueChange={onCodeChange}>
-        <SelectTrigger>
+        <SelectTrigger id={codeId} aria-label={codeAriaLabel}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -37,6 +45,8 @@ export function PhoneInput({
         </SelectContent>
       </Select>
       <Input
+        id={numberId}
+        aria-label={numberAriaLabel}
         type="tel"
         inputMode="numeric"
         required={required}

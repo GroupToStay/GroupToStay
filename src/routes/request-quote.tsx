@@ -226,8 +226,9 @@ function Page() {
             {step === 1 && (
               <>
                 <div>
-                  <Label>{t("rfq.fields.title")}</Label>
+                  <Label htmlFor="rfq-title">{t("rfq.fields.title")}</Label>
                   <Input
+                    id="rfq-title"
                     value={extras.title}
                     onChange={(e) => setExtras((x) => ({ ...x, title: e.target.value }))}
                     placeholder={t("rfq.fields.titlePh")}
@@ -235,14 +236,14 @@ function Page() {
                   />
                 </div>
                 <div>
-                  <Label>{t("rfq.fields.groupType")}</Label>
+                  <Label htmlFor="rfq-group-type">{t("rfq.fields.groupType")}</Label>
                   <Select
                     value={extras.group_type}
                     onValueChange={(v) =>
                       setExtras((x) => ({ ...x, group_type: v as typeof x.group_type }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger id="rfq-group-type" aria-label={t("rfq.fields.groupType")}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -294,15 +295,18 @@ function Page() {
                   sections={["accommodation", "mealPlan"]}
                 />
                 <div>
-                  <Label>{t("rfq.fields.deadline")}</Label>
+                  <Label htmlFor="rfq-deadline">{t("rfq.fields.deadline")}</Label>
                   <RfqDatePickerField
+                    id="rfq-deadline"
+                    aria-label={t("rfq.fields.deadline")}
                     value={extras.deadline}
                     onChange={(v) => setExtras((x) => ({ ...x, deadline: v }))}
                   />
                 </div>
                 <div>
-                  <Label>{t("rfq.fields.notes")}</Label>
+                  <Label htmlFor="rfq-notes">{t("rfq.fields.notes")}</Label>
                   <Textarea
+                    id="rfq-notes"
                     rows={3}
                     maxLength={2000}
                     value={extras.additional_requirements}

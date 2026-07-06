@@ -22,7 +22,8 @@
       "morePages": "More pages",
       "sidebar": "Sidebar",
       "mobileSidebarDescription": "Displays the mobile sidebar.",
-      "toggleSidebar": "Toggle sidebar"
+      "toggleSidebar": "Toggle sidebar",
+      "removePhoto": "Remove photo"
     },
     "loading": "Loading…",
     "error": "Something went wrong.",

@@ -78,9 +78,10 @@ function Page() {
             {validRecovery === true && (
               <form method="post" onSubmit={onSubmit} className="mt-4 space-y-3">
                 <div>
-                  <Label>{t("auth.newPassword")}</Label>
+                  <Label htmlFor="reset-password">{t("auth.newPassword")}</Label>
                   <div className="relative mt-1">
                     <Input
+                      id="reset-password"
                       type={showPassword ? "text" : "password"}
                       required
                       minLength={8}

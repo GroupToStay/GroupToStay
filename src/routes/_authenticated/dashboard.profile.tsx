@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
@@ -156,18 +156,23 @@ function Page() {
       <Card>
         <CardContent className="p-6">
           <h2 className="font-display text-xl text-primary">{t("profile.personalInfo")}</h2>
-          <form onSubmit={saveProfile} className="mt-4 space-y-4">
+          <form method="post" onSubmit={saveProfile} className="mt-4 space-y-4">
             <div>
-              <Label>{t("profile.fullName")}</Label>
+              <Label htmlFor="profile-full-name">{t("profile.fullName")}</Label>
               <Input
+                id="profile-full-name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 maxLength={160}
               />
             </div>
             <div>
-              <Label>{t("profile.phone")}</Label>
+              <Label htmlFor="profile-phone-number">{t("profile.phone")}</Label>
               <PhoneInput
+                codeId="profile-phone-code"
+                numberId="profile-phone-number"
+                codeAriaLabel={t("auth.phoneCode")}
+                numberAriaLabel={t("profile.phone")}
                 code={phoneCode}
                 number={phoneNumber}
                 onCodeChange={setPhoneCode}
@@ -175,13 +180,14 @@ function Page() {
               />
             </div>
             <div>
-              <Label>{t("profile.country")}</Label>
-              <Input value={countryLabel} disabled readOnly />
+              <Label htmlFor="profile-country">{t("profile.country")}</Label>
+              <Input id="profile-country" value={countryLabel} disabled readOnly />
               <p className="mt-1 text-xs text-muted-foreground">{t("profile.countryLockedHint")}</p>
             </div>
             <div>
-              <Label>{t("profile.contactEmail")}</Label>
+              <Label htmlFor="profile-contact-email">{t("profile.contactEmail")}</Label>
               <Input
+                id="profile-contact-email"
                 type="email"
                 value={contactEmail}
                 onChange={(e) => setContactEmail(e.target.value)}
@@ -191,8 +197,9 @@ function Page() {
             </div>
             {isHotel && (
               <div>
-                <Label>{t("profile.orgName")}</Label>
+                <Label htmlFor="profile-org-name">{t("profile.orgName")}</Label>
                 <Input
+                  id="profile-org-name"
                   value={orgName}
                   onChange={(e) => setOrgName(e.target.value)}
                   maxLength={160}
@@ -213,12 +220,14 @@ function Page() {
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">{t("profile.loginEmailHint")}</p>
           <form
+            method="post"
             onSubmit={changeLoginEmail}
             className="mt-4 flex flex-col sm:flex-row gap-3 sm:items-end"
           >
             <div className="flex-1">
-              <Label>{t("profile.email")}</Label>
+              <Label htmlFor="profile-auth-email">{t("profile.email")}</Label>
               <Input
+                id="profile-auth-email"
                 type="email"
                 required
                 value={authEmail}
@@ -246,20 +255,30 @@ function Page() {
             <p className="mt-1 text-sm text-muted-foreground">{t("profile.companyLockedHint")}</p>
             <div className="mt-4 grid sm:grid-cols-2 gap-4">
               <div>
-                <Label>{t("profile.companyName")}</Label>
-                <Input value={profile?.company_name ?? ""} disabled readOnly />
+                <Label htmlFor="profile-company-name">{t("profile.companyName")}</Label>
+                <Input
+                  id="profile-company-name"
+                  value={profile?.company_name ?? ""}
+                  disabled
+                  readOnly
+                />
               </div>
               <div>
-                <Label>{t("profile.vatNumber")}</Label>
-                <Input value={profile?.vat_number ?? ""} disabled readOnly />
+                <Label htmlFor="profile-vat-number">{t("profile.vatNumber")}</Label>
+                <Input
+                  id="profile-vat-number"
+                  value={profile?.vat_number ?? ""}
+                  disabled
+                  readOnly
+                />
               </div>
               <div>
-                <Label>{t("profile.crNumber")}</Label>
-                <Input value={profile?.cr_number ?? ""} disabled readOnly />
+                <Label htmlFor="profile-cr-number">{t("profile.crNumber")}</Label>
+                <Input id="profile-cr-number" value={profile?.cr_number ?? ""} disabled readOnly />
               </div>
               <div>
-                <Label>{t("profile.idNumber")}</Label>
-                <Input value={profile?.id_number ?? ""} disabled readOnly />
+                <Label htmlFor="profile-id-number">{t("profile.idNumber")}</Label>
+                <Input id="profile-id-number" value={profile?.id_number ?? ""} disabled readOnly />
               </div>
             </div>
           </CardContent>
@@ -272,10 +291,11 @@ function Page() {
 }
 
 function ReadRow({ label, value }: { label: string; value?: string | null }) {
+  const id = useId();
   return (
     <div>
-      <Label>{label}</Label>
-      <Input value={value ?? "—"} disabled readOnly />
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} value={value ?? "—"} disabled readOnly />
     </div>
   );
 }

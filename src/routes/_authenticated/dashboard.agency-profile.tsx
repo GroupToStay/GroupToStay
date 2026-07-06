@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { Children, cloneElement, isValidElement, useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { useAgencyVerification } from "@/hooks/use-agency-verification";
-import { useCountries, useCities } from "@/hooks/use-master-data";
+import { useCountries, useCities, useLocalizedName } from "@/hooks/use-master-data";
 import { AccessDenied } from "@/components/access-denied";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -72,6 +72,7 @@ function Page() {
     refetch: refetchStatus,
   } = useAgencyVerification();
   const navigate = useNavigate();
+  const localized = useLocalizedName();
   const { data: countries = [] } = useCountries();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -356,7 +357,7 @@ function Page() {
                 <SelectContent>
                   {countries.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
-                      {c.name_en}
+                      {localized(c)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -378,7 +379,7 @@ function Page() {
                 <SelectContent>
                   {cities.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
-                      {c.name_en}
+                      {localized(c)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -672,12 +673,33 @@ function Field({
   required?: boolean;
   children: React.ReactNode;
 }) {
+  const id = useId();
+  const control = isValidElement(children)
+    ? children.type === Select
+      ? cloneElement(
+          children,
+          undefined,
+          Children.map((children.props as { children?: React.ReactNode }).children, (child) =>
+            isValidElement(child) && child.type === SelectTrigger
+              ? cloneElement(child as React.ReactElement<{ id?: string; "aria-label"?: string }>, {
+                  id,
+                  "aria-label": label,
+                })
+              : child,
+          ),
+        )
+      : cloneElement(children as React.ReactElement<{ id?: string; "aria-label"?: string }>, {
+          id,
+          "aria-label": label,
+        })
+    : children;
+
   return (
     <div>
-      <Label>
+      <Label htmlFor={id}>
         {label} {required && <span className="text-destructive">*</span>}
       </Label>
-      <div className="mt-1">{children}</div>
+      <div className="mt-1">{control}</div>
     </div>
   );
 }
@@ -698,10 +720,11 @@ function UploadField({
   disabled?: boolean;
 }) {
   const { t } = useTranslation();
+  const id = useId();
 
   return (
     <div>
-      <Label>
+      <Label htmlFor={id}>
         {label} {required && <span className="text-destructive">*</span>}
       </Label>
       <div className="mt-1 flex items-center gap-2">
@@ -715,6 +738,7 @@ function UploadField({
               ? t("profile.agency.upload.replace")
               : t("profile.agency.upload.upload")}
           <input
+            id={id}
             type="file"
             accept="application/pdf,image/jpeg,image/png"
             className="hidden"

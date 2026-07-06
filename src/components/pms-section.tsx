@@ -93,14 +93,19 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
           <Server className="h-5 w-5" /> {t("auth.pms.title")}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">{t("auth.pms.intro")}</p>
-        <form onSubmit={save} className="mt-4 space-y-4">
+        <form method="post" onSubmit={save} className="mt-4 space-y-4">
           <div>
             <Label>{t("auth.pms.question")}</Label>
-            <div className="mt-1 grid grid-cols-2 gap-2 max-w-xs">
+            <div
+              className="mt-1 grid grid-cols-2 gap-2 max-w-xs"
+              role="group"
+              aria-label={t("auth.pms.question")}
+            >
               {(["yes", "no"] as const).map((v) => (
                 <button
                   type="button"
                   key={v}
+                  aria-pressed={enabled === v}
                   onClick={() => setEnabled(v)}
                   className={`rounded-md border px-3 py-2 text-sm capitalize ${enabled === v ? "border-gold bg-gold/10 text-foreground" : "border-input bg-background text-muted-foreground"}`}
                 >
@@ -112,8 +117,9 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
           {enabled === "yes" && (
             <>
               <div>
-                <Label>{t("auth.pms.provider")}</Label>
+                <Label htmlFor="pms-provider">{t("auth.pms.provider")}</Label>
                 <select
+                  id="pms-provider"
                   className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                   value={provider}
                   onChange={(e) => setProvider(e.target.value)}
@@ -128,8 +134,9 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
               </div>
               {provider === PMS_OTHER_PROVIDER && (
                 <div>
-                  <Label>{t("auth.pms.specifyProvider")}</Label>
+                  <Label htmlFor="pms-provider-other">{t("auth.pms.specifyProvider")}</Label>
                   <Input
+                    id="pms-provider-other"
                     value={otherProvider}
                     onChange={(e) => setOtherProvider(e.target.value)}
                     maxLength={120}
@@ -137,8 +144,9 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
                 </div>
               )}
               <div>
-                <Label>{t("auth.pms.apiAvailable")}</Label>
+                <Label htmlFor="pms-api-available">{t("auth.pms.apiAvailable")}</Label>
                 <select
+                  id="pms-api-available"
                   className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                   value={api}
                   onChange={(e) => setApi(e.target.value as any)}
@@ -153,12 +161,18 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <Label>{t("auth.pms.technicalContactName")}</Label>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={160} />
+                  <Label htmlFor="pms-technical-name">{t("auth.pms.technicalContactName")}</Label>
+                  <Input
+                    id="pms-technical-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    maxLength={160}
+                  />
                 </div>
                 <div>
-                  <Label>{t("auth.pms.technicalContactEmail")}</Label>
+                  <Label htmlFor="pms-technical-email">{t("auth.pms.technicalContactEmail")}</Label>
                   <Input
+                    id="pms-technical-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -166,8 +180,9 @@ export function PmsSection({ userId, profile }: { userId: string; profile: any }
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <Label>{t("auth.pms.technicalContactPhone")}</Label>
+                  <Label htmlFor="pms-technical-phone">{t("auth.pms.technicalContactPhone")}</Label>
                   <Input
+                    id="pms-technical-phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     maxLength={40}

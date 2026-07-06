@@ -40,16 +40,16 @@ function Page() {
         <p className="mt-2 text-muted-foreground">{t("contact.subtitle")}</p>
         <form method="post" onSubmit={onSubmit} className="mt-8 space-y-4">
           <div>
-            <Label>{t("contact.name")}</Label>
-            <Input required maxLength={120} />
+            <Label htmlFor="contact-name">{t("contact.name")}</Label>
+            <Input id="contact-name" required maxLength={120} />
           </div>
           <div>
-            <Label>{t("contact.email")}</Label>
-            <Input type="email" required maxLength={200} />
+            <Label htmlFor="contact-email">{t("contact.email")}</Label>
+            <Input id="contact-email" type="email" required maxLength={200} />
           </div>
           <div>
-            <Label>{t("contact.message")}</Label>
-            <Textarea required maxLength={2000} rows={5} />
+            <Label htmlFor="contact-message">{t("contact.message")}</Label>
+            <Textarea id="contact-message" required maxLength={2000} rows={5} />
           </div>
           <Button type="submit" variant="gold" disabled={sending}>
             {t("contact.send")}

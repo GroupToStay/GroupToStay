@@ -277,10 +277,11 @@ function QuoteDialog({ rfq, hotelId }: { rfq: any; hotelId: string }) {
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label>
+            <Label htmlFor="invitation-total-price">
               {t("hotelDash.fields.totalPrice")} ({rfq.currency})
             </Label>
             <Input
+              id="invitation-total-price"
               type="number"
               min={0}
               value={totalPrice}
@@ -288,10 +289,11 @@ function QuoteDialog({ rfq, hotelId }: { rfq: any; hotelId: string }) {
             />
           </div>
           <div>
-            <Label>
+            <Label htmlFor="invitation-per-night">
               {t("hotelDash.fields.perNight")} ({rfq.currency})
             </Label>
             <Input
+              id="invitation-per-night"
               type="number"
               min={0}
               value={perNight}
@@ -299,8 +301,9 @@ function QuoteDialog({ rfq, hotelId }: { rfq: any; hotelId: string }) {
             />
           </div>
           <div>
-            <Label>{t("rfq.fields.board")}</Label>
+            <Label htmlFor="invitation-board">{t("rfq.fields.board")}</Label>
             <select
+              id="invitation-board"
               className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={board}
               onChange={(e) => setBoard(e.target.value)}
@@ -313,20 +316,27 @@ function QuoteDialog({ rfq, hotelId }: { rfq: any; hotelId: string }) {
             </select>
           </div>
           <div>
-            <Label>{t("hotelDash.fields.validUntil")}</Label>
-            <Input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
+            <Label htmlFor="invitation-valid-until">{t("hotelDash.fields.validUntil")}</Label>
+            <Input
+              id="invitation-valid-until"
+              type="date"
+              value={validUntil}
+              onChange={(e) => setValidUntil(e.target.value)}
+            />
           </div>
           <div>
-            <Label>{t("hotelDash.fields.inclusions")}</Label>
+            <Label htmlFor="invitation-inclusions">{t("hotelDash.fields.inclusions")}</Label>
             <Input
+              id="invitation-inclusions"
               value={inclusions}
               onChange={(e) => setInclusions(e.target.value)}
               maxLength={500}
             />
           </div>
           <div>
-            <Label>{t("hotelDash.fields.notes")}</Label>
+            <Label htmlFor="invitation-notes">{t("hotelDash.fields.notes")}</Label>
             <Textarea
+              id="invitation-notes"
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}

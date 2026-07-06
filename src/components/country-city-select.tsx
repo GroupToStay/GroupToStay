@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { useTranslation } from "react-i18next";
 import { Label } from "@/components/ui/label";
 import {
@@ -31,6 +31,8 @@ export function CountryCitySelect({
   const localized = useLocalizedName();
   const { data: countries = [] } = useCountries();
   const { data: cities = [] } = useCities(countryId);
+  const countrySelectId = useId();
+  const citySelectId = useId();
 
   // Clear city when country changes and current city doesn't belong
   useEffect(() => {
@@ -42,7 +44,7 @@ export function CountryCitySelect({
   return (
     <div className="grid sm:grid-cols-2 gap-3">
       <div>
-        <Label>
+        <Label htmlFor={countrySelectId}>
           {labelCountry ?? t("common.country")}
           {required && " *"}
         </Label>
@@ -50,7 +52,7 @@ export function CountryCitySelect({
           value={countryId ?? ""}
           onValueChange={(v) => onChange({ countryId: v || null, cityId: null })}
         >
-          <SelectTrigger>
+          <SelectTrigger id={countrySelectId} aria-label={labelCountry ?? t("common.country")}>
             <SelectValue placeholder={t("common.selectCountry")} />
           </SelectTrigger>
           <SelectContent>
@@ -63,7 +65,7 @@ export function CountryCitySelect({
         </Select>
       </div>
       <div>
-        <Label>
+        <Label htmlFor={citySelectId}>
           {labelCity ?? t("common.city")}
           {required && " *"}
         </Label>
@@ -72,7 +74,7 @@ export function CountryCitySelect({
           onValueChange={(v) => onChange({ countryId, cityId: v || null })}
           disabled={!countryId}
         >
-          <SelectTrigger>
+          <SelectTrigger id={citySelectId} aria-label={labelCity ?? t("common.city")}>
             <SelectValue
               placeholder={countryId ? t("common.selectCity") : t("common.selectCountryFirst")}
             />

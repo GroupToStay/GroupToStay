@@ -14,9 +14,13 @@ import {
 import { useTranslation } from "react-i18next";
 
 export function RfqAccommodationSelect({
+  id,
+  "aria-label": ariaLabel,
   value,
   onChange,
 }: {
+  id?: string;
+  "aria-label"?: string;
   value: AccommodationType;
   onChange: (v: AccommodationType) => void;
 }) {
@@ -24,7 +28,7 @@ export function RfqAccommodationSelect({
 
   return (
     <Select value={value} onValueChange={(v) => onChange(v as AccommodationType)}>
-      <SelectTrigger>
+      <SelectTrigger id={id} aria-label={ariaLabel}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -39,9 +43,13 @@ export function RfqAccommodationSelect({
 }
 
 export function RfqMealPlanSelect({
+  id,
+  "aria-label": ariaLabel,
   value,
   onChange,
 }: {
+  id?: string;
+  "aria-label"?: string;
   value: MealPlan;
   onChange: (v: MealPlan) => void;
 }) {
@@ -49,7 +57,7 @@ export function RfqMealPlanSelect({
 
   return (
     <Select value={value} onValueChange={(v) => onChange(v as MealPlan)}>
-      <SelectTrigger>
+      <SelectTrigger id={id} aria-label={ariaLabel}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

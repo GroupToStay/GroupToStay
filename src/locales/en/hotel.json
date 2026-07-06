@@ -73,6 +73,7 @@
     "fileTooLarge": "file is larger than 5 MB",
     "setCover": "Set as cover",
     "coverBadge": "Cover",
+    "removeRoom": "Remove room",
     "fields": {
       "name": "Hotel name",
       "city": "City",

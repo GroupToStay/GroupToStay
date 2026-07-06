@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -22,14 +23,15 @@ export function AgencyTypeSelect({
 }) {
   const { t } = useTranslation();
   const displayLabel = label ?? t("forms.agencyType.label");
+  const selectId = useId();
 
   return (
     <div>
-      <Label>
+      <Label htmlFor={selectId}>
         {displayLabel} {required && <span className="text-destructive">*</span>}
       </Label>
       <Select value={value ?? ""} onValueChange={(v) => onChange(v as AgencyType)}>
-        <SelectTrigger>
+        <SelectTrigger id={selectId} aria-label={displayLabel}>
           <SelectValue placeholder={t("forms.agencyType.placeholder")} />
         </SelectTrigger>
         <SelectContent>

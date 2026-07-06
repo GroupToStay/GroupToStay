@@ -215,11 +215,16 @@ function Page() {
                 <>
                   <div>
                     <Label>{t("auth.accountType")}</Label>
-                    <div className="mt-1 grid grid-cols-2 gap-2">
+                    <div
+                      className="mt-1 grid grid-cols-2 gap-2"
+                      role="group"
+                      aria-label={t("auth.accountType")}
+                    >
                       {(["organizer", "hotel"] as const).map((r) => (
                         <button
                           type="button"
                           key={r}
+                          aria-pressed={role === r}
                           onClick={() => setRole(r)}
                           className={`rounded-md border px-3 py-2 text-sm text-start ${role === r ? "border-gold bg-gold/10 text-foreground" : "border-input bg-background text-muted-foreground"}`}
                         >
@@ -232,8 +237,9 @@ function Page() {
                     </div>
                   </div>
                   <div>
-                    <Label>{t("auth.fullName")}</Label>
+                    <Label htmlFor="auth-full-name">{t("auth.fullName")}</Label>
                     <Input
+                      id="auth-full-name"
                       required
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
@@ -241,8 +247,12 @@ function Page() {
                     />
                   </div>
                   <div>
-                    <Label>{t("auth.phone")}</Label>
+                    <Label htmlFor="auth-phone-number">{t("auth.phone")}</Label>
                     <PhoneInput
+                      codeId="auth-phone-code"
+                      numberId="auth-phone-number"
+                      codeAriaLabel={t("auth.phoneCode")}
+                      numberAriaLabel={t("auth.phone")}
                       code={phoneCode}
                       number={phoneNumber}
                       onCodeChange={setPhoneCode}
@@ -252,10 +262,12 @@ function Page() {
                   </div>
                   {role === "hotel" && (
                     <div>
-                      <Label>
+                      <Label htmlFor="auth-country">
                         {t("auth.country")} <span className="text-destructive">*</span>
                       </Label>
                       <CountrySelect
+                        id="auth-country"
+                        aria-label={t("auth.country")}
                         value={countryId}
                         onChange={setCountryId}
                         filterCodes={["SA", "EG", "AE", "KW", "BH", "OM", "QA", "JO", "MA", "TR"]}
@@ -269,8 +281,9 @@ function Page() {
                         {t("auth.hotelExtraIntro")}
                       </div>
                       <div>
-                        <Label>{t("auth.companyName")}</Label>
+                        <Label htmlFor="auth-company-name">{t("auth.companyName")}</Label>
                         <Input
+                          id="auth-company-name"
                           required
                           value={companyName}
                           onChange={(e) => setCompanyName(e.target.value)}
@@ -279,8 +292,9 @@ function Page() {
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <Label>{t("auth.vatNumber")}</Label>
+                          <Label htmlFor="auth-vat-number">{t("auth.vatNumber")}</Label>
                           <Input
+                            id="auth-vat-number"
                             required
                             value={vatNumber}
                             onChange={(e) => setVatNumber(e.target.value)}
@@ -288,8 +302,9 @@ function Page() {
                           />
                         </div>
                         <div>
-                          <Label>{t("auth.crNumber")}</Label>
+                          <Label htmlFor="auth-cr-number">{t("auth.crNumber")}</Label>
                           <Input
+                            id="auth-cr-number"
                             required
                             value={crNumber}
                             onChange={(e) => setCrNumber(e.target.value)}
@@ -298,8 +313,9 @@ function Page() {
                         </div>
                       </div>
                       <div>
-                        <Label>{t("auth.contactEmail")}</Label>
+                        <Label htmlFor="auth-contact-email">{t("auth.contactEmail")}</Label>
                         <Input
+                          id="auth-contact-email"
                           type="email"
                           value={contactEmail}
                           onChange={(e) => setContactEmail(e.target.value)}
@@ -317,11 +333,16 @@ function Page() {
                       <div className="text-xs text-muted-foreground">{t("auth.pms.intro")}</div>
                       <div>
                         <Label>{t("auth.pms.question")}</Label>
-                        <div className="mt-1 grid grid-cols-2 gap-2">
+                        <div
+                          className="mt-1 grid grid-cols-2 gap-2"
+                          role="group"
+                          aria-label={t("auth.pms.question")}
+                        >
                           {(["yes", "no"] as const).map((v) => (
                             <button
                               type="button"
                               key={v}
+                              aria-pressed={pmsEnabled === v}
                               onClick={() => setPmsEnabled(v)}
                               className={`rounded-md border px-3 py-2 text-sm capitalize ${pmsEnabled === v ? "border-gold bg-gold/10 text-foreground" : "border-input bg-background text-muted-foreground"}`}
                             >
@@ -333,8 +354,9 @@ function Page() {
                       {pmsEnabled === "yes" && (
                         <>
                           <div>
-                            <Label>{t("auth.pms.provider")}</Label>
+                            <Label htmlFor="auth-pms-provider">{t("auth.pms.provider")}</Label>
                             <select
+                              id="auth-pms-provider"
                               className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                               value={pmsProvider}
                               onChange={(e) => setPmsProvider(e.target.value)}
@@ -349,8 +371,11 @@ function Page() {
                           </div>
                           {pmsProvider === OTHER_PMS_PROVIDER && (
                             <div>
-                              <Label>{t("auth.pms.specifyProvider")}</Label>
+                              <Label htmlFor="auth-pms-provider-other">
+                                {t("auth.pms.specifyProvider")}
+                              </Label>
                               <Input
+                                id="auth-pms-provider-other"
                                 value={pmsProviderOther}
                                 onChange={(e) => setPmsProviderOther(e.target.value)}
                                 maxLength={120}
@@ -358,8 +383,9 @@ function Page() {
                             </div>
                           )}
                           <div>
-                            <Label>{t("auth.pms.apiAvailable")}</Label>
+                            <Label htmlFor="auth-pms-api">{t("auth.pms.apiAvailable")}</Label>
                             <select
+                              id="auth-pms-api"
                               className="mt-1 flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                               value={apiAvailable}
                               onChange={(e) => setApiAvailable(e.target.value as any)}
@@ -373,16 +399,22 @@ function Page() {
                             </select>
                           </div>
                           <div>
-                            <Label>{t("auth.pms.technicalContactName")}</Label>
+                            <Label htmlFor="auth-tech-name">
+                              {t("auth.pms.technicalContactName")}
+                            </Label>
                             <Input
+                              id="auth-tech-name"
                               value={techName}
                               onChange={(e) => setTechName(e.target.value)}
                               maxLength={160}
                             />
                           </div>
                           <div>
-                            <Label>{t("auth.pms.technicalContactEmail")}</Label>
+                            <Label htmlFor="auth-tech-email">
+                              {t("auth.pms.technicalContactEmail")}
+                            </Label>
                             <Input
+                              id="auth-tech-email"
                               type="email"
                               value={techEmail}
                               onChange={(e) => setTechEmail(e.target.value)}
@@ -390,8 +422,11 @@ function Page() {
                             />
                           </div>
                           <div>
-                            <Label>{t("auth.pms.technicalContactPhone")}</Label>
+                            <Label htmlFor="auth-tech-phone">
+                              {t("auth.pms.technicalContactPhone")}
+                            </Label>
                             <Input
+                              id="auth-tech-phone"
                               value={techPhone}
                               onChange={(e) => setTechPhone(e.target.value)}
                               maxLength={40}
@@ -411,8 +446,9 @@ function Page() {
                 </>
               )}
               <div>
-                <Label>{t("auth.email")}</Label>
+                <Label htmlFor="auth-email">{t("auth.email")}</Label>
                 <Input
+                  id="auth-email"
                   type="email"
                   required={mode !== "signup"}
                   value={email}
@@ -421,9 +457,10 @@ function Page() {
               </div>
               {mode !== "forgot" && (
                 <div>
-                  <Label>{t("auth.password")}</Label>
+                  <Label htmlFor="auth-password">{t("auth.password")}</Label>
                   <div className="relative mt-1">
                     <Input
+                      id="auth-password"
                       type={showPassword ? "text" : "password"}
                       required
                       minLength={8}

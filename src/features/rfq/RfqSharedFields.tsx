@@ -3,7 +3,7 @@
 // full wizard (src/routes/request-quote.tsx). Any change to a shared RFQ field
 // should happen here — do not re-assemble these fields elsewhere.
 
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CountryCitySelect } from "@/components/country-city-select";
@@ -64,6 +64,14 @@ export function RfqSharedFields({
   requirementsHint,
 }: Props) {
   const { t } = useTranslation();
+  const groupSizeId = useId();
+  const roomsId = useId();
+  const checkInId = useId();
+  const checkOutId = useId();
+  const categoriesId = useId();
+  const accommodationId = useId();
+  const mealPlanId = useId();
+  const requirementsId = useId();
   const has = (s: RfqSharedSection) => sections.includes(s);
   const compact = variant === "compact";
 
@@ -81,8 +89,14 @@ export function RfqSharedFields({
   );
 
   const groupSize = has("counts") && (
-    <LabeledField compact={compact} icon={Users} label={t("rfq.fields.groupSize")}>
+    <LabeledField
+      compact={compact}
+      icon={Users}
+      label={t("rfq.fields.groupSize")}
+      htmlFor={groupSizeId}
+    >
       <Input
+        id={groupSizeId}
         type="number"
         min={1}
         placeholder="120"
@@ -92,8 +106,14 @@ export function RfqSharedFields({
     </LabeledField>
   );
   const rooms = has("counts") && (
-    <LabeledField compact={compact} icon={BedDouble} label={t("rfq.fields.rooms")}>
+    <LabeledField
+      compact={compact}
+      icon={BedDouble}
+      label={t("rfq.fields.rooms")}
+      htmlFor={roomsId}
+    >
       <Input
+        id={roomsId}
         type="number"
         min={1}
         placeholder="40"
@@ -103,13 +123,30 @@ export function RfqSharedFields({
     </LabeledField>
   );
   const checkIn = has("dates") && (
-    <LabeledField compact={compact} icon={Calendar} label={t("rfq.fields.checkIn")}>
-      <RfqDatePickerField value={value.check_in} onChange={(v) => onChange({ check_in: v })} />
+    <LabeledField
+      compact={compact}
+      icon={Calendar}
+      label={t("rfq.fields.checkIn")}
+      htmlFor={checkInId}
+    >
+      <RfqDatePickerField
+        id={checkInId}
+        aria-label={t("rfq.fields.checkIn")}
+        value={value.check_in}
+        onChange={(v) => onChange({ check_in: v })}
+      />
     </LabeledField>
   );
   const checkOut = has("dates") && (
-    <LabeledField compact={compact} icon={Calendar} label={t("rfq.fields.checkOut")}>
+    <LabeledField
+      compact={compact}
+      icon={Calendar}
+      label={t("rfq.fields.checkOut")}
+      htmlFor={checkOutId}
+    >
       <RfqDatePickerField
+        id={checkOutId}
+        aria-label={t("rfq.fields.checkOut")}
         value={value.check_out}
         onChange={(v) => onChange({ check_out: v })}
         min={value.check_in}
@@ -118,24 +155,45 @@ export function RfqSharedFields({
   );
 
   const categories = has("categories") && (
-    <LabeledField compact={compact} icon={Star} label={t("rfq.fields.categories")}>
+    <LabeledField
+      compact={compact}
+      icon={Star}
+      label={t("rfq.fields.categories")}
+      htmlFor={categoriesId}
+    >
       <RfqCategoriesMultiSelect
+        id={categoriesId}
+        aria-label={t("rfq.fields.categories")}
         value={value.hotel_categories_v2}
         onChange={(v) => onChange({ hotel_categories_v2: v })}
       />
     </LabeledField>
   );
   const accommodation = has("accommodation") && (
-    <LabeledField compact={compact} icon={Hotel} label={t("rfq.fields.accommodation")}>
+    <LabeledField
+      compact={compact}
+      icon={Hotel}
+      label={t("rfq.fields.accommodation")}
+      htmlFor={accommodationId}
+    >
       <RfqAccommodationSelect
+        id={accommodationId}
+        aria-label={t("rfq.fields.accommodation")}
         value={value.accommodation_type}
         onChange={(v) => onChange({ accommodation_type: v })}
       />
     </LabeledField>
   );
   const mealPlan = has("mealPlan") && (
-    <LabeledField compact={compact} icon={BedDouble} label={t("rfq.fields.mealPlan")}>
+    <LabeledField
+      compact={compact}
+      icon={BedDouble}
+      label={t("rfq.fields.mealPlan")}
+      htmlFor={mealPlanId}
+    >
       <RfqMealPlanSelect
+        id={mealPlanId}
+        aria-label={t("rfq.fields.mealPlan")}
         value={value.meal_plan_code}
         onChange={(v) => onChange({ meal_plan_code: v })}
       />
@@ -144,7 +202,10 @@ export function RfqSharedFields({
 
   const requirements = has("requirements") && (
     <div>
-      <Label className={compact ? "text-xs text-muted-foreground font-medium" : ""}>
+      <Label
+        htmlFor={requirementsId}
+        className={compact ? "text-xs text-muted-foreground font-medium" : ""}
+      >
         {t("rfq.fields.requirementsOptional")}
       </Label>
       {requirementsHint ? (
@@ -152,6 +213,7 @@ export function RfqSharedFields({
       ) : null}
       <div className={compact ? "mt-1.5" : "mt-1"}>
         <RfqRequirementsField
+          id={requirementsId}
           value={value.requirements}
           onChange={(v) => onChange({ requirements: v })}
           rows={compact ? 4 : 6}
@@ -213,17 +275,22 @@ function LabeledField({
   compact,
   icon: Icon,
   label,
+  htmlFor,
   children,
 }: {
   compact: boolean;
   icon: any;
   label: string;
+  htmlFor: string;
   children: ReactNode;
 }) {
   if (compact) {
     return (
       <div>
-        <Label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 mb-1.5">
+        <Label
+          htmlFor={htmlFor}
+          className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 mb-1.5"
+        >
           <Icon className="h-3.5 w-3.5" /> {label}
         </Label>
         {children}
@@ -232,7 +299,7 @@ function LabeledField({
   }
   return (
     <div>
-      <Label>{label}</Label>
+      <Label htmlFor={htmlFor}>{label}</Label>
       <div className="mt-1">{children}</div>
     </div>
   );

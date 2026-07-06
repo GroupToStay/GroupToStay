@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   ArrowRight,
   Building2,
@@ -1109,6 +1108,7 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
   return (
     <section className="container-page -mt-10 md:-mt-14 relative z-10">
       <form
+        method="post"
         onSubmit={onSubmit}
         className="rounded-2xl bg-card border border-border shadow-[0_25px_60px_-20px_rgba(15,23,42,0.25)] p-5 md:p-7"
       >
@@ -1142,25 +1142,6 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
         </div>
       </form>
     </section>
-  );
-}
-
-function Field({
-  icon: Icon,
-  label,
-  children,
-}: {
-  icon: any;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <Label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5 mb-1.5">
-        <Icon className="h-3.5 w-3.5" /> {label}
-      </Label>
-      {children}
-    </div>
   );
 }
 

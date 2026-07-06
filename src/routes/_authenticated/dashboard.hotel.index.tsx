@@ -314,10 +314,11 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
         <DialogHeader>
           <DialogTitle>{t("hotelDash.createTitle")}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={submit} className="space-y-4">
+        <form method="post" onSubmit={submit} className="space-y-4">
           <div>
-            <Label>{t("hotelDash.fields.name")}</Label>
+            <Label htmlFor="new-hotel-name">{t("hotelDash.fields.name")}</Label>
             <Input
+              id="new-hotel-name"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -334,12 +335,18 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
             required
           />
           <div>
-            <Label>{t("hotelDash.fields.address")}</Label>
-            <Input value={address} onChange={(e) => setAddress(e.target.value)} maxLength={240} />
+            <Label htmlFor="new-hotel-address">{t("hotelDash.fields.address")}</Label>
+            <Input
+              id="new-hotel-address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              maxLength={240}
+            />
           </div>
           <div>
-            <Label>{t("hotelDash.fields.stars")}</Label>
+            <Label htmlFor="new-hotel-stars">{t("hotelDash.fields.stars")}</Label>
             <select
+              id="new-hotel-stars"
               className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={starRating}
               onChange={(e) => setStarRating(e.target.value)}
@@ -352,8 +359,9 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
             </select>
           </div>
           <div>
-            <Label>{t("hotelDash.fields.description")}</Label>
+            <Label htmlFor="new-hotel-description">{t("hotelDash.fields.description")}</Label>
             <Textarea
+              id="new-hotel-description"
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -361,8 +369,9 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
             />
           </div>
           <div>
-            <Label>{t("hotelDash.fields.amenities")}</Label>
+            <Label htmlFor="new-hotel-amenities">{t("hotelDash.fields.amenities")}</Label>
             <Input
+              id="new-hotel-amenities"
               value={amenities}
               onChange={(e) => setAmenities(e.target.value)}
               placeholder={t("hotelDash.fields.amenitiesPh")}

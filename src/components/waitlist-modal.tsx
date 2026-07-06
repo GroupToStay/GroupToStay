@@ -83,7 +83,7 @@ export function WaitlistModal({
         <DialogHeader>
           <DialogTitle>{t("forms.waitlist.title")}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={submit} className="space-y-3">
+        <form method="post" onSubmit={submit} className="space-y-3">
           <p className="text-sm text-muted-foreground">
             {t("forms.waitlist.requestedPlan")}{" "}
             <span className="font-medium capitalize">
@@ -93,8 +93,9 @@ export function WaitlistModal({
             </span>
           </p>
           <div>
-            <Label>{t("forms.waitlist.fullName")}</Label>
+            <Label htmlFor="waitlist-full-name">{t("forms.waitlist.fullName")}</Label>
             <Input
+              id="waitlist-full-name"
               required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
@@ -102,8 +103,9 @@ export function WaitlistModal({
             />
           </div>
           <div>
-            <Label>{t("forms.waitlist.email")}</Label>
+            <Label htmlFor="waitlist-email">{t("forms.waitlist.email")}</Label>
             <Input
+              id="waitlist-email"
               type="email"
               required
               value={email}
@@ -112,8 +114,9 @@ export function WaitlistModal({
             />
           </div>
           <div>
-            <Label>{t("forms.waitlist.hotelName")}</Label>
+            <Label htmlFor="waitlist-hotel-name">{t("forms.waitlist.hotelName")}</Label>
             <Input
+              id="waitlist-hotel-name"
               value={hotelName}
               onChange={(e) => setHotelName(e.target.value)}
               maxLength={160}
