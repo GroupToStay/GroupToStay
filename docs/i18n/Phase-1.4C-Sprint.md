@@ -13,6 +13,8 @@ Certify and polish the completed English and Arabic implementation without chang
 - Repaired Arabic fallback country data and locale-aware Agency Profile country/city rendering.
 - Enforced explicit POST semantics on all HTML forms.
 - Regenerated localization audit and coverage evidence.
+- Published the synchronized release head `1f75ce5` to Lovable and verified the fresh production asset bundle.
+- Verified that `en-US`, `ar-SA`, and `ar-EG` browser language headers do not change the deterministic English first render.
 
 ## Gate Status
 
@@ -27,7 +29,10 @@ Certify and polish the completed English and Arabic implementation without chang
 | Hardcoded user-visible strings               | 0                        |
 | Public English / Arabic browser QA           | Pass                     |
 | Required responsive matrix                   | Pass                     |
+| GitHub / Lovable synchronization             | Pass                     |
+| Production bundle refresh                    | Pass                     |
 | Authenticated Agency / Hotel / Admin live QA | Pending test accounts    |
 | Edge / Firefox / Safari QA                   | Pending browser runtimes |
+| Final live console capture                   | Pending browser tooling  |
 
 Phase 1.4C remains open until the pending live-role and browser evidence is completed or accepted by the release owner.

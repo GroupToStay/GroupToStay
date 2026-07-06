@@ -125,12 +125,17 @@ Formal screen-reader sessions and automated color-contrast measurements were not
 
 ## Production Evidence
 
-The connected Lovable project synchronized GitHub through commit `b1b74e8` during certification and served a fresh `index-BiTvSKYP.js` bundle. The final Phase 1.4C documentation and accessibility commit still requires publication and a final live bundle check.
+The connected Lovable project synchronized and published GitHub `main` through commit `1f75ce5`. Production now serves the fresh `index-BmVZWHtj.js` entry bundle instead of the previous `index-BiTvSKYP.js` bundle, with `Cache-Control: no-cache, must-revalidate, max-age=0` on the HTML response.
+
+Production HTTP verification with `Accept-Language: en-US`, `ar-SA`, and `ar-EG` returned the same deterministic English first render (`lang="en"`, `dir="ltr"`). This confirms that browser language does not select the application language. The production browser retained the user-selected Arabic application locale and exposed the localized Arabic page title after deployment.
+
+The complete public browser matrix and console checks passed against the same application source before publication. The final post-publication browser instrumentation session could read the deployed URL and title but could not complete DOM or console extraction, so a fresh live console capture remains outstanding.
 
 ## Remaining Release Blockers
 
 1. Live role-by-role certification needs Agency, Hotel, and Admin test accounts.
 2. Edge, Firefox, Safari, and Mobile Safari runtimes are unavailable in the current environment.
 3. Formal assistive-technology and color-contrast evidence is not available.
+4. A fresh post-publication production console capture remains outstanding because the available browser instrumentation did not complete the read.
 
 Phase 1.4C must remain open until the required evidence is supplied or the release owner explicitly accepts those environmental limitations.
