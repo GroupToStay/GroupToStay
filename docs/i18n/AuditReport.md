@@ -1,6 +1,6 @@
 # Enterprise i18n Audit Report
 
-Generated: 2026-07-05T17:46:41.344Z
+Generated: 2026-07-06T10:04:59.927Z
 
 ## Executive Summary
 
@@ -9,13 +9,13 @@ This report classifies every non-empty string literal and source comment detecte
 | Metric                               | Result |
 | ------------------------------------ | ------ |
 | Source files scanned                 | 153    |
-| Strings detected and classified      | 9386   |
+| Strings detected and classified      | 9574   |
 | Hardcoded USER_VISIBLE occurrences   | 0      |
 | Unique hardcoded USER_VISIBLE values | 0      |
-| Translation references               | 1541   |
-| Catalog keys (union)                 | 1472   |
-| English keys                         | 1472   |
-| Arabic keys                          | 1472   |
+| Translation references               | 1564   |
+| Catalog keys (union)                 | 1475   |
+| English keys                         | 1475   |
+| Arabic keys                          | 1475   |
 | Catalog parity                       | 100.0% |
 | Estimated effective UI coverage      | 100.0% |
 | Risk assessment                      | LOW    |
@@ -25,12 +25,12 @@ This report classifies every non-empty string literal and source comment detecte
 | Category          | Occurrences |
 | ----------------- | ----------- |
 | USER_VISIBLE      | 0           |
-| TECHNICAL         | 5863        |
+| TECHNICAL         | 6052        |
 | INTERNAL_CONSTANT | 745         |
 | ROUTES            | 318         |
 | QUERY_KEYS        | 738         |
-| DEVELOPER_ONLY    | 1318        |
-| THIRD_PARTY       | 404         |
+| DEVELOPER_ONLY    | 1315        |
+| THIRD_PARTY       | 406         |
 
 ## Catalog Integrity
 
@@ -48,7 +48,7 @@ This report classifies every non-empty string literal and source comment detecte
 | Interpolation mismatches              | 0        |
 | Pluralization issues                  | 0        |
 | Suspicious encoding values            | 0        |
-| Unused keys                           | 85       |
+| Unused keys                           | 84       |
 
 ## Risk Assessment
 

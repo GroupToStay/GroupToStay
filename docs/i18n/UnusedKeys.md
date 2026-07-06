@@ -1,8 +1,8 @@
 # Unused Translation Keys
 
-Generated: 2026-07-05T17:46:41.344Z
+Generated: 2026-07-06T10:04:59.927Z
 
-Static analysis found **85** keys with no resolvable reference. Dynamic runtime key construction can create false positives; review before deleting anything.
+Static analysis found **84** keys with no resolvable reference. Dynamic runtime key construction can create false positives; review before deleting anything.
 
 ## Human Review
 
@@ -91,7 +91,6 @@ These keys are intentionally retained. The list contains dynamically selected me
 - `navigation:nav.reports`
 - `rfq:rfq.fields.budgetMin`
 - `rfq:rfq.fields.categoriesHint`
-- `rfq:rfq.fields.currency`
 - `rfq:rfq.fields.guests`
 - `rfq:rfq.fields.roomPref`
 - `rfq:rfq.fields.roomPrefPh`
