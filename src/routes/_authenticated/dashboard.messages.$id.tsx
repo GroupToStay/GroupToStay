@@ -403,6 +403,10 @@ function AttachmentItem({ att, mine }: { att: Attachment; mine: boolean }) {
         <img
           src={url}
           alt={att.name}
+          width={240}
+          height={200}
+          loading="lazy"
+          decoding="async"
           className="max-w-[240px] max-h-[200px] rounded-md object-cover border border-border"
         />
       </a>

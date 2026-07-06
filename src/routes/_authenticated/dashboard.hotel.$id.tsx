@@ -499,6 +499,8 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
                   <HotelPhoto
                     src={url}
                     alt=""
+                    width={640}
+                    height={360}
                     className="h-full w-full object-cover"
                     loading="lazy"
                   />

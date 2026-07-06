@@ -470,6 +470,9 @@ export function HotelsPanel() {
                   <HotelPhoto
                     src={h.cover_image}
                     alt=""
+                    width={96}
+                    height={64}
+                    loading="lazy"
                     className="h-16 w-24 rounded object-cover border border-border"
                   />
                 )}

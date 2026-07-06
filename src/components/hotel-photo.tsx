@@ -36,7 +36,12 @@ type HotelPhotoProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & {
   fallback?: ReactNode;
 };
 
-export function HotelPhoto({ src, fallback = null, ...props }: HotelPhotoProps) {
+export function HotelPhoto({
+  src,
+  fallback = null,
+  decoding = "async",
+  ...props
+}: HotelPhotoProps) {
   const [resolvedSrc, setResolvedSrc] = useState<string | null>(() =>
     getHotelPhotoPath(src) ? null : (src ?? null),
   );
@@ -66,5 +71,5 @@ export function HotelPhoto({ src, fallback = null, ...props }: HotelPhotoProps) 
   if (!src) return <>{fallback}</>;
   if (!resolvedSrc) return <>{fallback}</>;
 
-  return <img {...props} src={resolvedSrc} />;
+  return <img {...props} decoding={decoding} src={resolvedSrc} />;
 }

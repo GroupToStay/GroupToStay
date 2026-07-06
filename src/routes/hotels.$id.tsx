@@ -149,6 +149,9 @@ function Page() {
             <HotelPhoto
               src={hotel.cover_image}
               alt={hotel.name}
+              width={1600}
+              height={686}
+              fetchPriority="high"
               className="h-full w-full object-cover"
             />
           )}

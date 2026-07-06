@@ -147,6 +147,8 @@ function Page() {
                         loading="lazy"
                         src={h.cover_image}
                         alt={h.name}
+                        width={640}
+                        height={480}
                         className="h-full w-full object-cover group-hover:scale-105 transition"
                       />
                     )}

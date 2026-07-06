@@ -207,6 +207,8 @@ function Page() {
             <HotelPhoto
               src={hotel.cover_image}
               alt={hotel.name ?? ""}
+              width={1280}
+              height={720}
               className="h-full w-full object-cover"
             />
           </div>

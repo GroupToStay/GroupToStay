@@ -214,6 +214,9 @@ function Page() {
                           <HotelPhoto
                             src={row.cover_image}
                             alt=""
+                            width={56}
+                            height={40}
+                            loading="lazy"
                             className="h-10 w-14 rounded-md border border-border object-cover"
                           />
                         ) : (
@@ -315,6 +318,9 @@ function Page() {
                 <HotelPhoto
                   src={selected.cover_image}
                   alt=""
+                  width={1024}
+                  height={576}
+                  loading="lazy"
                   className="max-h-64 w-full rounded-lg border border-border object-cover"
                 />
               ) : null}

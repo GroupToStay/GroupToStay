@@ -961,7 +961,15 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
 
   return (
     <section className="relative overflow-hidden">
-      <img src={heroImg} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      <img
+        src={heroImg}
+        alt=""
+        width={1920}
+        height={1280}
+        decoding="async"
+        fetchPriority="high"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
       <div className="absolute inset-0 bg-gradient-to-br from-[oklch(0.18_0.04_265/0.92)] via-[oklch(0.21_0.04_265/0.85)] to-[oklch(0.38_0.16_264/0.75)]" />
       <div className="relative container-page py-14 md:py-20">
         <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-14 items-center">
@@ -1414,6 +1422,8 @@ function FeaturedHotelsSection() {
                     loading="lazy"
                     src={h.cover_image}
                     alt={h.name}
+                    width={640}
+                    height={480}
                     className="h-full w-full object-cover group-hover:scale-105 transition duration-500"
                   />
                 ) : (

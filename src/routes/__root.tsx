@@ -25,6 +25,11 @@ import {
 
 installExternalDomMutationRecovery();
 
+const SUPABASE_ORIGIN =
+  (import.meta.env.VITE_SUPABASE_URL
+    ? new URL(import.meta.env.VITE_SUPABASE_URL).origin
+    : undefined) ?? "https://atxecflhmphaqqkatjlm.supabase.co";
+
 function NotFoundComponent() {
   const { t } = useTranslation();
 
@@ -135,6 +140,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "dns-prefetch", href: SUPABASE_ORIGIN },
+      { rel: "preconnect", href: SUPABASE_ORIGIN, crossOrigin: "" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
       {
