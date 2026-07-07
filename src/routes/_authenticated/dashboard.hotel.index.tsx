@@ -209,6 +209,7 @@ function Page() {
               alt={hotel.name ?? ""}
               width={1280}
               height={720}
+              loading="lazy"
               className="h-full w-full object-cover"
             />
           </div>
