@@ -36,7 +36,10 @@ import {
 } from "lucide-react";
 import { RfqSharedFields, type RfqSharedValues } from "@/features/rfq/RfqSharedFields";
 import { sharedValuesToSearch } from "@/features/rfq/rfq-search-params";
-import heroImg from "@/assets/hero-lobby.jpg";
+import heroImg from "@/assets/hero-lobby.jpg?w=1920&format=jpg&quality=78";
+import heroAvifSrcSet from "@/assets/hero-lobby.jpg?w=640;1024;1440;1920&format=avif&quality=55&as=srcset";
+import heroWebpSrcSet from "@/assets/hero-lobby.jpg?w=640;1024;1440;1920&format=webp&quality=72&as=srcset";
+import heroJpgSrcSet from "@/assets/hero-lobby.jpg?w=640;1024;1440;1920&format=jpg&quality=78&as=srcset";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { formatDistanceToNow } from "date-fns";
@@ -59,7 +62,18 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:url", content: "https://groupstay-connect.lovable.app/" },
     ],
-    links: [{ rel: "canonical", href: "https://groupstay-connect.lovable.app/" }],
+    links: [
+      { rel: "canonical", href: "https://groupstay-connect.lovable.app/" },
+      {
+        rel: "preload",
+        as: "image",
+        href: heroImg,
+        imagesrcset: heroAvifSrcSet,
+        imagesizes: "100vw",
+        type: "image/avif",
+        fetchpriority: "high",
+      },
+    ],
     scripts: [
       {
         type: "application/ld+json",
@@ -961,15 +975,21 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
 
   return (
     <section className="relative overflow-hidden">
-      <img
-        src={heroImg}
-        alt=""
-        width={1920}
-        height={1280}
-        decoding="async"
-        fetchPriority="high"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
+      <picture>
+        <source type="image/avif" srcSet={heroAvifSrcSet} sizes="100vw" />
+        <source type="image/webp" srcSet={heroWebpSrcSet} sizes="100vw" />
+        <img
+          src={heroImg}
+          srcSet={heroJpgSrcSet}
+          sizes="100vw"
+          alt=""
+          width={1920}
+          height={1280}
+          decoding="async"
+          fetchPriority="high"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      </picture>
       <div className="absolute inset-0 bg-gradient-to-br from-[oklch(0.18_0.04_265/0.92)] via-[oklch(0.21_0.04_265/0.85)] to-[oklch(0.38_0.16_264/0.75)]" />
       <div className="relative container-page py-14 md:py-20">
         <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-14 items-center">
