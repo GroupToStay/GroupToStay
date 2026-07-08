@@ -3,15 +3,19 @@ declare module "*&as=srcset" {
   const src: string;
   export default src;
 }
-declare module "*&format=avif" {
+declare module "*&quality=78" {
   const src: string;
   export default src;
 }
-declare module "*&format=webp" {
+declare module "*.jpg?*" {
   const src: string;
   export default src;
 }
-declare module "*&format=jpg" {
+declare module "*.jpeg?*" {
+  const src: string;
+  export default src;
+}
+declare module "*.png?*" {
   const src: string;
   export default src;
 }
