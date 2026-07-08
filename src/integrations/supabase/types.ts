@@ -737,6 +737,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string
           agency_type: string | null
           agency_verification_status:
             | Database["public"]["Enums"]["agency_verification_status"]
@@ -804,6 +805,7 @@ export type Database = {
           year_established: number | null
         }
         Insert: {
+          account_status?: string
           agency_type?: string | null
           agency_verification_status?:
             | Database["public"]["Enums"]["agency_verification_status"]
@@ -871,6 +873,7 @@ export type Database = {
           year_established?: number | null
         }
         Update: {
+          account_status?: string
           agency_type?: string | null
           agency_verification_status?:
             | Database["public"]["Enums"]["agency_verification_status"]
@@ -1500,6 +1503,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_account_active: { Args: { _user_id: string }; Returns: boolean }
       is_conversation_participant: {
         Args: { _conv: string; _user: string }
         Returns: boolean
