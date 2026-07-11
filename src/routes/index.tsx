@@ -1,9 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { SiteHeader } from "@/components/site-header";
+import { useEffect, useMemo, useState } from "react";
+import { PublicSiteHeader } from "@/components/public-site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -33,6 +32,7 @@ import {
   Lock,
   Quote as QuoteIcon,
   ArrowUpRight,
+  type LucideIcon,
 } from "lucide-react";
 import { RfqSharedFields, type RfqSharedValues } from "@/features/rfq/RfqSharedFields";
 import { sharedValuesToSearch } from "@/features/rfq/rfq-search-params";
@@ -40,11 +40,9 @@ import heroImg from "@/assets/hero-lobby.jpg?w=1920&format=jpg&quality=78";
 import heroAvifSrcSet from "@/assets/hero-lobby.jpg?w=640;1024;1440;1920&format=avif&quality=55&as=srcset";
 import heroWebpSrcSet from "@/assets/hero-lobby.jpg?w=640;1024;1440;1920&format=webp&quality=72&as=srcset";
 import heroJpgSrcSet from "@/assets/hero-lobby.jpg?w=640;1024;1440;1920&format=jpg&quality=78&as=srcset";
-import { useAuth } from "@/hooks/use-auth";
-import { useRoles } from "@/hooks/use-role";
 import { formatDistanceToNow } from "date-fns";
-import { HotelPhoto } from "@/components/hotel-photo";
 import { useApplicationLocale } from "@/lib/application-locale";
+import { fetchPublicCount, fetchPublicRows } from "@/integrations/supabase/public-rest";
 import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -68,10 +66,10 @@ export const Route = createFileRoute("/")({
         rel: "preload",
         as: "image",
         href: heroImg,
-        imagesrcset: heroAvifSrcSet,
-        imagesizes: "100vw",
+        imageSrcSet: heroAvifSrcSet,
+        imageSizes: "100vw",
         type: "image/avif",
-        fetchpriority: "high",
+        fetchPriority: "high",
       },
     ],
     scripts: [
@@ -93,15 +91,83 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+type LandingUser = { id: string; email?: string | null };
+type LandingSession = { accessToken: string; user: LandingUser };
+type LandingRole = "organizer" | "hotel" | "admin";
+
+function readPersistedLandingSession(): LandingSession | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    for (let i = 0; i < window.localStorage.length; i += 1) {
+      const key = window.localStorage.key(i);
+      if (!key?.startsWith("sb-") || !key.endsWith("-auth-token")) continue;
+
+      const raw = window.localStorage.getItem(key);
+      if (!raw) continue;
+
+      const parsed = JSON.parse(raw) as {
+        access_token?: string;
+        expires_at?: number;
+        user?: LandingUser;
+      };
+
+      if (!parsed.access_token || !parsed.user?.id) continue;
+      if (parsed.expires_at && parsed.expires_at * 1000 <= Date.now()) continue;
+
+      return { accessToken: parsed.access_token, user: parsed.user };
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function useLandingSession() {
+  const [session, setSession] = useState<LandingSession | null>(null);
+
+  useEffect(() => {
+    setSession(readPersistedLandingSession());
+  }, []);
+
+  const rolesQuery = useQuery({
+    queryKey: ["landing-roles", session?.user.id],
+    enabled: !!session?.user.id,
+    queryFn: async () => {
+      const rows = await fetchPublicRows<{ role: LandingRole }>(
+        "user_roles",
+        {
+          select: "role",
+          user_id: `eq.${session!.user.id}`,
+        },
+        { accessToken: session!.accessToken },
+      );
+      return rows.map((row) => row.role);
+    },
+  });
+
+  const roles = rolesQuery.data ?? [];
+  const isAdmin = roles.includes("admin");
+
+  return {
+    user: session?.user ?? null,
+    accessToken: session?.accessToken,
+    isAdmin,
+    isHotel: !isAdmin && roles.includes("hotel"),
+    isOrganizer: !!session && !isAdmin && (roles.includes("organizer") || roles.length === 0),
+    rolesLoading: !!session && rolesQuery.isLoading,
+  };
+}
+
 function Landing() {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { isHotel, isAdmin, isOrganizer, loading: rolesLoading } = useRoles();
+  const { user, accessToken, isHotel, isAdmin, isOrganizer, rolesLoading } = useLandingSession();
 
   if (user && rolesLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-surface">
-        <SiteHeader />
+        <PublicSiteHeader />
         <div className="container-page py-20 text-center text-muted-foreground">
           {t("common.loading")}
         </div>
@@ -113,8 +179,8 @@ function Landing() {
   if (user && isAdmin) {
     return (
       <div className="min-h-screen flex flex-col bg-surface">
-        <SiteHeader />
-        <AdminExecutiveDashboard />
+        <PublicSiteHeader />
+        <AdminExecutiveDashboard accessToken={accessToken} />
         <SiteFooter />
       </div>
     );
@@ -122,25 +188,26 @@ function Landing() {
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
-      <SiteHeader />
+      <PublicSiteHeader />
       {user ? (
         <WelcomeBanner
           userId={user.id}
+          accessToken={accessToken}
           isHotel={isHotel}
           isAdmin={isAdmin}
           isOrganizer={isOrganizer}
         />
       ) : null}
-      <Hero isHotel={isHotel} isOrganizer={isOrganizer} />
-      <QuickSearchPanel isHotel={isHotel} />
+      <Hero isHotel={isHotel} isOrganizer={isOrganizer} isVisitor={!user} />
+      <QuickSearchPanel isHotel={isHotel} showStats={!user} />
       <LiveStatsSection />
       <HowItWorks />
-      {isHotel ? <OpenRequestsSection /> : null}
-      {isAdmin ? <FeaturedHotelsSection /> : null}
+      {isHotel ? <OpenRequestsSection accessToken={accessToken} /> : null}
+      {isAdmin ? <FeaturedHotelsSection accessToken={accessToken} /> : null}
       <WhyGroupToStay />
       <TestimonialsSection />
       <TrustSection />
-      {user ? <MessagesBar userId={user.id} /> : null}
+      {user ? <MessagesBar userId={user.id} accessToken={accessToken} /> : null}
       <CtaBanner isHotel={isHotel} isOrganizer={isOrganizer} />
       <SiteFooter />
     </div>
@@ -151,11 +218,13 @@ function Landing() {
 
 function WelcomeBanner({
   userId,
+  accessToken,
   isHotel,
   isAdmin,
   isOrganizer,
 }: {
   userId: string;
+  accessToken?: string;
   isHotel: boolean;
   isAdmin: boolean;
   isOrganizer: boolean;
@@ -163,16 +232,34 @@ function WelcomeBanner({
   const { t } = useTranslation();
   const { data } = useQuery({
     queryKey: ["welcome-banner", userId, isHotel],
+    enabled: !!accessToken,
     queryFn: async () => {
-      const [{ data: profile }, hotelResult] = await Promise.all([
-        supabase.from("profiles").select("full_name, company_name").eq("id", userId).maybeSingle(),
+      const [profileRows, hotelRows] = await Promise.all([
+        fetchPublicRows<{ full_name: string | null; company_name: string | null }>(
+          "profiles",
+          {
+            select: "full_name,company_name",
+            id: `eq.${userId}`,
+            limit: 1,
+          },
+          { accessToken },
+        ),
         isHotel
-          ? supabase.from("hotels").select("name").eq("owner_id", userId).limit(1)
-          : Promise.resolve({ data: [] as { name: string | null }[] }),
+          ? fetchPublicRows<{ name: string | null }>(
+              "hotels",
+              {
+                select: "name",
+                owner_id: `eq.${userId}`,
+                limit: 1,
+              },
+              { accessToken },
+            )
+          : Promise.resolve([] as { name: string | null }[]),
       ]);
+      const profile = profileRows[0];
       return {
         name: profile?.company_name || profile?.full_name || "",
-        hotelName: hotelResult.data?.[0]?.name || "",
+        hotelName: hotelRows[0]?.name || "",
       };
     },
   });
@@ -259,85 +346,62 @@ function WelcomeBanner({
 
 /* ────────────────────────────  ADMIN EXECUTIVE DASHBOARD  ──────────────────────────── */
 
-function AdminExecutiveDashboard() {
+function AdminExecutiveDashboard({ accessToken }: { accessToken?: string }) {
   const { t, i18n: activeI18n } = useTranslation();
   const { data: stats } = useQuery({
     queryKey: ["admin-exec-stats"],
+    enabled: !!accessToken,
     refetchInterval: 60_000,
     queryFn: async () => {
+      const count = (table: string, params: Record<string, string | number | boolean>) =>
+        fetchPublicCount(table, { select: "id", ...params }, { accessToken });
       const counts = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .not("hotel_approval_status", "is", null),
-        supabase
-          .from("hotels")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "approved"),
-        supabase
-          .from("hotels")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "pending"),
-        supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .eq("hotel_approval_status", "rejected"),
-        supabase
-          .from("user_roles")
-          .select("user_id", { count: "exact", head: true })
-          .eq("role", "organizer"),
-        supabase.from("rfqs").select("id", { count: "exact", head: true }).eq("status", "open"),
-        supabase.from("quotes").select("id", { count: "exact", head: true }),
-        supabase
-          .from("bookings")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "confirmed"),
-        supabase.from("subscription_interest").select("id", { count: "exact", head: true }),
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
-        supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .eq("pms_enabled", true),
-        supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .eq("pms_enabled", false),
+        count("profiles", { hotel_approval_status: "not.is.null" }),
+        count("hotels", { status: "eq.approved" }),
+        count("hotels", { status: "eq.pending" }),
+        count("profiles", { hotel_approval_status: "eq.rejected" }),
+        count("user_roles", { role: "eq.organizer" }),
+        count("rfqs", { status: "eq.open" }),
+        count("quotes", {}),
+        count("bookings", { status: "eq.confirmed" }),
+        count("subscription_interest", {}),
+        count("profiles", {}),
+        count("profiles", { pms_enabled: "eq.true" }),
+        count("profiles", { pms_enabled: "eq.false" }),
       ]);
       const startMonth = new Date();
       startMonth.setDate(1);
       startMonth.setHours(0, 0, 0, 0);
       const [agenciesMonth, rfqsMonth, quotesAvg] = await Promise.all([
-        supabase
-          .from("rfqs")
-          .select("organizer_id", { count: "exact", head: true })
-          .gte("created_at", startMonth.toISOString()),
-        supabase
-          .from("rfqs")
-          .select("id", { count: "exact", head: true })
-          .gte("created_at", startMonth.toISOString()),
-        supabase.from("quotes").select("rfq_id"),
+        fetchPublicCount(
+          "rfqs",
+          { select: "organizer_id", created_at: `gte.${startMonth.toISOString()}` },
+          { accessToken },
+        ),
+        count("rfqs", { created_at: `gte.${startMonth.toISOString()}` }),
+        fetchPublicRows<{ rfq_id: string }>("quotes", { select: "rfq_id" }, { accessToken }),
       ]);
-      const quoteRows = (quotesAvg.data ?? []) as { rfq_id: string }[];
+      const quoteRows = quotesAvg;
       const byRfq = new Map<string, number>();
       quoteRows.forEach((q) => byRfq.set(q.rfq_id, (byRfq.get(q.rfq_id) ?? 0) + 1));
       const avgQuotes = byRfq.size
         ? Array.from(byRfq.values()).reduce((a, b) => a + b, 0) / byRfq.size
         : 0;
       return {
-        companies: counts[0].count ?? 0,
-        hotelsApproved: counts[1].count ?? 0,
-        hotelsPending: counts[2].count ?? 0,
-        hotelsRejected: counts[3].count ?? 0,
-        agencies: counts[4].count ?? 0,
-        openRfqs: counts[5].count ?? 0,
-        quotes: counts[6].count ?? 0,
-        confirmedDeals: counts[7].count ?? 0,
-        subInterest: counts[8].count ?? 0,
-        users: counts[9].count ?? 0,
-        pmsEnabled: counts[10].count ?? 0,
-        pmsDisabled: counts[11].count ?? 0,
-        agenciesMonth: agenciesMonth.count ?? 0,
-        rfqsMonth: rfqsMonth.count ?? 0,
+        companies: counts[0],
+        hotelsApproved: counts[1],
+        hotelsPending: counts[2],
+        hotelsRejected: counts[3],
+        agencies: counts[4],
+        openRfqs: counts[5],
+        quotes: counts[6],
+        confirmedDeals: counts[7],
+        subInterest: counts[8],
+        users: counts[9],
+        pmsEnabled: counts[10],
+        pmsDisabled: counts[11],
+        agenciesMonth,
+        rfqsMonth,
         avgQuotes,
       };
     },
@@ -345,45 +409,56 @@ function AdminExecutiveDashboard() {
 
   const { data: activity } = useQuery({
     queryKey: ["admin-exec-activity", activeI18n.language],
+    enabled: !!accessToken,
     refetchInterval: 60_000,
     queryFn: async () => {
       const [hotels, agencies, rfqs, quotes, subs] = await Promise.all([
-        supabase
-          .from("hotels")
-          .select("id,name,status,created_at")
-          .order("created_at", { ascending: false })
-          .limit(6),
-        supabase
-          .from("profiles")
-          .select("id,full_name,company_name,created_at")
-          .order("created_at", { ascending: false })
-          .limit(6),
-        supabase
-          .from("rfqs")
-          .select("id,title,created_at")
-          .order("created_at", { ascending: false })
-          .limit(6),
-        supabase
-          .from("quotes")
-          .select("id,created_at,hotel_id")
-          .order("created_at", { ascending: false })
-          .limit(6),
-        supabase
-          .from("subscription_interest")
-          .select("id,full_name,created_at")
-          .order("created_at", { ascending: false })
-          .limit(6),
+        fetchPublicRows<{
+          id: string;
+          name: string | null;
+          status: string | null;
+          created_at: string;
+        }>(
+          "hotels",
+          { select: "id,name,status,created_at", order: "created_at.desc", limit: 6 },
+          { accessToken },
+        ),
+        fetchPublicRows<{
+          id: string;
+          full_name: string | null;
+          company_name: string | null;
+          created_at: string;
+        }>(
+          "profiles",
+          { select: "id,full_name,company_name,created_at", order: "created_at.desc", limit: 6 },
+          { accessToken },
+        ),
+        fetchPublicRows<{ id: string; title: string | null; created_at: string }>(
+          "rfqs",
+          { select: "id,title,created_at", order: "created_at.desc", limit: 6 },
+          { accessToken },
+        ),
+        fetchPublicRows<{ id: string; created_at: string; hotel_id: string | null }>(
+          "quotes",
+          { select: "id,created_at,hotel_id", order: "created_at.desc", limit: 6 },
+          { accessToken },
+        ),
+        fetchPublicRows<{ id: string; full_name: string | null; created_at: string }>(
+          "subscription_interest",
+          { select: "id,full_name,created_at", order: "created_at.desc", limit: 6 },
+          { accessToken },
+        ),
       ]);
       type Item = { ts: string; label: string; sub?: string; status?: string };
       const items: Item[] = [];
-      (hotels.data ?? []).forEach((h: any) =>
+      hotels.forEach((h) =>
         items.push({
           ts: h.created_at,
           label: t("admin.overview.activity.hotelListing", { name: h.name }),
-          status: h.status,
+          status: h.status ?? undefined,
         }),
       );
-      (agencies.data ?? []).forEach((p: any) =>
+      agencies.forEach((p) =>
         items.push({
           ts: p.created_at,
           label: t("admin.overview.activity.newRegistration", {
@@ -391,16 +466,16 @@ function AdminExecutiveDashboard() {
           }),
         }),
       );
-      (rfqs.data ?? []).forEach((r: any) =>
+      rfqs.forEach((r) =>
         items.push({
           ts: r.created_at,
           label: t("admin.overview.activity.newGroupRequest", { title: r.title }),
         }),
       );
-      (quotes.data ?? []).forEach((q: any) =>
+      quotes.forEach((q) =>
         items.push({ ts: q.created_at, label: t("admin.overview.activity.newQuotationSubmitted") }),
       );
-      (subs.data ?? []).forEach((s: any) =>
+      subs.forEach((s) =>
         items.push({
           ts: s.created_at,
           label: t("admin.overview.activity.subscriptionInterest", {
@@ -670,12 +745,15 @@ function AdminExecutiveDashboard() {
   );
 }
 
-function AdminLanding() {
+function AdminLanding({ accessToken }: { accessToken?: string }) {
   const { t } = useTranslation();
   const { data: stats } = useQuery({
     queryKey: ["admin-landing-stats"],
+    enabled: !!accessToken,
     refetchInterval: 60_000,
     queryFn: async () => {
+      const count = (table: string, params: Record<string, string | number | boolean>) =>
+        fetchPublicCount(table, { select: "id", ...params }, { accessToken });
       const [
         companiesTotal,
         companiesApproved,
@@ -689,57 +767,30 @@ function AdminLanding() {
         subActive,
         subWaiting,
       ] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .not("hotel_approval_status", "is", null),
-        supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .eq("hotel_approval_status", "approved"),
-        supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .eq("hotel_approval_status", "pending"),
-        supabase
-          .from("profiles")
-          .select("id", { count: "exact", head: true })
-          .eq("hotel_approval_status", "rejected"),
-        supabase.from("rfqs").select("id", { count: "exact", head: true }),
-        supabase.from("rfqs").select("id", { count: "exact", head: true }).eq("status", "open"),
-        supabase
-          .from("rfqs")
-          .select("id", { count: "exact", head: true })
-          .in("status", ["closed", "awarded", "cancelled"]),
-        supabase
-          .from("user_roles")
-          .select("user_id", { count: "exact", head: true })
-          .eq("role", "organizer"),
-        supabase
-          .from("user_roles")
-          .select("user_id", { count: "exact", head: true })
-          .eq("role", "hotel"),
-        supabase
-          .from("subscription_interest")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "notified"),
-        supabase
-          .from("subscription_interest")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "waiting"),
+        count("profiles", { hotel_approval_status: "not.is.null" }),
+        count("profiles", { hotel_approval_status: "eq.approved" }),
+        count("profiles", { hotel_approval_status: "eq.pending" }),
+        count("profiles", { hotel_approval_status: "eq.rejected" }),
+        count("rfqs", {}),
+        count("rfqs", { status: "eq.open" }),
+        count("rfqs", { status: "in.(closed,awarded,cancelled)" }),
+        count("user_roles", { role: "eq.organizer" }),
+        count("user_roles", { role: "eq.hotel" }),
+        count("subscription_interest", { status: "eq.notified" }),
+        count("subscription_interest", { status: "eq.waiting" }),
       ]);
       return {
-        companiesTotal: companiesTotal.count ?? 0,
-        companiesApproved: companiesApproved.count ?? 0,
-        companiesPending: companiesPending.count ?? 0,
-        companiesRejected: companiesRejected.count ?? 0,
-        rfqsTotal: rfqsTotal.count ?? 0,
-        rfqsOpen: rfqsOpen.count ?? 0,
-        rfqsClosed: rfqsClosed.count ?? 0,
-        agencies: rolesAgency.count ?? 0,
-        hotelUsers: rolesHotel.count ?? 0,
-        subActive: subActive.count ?? 0,
-        subWaiting: subWaiting.count ?? 0,
+        companiesTotal,
+        companiesApproved,
+        companiesPending,
+        companiesRejected,
+        rfqsTotal,
+        rfqsOpen,
+        rfqsClosed,
+        agencies: rolesAgency,
+        hotelUsers: rolesHotel,
+        subActive,
+        subWaiting,
       };
     },
   });
@@ -937,24 +988,30 @@ function AdminLanding() {
 
 /* ────────────────────────────────  HERO  ──────────────────────────────── */
 
-function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolean }) {
+type HeroStat = {
+  label: string;
+  value: string;
+  icon: LucideIcon;
+};
+
+function useHeroStats(enabled = true): HeroStat[] {
   const { t } = useTranslation();
   const { formatNumber } = useApplicationLocale();
   const { data: counts } = useQuery({
     queryKey: ["hero-counts"],
+    enabled,
     queryFn: async () => {
-      const countries = await supabase
-        .from("countries")
-        .select("*", { count: "exact", head: true })
-        .eq("is_active", true);
       return {
-        countries: countries.count ?? 0,
+        countries: await fetchPublicCount("countries", {
+          select: "id",
+          is_active: "eq.true",
+        }),
       };
     },
   });
 
   const fmt = (n: number, base: number) => `${formatNumber(Math.max(n, base))}+`;
-  const stats = [
+  return [
     { label: t("landing.heroStats.hotelsListed"), value: "1,250+", icon: Hotel },
     {
       label: t("landing.heroStats.openRequests"),
@@ -972,6 +1029,43 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
       icon: Globe2,
     },
   ];
+}
+
+function HeroStatsGrid({ stats, className = "" }: { stats: HeroStat[]; className?: string }) {
+  return (
+    <div className={`grid grid-cols-2 gap-3 md:gap-4 ${className}`}>
+      {stats.map((s) => (
+        <div
+          key={s.label}
+          className="group rounded-2xl bg-card text-card-foreground p-4 md:p-5 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)] ring-1 ring-black/5 hover:-translate-y-1 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.45)] transition"
+        >
+          <div className="flex items-center justify-between">
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-blue/10 text-brand-blue">
+              <s.icon className="h-5 w-5" />
+            </span>
+            <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-brand-blue transition" />
+          </div>
+          <div className="mt-3 font-display text-2xl md:text-3xl text-primary font-semibold">
+            {s.value}
+          </div>
+          <div className="mt-0.5 text-xs md:text-sm text-muted-foreground">{s.label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Hero({
+  isHotel,
+  isOrganizer,
+  isVisitor,
+}: {
+  isHotel: boolean;
+  isOrganizer?: boolean;
+  isVisitor: boolean;
+}) {
+  const { t } = useTranslation();
+  const stats = useHeroStats(!isVisitor);
 
   return (
     <section className="relative overflow-hidden">
@@ -991,21 +1085,41 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
         />
       </picture>
       <div className="absolute inset-0 bg-gradient-to-br from-[oklch(0.18_0.04_265/0.92)] via-[oklch(0.21_0.04_265/0.85)] to-[oklch(0.38_0.16_264/0.75)]" />
-      <div className="relative container-page py-14 md:py-20">
-        <div className="grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-14 items-center">
+      <div
+        className={`relative container-page ${
+          isVisitor ? "py-8 md:py-10 lg:py-12" : "py-14 md:py-20"
+        }`}
+      >
+        <div
+          className={
+            isVisitor
+              ? "mx-auto max-w-4xl text-center"
+              : "grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-14 items-center"
+          }
+        >
           {/* LEFT */}
           <div className="text-primary-foreground">
-            <Badge className="bg-premium text-premium-foreground border-0 mb-4 uppercase tracking-wider">
+            <Badge className="max-w-full whitespace-normal break-words bg-premium text-premium-foreground border-0 mb-4 justify-center text-center text-[10px] leading-tight uppercase tracking-wider sm:text-xs">
               {t("hero.eyebrow")}
             </Badge>
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.05]">
+            <h1
+              className={`font-display font-semibold leading-[1.05] ${
+                isVisitor
+                  ? "text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
+                  : "text-4xl md:text-5xl lg:text-6xl"
+              }`}
+            >
               {t("landing.hero.titleLine1")} <br />
               <span className="text-premium">{t("landing.hero.titleLine2")}</span>
             </h1>
-            <p className="mt-5 max-w-xl text-base md:text-lg text-primary-foreground/85">
+            <p
+              className={`mt-4 text-sm text-primary-foreground/85 sm:text-base md:text-lg ${
+                isVisitor ? "mx-auto max-w-2xl" : "max-w-xl"
+              }`}
+            >
               {t("landing.hero.subtitle")}
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
+            <div className={`mt-6 flex flex-wrap gap-3 ${isVisitor ? "justify-center" : ""}`}>
               {isHotel ? (
                 <>
                   <Button
@@ -1053,7 +1167,9 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
                   <Button
                     asChild
                     size="lg"
-                    className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg"
+                    className={`bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg ${
+                      isVisitor ? "w-full sm:w-auto" : ""
+                    }`}
                   >
                     <Link to="/request-quote">
                       {t("nav.createRequest")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -1063,14 +1179,20 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
                     asChild
                     size="lg"
                     variant="outline"
-                    className="bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                    className={`bg-transparent text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10 hover:text-primary-foreground ${
+                      isVisitor ? "w-full sm:w-auto" : ""
+                    }`}
                   >
                     <Link to="/requests">{t("landing.actions.browseOpenRequests")}</Link>
                   </Button>
                 </>
               )}
             </div>
-            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-primary-foreground/70">
+            <div
+              className={`mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-primary-foreground/70 ${
+                isVisitor ? "justify-center" : ""
+              }`}
+            >
               <span className="inline-flex items-center gap-1.5">
                 <ShieldCheck className="h-4 w-4 text-premium" /> {t("hero.trustPillHotels")}
               </span>
@@ -1084,25 +1206,7 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
           </div>
 
           {/* RIGHT — live stat cards */}
-          <div className="grid grid-cols-2 gap-3 md:gap-4">
-            {stats.map((s) => (
-              <div
-                key={s.label}
-                className="group rounded-2xl bg-card text-card-foreground p-4 md:p-5 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)] ring-1 ring-black/5 hover:-translate-y-1 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.45)] transition"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-blue/10 text-brand-blue">
-                    <s.icon className="h-5 w-5" />
-                  </span>
-                  <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-brand-blue transition" />
-                </div>
-                <div className="mt-3 font-display text-2xl md:text-3xl text-primary font-semibold">
-                  {s.value}
-                </div>
-                <div className="mt-0.5 text-xs md:text-sm text-muted-foreground">{s.label}</div>
-              </div>
-            ))}
-          </div>
+          {!isVisitor ? <HeroStatsGrid stats={stats} /> : null}
         </div>
       </div>
     </section>
@@ -1111,9 +1215,16 @@ function Hero({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: boolea
 
 /* ────────────────────  QUICK SEARCH PANEL  ──────────────────── */
 
-function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
+function QuickSearchPanel({
+  isHotel,
+  showStats = false,
+}: {
+  isHotel: boolean;
+  showStats?: boolean;
+}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const stats = useHeroStats(showStats);
   const [values, setValues] = useState<RfqSharedValues>({
     destination_country_id: null,
     destination_city_id: null,
@@ -1134,20 +1245,22 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
   };
 
   return (
-    <section className="container-page -mt-10 md:-mt-14 relative z-10">
+    <section
+      className={`container-page relative z-10 ${showStats ? "-mt-4 md:-mt-6" : "-mt-10 md:-mt-14"}`}
+    >
       <form
         method="post"
         onSubmit={onSubmit}
         className="rounded-2xl bg-card border border-border shadow-[0_25px_60px_-20px_rgba(15,23,42,0.25)] p-5 md:p-7"
       >
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex flex-wrap items-start gap-2 mb-4">
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-blue text-brand-blue-foreground">
             <Sparkles className="h-5 w-5" />
           </span>
-          <h2 className="font-display text-xl md:text-2xl text-primary">
+          <h2 className="min-w-0 flex-1 whitespace-normal break-words font-display text-lg leading-tight text-primary sm:text-xl md:text-2xl">
             {t("landing.quickRequest.title")}
           </h2>
-          <span className="ml-auto hidden md:inline text-xs text-muted-foreground">
+          <span className="hidden basis-full text-xs text-muted-foreground md:block md:ps-11 lg:ms-auto lg:basis-auto lg:ps-0">
             {t("landing.quickRequest.note")}
           </span>
         </div>
@@ -1169,6 +1282,7 @@ function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
           </Button>
         </div>
       </form>
+      {showStats ? <HeroStatsGrid stats={stats} className="mt-5 lg:grid-cols-4" /> : null}
     </section>
   );
 }
@@ -1298,21 +1412,24 @@ function HowItWorks() {
 
 /* ────────────────────  OPEN REQUESTS  ──────────────────── */
 
-function OpenRequestsSection() {
+function OpenRequestsSection({ accessToken }: { accessToken?: string }) {
   const { t } = useTranslation();
   const { formatDate } = useApplicationLocale();
   const { data: rfqs = [] } = useQuery({
     queryKey: ["home-open-requests"],
+    enabled: !!accessToken,
     queryFn: async () => {
-      const { data } = await supabase
-        .from("rfqs")
-        .select(
-          "id,title,group_type,destination_city,destination_country,check_in,check_out,nights,guests_count,rooms_needed,created_at",
-        )
-        .eq("status", "open")
-        .order("created_at", { ascending: false })
-        .limit(6);
-      return data ?? [];
+      return fetchPublicRows<any>(
+        "rfqs",
+        {
+          select:
+            "id,title,group_type,destination_city,destination_country,check_in,check_out,nights,guests_count,rooms_needed,created_at",
+          status: "eq.open",
+          order: "created_at.desc",
+          limit: 6,
+        },
+        { accessToken },
+      );
     },
   });
 
@@ -1396,18 +1513,22 @@ function Meta({ icon: Icon, children }: { icon: any; children: React.ReactNode }
 
 /* ────────────────────  FEATURED HOTELS  ──────────────────── */
 
-function FeaturedHotelsSection() {
+function FeaturedHotelsSection({ accessToken }: { accessToken?: string }) {
   const { t } = useTranslation();
   const { data: featured = [] } = useQuery({
     queryKey: ["featured-hotels-home"],
+    enabled: !!accessToken,
     queryFn: async () => {
-      const { data } = await supabase
-        .from("hotels")
-        .select("id,slug,name,city,country,star_rating,cover_image,description")
-        .eq("status", "approved")
-        .eq("featured", true)
-        .limit(6);
-      return data ?? [];
+      return fetchPublicRows<any>(
+        "hotels",
+        {
+          select: "id,slug,name,city,country,star_rating,cover_image,description",
+          status: "eq.approved",
+          featured: "eq.true",
+          limit: 6,
+        },
+        { accessToken },
+      );
     },
   });
   if (featured.length === 0) return null;
@@ -1438,8 +1559,9 @@ function FeaturedHotelsSection() {
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                 {h.cover_image ? (
-                  <HotelPhoto
+                  <img
                     loading="lazy"
+                    decoding="async"
                     src={h.cover_image}
                     alt={h.name}
                     width={640}
@@ -1628,18 +1750,22 @@ function CtaBanner({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: b
   );
 }
 
-function MessagesBar({ userId }: { userId: string }) {
+function MessagesBar({ userId, accessToken }: { userId: string; accessToken?: string }) {
   const { t } = useTranslation();
   const { data: messages = [] } = useQuery({
     queryKey: ["home-messages", userId],
+    enabled: !!accessToken,
     queryFn: async () => {
-      const { data } = await supabase
-        .from("messages")
-        .select("id, body, created_at, sender_id, recipient_id, rfq_id, rfqs(id, group_name)")
-        .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
-        .order("created_at", { ascending: false })
-        .limit(5);
-      return data ?? [];
+      return fetchPublicRows<any>(
+        "messages",
+        {
+          select: "id,body,created_at,sender_id,recipient_id,rfq_id,rfqs(id,group_name)",
+          or: `(sender_id.eq.${userId},recipient_id.eq.${userId})`,
+          order: "created_at.desc",
+          limit: 5,
+        },
+        { accessToken },
+      );
     },
   });
 
