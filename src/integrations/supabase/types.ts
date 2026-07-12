@@ -304,6 +304,39 @@ export type Database = {
         }
         Relationships: []
       }
+      hotel_amenities: {
+        Row: {
+          amenity_id: string
+          created_at: string
+          hotel_id: string
+        }
+        Insert: {
+          amenity_id: string
+          created_at?: string
+          hotel_id: string
+        }
+        Update: {
+          amenity_id?: string
+          created_at?: string
+          hotel_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_amenities_amenity_id_fkey"
+            columns: ["amenity_id"]
+            isOneToOne: false
+            referencedRelation: "amenities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_amenities_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hotel_rooms: {
         Row: {
           base_price: number
@@ -313,7 +346,9 @@ export type Database = {
           currency: string
           hotel_id: string
           id: string
+          meal_plan_id: string | null
           room_type: string
+          room_type_id: string | null
         }
         Insert: {
           base_price?: number
@@ -323,7 +358,9 @@ export type Database = {
           currency?: string
           hotel_id: string
           id?: string
+          meal_plan_id?: string | null
           room_type: string
+          room_type_id?: string | null
         }
         Update: {
           base_price?: number
@@ -333,7 +370,9 @@ export type Database = {
           currency?: string
           hotel_id?: string
           id?: string
+          meal_plan_id?: string | null
           room_type?: string
+          room_type_id?: string | null
         }
         Relationships: [
           {
@@ -341,6 +380,20 @@ export type Database = {
             columns: ["hotel_id"]
             isOneToOne: false
             referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_rooms_meal_plan_id_fkey"
+            columns: ["meal_plan_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_rooms_room_type_id_fkey"
+            columns: ["room_type_id"]
+            isOneToOne: false
+            referencedRelation: "room_types"
             referencedColumns: ["id"]
           },
         ]
@@ -376,6 +429,7 @@ export type Database = {
         Row: {
           address: string | null
           amenities: string[]
+          archived: boolean
           city: string
           city_id: string | null
           country: string
@@ -399,6 +453,7 @@ export type Database = {
         Insert: {
           address?: string | null
           amenities?: string[]
+          archived?: boolean
           city: string
           city_id?: string | null
           country: string
@@ -422,6 +477,7 @@ export type Database = {
         Update: {
           address?: string | null
           amenities?: string[]
+          archived?: boolean
           city?: string
           city_id?: string | null
           country?: string
@@ -581,6 +637,8 @@ export type Database = {
           company_name: string | null
           contact_email: string | null
           country: string | null
+          country_code: string | null
+          country_id: string | null
           cr_number: string | null
           created_at: string
           full_name: string | null
@@ -593,6 +651,7 @@ export type Database = {
           locale: string
           org_name: string | null
           phone: string | null
+          phone_number: string | null
           updated_at: string
           vat_number: string | null
         }
@@ -603,6 +662,8 @@ export type Database = {
           company_name?: string | null
           contact_email?: string | null
           country?: string | null
+          country_code?: string | null
+          country_id?: string | null
           cr_number?: string | null
           created_at?: string
           full_name?: string | null
@@ -615,6 +676,7 @@ export type Database = {
           locale?: string
           org_name?: string | null
           phone?: string | null
+          phone_number?: string | null
           updated_at?: string
           vat_number?: string | null
         }
@@ -625,6 +687,8 @@ export type Database = {
           company_name?: string | null
           contact_email?: string | null
           country?: string | null
+          country_code?: string | null
+          country_id?: string | null
           cr_number?: string | null
           created_at?: string
           full_name?: string | null
@@ -637,10 +701,19 @@ export type Database = {
           locale?: string
           org_name?: string | null
           phone?: string | null
+          phone_number?: string | null
           updated_at?: string
           vat_number?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quotes: {
         Row: {
@@ -763,6 +836,7 @@ export type Database = {
           id: string
           nights: number | null
           organizer_id: string
+          room_type_id: string | null
           room_type_pref: string | null
           rooms_needed: number
           special_requirements: string | null
@@ -788,6 +862,7 @@ export type Database = {
           id?: string
           nights?: number | null
           organizer_id: string
+          room_type_id?: string | null
           room_type_pref?: string | null
           rooms_needed?: number
           special_requirements?: string | null
@@ -813,6 +888,7 @@ export type Database = {
           id?: string
           nights?: number | null
           organizer_id?: string
+          room_type_id?: string | null
           room_type_pref?: string | null
           rooms_needed?: number
           special_requirements?: string | null
@@ -833,6 +909,13 @@ export type Database = {
             columns: ["destination_country_id"]
             isOneToOne: false
             referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rfqs_room_type_id_fkey"
+            columns: ["room_type_id"]
+            isOneToOne: false
+            referencedRelation: "room_types"
             referencedColumns: ["id"]
           },
         ]
@@ -864,6 +947,53 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_interest: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          hotel_id: string | null
+          hotel_name: string | null
+          id: string
+          notified_at: string | null
+          requested_plan: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          hotel_id?: string | null
+          hotel_name?: string | null
+          id?: string
+          notified_at?: string | null
+          requested_plan: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          hotel_id?: string | null
+          hotel_name?: string | null
+          id?: string
+          notified_at?: string | null
+          requested_plan?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_interest_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -891,14 +1021,18 @@ export type Database = {
         Row: {
           city_text: string | null
           country_text: string | null
+          destination_city: string | null
+          destination_country: string | null
           label: string | null
           record_id: string | null
           record_type: string | null
+          room_text: string | null
         }
         Relationships: []
       }
     }
     Functions: {
+      _norm: { Args: { t: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
