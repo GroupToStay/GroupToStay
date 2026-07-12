@@ -1503,7 +1503,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_account_active: { Args: { _user_id: string }; Returns: boolean }
       is_conversation_participant: {
         Args: { _conv: string; _user: string }
         Returns: boolean
