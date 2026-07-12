@@ -737,6 +737,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string
           agency_type: string | null
           agency_verification_status:
             | Database["public"]["Enums"]["agency_verification_status"]
@@ -804,6 +805,7 @@ export type Database = {
           year_established: number | null
         }
         Insert: {
+          account_status?: string
           agency_type?: string | null
           agency_verification_status?:
             | Database["public"]["Enums"]["agency_verification_status"]
@@ -871,6 +873,7 @@ export type Database = {
           year_established?: number | null
         }
         Update: {
+          account_status?: string
           agency_type?: string | null
           agency_verification_status?:
             | Database["public"]["Enums"]["agency_verification_status"]
@@ -1477,6 +1480,10 @@ export type Database = {
     }
     Functions: {
       _norm: { Args: { t: string }; Returns: string }
+      can_view_hotel_through_rfq: {
+        Args: { _hotel_id: string }
+        Returns: boolean
+      }
       create_notification: {
         Args: {
           _body?: string
