@@ -90,6 +90,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bookings_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "bookings_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
@@ -259,6 +266,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "conversations_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "conversations_quote_id_fkey"
             columns: ["quote_id"]
             isOneToOne: false
@@ -335,6 +349,13 @@ export type Database = {
             referencedRelation: "hotels"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "hotel_amenities_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       hotel_rooms: {
@@ -380,6 +401,13 @@ export type Database = {
             columns: ["hotel_id"]
             isOneToOne: false
             referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotel_rooms_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
             referencedColumns: ["id"]
           },
           {
@@ -667,9 +695,12 @@ export type Database = {
       }
       profiles: {
         Row: {
+          agency_type: string | null
+          api_available: string | null
           approval_notes: string | null
           approved_at: string | null
           approved_by: string | null
+          business_address: string | null
           company_name: string | null
           contact_email: string | null
           country: string | null
@@ -688,13 +719,23 @@ export type Database = {
           org_name: string | null
           phone: string | null
           phone_number: string | null
+          pms_enabled: boolean | null
+          pms_provider: string | null
+          pms_provider_other: string | null
+          technical_contact_email: string | null
+          technical_contact_name: string | null
+          technical_contact_phone: string | null
           updated_at: string
           vat_number: string | null
+          website: string | null
         }
         Insert: {
+          agency_type?: string | null
+          api_available?: string | null
           approval_notes?: string | null
           approved_at?: string | null
           approved_by?: string | null
+          business_address?: string | null
           company_name?: string | null
           contact_email?: string | null
           country?: string | null
@@ -713,13 +754,23 @@ export type Database = {
           org_name?: string | null
           phone?: string | null
           phone_number?: string | null
+          pms_enabled?: boolean | null
+          pms_provider?: string | null
+          pms_provider_other?: string | null
+          technical_contact_email?: string | null
+          technical_contact_name?: string | null
+          technical_contact_phone?: string | null
           updated_at?: string
           vat_number?: string | null
+          website?: string | null
         }
         Update: {
+          agency_type?: string | null
+          api_available?: string | null
           approval_notes?: string | null
           approved_at?: string | null
           approved_by?: string | null
+          business_address?: string | null
           company_name?: string | null
           contact_email?: string | null
           country?: string | null
@@ -738,8 +789,15 @@ export type Database = {
           org_name?: string | null
           phone?: string | null
           phone_number?: string | null
+          pms_enabled?: boolean | null
+          pms_provider?: string | null
+          pms_provider_other?: string | null
+          technical_contact_email?: string | null
+          technical_contact_name?: string | null
+          technical_contact_phone?: string | null
           updated_at?: string
           vat_number?: string | null
+          website?: string | null
         }
         Relationships: [
           {
@@ -758,14 +816,18 @@ export type Database = {
           currency: string
           hotel_id: string
           id: string
+          included_services: string[] | null
           inclusions: string | null
           notes: string | null
           price_per_room_night: number | null
           rfq_id: string
+          room_type: string | null
+          shortlisted_at: string | null
           status: Database["public"]["Enums"]["quote_status"]
           total_price: number
           updated_at: string
           valid_until: string | null
+          viewed_at: string | null
         }
         Insert: {
           board_included?: Database["public"]["Enums"]["board_type"]
@@ -773,14 +835,18 @@ export type Database = {
           currency?: string
           hotel_id: string
           id?: string
+          included_services?: string[] | null
           inclusions?: string | null
           notes?: string | null
           price_per_room_night?: number | null
           rfq_id: string
+          room_type?: string | null
+          shortlisted_at?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
           total_price: number
           updated_at?: string
           valid_until?: string | null
+          viewed_at?: string | null
         }
         Update: {
           board_included?: Database["public"]["Enums"]["board_type"]
@@ -788,14 +854,18 @@ export type Database = {
           currency?: string
           hotel_id?: string
           id?: string
+          included_services?: string[] | null
           inclusions?: string | null
           notes?: string | null
           price_per_room_night?: number | null
           rfq_id?: string
+          room_type?: string | null
+          shortlisted_at?: string | null
           status?: Database["public"]["Enums"]["quote_status"]
           total_price?: number
           updated_at?: string
           valid_until?: string | null
+          viewed_at?: string | null
         }
         Relationships: [
           {
@@ -803,6 +873,13 @@ export type Database = {
             columns: ["hotel_id"]
             isOneToOne: false
             referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
             referencedColumns: ["id"]
           },
           {
@@ -845,6 +922,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "rfq_invitations_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "rfq_invitations_rfq_id_fkey"
             columns: ["rfq_id"]
             isOneToOne: false
@@ -855,6 +939,8 @@ export type Database = {
       }
       rfqs: {
         Row: {
+          accommodation_type: string | null
+          additional_requirements: string | null
           board_type: Database["public"]["Enums"]["board_type"]
           budget_max: number | null
           budget_min: number | null
@@ -869,7 +955,9 @@ export type Database = {
           destination_country_id: string | null
           group_type: Database["public"]["Enums"]["group_type"]
           guests_count: number
+          hotel_categories: number[] | null
           id: string
+          meal_plan_code: string | null
           nights: number | null
           organizer_id: string
           room_type_id: string | null
@@ -881,6 +969,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          accommodation_type?: string | null
+          additional_requirements?: string | null
           board_type?: Database["public"]["Enums"]["board_type"]
           budget_max?: number | null
           budget_min?: number | null
@@ -895,7 +985,9 @@ export type Database = {
           destination_country_id?: string | null
           group_type?: Database["public"]["Enums"]["group_type"]
           guests_count?: number
+          hotel_categories?: number[] | null
           id?: string
+          meal_plan_code?: string | null
           nights?: number | null
           organizer_id: string
           room_type_id?: string | null
@@ -907,6 +999,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          accommodation_type?: string | null
+          additional_requirements?: string | null
           board_type?: Database["public"]["Enums"]["board_type"]
           budget_max?: number | null
           budget_min?: number | null
@@ -921,7 +1015,9 @@ export type Database = {
           destination_country_id?: string | null
           group_type?: Database["public"]["Enums"]["group_type"]
           guests_count?: number
+          hotel_categories?: number[] | null
           id?: string
+          meal_plan_code?: string | null
           nights?: number | null
           organizer_id?: string
           room_type_id?: string | null
@@ -1028,6 +1124,13 @@ export type Database = {
             referencedRelation: "hotels"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "subscription_interest_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_roles: {
@@ -1053,6 +1156,100 @@ export type Database = {
       }
     }
     Views: {
+      hotels_public: {
+        Row: {
+          address: string | null
+          amenities: string[] | null
+          archived: boolean | null
+          city: string | null
+          city_id: string | null
+          country: string | null
+          country_id: string | null
+          cover_image: string | null
+          created_at: string | null
+          description: string | null
+          featured: boolean | null
+          gallery: string[] | null
+          hotel_type_id: string | null
+          id: string | null
+          lat: number | null
+          lng: number | null
+          name: string | null
+          slug: string | null
+          star_rating: number | null
+          status: Database["public"]["Enums"]["hotel_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          amenities?: string[] | null
+          archived?: boolean | null
+          city?: string | null
+          city_id?: string | null
+          country?: string | null
+          country_id?: string | null
+          cover_image?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          gallery?: string[] | null
+          hotel_type_id?: string | null
+          id?: string | null
+          lat?: number | null
+          lng?: number | null
+          name?: string | null
+          slug?: string | null
+          star_rating?: number | null
+          status?: Database["public"]["Enums"]["hotel_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          amenities?: string[] | null
+          archived?: boolean | null
+          city?: string | null
+          city_id?: string | null
+          country?: string | null
+          country_id?: string | null
+          cover_image?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          gallery?: string[] | null
+          hotel_type_id?: string | null
+          id?: string | null
+          lat?: number | null
+          lng?: number | null
+          name?: string | null
+          slug?: string | null
+          star_rating?: number | null
+          status?: Database["public"]["Enums"]["hotel_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotels_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotels_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotels_hotel_type_id_fkey"
+            columns: ["hotel_type_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unmapped_locations: {
         Row: {
           city_text: string | null
@@ -1143,7 +1340,15 @@ export type Database = {
         | "accepted"
         | "rejected"
         | "withdrawn"
-      rfq_status: "draft" | "open" | "closed" | "awarded" | "cancelled"
+        | "viewed"
+      rfq_status:
+        | "draft"
+        | "open"
+        | "closed"
+        | "awarded"
+        | "cancelled"
+        | "quoting"
+        | "under_review"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1311,8 +1516,17 @@ export const Constants = {
         "accepted",
         "rejected",
         "withdrawn",
+        "viewed",
       ],
-      rfq_status: ["draft", "open", "closed", "awarded", "cancelled"],
+      rfq_status: [
+        "draft",
+        "open",
+        "closed",
+        "awarded",
+        "cancelled",
+        "quoting",
+        "under_review",
+      ],
     },
   },
 } as const
