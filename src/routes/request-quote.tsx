@@ -86,11 +86,13 @@ function Page() {
   const patchShared = (patch: Partial<RfqSharedValues>) => setShared((v) => ({ ...v, ...patch }));
   const {
     status: verifStatus,
-    isVerified,
     isPending,
     isRejected,
     isDraft,
     rejectionReason,
+    isProfileComplete,
+    canCreateRfq,
+    loading: verificationLoading,
   } = useAgencyVerification();
 
   const { data: countries = [] } = useCountries();
@@ -107,6 +109,10 @@ function Page() {
       toast.info(t("rfq.authRequired"));
       sessionStorage.setItem("pending_rfq", JSON.stringify(payload));
       navigate({ to: "/auth", search: { redirect: "/request-quote" } });
+      return;
+    }
+    if (isOrganizer && !canCreateRfq) {
+      toast.error(t("rfq.create.verification.draftBody"));
       return;
     }
     setSubmitting(true);
@@ -179,7 +185,7 @@ function Page() {
           </div>
         )}
 
-        {user && isOrganizer && !isVerified && (
+        {user && isOrganizer && !canCreateRfq && (
           <div className="mt-4 rounded-md border border-amber-300 bg-amber-50 text-amber-900 p-4">
             <div className="flex items-start gap-2">
               {isPending ? (
@@ -203,7 +209,9 @@ function Page() {
                     {t("rfq.create.verification.rejectedBody")}
                   </>
                 )}
-                {(isDraft || (!isPending && !isRejected && verifStatus !== "verified")) && (
+                {(isDraft ||
+                  !isProfileComplete ||
+                  (!isPending && !isRejected && verifStatus !== "verified")) && (
                   <>
                     <b>{t("rfq.create.verification.draftTitle")}</b>{" "}
                     {t("rfq.create.verification.draftBody")}
@@ -352,7 +360,9 @@ function Page() {
               ) : (
                 <Button
                   variant="gold"
-                  disabled={submitting || (!!user && isOrganizer && !isVerified)}
+                  disabled={
+                    submitting || (!!user && isOrganizer && (verificationLoading || !canCreateRfq))
+                  }
                   onClick={submit}
                 >
                   {submitting ? t("rfq.submitting") : t("rfq.submit")}

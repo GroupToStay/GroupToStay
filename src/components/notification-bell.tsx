@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useApplicationLocale } from "@/lib/application-locale";
+import { getSafeNotificationHref } from "@/lib/notification-link";
 
 function timeAgo(iso: string, locale: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -35,7 +36,8 @@ export function NotificationBell() {
   const handleClick = async (n: NotificationRow) => {
     if (!n.read_at) await markRead(n.id);
     setOpen(false);
-    if (n.link) navigate({ to: n.link });
+    const href = getSafeNotificationHref(n.link);
+    if (href) navigate({ to: href });
   };
 
   return (

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Bell, CheckCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { useNotifications } from "@/hooks/use-notifications";
 import { EmptyState } from "@/components/empty-state";
 import { useApplicationLocale } from "@/lib/application-locale";
 import i18n from "@/lib/i18n";
+import { getSafeNotificationHref } from "@/lib/notification-link";
 
 export const Route = createFileRoute("/_authenticated/dashboard/notifications")({
   head: () => ({ meta: [{ title: i18n.t("notifications.metaTitle") }] }),
@@ -50,6 +51,7 @@ function NotificationsPage() {
       ) : (
         <div className="flex flex-col gap-2">
           {items.map((n) => {
+            const href = getSafeNotificationHref(n.link);
             const body = (
               <Card
                 className={`transition hover:border-primary ${!n.read_at ? "border-gold/60 bg-gold/5" : ""}`}
@@ -78,17 +80,17 @@ function NotificationsPage() {
                 </CardContent>
               </Card>
             );
-            return n.link ? (
-              <Link
+            return href ? (
+              <a
                 key={n.id}
-                to={n.link}
+                href={href}
                 onClick={() => {
                   if (!n.read_at) void markRead(n.id);
                 }}
                 className="block"
               >
                 {body}
-              </Link>
+              </a>
             ) : (
               <div key={n.id} onClick={() => !n.read_at && void markRead(n.id)}>
                 {body}
