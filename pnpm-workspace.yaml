@@ -1,2 +1,7 @@
 allowBuilds:
   esbuild: true
+
+overrides:
+  # nf3 0.3.18 imports a named export from its bundled CommonJS @vercel/nft.
+  # 0.3.22 uses the compatible default import required by Nitro's Vercel preset.
+  nf3: 0.3.22

@@ -1,15 +1,13 @@
 function getSupabasePublicConfig() {
-  const url = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-  const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+  const url = import.meta.env.VITE_SUPABASE_URL;
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   if (!url || !key) {
     const missing = [
-      ...(!url ? ["SUPABASE_URL"] : []),
-      ...(!key ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
+      ...(!url ? ["VITE_SUPABASE_URL"] : []),
+      ...(!key ? ["VITE_SUPABASE_ANON_KEY"] : []),
     ];
-    throw new Error(
-      `Missing Supabase environment variable(s): ${missing.join(", ")}. Connect Supabase in Lovable Cloud.`,
-    );
+    throw new Error(`Missing Supabase environment variable(s): ${missing.join(", ")}.`);
   }
 
   return { key, restUrl: `${url.replace(/\/$/, "")}/rest/v1` };

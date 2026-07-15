@@ -55,6 +55,29 @@ pnpm exec tsc --noEmit
 pnpm build
 ```
 
+## Vercel Test Deployment
+
+Use the `Other` framework preset. Nitro detects Vercel during the build and emits the Vercel
+Build Output API automatically, so leave the Output Directory setting empty.
+
+- Install command: `pnpm install --frozen-lockfile`
+- Build command: `pnpm build`
+- Output directory: leave empty
+
+For the test deployment, add these variables to the Vercel Preview environment only:
+
+```text
+VITE_SUPABASE_URL=https://atxecflhmphaqqkatjlm.supabase.co
+VITE_SUPABASE_ANON_KEY=<external Supabase anon or publishable key>
+```
+
+Copy the current publishable or anon key from the external Supabase project's API settings. Do not
+reuse an older locally stored key, and do not add these variables to Vercel Production until the
+preview deployment has been approved.
+
+Do not add a service-role key to the frontend environment. The current application runtime does
+not import the dormant server-admin Supabase client.
+
 ## Continuous Integration
 
 GitHub Actions runs the `Build Verification` workflow on every push and pull request. The workflow verifies:
