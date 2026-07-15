@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { PublicSiteHeader } from "@/components/public-site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,8 @@ import heroJpgSrcSet from "@/assets/hero-lobby.jpg?w=640;1024;1440;1920&format=j
 import { formatDistanceToNow } from "date-fns";
 import { useApplicationLocale } from "@/lib/application-locale";
 import { fetchPublicCount, fetchPublicRows } from "@/integrations/supabase/public-rest";
+import { useAuth } from "@/hooks/use-auth";
+import { useRoles } from "@/hooks/use-role";
 import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -91,72 +93,17 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-type LandingUser = { id: string; email?: string | null };
-type LandingSession = { accessToken: string; user: LandingUser };
-type LandingRole = "organizer" | "hotel" | "admin";
-
-function readPersistedLandingSession(): LandingSession | null {
-  if (typeof window === "undefined") return null;
-
-  try {
-    for (let i = 0; i < window.localStorage.length; i += 1) {
-      const key = window.localStorage.key(i);
-      if (!key?.startsWith("sb-") || !key.endsWith("-auth-token")) continue;
-
-      const raw = window.localStorage.getItem(key);
-      if (!raw) continue;
-
-      const parsed = JSON.parse(raw) as {
-        access_token?: string;
-        expires_at?: number;
-        user?: LandingUser;
-      };
-
-      if (!parsed.access_token || !parsed.user?.id) continue;
-      if (parsed.expires_at && parsed.expires_at * 1000 <= Date.now()) continue;
-
-      return { accessToken: parsed.access_token, user: parsed.user };
-    }
-  } catch {
-    return null;
-  }
-
-  return null;
-}
-
 function useLandingSession() {
-  const [session, setSession] = useState<LandingSession | null>(null);
-
-  useEffect(() => {
-    setSession(readPersistedLandingSession());
-  }, []);
-
-  const rolesQuery = useQuery({
-    queryKey: ["landing-roles", session?.user.id],
-    enabled: !!session?.user.id,
-    queryFn: async () => {
-      const rows = await fetchPublicRows<{ role: LandingRole }>(
-        "user_roles",
-        {
-          select: "role",
-          user_id: `eq.${session!.user.id}`,
-        },
-        { accessToken: session!.accessToken },
-      );
-      return rows.map((row) => row.role);
-    },
-  });
-
-  const roles = rolesQuery.data ?? [];
-  const isAdmin = roles.includes("admin");
+  const { user, session, loading: authLoading } = useAuth();
+  const { isAdmin, isHotel, isOrganizer, loading: rolesLoading } = useRoles();
 
   return {
-    user: session?.user ?? null,
-    accessToken: session?.accessToken,
+    user,
+    accessToken: session?.access_token,
     isAdmin,
-    isHotel: !isAdmin && roles.includes("hotel"),
-    isOrganizer: !!session && !isAdmin && (roles.includes("organizer") || roles.length === 0),
-    rolesLoading: !!session && rolesQuery.isLoading,
+    isHotel,
+    isOrganizer,
+    rolesLoading: authLoading || (!!user && rolesLoading),
   };
 }
 
