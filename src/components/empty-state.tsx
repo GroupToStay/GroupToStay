@@ -31,11 +31,11 @@ export function EmptyState({
   return (
     <div
       className={
-        "flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-6 py-12 text-center " +
+        "flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-surface/60 px-6 py-12 text-center " +
         (className ?? "")
       }
     >
-      <div className="mb-4 grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary">
+      <div className="mb-4 grid h-12 w-12 place-items-center rounded-md border border-primary/10 bg-primary/5 text-primary">
         <Icon className="h-7 w-7" aria-hidden="true" />
       </div>
       <h3 className="text-lg font-semibold text-foreground">{title}</h3>

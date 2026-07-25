@@ -20,12 +20,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { z } from "zod";
-import { AlertCircle, Clock, ShieldCheck, Upload, FileText } from "lucide-react";
+import { AlertCircle, Building2, Clock, ShieldCheck, Upload, FileText } from "lucide-react";
 import i18n from "@/lib/i18n";
+import { PageHeader } from "@/components/workspace/page-header";
+import { StatusBadge } from "@/components/workspace/status-badge";
 
 export const Route = createFileRoute("/_authenticated/dashboard/agency-profile")({
   head: () => ({ meta: [{ title: i18n.t("profile.agency.metaTitle") }] }),
@@ -313,20 +314,19 @@ function Page() {
   };
 
   return (
-    <div className="max-w-3xl">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-display text-3xl text-primary">{t("profile.agency.title")}</h1>
-        <Badge variant={isVerified ? "default" : "secondary"} className="capitalize">
-          {status.replace("_", " ")}
-        </Badge>
-      </div>
-      <p className="mt-1 text-muted-foreground text-sm">{t("profile.agency.description")}</p>
+    <div className="max-w-5xl space-y-6">
+      <PageHeader
+        title={t("profile.agency.title")}
+        description={t("profile.agency.description")}
+        icon={Building2}
+        meta={<StatusBadge status={status} />}
+      />
 
-      <div className="mt-4">
+      <div>
         <StatusBanner />
       </div>
 
-      <fieldset disabled={readOnly} className="mt-6 space-y-6">
+      <fieldset disabled={readOnly} className="space-y-6">
         <Section title={t("profile.agency.sections.companyInfo")}>
           <Field label={t("profile.agency.fields.legalCompanyName")} required>
             <Input
