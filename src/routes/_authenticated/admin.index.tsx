@@ -9,7 +9,6 @@ import {
   Hotel,
   Users,
   CreditCard,
-  Sparkles,
   ShieldCheck,
   Inbox,
   BadgeCheck,
@@ -21,6 +20,8 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import i18n from "@/lib/i18n";
+import { PageHeader } from "@/components/workspace/page-header";
+import { WorkspaceSection } from "@/components/workspace/section";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({ meta: [{ title: i18n.t("admin.overview.metaTitle") }] }),
@@ -107,11 +108,13 @@ function AdminHome() {
   const sections: {
     title: string;
     tint: string;
+    icon: typeof Building2;
     cards: { label: string; value: number | string }[];
   }[] = [
     {
       title: t("admin.overview.sections.hotels"),
       tint: "text-brand-blue bg-brand-blue/10",
+      icon: Building2,
       cards: [
         {
           label: t("admin.overview.metrics.totalHotelCompanies"),
@@ -125,6 +128,7 @@ function AdminHome() {
     {
       title: t("admin.overview.sections.listings"),
       tint: "text-premium bg-premium/15",
+      icon: Hotel,
       cards: [
         { label: t("admin.overview.metrics.totalListings"), value: stats?.listingsTotal ?? 0 },
         { label: t("admin.overview.metrics.activeListings"), value: stats?.listingsApproved ?? 0 },
@@ -134,6 +138,7 @@ function AdminHome() {
     {
       title: t("admin.overview.sections.users"),
       tint: "text-success bg-success/10",
+      icon: Users,
       cards: [
         { label: t("admin.overview.metrics.totalAgencies"), value: stats?.agencies ?? 0 },
         { label: t("admin.overview.metrics.totalHotelAccounts"), value: stats?.hotelUsers ?? 0 },
@@ -142,6 +147,7 @@ function AdminHome() {
     {
       title: t("admin.overview.sections.subscriptions"),
       tint: "text-primary bg-primary/10",
+      icon: CreditCard,
       cards: [
         { label: t("admin.overview.metrics.activeSubscriptions"), value: stats?.subActive ?? 0 },
         {
@@ -213,55 +219,44 @@ function AdminHome() {
 
   return (
     <section className="space-y-8">
-      <div className="rounded-2xl bg-gradient-to-br from-[oklch(0.18_0.04_265)] to-[oklch(0.32_0.10_264)] text-primary-foreground p-8 md:p-10">
-        <Badge className="bg-premium text-premium-foreground border-0 mb-3 uppercase tracking-wider">
-          {t("admin.overview.console")}
-        </Badge>
-        <h1 className="font-display text-3xl md:text-4xl font-semibold">
-          {t("admin.overview.title")}
-        </h1>
-        <p className="mt-2 text-primary-foreground/80 max-w-2xl">
-          {t("admin.overview.description")}
-        </p>
-      </div>
+      <PageHeader
+        eyebrow={t("admin.overview.console")}
+        title={t("admin.overview.title")}
+        description={t("admin.overview.description")}
+        icon={ShieldCheck}
+      />
 
       <div className="space-y-8">
         {sections.map((sec) => (
-          <div key={sec.title}>
-            <div className="flex items-center gap-2 mb-3">
-              <h2 className="font-display text-xl text-primary">{sec.title}</h2>
-            </div>
+          <WorkspaceSection key={sec.title} title={sec.title}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {sec.cards.map((c) => (
                 <div
                   key={c.label}
-                  className="rounded-2xl bg-card border border-border p-5 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition"
+                  className="rounded-lg border border-border bg-card p-4 shadow-sm"
                 >
-                  <div className={`inline-grid h-9 w-9 place-items-center rounded-lg ${sec.tint}`}>
-                    <Sparkles className="h-4 w-4" />
+                  <div className={`inline-grid h-9 w-9 place-items-center rounded-md ${sec.tint}`}>
+                    <sec.icon className="h-4 w-4" />
                   </div>
-                  <div className="mt-3 font-display text-3xl font-semibold text-primary">
+                  <div className="mt-4 text-2xl font-semibold text-foreground tabular-nums">
                     {c.value}
                   </div>
-                  <div className="mt-0.5 text-sm text-muted-foreground">{c.label}</div>
+                  <div className="mt-1 text-xs font-medium text-muted-foreground">{c.label}</div>
                 </div>
               ))}
             </div>
-          </div>
+          </WorkspaceSection>
         ))}
       </div>
 
-      <div>
-        <h2 className="font-display text-xl text-primary mb-3">
-          {t("admin.overview.quickActions")}
-        </h2>
+      <WorkspaceSection title={t("admin.overview.quickActions")}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {quickActions.map((qa) => {
             const Inner = (
-              <Card className="h-full hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition">
+              <Card className="h-full transition-colors hover:border-primary/30 hover:bg-muted/20">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between">
-                    <span className="grid h-10 w-10 place-items-center rounded-lg bg-brand-blue/10 text-brand-blue">
+                    <span className="grid h-10 w-10 place-items-center rounded-md border border-primary/10 bg-primary/5 text-primary">
                       <qa.icon className="h-5 w-5" />
                     </span>
                     {qa.badge ? (
@@ -270,7 +265,7 @@ function AdminHome() {
                       <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
                     )}
                   </div>
-                  <div className="mt-3 font-display text-lg text-primary">{qa.title}</div>
+                  <div className="mt-4 text-base font-semibold text-foreground">{qa.title}</div>
                   <div className="text-sm text-muted-foreground">{qa.desc}</div>
                 </CardContent>
               </Card>
@@ -286,7 +281,7 @@ function AdminHome() {
             );
           })}
         </div>
-      </div>
+      </WorkspaceSection>
 
       <RecentActivity />
     </section>
@@ -351,10 +346,7 @@ function RecentActivity() {
   });
 
   return (
-    <div>
-      <h2 className="font-display text-xl text-primary mb-3 flex items-center gap-2">
-        <Users className="h-5 w-5" /> {t("admin.overview.recentActivity")}
-      </h2>
+    <WorkspaceSection title={t("admin.overview.recentActivity")}>
       <Card>
         <CardContent className="p-0">
           {activity.length === 0 ? (
@@ -365,7 +357,7 @@ function RecentActivity() {
             <ul className="divide-y divide-border">
               {activity.map((a) => (
                 <li key={a.key} className="flex items-center gap-3 p-4">
-                  <span className={`grid h-9 w-9 place-items-center rounded-lg ${a.tint}`}>
+                  <span className={`grid h-9 w-9 place-items-center rounded-md ${a.tint}`}>
                     <a.icon className="h-4 w-4" />
                   </span>
                   <div className="flex-1 min-w-0">
@@ -380,6 +372,6 @@ function RecentActivity() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </WorkspaceSection>
   );
 }

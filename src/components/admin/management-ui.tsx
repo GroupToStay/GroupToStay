@@ -37,6 +37,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useApplicationLocale } from "@/lib/application-locale";
 import { useTranslation } from "react-i18next";
+import { PageHeader } from "@/components/workspace/page-header";
 
 type Tone = "neutral" | "success" | "warning" | "error" | "info" | "gold" | "purple";
 
@@ -84,24 +85,7 @@ export function AdminManagementPage({
 }) {
   return (
     <section className="space-y-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div className="min-w-0">
-          <div className="flex items-center gap-3">
-            {Icon ? (
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-border bg-card text-primary shadow-sm">
-                <Icon className="h-5 w-5" />
-              </span>
-            ) : null}
-            <div>
-              <h1 className="font-display text-2xl leading-tight text-primary md:text-3xl">
-                {title}
-              </h1>
-              <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-            </div>
-          </div>
-        </div>
-        {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
-      </div>
+      <PageHeader title={title} description={description} icon={Icon} actions={actions} />
 
       {metrics?.length ? <AdminMetricGrid metrics={metrics} /> : null}
       {children}
@@ -123,7 +107,7 @@ export function AdminMetricGrid({ metrics }: { metrics: AdminMetric[] }) {
             <CardContent className="flex items-center gap-3 p-4">
               <span
                 className={cn(
-                  "grid h-10 w-10 shrink-0 place-items-center rounded-full border",
+                  "grid h-10 w-10 shrink-0 place-items-center rounded-md border",
                   toneClass[tone],
                 )}
               >
@@ -131,7 +115,7 @@ export function AdminMetricGrid({ metrics }: { metrics: AdminMetric[] }) {
               </span>
               <div className="min-w-0">
                 <div className="text-xs font-medium text-muted-foreground">{metric.label}</div>
-                <div className="mt-0.5 font-display text-2xl leading-none text-primary">
+                <div className="mt-0.5 text-2xl font-semibold leading-none text-foreground tabular-nums">
                   {metric.value}
                 </div>
                 {metric.description ? (
