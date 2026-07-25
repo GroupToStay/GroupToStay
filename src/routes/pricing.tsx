@@ -3,8 +3,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { PublicPageHero, PublicPageLayout } from "@/components/public-page";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
@@ -103,14 +102,10 @@ function Page() {
   const hideUpgradeCtas = isAdmin;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <SiteHeader />
-      <main className="container-page py-16 flex-1">
-        <div className="text-center max-w-2xl mx-auto">
-          <h1 className="font-display text-4xl md:text-5xl text-primary">{t("pricing.title")}</h1>
-          <p className="mt-3 text-muted-foreground">{t("pricing.subtitle")}</p>
-        </div>
-        <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <PublicPageLayout>
+      <PublicPageHero title={t("pricing.title")} description={t("pricing.subtitle")} />
+      <section className="container-page py-12 md:py-16">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {plans
             // Hotel users never see the organizer plan
             .filter((p) => !(isHotel && p.audience === "organizer"))
@@ -126,11 +121,11 @@ function Page() {
                   key={p.key}
                   className={p.featured ? "border-gold shadow-[var(--shadow-gold)]" : ""}
                 >
-                  <CardContent className="p-6 flex flex-col h-full">
+                  <CardContent className="flex h-full flex-col p-6">
                     <div className="text-sm font-medium text-muted-foreground">
                       {t(`pricing.${p.key}`)}
                     </div>
-                    <div className="font-display text-4xl text-primary mt-2">
+                    <div className="mt-2 text-3xl font-semibold text-primary tabular-nums">
                       {price}
                       {showMonthly && (
                         <span className="text-base text-muted-foreground">
@@ -142,7 +137,7 @@ function Page() {
                     <p className="mt-3 text-sm text-muted-foreground">
                       {t(`pricing.${p.key}Desc`)}
                     </p>
-                    <ul className="mt-5 space-y-2 text-sm flex-1">
+                    <ul className="mt-5 flex-1 space-y-3 text-sm">
                       {items.map((i) => (
                         <li key={i} className="flex gap-2">
                           <Check className="h-4 w-4 text-success mt-0.5 shrink-0" /> {i}
@@ -174,8 +169,7 @@ function Page() {
             {t("pricing.manageFromDashboard")}
           </p>
         )}
-      </main>
-      <SiteFooter />
-    </div>
+      </section>
+    </PublicPageLayout>
   );
 }

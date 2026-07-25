@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Building2, Menu, X } from "lucide-react";
+import { Building2, LayoutDashboard, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useAuth } from "@/hooks/use-auth";
@@ -38,23 +38,33 @@ export function PublicSiteHeader() {
       ))}
     </>
   );
+  const workspaceTo = isAdmin ? "/admin" : isHotel ? "/dashboard/hotel" : "/dashboard";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-      <div className="container-page flex h-16 items-center gap-6">
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-gold">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
+      <div className="container-page flex h-16 items-center gap-5">
+        <Link
+          to="/"
+          className="flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <span className="grid h-9 w-9 place-items-center rounded-md bg-primary text-gold shadow-sm">
             <Building2 className="h-5 w-5" />
           </span>
-          <span className="font-display text-xl font-semibold tracking-tight">
-            {t("common.brand.name")}
-          </span>
+          <span className="font-display text-xl font-semibold">{t("common.brand.name")}</span>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-6">{navLinks}</nav>
+        <nav className="hidden items-center gap-5 lg:flex">{navLinks}</nav>
 
-        <div className="ms-auto flex items-center gap-1 sm:gap-2 min-w-0">
+        <div className="ms-auto flex min-w-0 items-center gap-1 sm:gap-2">
           <LanguageSwitcher />
+          {visibility.ready && user ? (
+            <Button asChild variant="outline" size="sm" className="hidden lg:inline-flex">
+              <Link to={workspaceTo}>
+                <LayoutDashboard className="h-4 w-4" />
+                {t("nav.dashboard")}
+              </Link>
+            </Button>
+          ) : null}
           {visibility.showSignIn && (
             <Button asChild variant="ghost" size="sm" className="hidden lg:inline-flex">
               <Link to="/auth">{t("nav.signIn")}</Link>
@@ -73,25 +83,42 @@ export function PublicSiteHeader() {
             </Button>
           )}
           <button
-            className="lg:hidden p-2"
+            className="grid h-10 w-10 place-items-center rounded-md text-foreground transition-colors hover:bg-accent lg:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label={t("navigation:nav.menu")}
+            aria-expanded={open}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
       {open && (
-        <div className="lg:hidden border-t border-border bg-background">
-          <div className="container-page py-4 flex flex-col gap-3" onClick={() => setOpen(false)}>
+        <div className="border-t border-border bg-background shadow-sm lg:hidden">
+          <div className="container-page flex flex-col gap-1 py-3" onClick={() => setOpen(false)}>
             {navLinks}
+            {visibility.ready && user ? (
+              <Link
+                to={workspaceTo}
+                className="flex min-h-11 items-center gap-2 rounded-md px-3 text-sm font-semibold hover:bg-accent"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                {t("nav.dashboard")}
+              </Link>
+            ) : null}
             {visibility.showSignIn && (
-              <Link to="/auth" className="text-sm font-medium">
+              <Link
+                to="/auth"
+                className="flex min-h-11 items-center rounded-md px-3 text-sm font-medium hover:bg-accent"
+              >
                 {t("nav.signIn")}
               </Link>
             )}
             {visibility.showRegister && (
-              <Link to="/auth" search={{ mode: "signup" } as any} className="text-sm font-medium">
+              <Link
+                to="/auth"
+                search={{ mode: "signup" } as any}
+                className="flex min-h-11 items-center rounded-md px-3 text-sm font-medium hover:bg-accent"
+              >
                 {t("nav.register")}
               </Link>
             )}

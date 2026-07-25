@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { PublicSiteHeader } from "@/components/public-site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,6 @@ import {
   Lock,
   Quote as QuoteIcon,
   ArrowUpRight,
-  type LucideIcon,
 } from "lucide-react";
 import { RfqSharedFields, type RfqSharedValues } from "@/features/rfq/RfqSharedFields";
 import { sharedValuesToSearch } from "@/features/rfq/rfq-search-params";
@@ -146,13 +145,11 @@ function Landing() {
         />
       ) : null}
       <Hero isHotel={isHotel} isOrganizer={isOrganizer} isVisitor={!user} />
-      <QuickSearchPanel isHotel={isHotel} showStats={!user} />
-      <LiveStatsSection />
+      <QuickSearchPanel isHotel={isHotel} />
       <HowItWorks />
       {isHotel ? <OpenRequestsSection accessToken={accessToken} /> : null}
       {isAdmin ? <FeaturedHotelsSection accessToken={accessToken} /> : null}
       <WhyGroupToStay />
-      <TestimonialsSection />
       <TrustSection />
       {user ? <MessagesBar userId={user.id} accessToken={accessToken} /> : null}
       <CtaBanner isHotel={isHotel} isOrganizer={isOrganizer} />
@@ -935,73 +932,6 @@ function AdminLanding({ accessToken }: { accessToken?: string }) {
 
 /* ────────────────────────────────  HERO  ──────────────────────────────── */
 
-type HeroStat = {
-  label: string;
-  value: string;
-  icon: LucideIcon;
-};
-
-function useHeroStats(enabled = true): HeroStat[] {
-  const { t } = useTranslation();
-  const { formatNumber } = useApplicationLocale();
-  const { data: counts } = useQuery({
-    queryKey: ["hero-counts"],
-    enabled,
-    queryFn: async () => {
-      return {
-        countries: await fetchPublicCount("countries", {
-          select: "id",
-          is_active: "eq.true",
-        }),
-      };
-    },
-  });
-
-  const fmt = (n: number, base: number) => `${formatNumber(Math.max(n, base))}+`;
-  return [
-    { label: t("landing.heroStats.hotelsListed"), value: "1,250+", icon: Hotel },
-    {
-      label: t("landing.heroStats.openRequests"),
-      value: "320+",
-      icon: ClipboardList,
-    },
-    {
-      label: t("landing.heroStats.availableRooms"),
-      value: "25,000+",
-      icon: BedDouble,
-    },
-    {
-      label: t("landing.heroStats.countriesServed"),
-      value: counts ? fmt(counts.countries, 18) : "18+",
-      icon: Globe2,
-    },
-  ];
-}
-
-function HeroStatsGrid({ stats, className = "" }: { stats: HeroStat[]; className?: string }) {
-  return (
-    <div className={`grid grid-cols-2 gap-3 md:gap-4 ${className}`}>
-      {stats.map((s) => (
-        <div
-          key={s.label}
-          className="group rounded-2xl bg-card text-card-foreground p-4 md:p-5 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)] ring-1 ring-black/5 hover:-translate-y-1 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.45)] transition"
-        >
-          <div className="flex items-center justify-between">
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-blue/10 text-brand-blue">
-              <s.icon className="h-5 w-5" />
-            </span>
-            <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-brand-blue transition" />
-          </div>
-          <div className="mt-3 font-display text-2xl md:text-3xl text-primary font-semibold">
-            {s.value}
-          </div>
-          <div className="mt-0.5 text-xs md:text-sm text-muted-foreground">{s.label}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function Hero({
   isHotel,
   isOrganizer,
@@ -1012,7 +942,6 @@ function Hero({
   isVisitor: boolean;
 }) {
   const { t } = useTranslation();
-  const stats = useHeroStats(!isVisitor);
 
   return (
     <section className="relative overflow-hidden">
@@ -1031,22 +960,15 @@ function Hero({
           className="absolute inset-0 h-full w-full object-cover"
         />
       </picture>
-      <div className="absolute inset-0 bg-gradient-to-br from-[oklch(0.18_0.04_265/0.92)] via-[oklch(0.21_0.04_265/0.85)] to-[oklch(0.38_0.16_264/0.75)]" />
+      <div className="absolute inset-0 bg-primary/80" />
       <div
         className={`relative container-page ${
-          isVisitor ? "py-8 md:py-10 lg:py-12" : "py-14 md:py-20"
+          isVisitor ? "py-10 md:py-12 lg:py-14" : "py-12 md:py-16"
         }`}
       >
-        <div
-          className={
-            isVisitor
-              ? "mx-auto max-w-4xl text-center"
-              : "grid lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-14 items-center"
-          }
-        >
-          {/* LEFT */}
+        <div className="mx-auto max-w-4xl text-center">
           <div className="text-primary-foreground">
-            <Badge className="max-w-full whitespace-normal break-words bg-premium text-premium-foreground border-0 mb-4 justify-center text-center text-[10px] leading-tight uppercase tracking-wider sm:text-xs">
+            <Badge className="mb-4 max-w-full justify-center whitespace-normal border-gold/30 bg-gold text-center text-[10px] leading-tight text-gold-foreground sm:text-xs">
               {t("hero.eyebrow")}
             </Badge>
             <h1
@@ -1066,14 +988,10 @@ function Hero({
             >
               {t("landing.hero.subtitle")}
             </p>
-            <div className={`mt-6 flex flex-wrap gap-3 ${isVisitor ? "justify-center" : ""}`}>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
               {isHotel ? (
                 <>
-                  <Button
-                    asChild
-                    size="lg"
-                    className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg"
-                  >
+                  <Button asChild size="lg" variant="hero">
                     <Link to="/requests">
                       {t("landing.actions.browseOpenRequests")}{" "}
                       <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -1090,11 +1008,7 @@ function Hero({
                 </>
               ) : isOrganizer ? (
                 <>
-                  <Button
-                    asChild
-                    size="lg"
-                    className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg"
-                  >
+                  <Button asChild size="lg" variant="hero">
                     <Link to="/request-quote">
                       {t("nav.createRequestShort")}{" "}
                       <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -1114,9 +1028,8 @@ function Hero({
                   <Button
                     asChild
                     size="lg"
-                    className={`bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90 shadow-lg ${
-                      isVisitor ? "w-full sm:w-auto" : ""
-                    }`}
+                    variant="hero"
+                    className={isVisitor ? "w-full sm:w-auto" : ""}
                   >
                     <Link to="/request-quote">
                       {t("nav.createRequest")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -1130,30 +1043,25 @@ function Hero({
                       isVisitor ? "w-full sm:w-auto" : ""
                     }`}
                   >
-                    <Link to="/requests">{t("landing.actions.browseOpenRequests")}</Link>
+                    <Link to="/how-it-works">{t("nav.howItWorks")}</Link>
                   </Button>
                 </>
               )}
             </div>
-            <div
-              className={`mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-primary-foreground/70 ${
-                isVisitor ? "justify-center" : ""
-              }`}
-            >
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-primary-foreground/75">
               <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="h-4 w-4 text-premium" /> {t("hero.trustPillHotels")}
+                <ShieldCheck className="h-4 w-4 text-gold" /> {t("hero.trustPillHotels")}
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <TimerReset className="h-4 w-4 text-premium" /> {t("hero.trustPillQuotes")}
+                <TimerReset className="h-4 w-4 text-gold" /> {t("hero.trustPillQuotes")}
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <Lock className="h-4 w-4 text-premium" /> {t("hero.trustPillSecure")}
+                <Lock className="h-4 w-4 text-gold" /> {t("hero.trustPillSecure")}
               </span>
             </div>
           </div>
 
           {/* RIGHT — live stat cards */}
-          {!isVisitor ? <HeroStatsGrid stats={stats} /> : null}
         </div>
       </div>
     </section>
@@ -1162,16 +1070,9 @@ function Hero({
 
 /* ────────────────────  QUICK SEARCH PANEL  ──────────────────── */
 
-function QuickSearchPanel({
-  isHotel,
-  showStats = false,
-}: {
-  isHotel: boolean;
-  showStats?: boolean;
-}) {
+function QuickSearchPanel({ isHotel }: { isHotel: boolean }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const stats = useHeroStats(showStats);
   const [values, setValues] = useState<RfqSharedValues>({
     destination_country_id: null,
     destination_city_id: null,
@@ -1192,19 +1093,17 @@ function QuickSearchPanel({
   };
 
   return (
-    <section
-      className={`container-page relative z-10 ${showStats ? "-mt-4 md:-mt-6" : "-mt-10 md:-mt-14"}`}
-    >
+    <section className="container-page relative z-10 -mt-5 md:-mt-8">
       <form
         method="post"
         onSubmit={onSubmit}
-        className="rounded-2xl bg-card border border-border shadow-[0_25px_60px_-20px_rgba(15,23,42,0.25)] p-5 md:p-7"
+        className="rounded-lg border border-border bg-card p-5 shadow-[var(--shadow-elevated)] md:p-7"
       >
-        <div className="flex flex-wrap items-start gap-2 mb-4">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-blue text-brand-blue-foreground">
+        <div className="mb-5 flex flex-wrap items-start gap-3">
+          <span className="grid h-9 w-9 place-items-center rounded-md bg-primary text-gold shadow-sm">
             <Sparkles className="h-5 w-5" />
           </span>
-          <h2 className="min-w-0 flex-1 whitespace-normal break-words font-display text-lg leading-tight text-primary sm:text-xl md:text-2xl">
+          <h2 className="min-w-0 flex-1 whitespace-normal break-words text-lg font-semibold leading-tight text-foreground sm:text-xl md:text-2xl">
             {t("landing.quickRequest.title")}
           </h2>
           <span className="hidden basis-full text-xs text-muted-foreground md:block md:ps-11 lg:ms-auto lg:basis-auto lg:ps-0">
@@ -1220,85 +1119,16 @@ function QuickSearchPanel({
         />
 
         <div className="mt-5 flex justify-end">
-          <Button
-            type="submit"
-            size="lg"
-            className="bg-brand-blue text-brand-blue-foreground hover:bg-brand-blue/90"
-          >
+          <Button type="submit" size="lg" className="w-full sm:w-auto">
             {t("landing.quickRequest.submit")} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
           </Button>
         </div>
       </form>
-      {showStats ? <HeroStatsGrid stats={stats} className="mt-5 lg:grid-cols-4" /> : null}
     </section>
   );
 }
 
 /* ────────────────────  LIVE MARKETPLACE  ──────────────────── */
-
-function LiveStatsSection() {
-  const { t } = useTranslation();
-  const items = [
-    {
-      label: t("landing.liveStats.openRequests"),
-      value: "320+",
-      icon: ClipboardList,
-      tint: "text-brand-blue bg-brand-blue/10",
-    },
-    {
-      label: t("landing.liveStats.verifiedHotels"),
-      value: "1,250+",
-      icon: Hotel,
-      tint: "text-success bg-success/10",
-    },
-    {
-      label: t("landing.liveStats.quotationCycle"),
-      value: t("landing.liveStats.quotationCycleValue"),
-      icon: FileText,
-      tint: "text-premium bg-premium/15",
-    },
-    {
-      label: t("landing.liveStats.avgResponseTime"),
-      value: t("landing.liveStats.avgResponseTimeValue"),
-      icon: Clock,
-      tint: "text-primary bg-primary/10",
-    },
-  ];
-
-  return (
-    <section className="container-page py-16 md:py-20">
-      <div className="text-center max-w-2xl mx-auto mb-10">
-        <div className="inline-flex items-center gap-2 text-xs font-medium text-success uppercase tracking-wider">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-75" />
-            <span className="relative rounded-full h-2 w-2 bg-success" />
-          </span>
-          {t("landing.liveStats.eyebrow")}
-        </div>
-        <h2 className="mt-2 font-display text-3xl md:text-4xl text-primary">
-          {t("landing.liveStats.title")}
-        </h2>
-        <p className="mt-2 text-muted-foreground">{t("landing.liveStats.subtitle")}</p>
-      </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {items.map((s) => (
-          <div
-            key={s.label}
-            className="rounded-2xl bg-card border border-border p-6 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition"
-          >
-            <span className={`grid h-10 w-10 place-items-center rounded-lg ${s.tint}`}>
-              <s.icon className="h-5 w-5" />
-            </span>
-            <div className="mt-4 font-display text-3xl md:text-4xl font-semibold text-primary">
-              {s.value}
-            </div>
-            <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 /* ────────────────────  HOW IT WORKS  ──────────────────── */
 
@@ -1327,28 +1157,28 @@ function HowItWorks() {
     },
   ];
   return (
-    <section className="bg-card border-y border-border">
+    <section className="border-y border-border bg-background">
       <div className="container-page py-16 md:py-20">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="mx-auto mb-12 max-w-2xl text-center">
           <h2 className="font-display text-3xl md:text-4xl text-primary">
             {t("landing.how.title")}
           </h2>
           <p className="mt-2 text-muted-foreground">{t("landing.how.subtitle")}</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 border-y border-border md:grid-cols-2 lg:grid-cols-4">
           {steps.map((s, i) => (
             <div
               key={s.title}
-              className="relative rounded-2xl border border-border bg-surface p-6 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition"
+              className="relative border-b border-border p-6 last:border-b-0 md:[&:nth-child(odd)]:border-e md:[&:nth-last-child(-n+2)]:border-b-0 lg:border-b-0 lg:border-e lg:last:border-e-0"
             >
-              <div className="absolute top-4 right-4 font-display text-5xl font-bold text-brand-blue/10 leading-none">
+              <div className="absolute end-5 top-5 text-4xl font-semibold leading-none text-primary/10">
                 {String(i + 1).padStart(2, "0")}
               </div>
-              <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand-blue text-brand-blue-foreground">
+              <span className="grid h-11 w-11 place-items-center rounded-md bg-primary text-gold">
                 <s.icon className="h-6 w-6" />
               </span>
-              <h3 className="mt-4 font-display text-lg text-primary font-semibold">{s.title}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">{s.desc}</p>
+              <h3 className="mt-5 text-base font-semibold text-foreground">{s.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{s.desc}</p>
             </div>
           ))}
         </div>
@@ -1579,36 +1409,32 @@ function WhyGroupToStay() {
     },
   ];
   return (
-    <section className="container-page py-16 md:py-20">
-      <div className="text-center max-w-2xl mx-auto mb-12">
-        <h2 className="font-display text-3xl md:text-4xl text-primary">{t("landing.why.title")}</h2>
-        <p className="mt-2 text-muted-foreground">{t("landing.why.subtitle")}</p>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {items.map((s) => (
-          <div
-            key={s.title}
-            className="rounded-2xl border border-border bg-card p-6 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] transition"
-          >
-            <span className="grid h-12 w-12 place-items-center rounded-xl bg-premium/15 text-premium">
-              <s.icon className="h-6 w-6" />
-            </span>
-            <h3 className="mt-4 font-display text-lg text-primary font-semibold">{s.title}</h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">{s.desc}</p>
-          </div>
-        ))}
+    <section className="bg-surface">
+      <div className="container-page grid gap-10 py-16 lg:grid-cols-[0.8fr_1.2fr] lg:items-start lg:py-20">
+        <div className="max-w-xl">
+          <h2 className="font-display text-3xl text-primary md:text-4xl">
+            {t("landing.why.title")}
+          </h2>
+          <p className="mt-3 text-base leading-7 text-muted-foreground">
+            {t("landing.why.subtitle")}
+          </p>
+        </div>
+        <div className="grid gap-x-8 gap-y-0 sm:grid-cols-2">
+          {items.map((s) => (
+            <div key={s.title} className="flex gap-4 border-t border-border py-6">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-gold/25 bg-gold/10 text-gold-foreground">
+                <s.icon className="h-5 w-5" />
+              </span>
+              <div>
+                <h3 className="text-base font-semibold text-foreground">{s.title}</h3>
+                <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{s.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
-}
-
-/* ────────────────────  TESTIMONIALS  ──────────────────── */
-
-function TestimonialsSection() {
-  // Real source not modeled — hide automatically when empty.
-  const testimonials = useMemo(() => [], []);
-  if (testimonials.length === 0) return null;
-  return null;
 }
 
 /* ────────────────────  TRUST  ──────────────────── */
@@ -1640,15 +1466,15 @@ function TrustSection() {
   return (
     <section className="bg-primary text-primary-foreground">
       <div className="container-page py-14 md:py-16">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((s) => (
             <div key={s.title} className="flex items-start gap-3">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-premium text-premium-foreground">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-gold/30 bg-gold/10 text-gold">
                 <s.icon className="h-5 w-5" />
               </span>
               <div className="min-w-0">
-                <div className="font-display text-lg font-semibold">{s.title}</div>
-                <div className="text-sm text-primary-foreground/70">{s.desc}</div>
+                <div className="font-semibold">{s.title}</div>
+                <div className="mt-1 text-sm leading-6 text-primary-foreground/70">{s.desc}</div>
               </div>
             </div>
           ))}
@@ -1670,10 +1496,8 @@ function CtaBanner({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: b
       : t("nav.createRequest");
   return (
     <section className="container-page py-16">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-brand-blue p-10 md:p-14 text-primary-foreground">
-        <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-premium/20 blur-3xl" />
-        <div className="absolute -left-20 -bottom-20 h-72 w-72 rounded-full bg-brand-blue/30 blur-3xl" />
-        <div className="relative grid md:grid-cols-[1fr_auto] items-center gap-6">
+      <div className="rounded-lg border border-primary/10 bg-primary p-8 text-primary-foreground shadow-[var(--shadow-elevated)] md:p-12">
+        <div className="grid items-center gap-6 md:grid-cols-[1fr_auto]">
           <div>
             <h3 className="font-display text-3xl md:text-4xl">
               {isHotel ? t("landing.cta.hotelTitle") : t("landing.cta.agencyTitle")}
@@ -1682,11 +1506,7 @@ function CtaBanner({ isHotel, isOrganizer }: { isHotel: boolean; isOrganizer?: b
               {isHotel ? t("landing.cta.hotelDescription") : t("landing.cta.agencyDescription")}
             </p>
           </div>
-          <Button
-            asChild
-            size="lg"
-            className="bg-premium text-premium-foreground hover:bg-premium/90"
-          >
+          <Button asChild size="lg" variant="hero">
             <Link to={ctaTo}>
               {ctaLabel} <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </Link>
