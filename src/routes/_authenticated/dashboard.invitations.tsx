@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +21,8 @@ import { toast } from "sonner";
 import { Inbox, MapPin, Calendar, Users, Building2, ShieldCheck } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { useApplicationLocale } from "@/lib/application-locale";
+import { PageHeader } from "@/components/workspace/page-header";
+import { StatusBadge } from "@/components/workspace/status-badge";
 import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invitations")({
@@ -121,22 +122,23 @@ function Page() {
   }
 
   return (
-    <div>
-      <h1 className="font-display text-3xl text-primary">{t("hotelDash.invitations")}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{t("hotelDash.invitationsSubtitle")}</p>
+    <div className="space-y-6">
+      <PageHeader
+        title={t("hotelDash.invitations")}
+        description={t("hotelDash.invitationsSubtitle")}
+        icon={Inbox}
+      />
 
       {isLoading ? (
-        <div className="mt-6 text-muted-foreground">{t("common.loading")}</div>
+        <div className="text-muted-foreground">{t("common.loading")}</div>
       ) : invitations.length === 0 ? (
-        <div className="mt-6">
-          <EmptyState
-            icon={Inbox}
-            title={t("hotelDash.noInvitations")}
-            description={t("hotelDash.noInvitationsDescription")}
-          />
-        </div>
+        <EmptyState
+          icon={Inbox}
+          title={t("hotelDash.noInvitations")}
+          description={t("hotelDash.noInvitationsDescription")}
+        />
       ) : (
-        <div className="mt-6 space-y-3">
+        <div className="space-y-3">
           {invitations.map((inv: any) => (
             <InvitationCard
               key={inv.id}
@@ -162,20 +164,8 @@ function InvitationCard({ inv, hotelName }: { inv: any; hotelName: string }) {
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-display text-lg text-primary">{rfq.title}</h3>
-              <Badge
-                className={
-                  rfq.status === "open"
-                    ? "bg-success/15 text-success"
-                    : "bg-muted text-muted-foreground"
-                }
-              >
-                {t(`dashboard.status.${rfq.status}`)}
-              </Badge>
-              {inv.myQuote && (
-                <Badge className="bg-gold/20 text-gold-foreground border border-gold/30">
-                  {t(`dashboard.status.${inv.myQuote.status}`)}
-                </Badge>
-              )}
+              <StatusBadge status={rfq.status} />
+              {inv.myQuote && <StatusBadge status={inv.myQuote.status} />}
             </div>
             {hotelName && (
               <div className="mt-1 text-xs text-muted-foreground">

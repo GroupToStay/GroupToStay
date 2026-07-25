@@ -42,6 +42,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { HotelPhoto } from "@/components/hotel-photo";
 import { useApplicationLocale } from "@/lib/application-locale";
 import i18n from "@/lib/i18n";
+import { PageHeader } from "@/components/workspace/page-header";
+import { StatusBadge } from "@/components/workspace/status-badge";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/$id")({
   head: () => ({ meta: [{ title: i18n.t("hotelDash.meta.manageHotel") }] }),
@@ -312,32 +314,19 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
 
   return (
     <div className="space-y-6">
-      <div>
-        <Link
-          to="/dashboard/hotel"
-          className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1"
-        >
-          <ChevronLeft className="h-4 w-4" /> {t("hotelDash.backToHotels")}
-        </Link>
-      </div>
-
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="font-display text-3xl text-primary flex items-center gap-2">
-              <Building2 className="h-7 w-7" /> {hotel.name}
-            </h1>
-            <Badge
-              className={
-                hotel.status === "approved"
-                  ? "bg-success/15 text-success"
-                  : "bg-muted text-muted-foreground"
-              }
-            >
-              {t(`hotelDash.statuses.${hotel.status}`)}
-            </Badge>
-          </div>
-          <div className="mt-1 text-sm text-muted-foreground flex items-center gap-3 flex-wrap">
+      <PageHeader
+        title={hotel.name}
+        icon={Building2}
+        eyebrow={
+          <Link
+            to="/dashboard/hotel"
+            className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary"
+          >
+            <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("hotelDash.backToHotels")}
+          </Link>
+        }
+        description={
+          <span className="flex items-center gap-3 flex-wrap">
             <span>
               {hotel.city}, {hotel.country}
             </span>
@@ -346,9 +335,10 @@ function ManageHotel({ hotel, onChanged }: { hotel: any; onChanged: () => void }
                 <Star key={i} className="h-3 w-3 fill-current" />
               ))}
             </span>
-          </div>
-        </div>
-      </div>
+          </span>
+        }
+        meta={<StatusBadge status={hotel.status} />}
+      />
 
       {hotel.status === "pending" && (
         <Card>
