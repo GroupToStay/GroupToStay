@@ -16,6 +16,7 @@ import { PhoneInput } from "@/components/phone-input";
 import { DEFAULT_PHONE_CODE } from "@/lib/phone-codes";
 import { PmsSection } from "@/components/pms-section";
 import i18n from "@/lib/i18n";
+import { PageHeader } from "@/components/workspace/page-header";
 
 export const Route = createFileRoute("/_authenticated/dashboard/profile")({
   head: () => ({ meta: [{ title: i18n.t("profile.metaTitle") }] }),
@@ -81,13 +82,12 @@ function Page() {
   if (isAdmin) {
     if (isLoading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
     return (
-      <div className="space-y-6 max-w-2xl">
-        <div>
-          <h1 className="font-display text-3xl text-primary flex items-center gap-2">
-            <ShieldCheck className="h-7 w-7" /> {t("profile.admin.title")}
-          </h1>
-          <p className="mt-1 text-muted-foreground">{t("profile.admin.description")}</p>
-        </div>
+      <div className="space-y-6 max-w-3xl">
+        <PageHeader
+          title={t("profile.admin.title")}
+          description={t("profile.admin.description")}
+          icon={ShieldCheck}
+        />
         <Card>
           <CardContent className="p-6 space-y-4">
             <ReadRow label={t("profile.admin.name")} value={profile?.full_name} />
@@ -145,13 +145,8 @@ function Page() {
   if (isLoading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
 
   return (
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="font-display text-3xl text-primary flex items-center gap-2">
-          <UserIcon className="h-7 w-7" /> {t("profile.title")}
-        </h1>
-        <p className="mt-1 text-muted-foreground">{t("profile.subtitle")}</p>
-      </div>
+    <div className="space-y-6 max-w-3xl">
+      <PageHeader title={t("profile.title")} description={t("profile.subtitle")} icon={UserIcon} />
 
       <Card>
         <CardContent className="p-6">
@@ -206,7 +201,7 @@ function Page() {
                 />
               </div>
             )}
-            <Button type="submit" variant="gold" disabled={saving}>
+            <Button type="submit" disabled={saving}>
               {saving ? t("common.loading") : t("profile.save")}
             </Button>
           </form>

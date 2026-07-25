@@ -73,7 +73,8 @@ export function SiteHeader() {
     ];
   }
 
-  const linkCls = "text-sm font-medium text-foreground/80 hover:text-foreground transition";
+  const linkCls =
+    "flex min-h-10 items-center rounded-md px-1 text-sm font-medium text-foreground/80 transition-colors hover:text-foreground";
   const navLinks = (
     <>
       {items.map((it, i) => (
@@ -87,18 +88,19 @@ export function SiteHeader() {
   const showQuoteCta = !user || isOrganizer;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-      <div className="container-page flex h-16 items-center gap-6">
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary text-gold">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
+      <div className="container-page flex h-16 items-center gap-5">
+        <Link
+          to="/"
+          className="flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <span className="grid h-9 w-9 place-items-center rounded-md bg-primary text-gold shadow-sm">
             <Building2 className="h-5 w-5" />
           </span>
-          <span className="font-display text-xl font-semibold tracking-tight">
-            {t("common.brand.name")}
-          </span>
+          <span className="font-display text-xl font-semibold">{t("common.brand.name")}</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6">{navLinks}</nav>
+        <nav className="hidden items-center gap-5 lg:flex">{navLinks}</nav>
 
         <div className="ms-auto flex items-center gap-1 sm:gap-2 min-w-0">
           <LanguageSwitcher />
@@ -109,17 +111,17 @@ export function SiteHeader() {
                 variant="outline"
                 size="sm"
                 onClick={handleSignOut}
-                className="hidden sm:inline-flex"
+                className="hidden lg:inline-flex"
               >
                 {t("nav.signOut")}
               </Button>
             </>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+              <Button asChild variant="ghost" size="sm" className="hidden lg:inline-flex">
                 <Link to="/auth">{t("nav.signIn")}</Link>
               </Button>
-              <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
+              <Button asChild variant="outline" size="sm" className="hidden lg:inline-flex">
                 <Link to="/auth" search={{ mode: "signup" } as any}>
                   {t("nav.register")}
                 </Link>
@@ -127,12 +129,12 @@ export function SiteHeader() {
             </>
           )}
           {showQuoteCta && (
-            <Button asChild variant="gold" size="sm" className="hidden sm:inline-flex">
+            <Button asChild variant="gold" size="sm" className="hidden lg:inline-flex">
               <Link to="/request-quote">{t("nav.getQuote")}</Link>
             </Button>
           )}
           <button
-            className="md:hidden p-2"
+            className="grid h-10 w-10 place-items-center rounded-md transition-colors hover:bg-accent lg:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label={t("navigation:nav.menu")}
           >
@@ -141,8 +143,8 @@ export function SiteHeader() {
         </div>
       </div>
       {open && (
-        <div className="md:hidden border-t border-border bg-background">
-          <div className="container-page py-4 flex flex-col gap-3" onClick={() => setOpen(false)}>
+        <div className="border-t border-border bg-background shadow-sm lg:hidden">
+          <div className="container-page flex flex-col gap-1 py-3" onClick={() => setOpen(false)}>
             {navLinks}
             {user ? (
               <Button variant="outline" size="sm" className="w-full" onClick={handleSignOut}>

@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -29,6 +28,10 @@ import {
 } from "lucide-react";
 import { useApplicationLocale } from "@/lib/application-locale";
 import i18n from "@/lib/i18n";
+import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/workspace/page-header";
+import { WorkspaceSection } from "@/components/workspace/section";
+import { StatusBadge } from "@/components/workspace/status-badge";
 
 export const Route = createFileRoute("/_authenticated/dashboard/rfqs/$id")({
   head: () => ({ meta: [{ title: i18n.t("dashboard.requests.detailMetaTitle") }] }),
@@ -50,16 +53,6 @@ function RequestNotFound() {
     <div className="p-8 text-center text-muted-foreground">{t("dashboard.requests.notFound")}</div>
   );
 }
-
-const statusColor: Record<string, string> = {
-  open: "bg-success/15 text-success",
-  quoting: "bg-info/15 text-info",
-  under_review: "bg-warning/15 text-warning",
-  awarded: "bg-gold/20 text-gold-foreground border border-gold/30",
-  closed: "bg-muted text-muted-foreground",
-  cancelled: "bg-error/15 text-error",
-  draft: "bg-muted text-muted-foreground",
-};
 
 function Page() {
   const { id } = Route.useParams();
@@ -163,35 +156,33 @@ function Page() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <Link
-          to="/dashboard/rfqs"
-          className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
-        >
-          <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" /> {t("dashboard.myRfqs")}
-        </Link>
-        <div className="mt-3 flex items-start justify-between gap-4 flex-wrap">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="font-display text-3xl text-primary">{rfq.title}</h1>
-              <Badge className={statusColor[rfq.status]}>
-                {t(`dashboard.status.${rfq.status}`)}
-              </Badge>
-            </div>
-            <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <MapPin className="h-3.5 w-3.5" /> {rfq.destination_city}, {rfq.destination_country}
-              </span>
-              <span className="flex items-center gap-1">
-                <Calendar className="h-3.5 w-3.5" /> {rfq.check_in} → {rfq.check_out}
-              </span>
-              <span className="flex items-center gap-1">
-                <Users className="h-3.5 w-3.5" /> {rfq.guests_count} {t("dashboard.guests")} ·{" "}
-                {rfq.rooms_needed} {t("dashboard.rooms")}
-              </span>
-            </div>
-          </div>
-          <div className="flex gap-2">
+      <PageHeader
+        title={rfq.title}
+        eyebrow={
+          <Link
+            to="/dashboard/rfqs"
+            className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" /> {t("dashboard.myRfqs")}
+          </Link>
+        }
+        description={
+          <span className="flex flex-wrap gap-x-4 gap-y-2">
+            <span className="flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5" /> {rfq.destination_city}, {rfq.destination_country}
+            </span>
+            <span className="flex items-center gap-1">
+              <Calendar className="h-3.5 w-3.5" /> {rfq.check_in} - {rfq.check_out}
+            </span>
+            <span className="flex items-center gap-1">
+              <Users className="h-3.5 w-3.5" /> {rfq.guests_count} {t("dashboard.guests")} /{" "}
+              {rfq.rooms_needed} {t("dashboard.rooms")}
+            </span>
+          </span>
+        }
+        meta={<StatusBadge status={rfq.status} />}
+        actions={
+          <>
             {["open", "quoting", "under_review"].includes(rfq.status) && (
               <Button variant="outline" size="sm" onClick={() => closeMut.mutate()}>
                 {t("dashboard.close")}
@@ -214,11 +205,11 @@ function Page() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
 
-      <Card>
+      <Card className="bg-surface/60">
         <CardContent className="p-5 grid sm:grid-cols-2 gap-4 text-sm">
           <Detail label={t("rfq.fields.groupType")} value={t(`rfq.groupTypes.${rfq.group_type}`)} />
           <Detail
@@ -242,7 +233,7 @@ function Page() {
             value={
               Array.isArray(rfq.hotel_categories) && rfq.hotel_categories.length > 0
                 ? rfq.hotel_categories.map((n: number) => `${n}★`).join(", ")
-                : "Any"
+                : t("rfq.categories.any")
             }
           />
           <Detail label={t("rfq.fields.deadline")} value={rfq.deadline || "—"} />
@@ -253,11 +244,9 @@ function Page() {
         </CardContent>
       </Card>
 
-      <div>
-        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-          <h2 className="font-display text-xl text-primary">
-            {t("dashboard.viewQuotes")} ({quotes.length})
-          </h2>
+      <WorkspaceSection
+        title={`${t("dashboard.viewQuotes")} (${quotes.length})`}
+        actions={
           <div className="flex gap-2">
             {quotes.length >= 2 && (
               <Button variant="outline" size="sm" asChild>
@@ -267,14 +256,10 @@ function Page() {
               </Button>
             )}
           </div>
-        </div>
-
+        }
+      >
         {quotes.length === 0 ? (
-          <Card>
-            <CardContent className="p-10 text-center text-muted-foreground">
-              {t("dashboard.noQuotesYet")}
-            </CardContent>
-          </Card>
+          <EmptyState icon={GitCompare} title={t("dashboard.noQuotesYet")} />
         ) : (
           <div className="space-y-3">
             {quotes.map((q: any) => (
@@ -283,12 +268,10 @@ function Page() {
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-display text-lg text-primary">
-                          {q.hotels?.name ?? "Hotel"}
+                        <h3 className="text-lg font-semibold text-foreground">
+                          {q.hotels?.name ?? t("role.hotel")}
                         </h3>
-                        <Badge className={statusColor[q.status] ?? ""}>
-                          {t(`dashboard.status.${q.status}`)}
-                        </Badge>
+                        <StatusBadge status={q.status} />
                       </div>
                       <div className="mt-1 text-sm text-muted-foreground flex items-center gap-3 flex-wrap">
                         <span>
@@ -304,7 +287,7 @@ function Page() {
                       <p className="text-sm mt-2">{q.notes}</p>
                     </div>
                     <div className="text-end">
-                      <div className="font-display text-2xl text-primary">
+                      <div className="text-2xl font-semibold text-foreground tabular-nums">
                         {q.currency} {formatNumber(q.total_price)}
                       </div>
                       {q.price_per_room_night && (
@@ -325,20 +308,24 @@ function Page() {
                             >
                               {t("dashboard.shortlist")}
                             </Button>
-                            <Button size="sm" variant="gold" onClick={() => acceptQuote.mutate(q)}>
+                            <Button size="sm" onClick={() => acceptQuote.mutate(q)}>
                               {t("dashboard.accept")}
                             </Button>
                           </div>
                         )}
                     </div>
                   </div>
-                  <MessageThread rfqId={id} otherId={null} hotelName={q.hotels?.name ?? "Hotel"} />
+                  <MessageThread
+                    rfqId={id}
+                    otherId={null}
+                    hotelName={q.hotels?.name ?? t("role.hotel")}
+                  />
                 </CardContent>
               </Card>
             ))}
           </div>
         )}
-      </div>
+      </WorkspaceSection>
     </div>
   );
 }

@@ -99,6 +99,7 @@
     "contact": "Contact",
     "legal": "Legal",
     "location": "Riyadh, Saudi Arabia",
+    "copyright": "© {{year}} {{brand}}. All rights reserved.",
     "madeFor": "Made for group hospitality."
   }
 }

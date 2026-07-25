@@ -20,11 +20,14 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { MapPin, Calendar, Users, ArrowLeft, MessageSquare, LogIn, Send } from "lucide-react";
+import { MapPin, Calendar, Users, ArrowLeft, LogIn, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useApplicationLocale } from "@/lib/application-locale";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
+import { PageHeader } from "@/components/workspace/page-header";
+import { WorkspaceSection } from "@/components/workspace/section";
+import { StatusBadge } from "@/components/workspace/status-badge";
 
 export const Route = createFileRoute("/requests/$id")({
   head: () => ({ meta: [{ title: i18n.t("rfq.detail.metaTitle") }] }),
@@ -63,25 +66,18 @@ function Page() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="flex-1 container-page py-10 space-y-6">
-        <Link
-          to="/requests"
-          className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
-        >
-          <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" /> {t("rfq.detail.allRequests")}
-        </Link>
-
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="font-display text-3xl text-primary">{rfq.title}</h1>
-              <Badge className="bg-success/15 text-success">
-                {t(`status.${rfq.status}`, { defaultValue: rfq.status })}
-              </Badge>
-              <Badge variant="outline" className="uppercase tracking-wide">
-                {rfq.group_type}
-              </Badge>
-            </div>
-            <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
+        <PageHeader
+          title={rfq.title}
+          eyebrow={
+            <Link
+              to="/requests"
+              className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" /> {t("rfq.detail.allRequests")}
+            </Link>
+          }
+          description={
+            <span className="flex flex-wrap gap-x-4 gap-y-2">
               <span className="flex items-center gap-1">
                 <MapPin className="h-3.5 w-3.5" /> {rfq.destination_city}, {rfq.destination_country}
               </span>
@@ -90,15 +86,25 @@ function Page() {
                 {t("rfq.publicRequests.nightsShort", { count: rfq.nights })})
               </span>
               <span className="flex items-center gap-1">
-                <Users className="h-3.5 w-3.5" /> {rfq.guests_count} {t("dashboard.guests")} ·{" "}
+                <Users className="h-3.5 w-3.5" /> {rfq.guests_count} {t("dashboard.guests")} /{" "}
                 {rfq.rooms_needed} {t("dashboard.rooms")}
               </span>
-            </div>
-          </div>
-          {user && isHotel && rfq.status === "open" && (
-            <SubmitQuoteForHotel rfq={rfq} userId={user.id} />
-          )}
-        </div>
+            </span>
+          }
+          meta={
+            <>
+              <StatusBadge status={rfq.status} />
+              <Badge variant="outline" className="uppercase">
+                {rfq.group_type}
+              </Badge>
+            </>
+          }
+          actions={
+            user && isHotel && rfq.status === "open" ? (
+              <SubmitQuoteForHotel rfq={rfq} userId={user.id} />
+            ) : null
+          }
+        />
 
         <Card>
           <CardContent className="p-5 grid sm:grid-cols-2 gap-4 text-sm">
@@ -127,16 +133,12 @@ function Page() {
           </CardContent>
         </Card>
 
-        <div>
-          <h2 className="font-display text-xl text-primary mb-3 flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" /> {t("rfq.detail.messageOrganizer")}
-          </h2>
-
+        <WorkspaceSection title={t("rfq.detail.messageOrganizer")}>
           {!user ? (
             <Card>
               <CardContent className="p-6 flex items-center justify-between gap-4 flex-wrap">
                 <p className="text-sm text-muted-foreground">{t("rfq.detail.hotelSignInPrompt")}</p>
-                <Button asChild variant="gold">
+                <Button asChild>
                   <Link to="/auth">
                     <LogIn className="h-4 w-4" /> {t("auth.submitSignIn")}
                   </Link>
@@ -158,7 +160,7 @@ function Page() {
               </CardContent>
             </Card>
           )}
-        </div>
+        </WorkspaceSection>
       </main>
       <SiteFooter />
     </div>

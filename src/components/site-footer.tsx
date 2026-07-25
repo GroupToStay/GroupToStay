@@ -101,7 +101,10 @@ export function SiteFooter() {
       <div className="border-t border-primary-foreground/10">
         <div className="container-page flex flex-wrap items-center justify-between gap-2 py-4 text-xs text-primary-foreground/60">
           <span>
-            &copy; {new Date().getFullYear()} {t("common.brand.name")}. {t("footer.rights")}
+            {t("footer.copyright", {
+              year: new Date().getFullYear(),
+              brand: t("common.brand.name"),
+            })}
           </span>
           <span>{t("footer.madeFor")}</span>
         </div>
