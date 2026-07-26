@@ -38,6 +38,39 @@
     "agencyProfile": "Agency Profile",
     "myProfile": "My Profile"
   },
+  "accountMenu": {
+    "open": "Open account menu",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Account settings",
+    "notifications": "Notifications",
+    "language": "Language",
+    "help": "Help center",
+    "signOut": "Sign out"
+  },
+  "globalSearch": {
+    "open": "Open global search",
+    "title": "Global search",
+    "description": "Search navigation and records available to your account.",
+    "placeholder": "Search workspace...",
+    "shortcut": "Ctrl K",
+    "empty": "No matching results.",
+    "navigation": "Navigation",
+    "records": "Records"
+  },
+  "sidebar": {
+    "overview": "Overview",
+    "marketplace": "Marketplace",
+    "management": "Management",
+    "workspace": "Workspace",
+    "account": "Account"
+  },
+  "breadcrumbs": {
+    "admin": "Admin",
+    "agency": "Agency",
+    "hotel": "Hotel",
+    "details": "Details"
+  },
   "footer": {
     "rights": "All rights reserved.",
     "platform": "Platform",

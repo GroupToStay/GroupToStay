@@ -24,6 +24,8 @@ export function useNotifications(limit = 30) {
   const subscriptionId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const [items, setItems] = useState<NotificationRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pageSize, setPageSize] = useState(limit);
+  const [hasMore, setHasMore] = useState(false);
 
   const load = useCallback(async () => {
     if (!userId) {
@@ -36,10 +38,12 @@ export function useNotifications(limit = 30) {
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(limit);
-    setItems((data as NotificationRow[]) ?? []);
+      .limit(pageSize + 1);
+    const rows = (data as NotificationRow[]) ?? [];
+    setHasMore(rows.length > pageSize);
+    setItems(rows.slice(0, pageSize));
     setLoading(false);
-  }, [userId, limit]);
+  }, [userId, pageSize]);
 
   useEffect(() => {
     void load();
@@ -60,24 +64,59 @@ export function useNotifications(limit = 30) {
   const unreadCount = items.filter((n) => !n.read_at).length;
 
   const markRead = useCallback(async (id: string) => {
-    await (supabase as any)
+    const readAt = new Date().toISOString();
+    const { error } = await (supabase as any)
       .from("notifications")
-      .update({ read_at: new Date().toISOString() })
+      .update({ read_at: readAt })
       .eq("id", id);
+    if (!error) {
+      setItems((current) =>
+        current.map((notification) =>
+          notification.id === id ? { ...notification, read_at: readAt } : notification,
+        ),
+      );
+    }
   }, []);
 
   const markAllRead = useCallback(async () => {
     if (!userId) return;
-    await (supabase as any)
+    const readAt = new Date().toISOString();
+    const { error } = await (supabase as any)
       .from("notifications")
-      .update({ read_at: new Date().toISOString() })
+      .update({ read_at: readAt })
       .eq("user_id", userId)
       .is("read_at", null);
+    if (!error) {
+      setItems((current) =>
+        current.map((notification) => ({
+          ...notification,
+          read_at: notification.read_at ?? readAt,
+        })),
+      );
+    }
   }, [userId]);
 
   const remove = useCallback(async (id: string) => {
-    await (supabase as any).from("notifications").delete().eq("id", id);
+    const { error } = await (supabase as any).from("notifications").delete().eq("id", id);
+    if (!error) setItems((current) => current.filter((notification) => notification.id !== id));
   }, []);
 
-  return { items, loading, unreadCount, markRead, markAllRead, remove, reload: load };
+  const loadMore = useCallback(() => {
+    if (hasMore) {
+      setHasMore(false);
+      setPageSize((current) => current + limit);
+    }
+  }, [hasMore, limit]);
+
+  return {
+    items,
+    loading,
+    unreadCount,
+    hasMore,
+    loadMore,
+    markRead,
+    markAllRead,
+    remove,
+    reload: load,
+  };
 }

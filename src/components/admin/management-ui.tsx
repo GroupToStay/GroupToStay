@@ -3,17 +3,13 @@ import type { LucideIcon } from "lucide-react";
 import {
   BadgeCheck,
   Ban,
-  Building2,
   CheckCircle2,
   Circle,
   CircleSlash,
   Clock,
   EllipsisVertical,
-  Hotel,
   RotateCcw,
   Shield,
-  ShieldCheck,
-  UserRound,
   Users,
   XCircle,
 } from "lucide-react";
@@ -38,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { useApplicationLocale } from "@/lib/application-locale";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/workspace/page-header";
+import { RoleBadge } from "@/components/role-badge";
 
 type Tone = "neutral" | "success" | "warning" | "error" | "info" | "gold" | "purple";
 
@@ -222,32 +219,7 @@ export function AdminStatusBadge({ status }: { status?: string | null }) {
 }
 
 export function AdminRoleBadge({ role }: { role?: string | null }) {
-  const { t } = useTranslation();
-  const normalized = String(role || "visitor").toLowerCase();
-  const config =
-    normalized === "admin" || normalized === "super_admin"
-      ? {
-          labelKey: normalized === "super_admin" ? "role.superAdmin" : "role.admin",
-          icon: ShieldCheck,
-          tone: "purple" as Tone,
-        }
-      : normalized === "hotel"
-        ? { labelKey: "role.hotel", icon: Hotel, tone: "info" as Tone }
-        : normalized === "organizer" || normalized === "agency"
-          ? { labelKey: "role.agency", icon: Building2, tone: "success" as Tone }
-          : { labelKey: "role.visitor", icon: UserRound, tone: "neutral" as Tone };
-  const Icon = config.icon;
-  return (
-    <Badge
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium",
-        toneClass[config.tone],
-      )}
-    >
-      <Icon className="h-3.5 w-3.5" />
-      {t(config.labelKey)}
-    </Badge>
-  );
+  return <RoleBadge role={role} />;
 }
 
 export function AdminDetailGrid({ children }: { children: ReactNode }) {
