@@ -1,9 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Building2,
   Hotel,
@@ -12,7 +11,6 @@ import {
   ShieldCheck,
   Inbox,
   BadgeCheck,
-  ArrowUpRight,
   CheckCircle2,
   XCircle,
   Clock,
@@ -22,6 +20,8 @@ import { formatDistanceToNow } from "date-fns";
 import i18n from "@/lib/i18n";
 import { PageHeader } from "@/components/workspace/page-header";
 import { WorkspaceSection } from "@/components/workspace/section";
+import { QuickActions } from "@/components/workspace/quick-actions";
+import { TaskGrid } from "@/components/workspace/task-card";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({ meta: [{ title: i18n.t("admin.overview.metaTitle") }] }),
@@ -43,6 +43,7 @@ function AdminHome() {
         listingsApproved,
         listingsPending,
         rolesAgency,
+        agenciesPending,
         rolesHotel,
         subActive,
         subWaiting,
@@ -77,6 +78,10 @@ function AdminHome() {
           .select("user_id", { count: "exact", head: true })
           .eq("role", "organizer"),
         supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .in("agency_verification_status", ["submitted", "pending_review"]),
+        supabase
           .from("user_roles")
           .select("user_id", { count: "exact", head: true })
           .eq("role", "hotel"),
@@ -98,6 +103,7 @@ function AdminHome() {
         listingsApproved: listingsApproved.count ?? 0,
         listingsPending: listingsPending.count ?? 0,
         agencies: rolesAgency.count ?? 0,
+        agenciesPending: agenciesPending.count ?? 0,
         hotelUsers: rolesHotel.count ?? 0,
         subActive: subActive.count ?? 0,
         subWaiting: subWaiting.count ?? 0,
@@ -158,62 +164,94 @@ function AdminHome() {
     },
   ];
 
-  const quickActions = [
+  const tasks = [
     {
-      title: t("admin.hotelCompanies.title"),
-      desc: t("admin.overview.actions.hotelCompanies"),
+      id: "pending-hotels",
+      title: t("dashboard.tasks.admin.hotels"),
+      description: t("dashboard.tasks.admin.hotelsDescription"),
+      count: stats?.companiesPending ?? 0,
       to: "/admin/hotel-companies",
       icon: Building2,
-      badge: null as string | null,
+      tone: "warning" as const,
     },
     {
-      title: t("admin.hotelListings.title"),
-      desc: t("admin.overview.actions.hotelListings"),
+      id: "pending-listings",
+      title: t("dashboard.tasks.admin.listings"),
+      description: t("dashboard.tasks.admin.listingsDescription"),
+      count: stats?.listingsPending ?? 0,
       to: "/admin/hotel-listings",
       icon: Hotel,
-      badge: null,
+      tone: "info" as const,
     },
     {
-      title: t("admin.agencyVerifications.title"),
-      desc: t("admin.overview.actions.agencyVerifications"),
+      id: "agency-verification",
+      title: t("dashboard.tasks.admin.agencies"),
+      description: t("dashboard.tasks.admin.agenciesDescription"),
+      count: stats?.agenciesPending ?? 0,
       to: "/admin/agency-verifications",
       icon: BadgeCheck,
-      badge: null,
+      tone: "success" as const,
     },
     {
-      title: t("nav.groupRequests"),
-      desc: t("admin.overview.actions.groupRequests"),
+      id: "subscriptions",
+      title: t("dashboard.tasks.admin.subscriptions"),
+      description: t("dashboard.tasks.admin.subscriptionsDescription"),
+      count: stats?.subWaiting ?? 0,
+      to: "/admin/subscription-interest",
+      icon: CreditCard,
+      tone: "primary" as const,
+    },
+  ];
+
+  const quickActions = [
+    {
+      id: "hotels",
+      label: t("admin.hotelCompanies.title"),
+      description: t("admin.overview.actions.hotelCompanies"),
+      to: "/admin/hotel-companies",
+      icon: Building2,
+    },
+    {
+      id: "listings",
+      label: t("admin.hotelListings.title"),
+      description: t("admin.overview.actions.hotelListings"),
+      to: "/admin/hotel-listings",
+      icon: Hotel,
+    },
+    {
+      id: "agencies",
+      label: t("admin.agencyVerifications.title"),
+      description: t("admin.overview.actions.agencyVerifications"),
+      to: "/admin/agency-verifications",
+      icon: BadgeCheck,
+    },
+    {
+      id: "rfqs",
+      label: t("nav.groupRequests"),
+      description: t("admin.overview.actions.groupRequests"),
       to: "/admin/group-requests",
       icon: FileText,
-      badge: null,
     },
     {
-      title: t("nav.users"),
-      desc: t("admin.overview.actions.users"),
+      id: "users",
+      label: t("nav.users"),
+      description: t("admin.overview.actions.users"),
       to: "/admin/users",
       icon: Users,
-      badge: null,
     },
     {
-      title: t("nav.subscriptionInterest"),
-      desc: t("admin.overview.actions.subscriptionInterest"),
+      id: "interest",
+      label: t("nav.subscriptionInterest"),
+      description: t("admin.overview.actions.subscriptionInterest"),
       to: "/admin/subscription-interest",
       icon: Inbox,
-      badge: null,
     },
     {
-      title: t("nav.subscriptions"),
-      desc: t("admin.overview.actions.subscriptions"),
-      to: "/admin/subscriptions",
-      icon: CreditCard,
-      badge: t("common.comingSoon"),
-    },
-    {
-      title: t("nav.settings"),
-      desc: t("admin.overview.actions.settings"),
+      id: "settings",
+      label: t("nav.settings"),
+      description: t("admin.overview.actions.settings"),
       to: "/admin/settings",
       icon: ShieldCheck,
-      badge: null,
     },
   ];
 
@@ -249,38 +287,15 @@ function AdminHome() {
         ))}
       </div>
 
+      <WorkspaceSection
+        title={t("dashboard.tasks.title")}
+        description={t("dashboard.tasks.description")}
+      >
+        <TaskGrid tasks={tasks} />
+      </WorkspaceSection>
+
       <WorkspaceSection title={t("admin.overview.quickActions")}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {quickActions.map((qa) => {
-            const Inner = (
-              <Card className="h-full transition-colors hover:border-primary/30 hover:bg-muted/20">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between">
-                    <span className="grid h-10 w-10 place-items-center rounded-md border border-primary/10 bg-primary/5 text-primary">
-                      <qa.icon className="h-5 w-5" />
-                    </span>
-                    {qa.badge ? (
-                      <Badge className="bg-muted text-muted-foreground">{qa.badge}</Badge>
-                    ) : (
-                      <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="mt-4 text-base font-semibold text-foreground">{qa.title}</div>
-                  <div className="text-sm text-muted-foreground">{qa.desc}</div>
-                </CardContent>
-              </Card>
-            );
-            return qa.badge ? (
-              <div key={qa.title} className="opacity-70 cursor-not-allowed">
-                {Inner}
-              </div>
-            ) : (
-              <Link key={qa.title} to={qa.to}>
-                {Inner}
-              </Link>
-            );
-          })}
-        </div>
+        <QuickActions actions={quickActions} />
       </WorkspaceSection>
 
       <RecentActivity />

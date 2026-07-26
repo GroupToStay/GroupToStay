@@ -5,6 +5,46 @@
     "newRfq": "Create Group Request",
     "messagesTitle": "Messages",
     "settings": "Settings",
+    "tasks": {
+      "title": "Today's tasks",
+      "description": "The items that need your attention now.",
+      "common": {
+        "messages": "Messages",
+        "messagesDescription": "Review conversations and respond to unread messages."
+      },
+      "agency": {
+        "activeRfqs": "Active group requests",
+        "activeRfqsDescription": "Track requests that are receiving or reviewing quotations.",
+        "quotes": "Quotations to review",
+        "quotesDescription": "Compare hotel responses and continue negotiations.",
+        "bookings": "Awarded bookings",
+        "bookingsDescription": "Review confirmed stays and upcoming group activity."
+      },
+      "hotel": {
+        "invitations": "Invitations waiting",
+        "invitationsDescription": "Review new group opportunities assigned to your hotels.",
+        "quotations": "Active quotations",
+        "quotationsDescription": "Track submitted offers that remain in consideration.",
+        "upcomingGroups": "Awarded groups",
+        "upcomingGroupsDescription": "Prepare for group stays awarded to your hotels."
+      },
+      "admin": {
+        "hotels": "Hotels awaiting review",
+        "hotelsDescription": "Review pending hotel company applications.",
+        "listings": "Listings awaiting review",
+        "listingsDescription": "Approve or reject pending hotel listings.",
+        "agencies": "Agency verifications",
+        "agenciesDescription": "Review submitted agency verification profiles.",
+        "subscriptions": "Subscription requests",
+        "subscriptionsDescription": "Review organizations waiting for subscription follow-up."
+      }
+    },
+    "quickActions": {
+      "title": "Quick actions",
+      "hotel": {
+        "reviewInvitations": "Review invitations"
+      }
+    },
     "noRfqs": "You haven't submitted any Group Requests yet.",
     "createFirst": "Create your first Group Request",
     "status": {

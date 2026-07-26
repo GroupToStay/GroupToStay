@@ -17,6 +17,7 @@ import { DEFAULT_PHONE_CODE } from "@/lib/phone-codes";
 import { PmsSection } from "@/components/pms-section";
 import i18n from "@/lib/i18n";
 import { PageHeader } from "@/components/workspace/page-header";
+import { RoleBadge } from "@/components/role-badge";
 
 export const Route = createFileRoute("/_authenticated/dashboard/profile")({
   head: () => ({ meta: [{ title: i18n.t("profile.metaTitle") }] }),
@@ -87,6 +88,7 @@ function Page() {
           title={t("profile.admin.title")}
           description={t("profile.admin.description")}
           icon={ShieldCheck}
+          actions={<RoleBadge role="admin" />}
         />
         <Card>
           <CardContent className="p-6 space-y-4">
@@ -146,7 +148,12 @@ function Page() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <PageHeader title={t("profile.title")} description={t("profile.subtitle")} icon={UserIcon} />
+      <PageHeader
+        title={t("profile.title")}
+        description={t("profile.subtitle")}
+        icon={UserIcon}
+        actions={<RoleBadge role={isHotel ? "hotel" : "agency"} />}
+      />
 
       <Card>
         <CardContent className="p-6">

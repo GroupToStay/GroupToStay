@@ -5,6 +5,46 @@
     "newRfq": "إنشاء طلب مجموعة",
     "messagesTitle": "الرسائل",
     "settings": "الإعدادات",
+    "tasks": {
+      "title": "مهام اليوم",
+      "description": "العناصر التي تحتاج إلى اهتمامك الآن.",
+      "common": {
+        "messages": "الرسائل",
+        "messagesDescription": "راجع المحادثات ورد على الرسائل غير المقروءة."
+      },
+      "agency": {
+        "activeRfqs": "طلبات المجموعات النشطة",
+        "activeRfqsDescription": "تابع الطلبات التي تستقبل عروضًا أو تخضع للمراجعة.",
+        "quotes": "عروض تحتاج إلى المراجعة",
+        "quotesDescription": "قارن ردود الفنادق وتابع التفاوض.",
+        "bookings": "الحجوزات التي تمت ترسيتها",
+        "bookingsDescription": "راجع الإقامات المؤكدة وأنشطة المجموعات القادمة."
+      },
+      "hotel": {
+        "invitations": "دعوات بانتظار الإجراء",
+        "invitationsDescription": "راجع فرص المجموعات الجديدة المرسلة إلى فنادقك.",
+        "quotations": "عروض أسعار نشطة",
+        "quotationsDescription": "تابع العروض المقدمة التي ما زالت قيد الدراسة.",
+        "upcomingGroups": "مجموعات تمت ترسيتها",
+        "upcomingGroupsDescription": "استعد لإقامات المجموعات التي تمت ترسيتها لفنادقك."
+      },
+      "admin": {
+        "hotels": "فنادق بانتظار المراجعة",
+        "hotelsDescription": "راجع طلبات شركات الفنادق المعلقة.",
+        "listings": "قوائم بانتظار المراجعة",
+        "listingsDescription": "اعتمد أو ارفض قوائم الفنادق المعلقة.",
+        "agencies": "توثيق الوكالات",
+        "agenciesDescription": "راجع ملفات توثيق الوكالات المقدمة.",
+        "subscriptions": "طلبات الاشتراك",
+        "subscriptionsDescription": "راجع المنشآت التي تنتظر متابعة الاشتراك."
+      }
+    },
+    "quickActions": {
+      "title": "إجراءات سريعة",
+      "hotel": {
+        "reviewInvitations": "مراجعة الدعوات"
+      }
+    },
     "noRfqs": "لم ترسل أي طلبات مجموعات حتى الآن.",
     "createFirst": "أنشئ أول طلب مجموعة",
     "status": {

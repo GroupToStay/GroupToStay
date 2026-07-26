@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import { useApplicationLocale } from "@/lib/application-locale";
 import { cn } from "@/lib/utils";
+import { WorkspaceBreadcrumbs } from "@/components/workspace/workspace-breadcrumbs";
 
 export type WorkspaceNavItem = {
   to: string;
@@ -63,7 +64,7 @@ function WorkspaceNavigation({
                   title={compact ? item.label : undefined}
                   onClick={onNavigate}
                   className={cn(
-                    "group flex min-h-10 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors",
+                    "group flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors",
                     active
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:bg-accent hover:text-foreground",
@@ -86,6 +87,7 @@ function WorkspaceNavigation({
 export function WorkspaceShell({
   brand,
   identity,
+  compactIdentity,
   groups,
   header,
   children,
@@ -93,6 +95,7 @@ export function WorkspaceShell({
 }: {
   brand: ReactNode;
   identity: ReactNode;
+  compactIdentity?: ReactNode;
   groups: WorkspaceNavGroup[];
   header: ReactNode;
   children: ReactNode;
@@ -100,8 +103,15 @@ export function WorkspaceShell({
 }) {
   const { t } = useTranslation();
   const { dir } = useApplicationLocale();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("gts-workspace-sidebar-collapsed") === "true";
+  });
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    window.localStorage.setItem("gts-workspace-sidebar-collapsed", String(collapsed));
+  }, [collapsed]);
 
   return (
     <div className="min-h-screen bg-surface">
@@ -113,20 +123,22 @@ export function WorkspaceShell({
           wide ? "max-w-none" : "max-w-[1600px]",
         )}
       >
-        <aside className="hidden border-e border-border bg-card lg:flex lg:min-h-full lg:flex-col">
+        <aside className="hidden border-e border-border bg-card lg:sticky lg:top-16 lg:flex lg:h-[calc(100vh-4rem)] lg:self-start lg:flex-col">
           <div
             className={cn(
-              "flex min-h-[84px] items-center border-b border-border p-4",
-              collapsed ? "justify-center" : "justify-between gap-3",
+              "flex items-center border-b border-border",
+              collapsed
+                ? "min-h-24 flex-col justify-center gap-1 p-2"
+                : "min-h-[84px] justify-between gap-3 p-4",
             )}
           >
-            {!collapsed ? <div className="min-w-0">{identity}</div> : null}
+            <div className="min-w-0">{collapsed ? compactIdentity : identity}</div>
             <Button
               type="button"
               variant="ghost"
               size="icon"
               className="h-9 w-9 shrink-0"
-              onClick={() => setCollapsed((value) => !value)}
+              onClick={() => setCollapsed(!collapsed)}
               aria-label={t("common.accessibility.toggleSidebar")}
             >
               {collapsed ? (
@@ -142,7 +154,7 @@ export function WorkspaceShell({
         </aside>
 
         <div className="min-w-0">
-          <div className="flex h-14 items-center gap-3 border-b border-border bg-card px-4 lg:hidden">
+          <div className="sticky top-16 z-30 flex h-14 items-center gap-3 border-b border-border bg-card/95 px-4 backdrop-blur lg:hidden">
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
                 <Button
@@ -172,7 +184,10 @@ export function WorkspaceShell({
             </Sheet>
             <div className="min-w-0 flex-1 truncate">{identity}</div>
           </div>
-          <main className="workspace-page">{children}</main>
+          <main className="workspace-page">
+            <WorkspaceBreadcrumbs />
+            {children}
+          </main>
         </div>
       </div>
     </div>

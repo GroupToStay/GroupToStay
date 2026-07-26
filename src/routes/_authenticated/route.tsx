@@ -1,7 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { SiteHeader } from "@/components/site-header";
 import { useUnreadMessageCount } from "@/hooks/use-unread-messages";
@@ -24,6 +23,7 @@ import {
   Server,
 } from "lucide-react";
 import { WorkspaceShell, type WorkspaceNavGroup } from "@/components/workspace/workspace-shell";
+import { WorkspaceIdentity } from "@/components/workspace/workspace-identity";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -39,8 +39,7 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthLayout() {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { isHotel, isAdmin, isOrganizer } = useRoles();
+  const { isHotel, isAdmin, isOrganizer, loading: rolesLoading } = useRoles();
   const unread = useUnreadMessageCount();
   const unreadBadge =
     unread > 0 ? (
@@ -50,12 +49,11 @@ function AuthLayout() {
     ) : undefined;
 
   let groups: WorkspaceNavGroup[] = [];
-  let roleLabel = t("role.agency");
 
   if (isAdmin) {
-    roleLabel = t("role.admin");
     groups = [
       {
+        label: t("navigation:sidebar.overview"),
         items: [
           {
             to: "/admin",
@@ -66,6 +64,7 @@ function AuthLayout() {
         ],
       },
       {
+        label: t("navigation:sidebar.marketplace"),
         items: [
           {
             to: "/admin/hotel-companies",
@@ -95,6 +94,7 @@ function AuthLayout() {
         ],
       },
       {
+        label: t("navigation:sidebar.management"),
         items: [
           { to: "/admin/users", label: t("nav.users"), icon: Users },
           {
@@ -117,9 +117,9 @@ function AuthLayout() {
       },
     ];
   } else if (isHotel) {
-    roleLabel = t("role.hotel");
     groups = [
       {
+        label: t("navigation:sidebar.workspace"),
         items: [
           {
             to: "/dashboard",
@@ -151,6 +151,7 @@ function AuthLayout() {
         ],
       },
       {
+        label: t("navigation:sidebar.account"),
         items: [
           {
             to: "/dashboard/hotel",
@@ -168,9 +169,10 @@ function AuthLayout() {
         ],
       },
     ];
-  } else if (isOrganizer) {
+  } else if (isOrganizer && !rolesLoading) {
     groups = [
       {
+        label: t("navigation:sidebar.workspace"),
         items: [
           {
             to: "/dashboard",
@@ -212,6 +214,7 @@ function AuthLayout() {
         ],
       },
       {
+        label: t("navigation:sidebar.account"),
         items: [
           {
             to: "/dashboard/agency-profile",
@@ -224,17 +227,13 @@ function AuthLayout() {
     ];
   }
 
-  const identity = (
-    <div className="min-w-0">
-      <div className="text-xs font-semibold text-muted-foreground">{roleLabel}</div>
-      <div className="truncate text-sm font-medium text-foreground">{user?.email}</div>
-    </div>
-  );
+  const identity = <WorkspaceIdentity />;
 
   return (
     <WorkspaceShell
       brand={t("common.brand.name")}
       identity={identity}
+      compactIdentity={<WorkspaceIdentity compact />}
       groups={groups}
       header={<SiteHeader />}
       wide={isAdmin}

@@ -27,6 +27,7 @@ import { AlertCircle, Building2, Clock, ShieldCheck, Upload, FileText } from "lu
 import i18n from "@/lib/i18n";
 import { PageHeader } from "@/components/workspace/page-header";
 import { StatusBadge } from "@/components/workspace/status-badge";
+import { RoleBadge } from "@/components/role-badge";
 
 export const Route = createFileRoute("/_authenticated/dashboard/agency-profile")({
   head: () => ({ meta: [{ title: i18n.t("profile.agency.metaTitle") }] }),
@@ -320,6 +321,7 @@ function Page() {
         description={t("profile.agency.description")}
         icon={Building2}
         meta={<StatusBadge status={status} />}
+        actions={<RoleBadge role="agency" />}
       />
 
       <div>

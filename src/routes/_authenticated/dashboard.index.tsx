@@ -4,10 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   Building2,
+  CalendarCheck,
   CheckCircle2,
   CreditCard,
   FileText,
   Inbox,
+  MessageSquare,
   Plus,
   Send,
 } from "lucide-react";
@@ -20,6 +22,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MetricCard, MetricGrid } from "@/components/workspace/metric-card";
 import { PageHeader } from "@/components/workspace/page-header";
 import { WorkspaceSection } from "@/components/workspace/section";
+import { QuickActions } from "@/components/workspace/quick-actions";
+import { TaskGrid } from "@/components/workspace/task-card";
 import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
@@ -64,25 +68,100 @@ function OrganizerHome() {
     queryKey: ["dash-stats", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const [{ count: total }, { count: open }, { count: awarded }] = await Promise.all([
+      const { data } = await supabase
+        .from("rfqs")
+        .select("id, status")
+        .eq("organizer_id", user!.id);
+      const requests = data ?? [];
+      const requestIds = requests.map((request) => request.id);
+      const [{ count: quotes }, { count: bookings }] = await Promise.all([
+        requestIds.length
+          ? supabase
+              .from("quotes")
+              .select("id", { count: "exact", head: true })
+              .in("rfq_id", requestIds)
+          : Promise.resolve({ count: 0 }),
         supabase
-          .from("rfqs")
-          .select("*", { count: "exact", head: true })
+          .from("bookings")
+          .select("id", { count: "exact", head: true })
           .eq("organizer_id", user!.id),
-        supabase
-          .from("rfqs")
-          .select("*", { count: "exact", head: true })
-          .eq("organizer_id", user!.id)
-          .eq("status", "open"),
-        supabase
-          .from("rfqs")
-          .select("*", { count: "exact", head: true })
-          .eq("organizer_id", user!.id)
-          .eq("status", "awarded"),
       ]);
-      return { total: total ?? 0, open: open ?? 0, awarded: awarded ?? 0 };
+      return {
+        total: requests.length,
+        open: requests.filter((request) =>
+          ["open", "quoting", "under_review"].includes(request.status),
+        ).length,
+        awarded: requests.filter((request) => request.status === "awarded").length,
+        quotes: quotes ?? 0,
+        bookings: bookings ?? 0,
+      };
     },
   });
+
+  const tasks = [
+    {
+      id: "active-rfqs",
+      title: t("dashboard.tasks.agency.activeRfqs"),
+      description: t("dashboard.tasks.agency.activeRfqsDescription"),
+      count: stats?.open ?? 0,
+      to: "/dashboard/rfqs",
+      icon: FileText,
+      tone: "info" as const,
+    },
+    {
+      id: "quotes",
+      title: t("dashboard.tasks.agency.quotes"),
+      description: t("dashboard.tasks.agency.quotesDescription"),
+      count: stats?.quotes ?? 0,
+      to: "/dashboard/quotations",
+      icon: CreditCard,
+      tone: "warning" as const,
+    },
+    {
+      id: "bookings",
+      title: t("dashboard.tasks.agency.bookings"),
+      description: t("dashboard.tasks.agency.bookingsDescription"),
+      count: stats?.bookings ?? 0,
+      to: "/dashboard/bookings",
+      icon: CalendarCheck,
+      tone: "success" as const,
+    },
+    {
+      id: "messages",
+      title: t("dashboard.tasks.common.messages"),
+      description: t("dashboard.tasks.common.messagesDescription"),
+      to: "/dashboard/messages",
+      icon: MessageSquare,
+      tone: "primary" as const,
+    },
+  ];
+
+  const quickActions = [
+    {
+      id: "new-rfq",
+      label: t("dashboard.newRfq"),
+      to: "/dashboard/rfqs/new",
+      icon: Plus,
+    },
+    {
+      id: "quotes",
+      label: t("nav.receivedOffers"),
+      to: "/dashboard/quotations",
+      icon: CreditCard,
+    },
+    {
+      id: "bookings",
+      label: t("dashboard.bookings.navLabel"),
+      to: "/dashboard/bookings",
+      icon: CalendarCheck,
+    },
+    {
+      id: "messages",
+      label: t("dashboard.messagesTitle"),
+      to: "/dashboard/messages",
+      icon: MessageSquare,
+    },
+  ];
 
   return (
     <div className="space-y-8">
@@ -118,6 +197,17 @@ function OrganizerHome() {
           tone="success"
         />
       </MetricGrid>
+
+      <WorkspaceSection
+        title={t("dashboard.tasks.title")}
+        description={t("dashboard.tasks.description")}
+      >
+        <TaskGrid tasks={tasks} />
+      </WorkspaceSection>
+
+      <WorkspaceSection title={t("dashboard.quickActions.title")}>
+        <QuickActions actions={quickActions} />
+      </WorkspaceSection>
 
       <WorkspaceSection title={t("dashboard.myRfqs")} description={t("hero.subtitle")}>
         <Card>
@@ -174,23 +264,110 @@ function HotelHome() {
     queryKey: ["hotel-stats", hotelIds.join(",")],
     enabled: hasHotels,
     queryFn: async () => {
-      const [{ count: invites }, { count: quotes }, { count: wins }] = await Promise.all([
+      const [
+        { count: invites },
+        { count: pendingInvites },
+        { count: quotes },
+        { count: activeQuotes },
+        { count: wins },
+      ] = await Promise.all([
         supabase
           .from("rfq_invitations")
           .select("*", { count: "exact", head: true })
           .in("hotel_id", hotelIds),
         supabase
+          .from("rfq_invitations")
+          .select("*", { count: "exact", head: true })
+          .in("hotel_id", hotelIds)
+          .in("status", ["pending", "viewed"]),
+        supabase
           .from("quotes")
           .select("*", { count: "exact", head: true })
           .in("hotel_id", hotelIds),
+        supabase
+          .from("quotes")
+          .select("*", { count: "exact", head: true })
+          .in("hotel_id", hotelIds)
+          .in("status", ["submitted", "viewed", "shortlisted"]),
         supabase
           .from("bookings")
           .select("*", { count: "exact", head: true })
           .in("hotel_id", hotelIds),
       ]);
-      return { invites: invites ?? 0, quotes: quotes ?? 0, wins: wins ?? 0 };
+      return {
+        invites: invites ?? 0,
+        pendingInvites: pendingInvites ?? 0,
+        quotes: quotes ?? 0,
+        activeQuotes: activeQuotes ?? 0,
+        wins: wins ?? 0,
+      };
     },
   });
+
+  const tasks = [
+    {
+      id: "invitations",
+      title: t("dashboard.tasks.hotel.invitations"),
+      description: t("dashboard.tasks.hotel.invitationsDescription"),
+      count: stats?.pendingInvites ?? 0,
+      to: "/dashboard/invitations",
+      icon: Inbox,
+      tone: "warning" as const,
+    },
+    {
+      id: "quotations",
+      title: t("dashboard.tasks.hotel.quotations"),
+      description: t("dashboard.tasks.hotel.quotationsDescription"),
+      count: stats?.activeQuotes ?? 0,
+      to: "/dashboard/invitations",
+      icon: Send,
+      tone: "info" as const,
+    },
+    {
+      id: "groups",
+      title: t("dashboard.tasks.hotel.upcomingGroups"),
+      description: t("dashboard.tasks.hotel.upcomingGroupsDescription"),
+      count: stats?.wins ?? 0,
+      to: "/dashboard/bookings",
+      icon: CalendarCheck,
+      tone: "success" as const,
+    },
+    {
+      id: "messages",
+      title: t("dashboard.tasks.common.messages"),
+      description: t("dashboard.tasks.common.messagesDescription"),
+      to: "/dashboard/messages",
+      icon: MessageSquare,
+      tone: "primary" as const,
+    },
+  ];
+
+  const quickActions = [
+    {
+      id: "review-invitations",
+      label: t("dashboard.quickActions.hotel.reviewInvitations"),
+      to: "/dashboard/invitations",
+      icon: Inbox,
+    },
+    {
+      id: "bookings",
+      label: t("dashboard.bookings.navLabel"),
+      to: "/dashboard/bookings",
+      icon: CalendarCheck,
+    },
+    {
+      id: "profile",
+      label: t("nav.hotelProfile"),
+      to: "/dashboard/hotel",
+      icon: Building2,
+    },
+    {
+      id: "messages",
+      label: t("dashboard.messagesTitle"),
+      to: "/dashboard/messages",
+      icon: MessageSquare,
+    },
+  ];
 
   return (
     <div className="space-y-8">
@@ -236,6 +413,17 @@ function HotelHome() {
           tone="gold"
         />
       </MetricGrid>
+
+      <WorkspaceSection
+        title={t("dashboard.tasks.title")}
+        description={t("dashboard.tasks.description")}
+      >
+        <TaskGrid tasks={tasks} />
+      </WorkspaceSection>
+
+      <WorkspaceSection title={t("dashboard.quickActions.title")}>
+        <QuickActions actions={quickActions} />
+      </WorkspaceSection>
 
       <WorkspaceSection title={t("nav.hotelProfile")}>
         <Card>
