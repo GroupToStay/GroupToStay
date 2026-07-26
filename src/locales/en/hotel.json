@@ -50,6 +50,20 @@
     "submitQuote": "Submit quote",
     "quoteSentToast": "Quote sent to organizer.",
     "quoteSubmitted": "Quote submitted",
+    "quoteManagement": {
+      "submitQuote": "Submit quote",
+      "editQuote": "Edit quote",
+      "withdraw": "Withdraw quote",
+      "withdrawTitle": "Withdraw this quote?",
+      "withdrawDescription": "The quote will remain in the request history, but the agency will no longer be able to accept it.",
+      "decline": "Decline invitation",
+      "declineTitle": "Decline this invitation?",
+      "declineDescription": "The decision will remain in the request history and you will not be able to submit a quote afterward.",
+      "submittedToast": "Quote sent to the agency.",
+      "updatedToast": "Quote updated.",
+      "withdrawnToast": "Quote withdrawn.",
+      "declinedToast": "Invitation declined."
+    },
     "statuses": {
       "pending": "Pending review",
       "approved": "Approved",

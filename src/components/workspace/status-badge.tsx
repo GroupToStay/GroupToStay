@@ -20,6 +20,8 @@ const statusConfig = {
   awarded: { icon: Award, className: "border-gold/30 bg-gold/10 text-gold-foreground" },
   cancelled: { icon: Ban, className: "border-error/20 bg-error/10 text-error" },
   closed: { icon: Circle, className: "border-border bg-muted text-muted-foreground" },
+  completed: { icon: CheckCircle2, className: "border-success/20 bg-success/10 text-success" },
+  confirmed: { icon: CheckCircle2, className: "border-success/20 bg-success/10 text-success" },
   declined: { icon: XCircle, className: "border-error/20 bg-error/10 text-error" },
   disabled: { icon: Ban, className: "border-error/20 bg-error/10 text-error" },
   draft: { icon: CircleDashed, className: "border-border bg-muted text-muted-foreground" },

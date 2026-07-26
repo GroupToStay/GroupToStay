@@ -82,6 +82,8 @@
     "expired": "منتهي الصلاحية",
     "error": "خطأ",
     "closed": "مغلق",
+    "confirmed": "مؤكد",
+    "completed": "مكتمل",
     "locked": "مقفل",
     "archived": "مؤرشف",
     "notified": "تم الإشعار",

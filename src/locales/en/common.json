@@ -82,6 +82,8 @@
     "expired": "Expired",
     "error": "Error",
     "closed": "Closed",
+    "confirmed": "Confirmed",
+    "completed": "Completed",
     "locked": "Locked",
     "archived": "Archived",
     "notified": "Notified",

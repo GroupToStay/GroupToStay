@@ -109,25 +109,11 @@ function Page() {
 
   const acceptQuote = useMutation({
     mutationFn: async (quote: any) => {
-      const { error: qErr } = await supabase
-        .from("quotes")
-        .update({ status: "accepted" })
-        .eq("id", quote.id);
-      if (qErr) throw qErr;
-      const { error: bErr } = await supabase.from("bookings").insert({
-        rfq_id: id,
-        quote_id: quote.id,
-        organizer_id: user!.id,
-        hotel_id: quote.hotel_id,
-        total_amount: quote.total_price,
-        commission_amount: Number(quote.total_price) * 0.1,
+      const { error } = await supabase.rpc("award_quote", {
+        _rfq_id: id,
+        _quote_id: quote.id,
       });
-      if (bErr) throw bErr;
-      const { error: rErr } = await supabase
-        .from("rfqs")
-        .update({ status: "awarded" })
-        .eq("id", id);
-      if (rErr) throw rErr;
+      if (error) throw error;
     },
     onSuccess: () => {
       toast.success(t("dashboard.acceptedToast"));

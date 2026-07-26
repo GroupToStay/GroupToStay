@@ -1480,6 +1480,10 @@ export type Database = {
     }
     Functions: {
       _norm: { Args: { t: string }; Returns: string }
+      award_quote: {
+        Args: { _quote_id: string; _rfq_id: string }
+        Returns: string
+      }
       can_view_hotel_photo: { Args: { _object_name: string }; Returns: boolean }
       can_view_hotel_through_rfq: {
         Args: { _hotel_id: string }

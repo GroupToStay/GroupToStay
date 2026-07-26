@@ -17,7 +17,19 @@ import { useCountries } from "@/hooks/use-master-data";
 import { DEFAULT_PHONE_CODE } from "@/lib/phone-codes";
 import i18n from "@/lib/i18n";
 
-type Search = { redirect?: string };
+export type AuthMode = "signin" | "signup" | "forgot";
+type Search = { redirect?: string; mode?: AuthMode };
+
+export function parseAuthSearch(search: Record<string, unknown>): Search {
+  const mode =
+    search.mode === "signin" || search.mode === "signup" || search.mode === "forgot"
+      ? search.mode
+      : undefined;
+  return {
+    redirect: typeof search.redirect === "string" ? search.redirect : undefined,
+    mode,
+  };
+}
 
 const PMS_PROVIDER_OPTIONS = [
   { value: "MyCloud PMS", labelKey: "auth.pms.providers.mycloud" },
@@ -56,9 +68,7 @@ function safeAuthRedirect(redirect?: string): string {
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: i18n.t("auth.metaTitle") }] }),
-  validateSearch: (s: Record<string, unknown>): Search => ({
-    redirect: typeof s.redirect === "string" ? s.redirect : undefined,
-  }),
+  validateSearch: parseAuthSearch,
   component: Page,
 });
 
@@ -68,7 +78,7 @@ function Page() {
   const search = useSearch({ from: "/auth" });
   const { user } = useAuth();
   const { data: countries = [] } = useCountries();
-  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
+  const mode = search.mode ?? "signin";
   const [role, setRole] = useState<"organizer" | "hotel">("organizer");
 
   const [email, setEmail] = useState("");
@@ -108,6 +118,16 @@ function Page() {
     if (user) navigate({ to: safeAuthRedirect(search.redirect) as any });
   }, [user, navigate, search.redirect]);
 
+  function changeMode(nextMode: AuthMode) {
+    void navigate({
+      to: "/auth",
+      search: {
+        redirect: search.redirect,
+        mode: nextMode === "signin" ? undefined : nextMode,
+      },
+    });
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -118,7 +138,7 @@ function Page() {
         });
         if (error) throw error;
         toast.success(t("auth.resetLinkSent"));
-        setMode("signin");
+        changeMode("signin");
       } else if (mode === "signup") {
         if (role === "hotel" && (!companyName.trim() || !vatNumber.trim() || !crNumber.trim())) {
           throw new Error(t("auth.errors.companyRequired"));
@@ -180,7 +200,7 @@ function Page() {
         });
         if (error) throw error;
         toast.success(role === "hotel" ? t("auth.hotelPendingNotice") : t("auth.checkEmail"));
-        setMode("signin");
+        changeMode("signin");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -456,7 +476,7 @@ function Page() {
                   <Input
                     id="auth-email"
                     type="email"
-                    required={mode !== "signup"}
+                    required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -490,7 +510,7 @@ function Page() {
                     <button
                       type="button"
                       className="text-sm text-muted-foreground hover:text-foreground"
-                      onClick={() => setMode("forgot")}
+                      onClick={() => changeMode("forgot")}
                     >
                       {t("auth.forgotPassword")}
                     </button>
@@ -507,7 +527,7 @@ function Page() {
               <button
                 type="button"
                 className="mt-5 w-full rounded-md py-2 text-center text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
-                onClick={() => setMode((m) => (m === "signin" ? "signup" : "signin"))}
+                onClick={() => changeMode(mode === "signin" ? "signup" : "signin")}
               >
                 {mode === "signin" ? t("auth.noAccount") : t("auth.haveAccount")}
               </button>

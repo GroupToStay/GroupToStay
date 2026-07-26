@@ -8,6 +8,7 @@ import { useUnreadMessageCount } from "@/hooks/use-unread-messages";
 import {
   Bell,
   BadgeCheck,
+  CalendarCheck,
   CircleDollarSign,
   LayoutDashboard,
   FileText,
@@ -28,7 +29,9 @@ export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
+    if (error || !data.user) {
+      throw redirect({ to: "/auth", reloadDocument: true });
+    }
     return { user: data.user };
   },
   component: AuthLayout,
@@ -84,6 +87,11 @@ function AuthLayout() {
             label: t("nav.groupRequests"),
             icon: FileText,
           },
+          {
+            to: "/dashboard/bookings",
+            label: t("dashboard.bookings.navLabel"),
+            icon: CalendarCheck,
+          },
         ],
       },
       {
@@ -129,6 +137,11 @@ function AuthLayout() {
             label: t("dashboard.messagesTitle"),
             icon: MessageSquare,
             badge: unreadBadge,
+          },
+          {
+            to: "/dashboard/bookings",
+            label: t("dashboard.bookings.navLabel"),
+            icon: CalendarCheck,
           },
           {
             to: "/dashboard/notifications",
@@ -179,6 +192,11 @@ function AuthLayout() {
             to: "/dashboard/quotations",
             label: t("nav.receivedOffers"),
             icon: CircleDollarSign,
+          },
+          {
+            to: "/dashboard/bookings",
+            label: t("dashboard.bookings.navLabel"),
+            icon: CalendarCheck,
           },
           {
             to: "/dashboard/messages",
