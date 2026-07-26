@@ -2,7 +2,6 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import {
   getHtmlLang,
-  getStoredAppLanguage,
   getTextDirection,
   normalizeAppLanguage,
   setStoredAppLanguage,
@@ -85,13 +84,8 @@ function buildResources() {
   return resources;
 }
 
-// Default language is ALWAYS English so first render is deterministic
-// (SSR + client) and never mixes Arabic with English. Arabic is opt-in
-// via the LanguageSwitcher which persists the choice in localStorage.
-function initialLanguage(): "en" | "ar" {
-  return getStoredAppLanguage();
-}
-
+// The router applies the request cookie before rendering. English remains
+// the fallback for first visits and unsupported locale values.
 if (!i18n.isInitialized) {
   i18n.use(initReactI18next).init({
     resources: buildResources(),
@@ -105,18 +99,6 @@ if (!i18n.isInitialized) {
     returnNull: false,
     react: { useSuspense: false },
   });
-
-  // After hydration, restore any previously-saved Arabic preference.
-  if (typeof window !== "undefined") {
-    const saved = initialLanguage();
-    if (saved !== i18n.language) {
-      // Defer to after first paint to avoid hydration mismatch.
-      queueMicrotask(() => {
-        i18n.changeLanguage(saved);
-        applyLocale(saved);
-      });
-    }
-  }
 }
 
 export default i18n;

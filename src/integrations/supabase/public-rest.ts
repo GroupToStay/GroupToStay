@@ -1,11 +1,12 @@
 function getSupabasePublicConfig() {
   const url = import.meta.env.VITE_SUPABASE_URL;
-  const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const key =
+    import.meta.env.VITE_SUPABASE_ANON_KEY ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
   if (!url || !key) {
     const missing = [
       ...(!url ? ["VITE_SUPABASE_URL"] : []),
-      ...(!key ? ["VITE_SUPABASE_ANON_KEY"] : []),
+      ...(!key ? ["VITE_SUPABASE_ANON_KEY or VITE_SUPABASE_PUBLISHABLE_KEY"] : []),
     ];
     throw new Error(`Missing Supabase environment variable(s): ${missing.join(", ")}.`);
   }

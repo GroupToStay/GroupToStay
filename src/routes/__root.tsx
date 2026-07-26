@@ -22,6 +22,12 @@ import {
   installExternalDomMutationRecovery,
   isExternalDomMutationError,
 } from "@/lib/translation-hardening";
+import {
+  getHtmlLang,
+  getTextDirection,
+  normalizeAppLanguage,
+  type AppLanguage,
+} from "@/lib/locale";
 
 installExternalDomMutationRecovery();
 
@@ -109,7 +115,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+  appLanguage: AppLanguage;
+}>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -179,12 +188,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const language = normalizeAppLanguage(i18n.language);
+
   return (
-    <html lang="en" dir="ltr" translate="no" className="notranslate" suppressHydrationWarning>
+    <html
+      lang={getHtmlLang(language)}
+      dir={getTextDirection(language)}
+      translate="no"
+      className="notranslate"
+    >
       <head>
         <HeadContent />
       </head>
-      <body translate="no" className="notranslate" suppressHydrationWarning>
+      <body translate="no" className="notranslate">
         {children}
         <Scripts />
       </body>

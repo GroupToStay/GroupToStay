@@ -6,7 +6,13 @@
       "select": "Select country",
       "loading": "Loading countries...",
       "search": "Search country...",
-      "empty": "No country found."
+      "empty": "No country found.",
+      "error": "Countries could not be loaded."
+    },
+    "city": {
+      "loading": "Loading cities...",
+      "empty": "No city found for this country.",
+      "error": "Cities could not be loaded."
     },
     "waitlist": {
       "success": "You have been added to the subscription waiting list. We will notify you as soon as subscription payments become available.",

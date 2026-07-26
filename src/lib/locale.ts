@@ -1,4 +1,5 @@
 export const APP_LANGUAGE_STORAGE_KEY = "gts_lang";
+export const APP_LANGUAGE_COOKIE_KEY = "gts_lang";
 export const SUPPORTED_APP_LANGUAGES = ["en", "ar"] as const;
 
 export type AppLanguage = (typeof SUPPORTED_APP_LANGUAGES)[number];
@@ -29,6 +30,10 @@ export function normalizeAppLanguage(value: unknown): AppLanguage {
 
 export function getStoredAppLanguage(): AppLanguage {
   if (typeof window === "undefined") return DEFAULT_LANGUAGE;
+
+  const cookieLanguage = getCookieAppLanguage();
+  if (cookieLanguage) return cookieLanguage;
+
   try {
     return normalizeAppLanguage(window.localStorage.getItem(APP_LANGUAGE_STORAGE_KEY));
   } catch {
@@ -36,12 +41,42 @@ export function getStoredAppLanguage(): AppLanguage {
   }
 }
 
+export function getCookieAppLanguage(): AppLanguage | null {
+  if (typeof document === "undefined") return null;
+  return getAppLanguageFromCookieHeader(document.cookie);
+}
+
+export function getAppLanguageFromCookieHeader(cookieHeader: string | null | undefined) {
+  if (!cookieHeader) return null;
+
+  const cookie = cookieHeader
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${APP_LANGUAGE_COOKIE_KEY}=`));
+
+  if (!cookie) return null;
+
+  try {
+    return normalizeAppLanguage(decodeURIComponent(cookie.slice(cookie.indexOf("=") + 1)));
+  } catch {
+    return DEFAULT_LANGUAGE;
+  }
+}
+
 export function setStoredAppLanguage(language: AppLanguage) {
   if (typeof window === "undefined") return;
+
   try {
     window.localStorage.setItem(APP_LANGUAGE_STORAGE_KEY, language);
   } catch {
     // Locale persistence is best-effort in restricted browser contexts.
+  }
+
+  try {
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${APP_LANGUAGE_COOKIE_KEY}=${encodeURIComponent(language)}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
+  } catch {
+    // Cookie persistence is best-effort in restricted browser contexts.
   }
 }
 

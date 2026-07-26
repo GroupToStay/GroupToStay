@@ -31,21 +31,22 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 
 function createSupabaseClient() {
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-  const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const SUPABASE_PUBLIC_KEY =
+    import.meta.env.VITE_SUPABASE_ANON_KEY ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  if (!SUPABASE_URL || !SUPABASE_PUBLIC_KEY) {
     const missing = [
       ...(!SUPABASE_URL ? ["VITE_SUPABASE_URL"] : []),
-      ...(!SUPABASE_ANON_KEY ? ["VITE_SUPABASE_ANON_KEY"] : []),
+      ...(!SUPABASE_PUBLIC_KEY ? ["VITE_SUPABASE_ANON_KEY or VITE_SUPABASE_PUBLISHABLE_KEY"] : []),
     ];
     const message = `Missing Supabase environment variable(s): ${missing.join(", ")}.`;
     console.error(`[Supabase] ${message}`);
     throw new Error(message);
   }
 
-  return createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLIC_KEY, {
     global: {
-      fetch: createSupabaseFetch(SUPABASE_ANON_KEY),
+      fetch: createSupabaseFetch(SUPABASE_PUBLIC_KEY),
     },
     auth: {
       storage: typeof window !== "undefined" ? localStorage : undefined,
