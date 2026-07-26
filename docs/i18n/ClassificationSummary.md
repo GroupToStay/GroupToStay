@@ -1,6 +1,6 @@
 # Classification Summary
 
-Generated: 2026-07-06T10:04:59.927Z
+Generated: 2026-07-26T10:46:30.794Z
 
 ## Classification Rules
 
@@ -18,21 +18,21 @@ Generated: 2026-07-06T10:04:59.927Z
 
 | Category          | Occurrences | Share |
 | ----------------- | ----------- | ----- |
-| USER_VISIBLE      | 0           | 0.0%  |
-| TECHNICAL         | 6052        | 63.2% |
-| INTERNAL_CONSTANT | 745         | 7.8%  |
-| ROUTES            | 318         | 3.3%  |
-| QUERY_KEYS        | 738         | 7.7%  |
-| DEVELOPER_ONLY    | 1315        | 13.7% |
-| THIRD_PARTY       | 406         | 4.2%  |
+| USER_VISIBLE      | 1           | 0.0%  |
+| TECHNICAL         | 6403        | 64.4% |
+| INTERNAL_CONSTANT | 739         | 7.4%  |
+| ROUTES            | 351         | 3.5%  |
+| QUERY_KEYS        | 607         | 6.1%  |
+| DEVELOPER_ONLY    | 1391        | 14.0% |
+| THIRD_PARTY       | 447         | 4.5%  |
 
 ## Confidence
 
 | Confidence | Occurrences |
 | ---------- | ----------- |
-| HIGH       | 8491        |
-| MEDIUM     | 454         |
-| LOW        | 629         |
+| HIGH       | 8740        |
+| MEDIUM     | 443         |
+| LOW        | 756         |
 
 ## Scope Notes
 
