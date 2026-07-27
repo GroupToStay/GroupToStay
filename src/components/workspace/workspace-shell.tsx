@@ -22,6 +22,7 @@ export type WorkspaceNavItem = {
   icon: LucideIcon;
   badge?: ReactNode;
   exact?: boolean;
+  hidden?: boolean;
 };
 
 export type WorkspaceNavGroup = {

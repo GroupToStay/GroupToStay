@@ -76,6 +76,7 @@
         "company": "Company",
         "phone": "Phone",
         "role": "Role",
+        "permissions": "Assigned Permissions",
         "verification": "Verification",
         "account": "Account",
         "country": "Country",
@@ -87,6 +88,8 @@
         "editUser": "Edit User",
         "viewActivity": "View Activity",
         "viewVerification": "View Verification",
+        "changeRole": "Change Role",
+        "assignPermissions": "Assign Permissions",
         "activateUser": "Activate User",
         "suspendUser": "Suspend User",
         "disableAccount": "Disable Account",
@@ -117,7 +120,14 @@
         "accountStatus": "Account Status",
         "registrationDate": "Registration Date",
         "lastLogin": "Last Login",
-        "userId": "User ID"
+        "userId": "User ID",
+        "assignedPermissions": "Assigned Permissions",
+        "permissionCount_zero": "{{count}} permissions",
+        "permissionCount_one": "{{count}} permission",
+        "permissionCount_two": "{{count}} permissions",
+        "permissionCount_few": "{{count}} permissions",
+        "permissionCount_many": "{{count}} permissions",
+        "permissionCount_other": "{{count}} permissions"
       },
       "activity": {
         "loading": "Loading activity...",
@@ -134,18 +144,31 @@
       "toasts": {
         "accountStatusUpdated": "Account status updated",
         "profileUpdated": "Profile updated",
-        "passwordResetSent": "Password reset email sent"
+        "passwordResetSent": "Password reset email sent",
+        "roleUpdated": "Enterprise role updated",
+        "permissionsUpdated": "User permissions updated"
       },
       "errors": {
         "loadFailed": "Could not load user management data.",
         "accountStatusUpdateFailed": "Could not update account status",
         "profileUpdateFailed": "Could not update profile",
-        "passwordResetFailed": "Password reset failed"
+        "passwordResetFailed": "Password reset failed",
+        "roleUpdateFailed": "Could not update the enterprise role",
+        "permissionsUpdateFailed": "Could not update user permissions"
       },
       "fallbacks": {
         "unnamedUser": "Unnamed user",
         "notAssigned": "Not assigned",
         "requiresAuthAdmin": "Requires Supabase Auth Admin"
+      },
+      "access": {
+        "roleTitle": "Change Enterprise Role",
+        "permissionsTitle": "Assign User Permissions",
+        "description": "Manage enterprise access for {{name}}.",
+        "enterpriseRole": "Enterprise Role",
+        "noAdminRole": "No administration role",
+        "roleHelp": "Marketplace roles remain unchanged. This assignment controls administration access only.",
+        "superAdminProtected": "Super Admin permissions are protected and cannot be overridden."
       }
     },
     "groupRequests": {
@@ -285,6 +308,9 @@
       "fallbacks": {
         "hotelCompany": "Hotel Company"
       },
+      "audit": {
+        "reopened": "Reopened for review"
+      },
       "pms": {
         "title": "PMS Statistics",
         "description": "Approved hotel companies by Property Management System.",
@@ -343,6 +369,9 @@
       "empty": {
         "title": "No Hotel Listings",
         "description": "No hotel listings match these filters yet."
+      },
+      "audit": {
+        "suspended": "Listing suspended during approval review"
       }
     },
     "agencyVerifications": {
@@ -453,6 +482,7 @@
       "recentActivity": "Recent Activity",
       "noRecentActivity": "No recent activity.",
       "sections": {
+        "approvals": "Approval Center",
         "hotels": "Hotels",
         "listings": "Listings",
         "users": "Users",
@@ -461,6 +491,11 @@
         "revenue": "Revenue"
       },
       "metrics": {
+        "pendingApprovals": "Pending Approvals",
+        "verificationQueue": "Verification Queue",
+        "pendingDocuments": "Pending Documents",
+        "priorityQueue": "Priority Queue",
+        "recentDecisions": "Recent Decisions",
         "totalHotelCompanies": "Total Hotel Companies",
         "approvedHotels": "Approved Hotels",
         "pendingHotels": "Pending Hotels",
@@ -484,6 +519,7 @@
         "totalHotelUsers": "Total Hotel Users"
       },
       "actions": {
+        "approvalCenter": "Review approvals, documents and priority decisions.",
         "hotelCompanies": "Review and approve hotel companies.",
         "hotelListings": "Review hotel listings.",
         "agencyVerifications": "Review agency verification submissions.",
@@ -546,6 +582,210 @@
       "welcomeAdmin": "Welcome Admin",
       "legacyDescription": "Manage hotels, subscriptions, approvals and platform performance.",
       "notActiveYet": "Not Active Yet"
+    },
+    "approvals": {
+      "metaTitle": "Approval Center - Admin",
+      "title": "Approval Center",
+      "description": "Review every pending verification and manual approval from one secure queue.",
+      "searchPlaceholder": "Search approvals by company, submitter or status",
+      "sectionLabel": "Approval section",
+      "loading": "Loading approval queue...",
+      "sections": {
+        "all": "All Approvals",
+        "agencies": "Agency Verification",
+        "hotels": "Hotel Verification",
+        "subscriptions": "Subscription Requests",
+        "documents": "Company Documents",
+        "profiles": "Profile Verification",
+        "pending": "Pending Reviews",
+        "manual": "Manual Actions"
+      },
+      "metrics": {
+        "pending": "Pending Approvals",
+        "agencies": "Agency Queue",
+        "hotels": "Hotel Queue",
+        "priority": "High Priority"
+      },
+      "table": {
+        "item": "Approval",
+        "type": "Type",
+        "status": "Status",
+        "priority": "Priority",
+        "submitted": "Submitted",
+        "submittedBy": "Submitted By",
+        "actions": "Actions"
+      },
+      "sources": {
+        "agency_verification": "Agency Verification",
+        "hotel_verification": "Hotel Verification",
+        "hotel_listing": "Hotel Listing",
+        "subscription_request": "Subscription Request"
+      },
+      "decisions": {
+        "approve": "Approve Request",
+        "reject": "Reject Request",
+        "request_changes": "Request Changes"
+      },
+      "commentLabel": "Review comment",
+      "commentPlaceholder": "Explain the decision or required changes...",
+      "details": {
+        "notes": "Notes",
+        "country": "Country",
+        "city": "City",
+        "address": "Address",
+        "email": "Email",
+        "phone": "Phone",
+        "registrationNumber": "Registration Number",
+        "crDocument": "Commercial Registration Document",
+        "tourismDocument": "Tourism License Document",
+        "pmsProvider": "PMS Provider",
+        "requestedPlan": "Requested Plan",
+        "openCommercialRegistration": "Open Commercial Registration",
+        "openTourismLicense": "Open Tourism License"
+      },
+      "history": {
+        "title": "Decision History",
+        "empty": "No decisions have been recorded yet.",
+        "events": {
+          "approval_approve": "Approved",
+          "approval_reject": "Rejected",
+          "approval_request_changes": "Changes Requested",
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "info_requested": "More Information Requested",
+          "submitted": "Submitted",
+          "resubmitted": "Resubmitted"
+        }
+      },
+      "empty": {
+        "title": "No Approvals Found",
+        "description": "No approval items match the selected section and search."
+      },
+      "toasts": {
+        "decisionSaved": "Approval decision saved"
+      },
+      "errors": {
+        "loadFailed": "Could not load the approval queue.",
+        "decisionFailed": "Could not save the approval decision.",
+        "commentRequired": "A review comment is required for this decision.",
+        "documentFailed": "Could not open the protected document."
+      },
+      "fallbacks": {
+        "agency": "Unnamed Agency",
+        "hotel": "Unnamed Hotel"
+      }
+    },
+    "roles": {
+      "metaTitle": "Roles & Permissions - Admin",
+      "title": "Roles & Permissions",
+      "description": "Manage enterprise administration roles and independently assignable permissions.",
+      "roleList": "Enterprise Roles",
+      "searchPermissions": "Search permissions",
+      "accessLevel": "Access level {{level}}",
+      "protectedRole": "This protected role always retains full platform access.",
+      "higherRoleRequired": "Only a higher-access role can change these permissions.",
+      "assignedUsers": "Assigned Users",
+      "noAssignedUsers": "No users are currently assigned to this role.",
+      "defaults": {
+        "super_admin": {
+          "name": "Super Admin",
+          "description": "Full protected access to every platform capability."
+        },
+        "admin": {
+          "name": "Admin",
+          "description": "Platform operations without protected core configuration access."
+        },
+        "assistant_admin": {
+          "name": "Assistant Admin",
+          "description": "Daily marketplace, approval, messaging and booking operations."
+        }
+      },
+      "categories": {
+        "marketplace": "Marketplace",
+        "communications": "Communications",
+        "users": "Users & Access",
+        "approvals": "Approvals",
+        "commerce": "Commerce",
+        "insights": "Reports & Analytics",
+        "system": "System"
+      },
+      "permissions": {
+        "manage_hotels": {
+          "name": "Manage Hotels",
+          "description": "Review and manage hotel companies and listings."
+        },
+        "manage_agencies": {
+          "name": "Manage Agencies",
+          "description": "Review and manage agency accounts."
+        },
+        "manage_rfqs": {
+          "name": "Manage RFQs",
+          "description": "View and moderate group requests."
+        },
+        "manage_quotations": {
+          "name": "Manage Quotations",
+          "description": "View and moderate hotel quotations."
+        },
+        "manage_bookings": {
+          "name": "Manage Bookings",
+          "description": "View and manage booking records."
+        },
+        "manage_messages": {
+          "name": "Manage Messages",
+          "description": "Review and respond to marketplace conversations."
+        },
+        "manage_notifications": {
+          "name": "Manage Notifications",
+          "description": "Manage platform notification records."
+        },
+        "manage_users": {
+          "name": "Manage Users",
+          "description": "Manage account profiles and account status."
+        },
+        "manage_roles": {
+          "name": "Manage Roles",
+          "description": "Assign enterprise roles and permissions."
+        },
+        "manage_approvals": {
+          "name": "Manage Approvals",
+          "description": "Review and decide approval requests."
+        },
+        "manage_subscriptions": {
+          "name": "Manage Subscriptions",
+          "description": "Manage subscription requests and plans."
+        },
+        "manage_payments": {
+          "name": "Manage Payments",
+          "description": "Manage supported payment operations."
+        },
+        "view_reports": {
+          "name": "View Reports",
+          "description": "View operational reports."
+        },
+        "view_analytics": {
+          "name": "View Analytics",
+          "description": "View platform analytics and dashboards."
+        },
+        "manage_settings": {
+          "name": "Manage Settings",
+          "description": "Manage non-core platform settings."
+        },
+        "manage_system_configuration": {
+          "name": "Manage System Configuration",
+          "description": "Manage protected core configuration."
+        },
+        "manage_audit_logs": {
+          "name": "Manage Audit Logs",
+          "description": "View immutable administration history."
+        }
+      },
+      "toasts": {
+        "permissionsSaved": "Role permissions updated"
+      },
+      "errors": {
+        "loadFailed": "Could not load roles and permissions.",
+        "saveFailed": "Could not save role permissions."
+      }
     },
     "legacy": {
       "metaTitle": "Admin - GroupToStay",

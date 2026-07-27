@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Building2, CheckCircle2, Eye, Loader2, RotateCcw, Search, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
 import {
   AdminActionMenu,
   AdminDetailGrid,
@@ -46,15 +45,16 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import type { Database } from "@/integrations/supabase/types";
 import i18n from "@/lib/i18n";
+import { requireAdminPermission } from "@/lib/admin-authorization";
 
 export const Route = createFileRoute("/_authenticated/admin/hotel-companies")({
+  beforeLoad: () => requireAdminPermission("manage_hotels"),
   head: () => ({ meta: [{ title: i18n.t("admin.hotelCompanies.metaTitle") }] }),
   component: Page,
 });
 
 type CompanyStatus = "pending" | "approved" | "rejected";
 type CompanyRow = Database["public"]["Tables"]["profiles"]["Row"];
-type CompanyPatch = Database["public"]["Tables"]["profiles"]["Update"];
 type PmsRow = Pick<CompanyRow, "pms_enabled" | "pms_provider">;
 
 const PMS_PROVIDERS = [
@@ -79,7 +79,6 @@ const statusOptionKeys: { value: CompanyStatus; labelKey: string }[] = [
 
 function Page() {
   const { t } = useTranslation();
-  const { user } = useAuth();
   const qc = useQueryClient();
   const [status, setStatus] = useState<CompanyStatus>("pending");
   const [query, setQuery] = useState("");
@@ -113,15 +112,18 @@ function Page() {
       decision: CompanyStatus;
       notes: string;
     }) => {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          hotel_approval_status: decision,
-          approval_notes: notes || null,
-          approved_at: decision === "approved" ? new Date().toISOString() : null,
-          approved_by: decision === "approved" ? (user?.id ?? null) : null,
-        } satisfies CompanyPatch)
-        .eq("id", id);
+      const { error } = await supabase.rpc("admin_decide_approval", {
+        _source_type: "hotel_verification",
+        _source_id: id,
+        _decision:
+          decision === "approved"
+            ? "approve"
+            : decision === "rejected"
+              ? "reject"
+              : "request_changes",
+        _comment:
+          notes || (decision === "pending" ? t("admin.hotelCompanies.audit.reopened") : undefined),
+      });
       if (error) throw error;
     },
     onSuccess: () => {

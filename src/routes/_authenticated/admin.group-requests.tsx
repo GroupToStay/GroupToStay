@@ -65,8 +65,10 @@ import {
 import type { Database } from "@/integrations/supabase/types";
 import { useApplicationLocale } from "@/lib/application-locale";
 import i18n from "@/lib/i18n";
+import { requireAdminPermission } from "@/lib/admin-authorization";
 
 export const Route = createFileRoute("/_authenticated/admin/group-requests")({
+  beforeLoad: () => requireAdminPermission("manage_rfqs"),
   head: () => ({ meta: [{ title: i18n.t("admin.groupRequests.metaTitle") }] }),
   component: Page,
 });

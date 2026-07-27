@@ -4,8 +4,10 @@ import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/workspace/page-header";
+import { requireAdminPermission } from "@/lib/admin-authorization";
 
 export const Route = createFileRoute("/_authenticated/admin/subscriptions")({
+  beforeLoad: () => requireAdminPermission("manage_subscriptions"),
   head: () => ({ meta: [{ title: i18n.t("admin.subscriptions.metaTitle") }] }),
   component: Page,
 });

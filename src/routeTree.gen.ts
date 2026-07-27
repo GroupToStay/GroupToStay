@@ -49,9 +49,11 @@ import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminSubscriptionInterestRouteImport } from './routes/_authenticated/admin.subscription-interest'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminRolesRouteImport } from './routes/_authenticated/admin.roles'
 import { Route as AuthenticatedAdminHotelListingsRouteImport } from './routes/_authenticated/admin.hotel-listings'
 import { Route as AuthenticatedAdminHotelCompaniesRouteImport } from './routes/_authenticated/admin.hotel-companies'
 import { Route as AuthenticatedAdminGroupRequestsRouteImport } from './routes/_authenticated/admin.group-requests'
+import { Route as AuthenticatedAdminApprovalsRouteImport } from './routes/_authenticated/admin.approvals'
 import { Route as AuthenticatedAdminAgencyVerificationsRouteImport } from './routes/_authenticated/admin.agency-verifications'
 import { Route as AuthenticatedDashboardRfqsIndexRouteImport } from './routes/_authenticated/dashboard.rfqs.index'
 import { Route as AuthenticatedDashboardMessagesIndexRouteImport } from './routes/_authenticated/dashboard.messages.index'
@@ -278,6 +280,11 @@ const AuthenticatedAdminSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminRolesRoute = AuthenticatedAdminRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminHotelListingsRoute =
   AuthenticatedAdminHotelListingsRouteImport.update({
     id: '/hotel-listings',
@@ -294,6 +301,12 @@ const AuthenticatedAdminGroupRequestsRoute =
   AuthenticatedAdminGroupRequestsRouteImport.update({
     id: '/group-requests',
     path: '/group-requests',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminApprovalsRoute =
+  AuthenticatedAdminApprovalsRouteImport.update({
+    id: '/approvals',
+    path: '/approvals',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAgencyVerificationsRoute =
@@ -394,9 +407,11 @@ export interface FileRoutesByFullPath {
   '/hotels/': typeof HotelsIndexRoute
   '/requests/': typeof RequestsIndexRoute
   '/admin/agency-verifications': typeof AuthenticatedAdminAgencyVerificationsRoute
+  '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/admin/group-requests': typeof AuthenticatedAdminGroupRequestsRoute
   '/admin/hotel-companies': typeof AuthenticatedAdminHotelCompaniesRoute
   '/admin/hotel-listings': typeof AuthenticatedAdminHotelListingsRoute
+  '/admin/roles': typeof AuthenticatedAdminRolesRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscription-interest': typeof AuthenticatedAdminSubscriptionInterestRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -448,9 +463,11 @@ export interface FileRoutesByTo {
   '/hotels': typeof HotelsIndexRoute
   '/requests': typeof RequestsIndexRoute
   '/admin/agency-verifications': typeof AuthenticatedAdminAgencyVerificationsRoute
+  '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/admin/group-requests': typeof AuthenticatedAdminGroupRequestsRoute
   '/admin/hotel-companies': typeof AuthenticatedAdminHotelCompaniesRoute
   '/admin/hotel-listings': typeof AuthenticatedAdminHotelListingsRoute
+  '/admin/roles': typeof AuthenticatedAdminRolesRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscription-interest': typeof AuthenticatedAdminSubscriptionInterestRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -502,9 +519,11 @@ export interface FileRoutesById {
   '/hotels/': typeof HotelsIndexRoute
   '/requests/': typeof RequestsIndexRoute
   '/_authenticated/admin/agency-verifications': typeof AuthenticatedAdminAgencyVerificationsRoute
+  '/_authenticated/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/_authenticated/admin/group-requests': typeof AuthenticatedAdminGroupRequestsRoute
   '/_authenticated/admin/hotel-companies': typeof AuthenticatedAdminHotelCompaniesRoute
   '/_authenticated/admin/hotel-listings': typeof AuthenticatedAdminHotelListingsRoute
+  '/_authenticated/admin/roles': typeof AuthenticatedAdminRolesRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/subscription-interest': typeof AuthenticatedAdminSubscriptionInterestRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -560,9 +579,11 @@ export interface FileRouteTypes {
     | '/hotels/'
     | '/requests/'
     | '/admin/agency-verifications'
+    | '/admin/approvals'
     | '/admin/group-requests'
     | '/admin/hotel-companies'
     | '/admin/hotel-listings'
+    | '/admin/roles'
     | '/admin/settings'
     | '/admin/subscription-interest'
     | '/admin/subscriptions'
@@ -614,9 +635,11 @@ export interface FileRouteTypes {
     | '/hotels'
     | '/requests'
     | '/admin/agency-verifications'
+    | '/admin/approvals'
     | '/admin/group-requests'
     | '/admin/hotel-companies'
     | '/admin/hotel-listings'
+    | '/admin/roles'
     | '/admin/settings'
     | '/admin/subscription-interest'
     | '/admin/subscriptions'
@@ -667,9 +690,11 @@ export interface FileRouteTypes {
     | '/hotels/'
     | '/requests/'
     | '/_authenticated/admin/agency-verifications'
+    | '/_authenticated/admin/approvals'
     | '/_authenticated/admin/group-requests'
     | '/_authenticated/admin/hotel-companies'
     | '/_authenticated/admin/hotel-listings'
+    | '/_authenticated/admin/roles'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/subscription-interest'
     | '/_authenticated/admin/subscriptions'
@@ -1006,6 +1031,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/roles': {
+      id: '/_authenticated/admin/roles'
+      path: '/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AuthenticatedAdminRolesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/hotel-listings': {
       id: '/_authenticated/admin/hotel-listings'
       path: '/hotel-listings'
@@ -1025,6 +1057,13 @@ declare module '@tanstack/react-router' {
       path: '/group-requests'
       fullPath: '/admin/group-requests'
       preLoaderRoute: typeof AuthenticatedAdminGroupRequestsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/approvals': {
+      id: '/_authenticated/admin/approvals'
+      path: '/approvals'
+      fullPath: '/admin/approvals'
+      preLoaderRoute: typeof AuthenticatedAdminApprovalsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/agency-verifications': {
@@ -1116,9 +1155,11 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAgencyVerificationsRoute: typeof AuthenticatedAdminAgencyVerificationsRoute
+  AuthenticatedAdminApprovalsRoute: typeof AuthenticatedAdminApprovalsRoute
   AuthenticatedAdminGroupRequestsRoute: typeof AuthenticatedAdminGroupRequestsRoute
   AuthenticatedAdminHotelCompaniesRoute: typeof AuthenticatedAdminHotelCompaniesRoute
   AuthenticatedAdminHotelListingsRoute: typeof AuthenticatedAdminHotelListingsRoute
+  AuthenticatedAdminRolesRoute: typeof AuthenticatedAdminRolesRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSubscriptionInterestRoute: typeof AuthenticatedAdminSubscriptionInterestRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
@@ -1129,9 +1170,11 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAgencyVerificationsRoute:
     AuthenticatedAdminAgencyVerificationsRoute,
+  AuthenticatedAdminApprovalsRoute: AuthenticatedAdminApprovalsRoute,
   AuthenticatedAdminGroupRequestsRoute: AuthenticatedAdminGroupRequestsRoute,
   AuthenticatedAdminHotelCompaniesRoute: AuthenticatedAdminHotelCompaniesRoute,
   AuthenticatedAdminHotelListingsRoute: AuthenticatedAdminHotelListingsRoute,
+  AuthenticatedAdminRolesRoute: AuthenticatedAdminRolesRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminSubscriptionInterestRoute:
     AuthenticatedAdminSubscriptionInterestRoute,

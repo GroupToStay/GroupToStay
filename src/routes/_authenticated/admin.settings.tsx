@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import i18n from "@/lib/i18n";
 import { PageHeader } from "@/components/workspace/page-header";
+import { requireAdminPermission } from "@/lib/admin-authorization";
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({
+  beforeLoad: () => requireAdminPermission("manage_settings"),
   head: () => ({ meta: [{ title: i18n.t("admin.settings.metaTitle") }] }),
   component: Page,
 });

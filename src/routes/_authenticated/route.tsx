@@ -8,6 +8,7 @@ import {
   Bell,
   BadgeCheck,
   CalendarCheck,
+  ClipboardCheck,
   CircleDollarSign,
   LayoutDashboard,
   FileText,
@@ -21,6 +22,7 @@ import {
   CreditCard,
   Settings as SettingsIcon,
   Server,
+  KeyRound,
 } from "lucide-react";
 import { WorkspaceShell, type WorkspaceNavGroup } from "@/components/workspace/workspace-shell";
 import { WorkspaceIdentity } from "@/components/workspace/workspace-identity";
@@ -39,7 +41,7 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthLayout() {
   const { t } = useTranslation();
-  const { isHotel, isAdmin, isOrganizer, loading: rolesLoading } = useRoles();
+  const { isHotel, isAdmin, isOrganizer, loading: rolesLoading, permissions } = useRoles();
   const unread = useUnreadMessageCount();
   const unreadBadge =
     unread > 0 ? (
@@ -51,6 +53,7 @@ function AuthLayout() {
   let groups: WorkspaceNavGroup[] = [];
 
   if (isAdmin) {
+    const can = (permission: (typeof permissions)[number]) => permissions.includes(permission);
     groups = [
       {
         label: t("navigation:sidebar.overview"),
@@ -70,52 +73,84 @@ function AuthLayout() {
             to: "/admin/hotel-companies",
             label: t("admin.hotelCompanies.title"),
             icon: Building2,
+            hidden: !can("manage_hotels"),
           },
           {
             to: "/admin/hotel-listings",
             label: t("admin.hotelListings.title"),
             icon: Inbox,
+            hidden: !can("manage_hotels"),
           },
           {
             to: "/admin/agency-verifications",
             label: t("admin.agencyVerifications.title"),
             icon: BadgeCheck,
+            hidden: !can("manage_agencies") && !can("manage_approvals"),
+          },
+          {
+            to: "/admin/approvals",
+            label: t("admin.approvals.title"),
+            icon: ClipboardCheck,
+            hidden: !can("manage_approvals"),
           },
           {
             to: "/admin/group-requests",
             label: t("nav.groupRequests"),
             icon: FileText,
+            hidden: !can("manage_rfqs"),
           },
           {
             to: "/dashboard/bookings",
             label: t("dashboard.bookings.navLabel"),
             icon: CalendarCheck,
+            hidden: !can("manage_bookings"),
           },
         ],
       },
       {
         label: t("navigation:sidebar.management"),
         items: [
-          { to: "/admin/users", label: t("nav.users"), icon: Users },
+          {
+            to: "/admin/users",
+            label: t("nav.users"),
+            icon: Users,
+            hidden: !can("manage_users"),
+          },
+          {
+            to: "/admin/roles",
+            label: t("admin.roles.title"),
+            icon: KeyRound,
+            hidden: !can("manage_roles"),
+          },
           {
             to: "/admin/subscription-interest",
             label: t("nav.subscriptionInterest"),
             icon: CircleDollarSign,
+            hidden: !can("manage_subscriptions"),
           },
           {
             to: "/admin/subscriptions",
             label: t("nav.subscriptions"),
             icon: CreditCard,
+            hidden: !can("manage_subscriptions"),
             badge: (
               <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
                 {t("common.soon")}
               </span>
             ),
           },
-          { to: "/admin/settings", label: t("nav.settings"), icon: SettingsIcon },
+          {
+            to: "/admin/settings",
+            label: t("nav.settings"),
+            icon: SettingsIcon,
+            hidden: !can("manage_settings"),
+          },
         ],
       },
-    ];
+    ].map((group) => ({
+      ...group,
+      items: group.items.filter((item) => !("hidden" in item) || !item.hidden),
+    }));
   } else if (isHotel) {
     groups = [
       {
