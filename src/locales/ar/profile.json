@@ -62,6 +62,41 @@
     "vatNumber": "الرقم الضريبي",
     "crNumber": "السجل التجاري",
     "idNumber": "رقم الهوية",
+    "settings": {
+      "metaTitle": "الإعدادات - GroupToStay",
+      "title": "الإعدادات",
+      "description": "إدارة بياناتك الشخصية وتفضيلات الحساب والإشعارات واللغة والأمان.",
+      "tabsLabel": "أقسام الإعدادات",
+      "tabs": {
+        "profile": "الملف الشخصي",
+        "account": "الحساب",
+        "notifications": "الإشعارات",
+        "language": "اللغة",
+        "security": "الأمان"
+      },
+      "profile": {
+        "preferredLanguage": "اللغة المفضلة",
+        "manageLanguage": "إدارة اللغة"
+      },
+      "account": {
+        "information": "معلومات الحساب",
+        "role": "الدور",
+        "created": "عضو منذ",
+        "contact": "معلومات التواصل",
+        "saved": "تم تحديث معلومات الحساب.",
+        "changePassword": "تغيير كلمة المرور",
+        "changePasswordDescription": "أرسل رابطًا آمنًا لإعادة تعيين كلمة المرور إلى بريد تسجيل الدخول.",
+        "sendPasswordReset": "إرسال رابط إعادة التعيين",
+        "passwordResetSent": "تم إرسال رابط إعادة تعيين كلمة المرور. تحقق من بريدك الإلكتروني.",
+        "activeSessions": "الجلسات النشطة",
+        "activeSessionsPlaceholder": "ستتوفر إدارة الجلسات عند دعمها من خدمة المصادقة.",
+        "signOutAll": "تسجيل الخروج من جميع الأجهزة"
+      },
+      "security": {
+        "mfa": "المصادقة متعددة العوامل",
+        "mfaPlaceholder": "ستتوفر المصادقة متعددة العوامل في تحديث أمني لاحق."
+      }
+    },
     "admin": {
       "title": "حساب المسؤول",
       "description": "معلومات حساب للقراءة فقط.",

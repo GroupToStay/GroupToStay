@@ -11,7 +11,7 @@ export function WorkspaceBreadcrumbs() {
   const { t } = useTranslation();
   const { isAdmin, isHotel, loading } = useRoles();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const root = isAdmin && pathname.startsWith("/admin") ? "/admin" : "/dashboard";
+  const root = isAdmin ? "/admin" : "/dashboard";
   const rootLabel = isAdmin
     ? t("navigation:breadcrumbs.admin")
     : isHotel
@@ -19,7 +19,8 @@ export function WorkspaceBreadcrumbs() {
       : t("navigation:breadcrumbs.agency");
   const segments = pathname.split("/").filter(Boolean);
   const rootIndex = segments.indexOf(root.slice(1));
-  const relevant = rootIndex >= 0 ? segments.slice(rootIndex + 1) : [];
+  const relevant =
+    pathname === "/settings" ? ["settings"] : rootIndex >= 0 ? segments.slice(rootIndex + 1) : [];
   const labelMap: Record<string, string> = {
     rfqs: t("nav.myRequests"),
     new: t("nav.createRequestShort"),

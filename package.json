@@ -10,7 +10,8 @@
   },
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "env:check": "node scripts/validate-env.mjs",
+    "build": "pnpm env:check && vite build",
     "build:dev": "vite build --mode development",
     "preview": "node scripts/preview.mjs",
     "lint": "eslint .",

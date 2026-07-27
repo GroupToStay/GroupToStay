@@ -38,9 +38,10 @@ export function UserMenu() {
 
   const adminRole = isAdminDisplayRole(normalizeDisplayRole(role));
   const dashboard = adminRole ? "/admin" : "/dashboard";
-  const settings = adminRole ? "/admin/settings" : "/dashboard/profile";
 
   const go = (to: string) => navigate({ to });
+  const openSettings = (tab: "profile" | "account") =>
+    navigate({ to: "/settings", search: { tab } });
   const handleSignOut = async () => {
     try {
       await queryClient.cancelQueries();
@@ -76,7 +77,7 @@ export function UserMenu() {
       <DropdownMenuContent align="end" className="w-[min(92vw,320px)] p-2">
         <DropdownMenuItem
           className="min-h-[76px] cursor-pointer p-2 focus:bg-accent"
-          onSelect={() => go("/dashboard/profile")}
+          onSelect={() => void openSettings("profile")}
           aria-label={t("navigation:accountMenu.openProfile", { name: displayName })}
         >
           <div className="flex items-center gap-3">
@@ -93,11 +94,11 @@ export function UserMenu() {
           <LayoutDashboard />
           {t("navigation:accountMenu.dashboard")}
         </DropdownMenuItem>
-        <DropdownMenuItem className="min-h-11" onSelect={() => go("/dashboard/profile")}>
+        <DropdownMenuItem className="min-h-11" onSelect={() => void openSettings("profile")}>
           <User />
           {t("navigation:accountMenu.profile")}
         </DropdownMenuItem>
-        <DropdownMenuItem className="min-h-11" onSelect={() => go(settings)}>
+        <DropdownMenuItem className="min-h-11" onSelect={() => void openSettings("account")}>
           <Settings />
           {t("navigation:accountMenu.settings")}
         </DropdownMenuItem>

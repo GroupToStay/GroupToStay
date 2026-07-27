@@ -31,6 +31,7 @@ import { Route as SubscriptionComingSoonRouteImport } from './routes/subscriptio
 import { Route as SubscriptionCheckoutRouteImport } from './routes/subscription.checkout'
 import { Route as RequestsIdRouteImport } from './routes/requests.$id'
 import { Route as HotelsIdRouteImport } from './routes/hotels.$id'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
@@ -175,6 +176,11 @@ const HotelsIdRoute = HotelsIdRouteImport.update({
   id: '/hotels/$id',
   path: '/hotels/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
@@ -400,6 +406,7 @@ export interface FileRoutesByFullPath {
   '/trust': typeof TrustRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/settings': typeof AuthenticatedSettingsRoute
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
   '/subscription/checkout': typeof SubscriptionCheckoutRoute
@@ -456,6 +463,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
   '/subscription/checkout': typeof SubscriptionCheckoutRoute
@@ -512,6 +520,7 @@ export interface FileRoutesById {
   '/trust': typeof TrustRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/hotels/$id': typeof HotelsIdRoute
   '/requests/$id': typeof RequestsIdRoute
   '/subscription/checkout': typeof SubscriptionCheckoutRoute
@@ -572,6 +581,7 @@ export interface FileRouteTypes {
     | '/trust'
     | '/admin'
     | '/dashboard'
+    | '/settings'
     | '/hotels/$id'
     | '/requests/$id'
     | '/subscription/checkout'
@@ -628,6 +638,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/trust'
+    | '/settings'
     | '/hotels/$id'
     | '/requests/$id'
     | '/subscription/checkout'
@@ -683,6 +694,7 @@ export interface FileRouteTypes {
     | '/trust'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
+    | '/_authenticated/settings'
     | '/hotels/$id'
     | '/requests/$id'
     | '/subscription/checkout'
@@ -904,6 +916,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/hotels/$id'
       preLoaderRoute: typeof HotelsIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
@@ -1320,11 +1339,13 @@ const AuthenticatedDashboardRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
