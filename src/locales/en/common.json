@@ -30,6 +30,8 @@
     "retry": "Try again",
     "save": "Save",
     "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close",
     "language": "Language",
     "city": "City",
     "country": "Country",
@@ -52,7 +54,8 @@
     "hotel": "Hotel",
     "admin": "Admin",
     "visitor": "Visitor",
-    "superAdmin": "Super Admin"
+    "superAdmin": "Super Admin",
+    "assistantAdmin": "Assistant Admin"
   },
   "stats": {
     "rooms": "Rooms quoted",
@@ -70,6 +73,11 @@
     "success": "Success",
     "submitted": "Submitted",
     "pending": "Pending",
+    "changes_requested": "Changes Requested",
+    "protected": "Protected",
+    "high": "High",
+    "medium": "Medium",
+    "normal": "Normal",
     "pending_review": "Pending Review",
     "quoting": "Quoting",
     "under_review": "Under Review",
@@ -82,6 +90,8 @@
     "expired": "Expired",
     "error": "Error",
     "closed": "Closed",
+    "confirmed": "Confirmed",
+    "completed": "Completed",
     "locked": "Locked",
     "archived": "Archived",
     "notified": "Notified",
@@ -99,6 +109,7 @@
     "contact": "Contact",
     "legal": "Legal",
     "location": "Riyadh, Saudi Arabia",
+    "copyright": "© {{year}} {{brand}}. All rights reserved.",
     "madeFor": "Made for group hospitality."
   }
 }

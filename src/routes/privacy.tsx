@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { PublicPageHero, PublicPageLayout } from "@/components/public-page";
 import { useApplicationLocale } from "@/lib/application-locale";
 import i18n from "@/lib/i18n";
 
@@ -27,17 +26,20 @@ function Page() {
   const usageItems = t("legal.privacy.sections.usage.items", { returnObjects: true }) as string[];
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface">
-      <SiteHeader />
-      <main className="flex-1 container-page py-12 max-w-3xl prose prose-slate">
-        <h1 className="font-display text-4xl text-primary">{t("legal.privacy.title")}</h1>
+    <PublicPageLayout>
+      <PublicPageHero
+        compact
+        title={t("legal.privacy.title")}
+        description={t("legal.privacy.sections.introduction.body")}
+      />
+      <article className="container-page max-w-3xl py-10 md:py-14">
         <p className="text-sm text-muted-foreground">
           {t("legal.lastUpdated", {
             date: formatDate(new Date(), { year: "numeric", month: "long", day: "numeric" }),
           })}
         </p>
 
-        <section className="mt-6 space-y-4 text-foreground/90">
+        <section className="mt-8 space-y-8 text-[15px] leading-7 text-foreground/85 [&_h2]:mb-2 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-foreground">
           <h2 className="font-display text-2xl text-primary">
             {t("legal.privacy.sections.introduction.title")}
           </h2>
@@ -104,8 +106,7 @@ function Page() {
             .
           </p>
         </section>
-      </main>
-      <SiteFooter />
-    </div>
+      </article>
+    </PublicPageLayout>
   );
 }

@@ -25,6 +25,7 @@ import { EmptyState } from "@/components/empty-state";
 import { HotelPhoto } from "@/components/hotel-photo";
 import { useApplicationLocale } from "@/lib/application-locale";
 import i18n from "@/lib/i18n";
+import { requireAdminPermission } from "@/lib/admin-authorization";
 
 type Tab = "companies" | "hotels" | "interest" | "requests" | "users";
 
@@ -53,17 +54,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/admin")({
       : {};
   },
   beforeLoad: async ({ search }) => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) throw redirect({ to: "/auth" });
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-    if (!data) throw redirect({ to: "/dashboard" });
+    await requireAdminPermission();
     // Legacy URL — redirect to the new dedicated pages.
     const tab = (search as any)?.tab as Tab | undefined;
     if (tab === "companies") throw redirect({ to: "/admin/hotel-companies" });
@@ -566,13 +557,11 @@ export function InterestPanel() {
 
   const mark = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("subscription_interest")
-        .update({
-          status: "notified",
-          notified_at: new Date().toISOString(),
-        })
-        .eq("id", id);
+      const { error } = await supabase.rpc("admin_decide_approval", {
+        _source_type: "subscription_request",
+        _source_id: id,
+        _decision: "approve",
+      });
       if (error) throw error;
     },
     onSuccess: () => {

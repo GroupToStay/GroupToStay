@@ -1,11 +1,15 @@
-import { createFileRoute, Outlet, redirect, Link } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import { SiteHeader } from "@/components/site-header";
 import { useUnreadMessageCount } from "@/hooks/use-unread-messages";
 import {
+  Bell,
+  BadgeCheck,
+  CalendarCheck,
+  ClipboardCheck,
+  CircleDollarSign,
   LayoutDashboard,
   FileText,
   Plus,
@@ -18,13 +22,18 @@ import {
   CreditCard,
   Settings as SettingsIcon,
   Server,
+  KeyRound,
 } from "lucide-react";
+import { WorkspaceShell, type WorkspaceNavGroup } from "@/components/workspace/workspace-shell";
+import { WorkspaceIdentity } from "@/components/workspace/workspace-identity";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
+    if (error || !data.user) {
+      throw redirect({ to: "/auth", reloadDocument: true });
+    }
     return { user: data.user };
   },
   component: AuthLayout,
@@ -32,215 +41,239 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthLayout() {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { isHotel, isAdmin, isOrganizer } = useRoles();
+  const { isHotel, isAdmin, isOrganizer, loading: rolesLoading, permissions } = useRoles();
   const unread = useUnreadMessageCount();
+  const unreadBadge =
+    unread > 0 ? (
+      <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-gold px-1.5 py-0.5 text-[11px] font-semibold leading-none text-gold-foreground">
+        {unread}
+      </span>
+    ) : undefined;
 
-  const navItem =
-    "flex items-center gap-2 px-3 py-2 rounded-md text-sm hover:bg-accent [&.active]:bg-primary [&.active]:text-primary-foreground";
+  let groups: WorkspaceNavGroup[] = [];
+
+  if (isAdmin) {
+    const can = (permission: (typeof permissions)[number]) => permissions.includes(permission);
+    groups = [
+      {
+        label: t("navigation:sidebar.overview"),
+        items: [
+          {
+            to: "/admin",
+            label: t("nav.overview"),
+            icon: LayoutDashboard,
+            exact: true,
+          },
+        ],
+      },
+      {
+        label: t("navigation:sidebar.marketplace"),
+        items: [
+          {
+            to: "/admin/hotel-companies",
+            label: t("admin.hotelCompanies.title"),
+            icon: Building2,
+            hidden: !can("manage_hotels"),
+          },
+          {
+            to: "/admin/hotel-listings",
+            label: t("admin.hotelListings.title"),
+            icon: Inbox,
+            hidden: !can("manage_hotels"),
+          },
+          {
+            to: "/admin/agency-verifications",
+            label: t("admin.agencyVerifications.title"),
+            icon: BadgeCheck,
+            hidden: !can("manage_agencies") && !can("manage_approvals"),
+          },
+          {
+            to: "/admin/approvals",
+            label: t("admin.approvals.title"),
+            icon: ClipboardCheck,
+            hidden: !can("manage_approvals"),
+          },
+          {
+            to: "/admin/group-requests",
+            label: t("nav.groupRequests"),
+            icon: FileText,
+            hidden: !can("manage_rfqs"),
+          },
+          {
+            to: "/dashboard/bookings",
+            label: t("dashboard.bookings.navLabel"),
+            icon: CalendarCheck,
+            hidden: !can("manage_bookings"),
+          },
+        ],
+      },
+      {
+        label: t("navigation:sidebar.management"),
+        items: [
+          {
+            to: "/admin/users",
+            label: t("nav.users"),
+            icon: Users,
+            hidden: !can("manage_users"),
+          },
+          {
+            to: "/admin/roles",
+            label: t("admin.roles.title"),
+            icon: KeyRound,
+            hidden: !can("manage_roles"),
+          },
+          {
+            to: "/admin/subscription-interest",
+            label: t("nav.subscriptionInterest"),
+            icon: CircleDollarSign,
+            hidden: !can("manage_subscriptions"),
+          },
+          {
+            to: "/admin/subscriptions",
+            label: t("nav.subscriptions"),
+            icon: CreditCard,
+            hidden: !can("manage_subscriptions"),
+            badge: (
+              <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                {t("common.soon")}
+              </span>
+            ),
+          },
+          {
+            to: "/admin/settings",
+            label: t("nav.settings"),
+            icon: SettingsIcon,
+            hidden: !can("manage_settings"),
+          },
+        ],
+      },
+    ].map((group) => ({
+      ...group,
+      items: group.items.filter((item) => !("hidden" in item) || !item.hidden),
+    }));
+  } else if (isHotel) {
+    groups = [
+      {
+        label: t("navigation:sidebar.workspace"),
+        items: [
+          {
+            to: "/dashboard",
+            label: t("dashboard.welcome"),
+            icon: LayoutDashboard,
+            exact: true,
+          },
+          {
+            to: "/dashboard/invitations",
+            label: t("nav.groupRequests"),
+            icon: Inbox,
+          },
+          {
+            to: "/dashboard/messages",
+            label: t("dashboard.messagesTitle"),
+            icon: MessageSquare,
+            badge: unreadBadge,
+          },
+          {
+            to: "/dashboard/bookings",
+            label: t("dashboard.bookings.navLabel"),
+            icon: CalendarCheck,
+          },
+          {
+            to: "/dashboard/notifications",
+            label: t("notifications.title"),
+            icon: Bell,
+          },
+        ],
+      },
+      {
+        label: t("navigation:sidebar.account"),
+        items: [
+          {
+            to: "/dashboard/hotel",
+            label: t("nav.hotelProfile"),
+            icon: Building2,
+            exact: true,
+          },
+          {
+            to: "/dashboard/hotel/pms",
+            label: t("nav.pmsIntegration"),
+            icon: Server,
+          },
+          { to: "/pricing", label: t("nav.subscription"), icon: CreditCard },
+          { to: "/dashboard/profile", label: t("profile.title"), icon: User },
+        ],
+      },
+    ];
+  } else if (isOrganizer && !rolesLoading) {
+    groups = [
+      {
+        label: t("navigation:sidebar.workspace"),
+        items: [
+          {
+            to: "/dashboard",
+            label: t("dashboard.welcome"),
+            icon: LayoutDashboard,
+            exact: true,
+          },
+          {
+            to: "/dashboard/rfqs/new",
+            label: t("nav.createRequest"),
+            icon: Plus,
+          },
+          {
+            to: "/dashboard/rfqs",
+            label: t("nav.myRequests"),
+            icon: FileText,
+          },
+          {
+            to: "/dashboard/quotations",
+            label: t("nav.receivedOffers"),
+            icon: CircleDollarSign,
+          },
+          {
+            to: "/dashboard/bookings",
+            label: t("dashboard.bookings.navLabel"),
+            icon: CalendarCheck,
+          },
+          {
+            to: "/dashboard/messages",
+            label: t("dashboard.messagesTitle"),
+            icon: MessageSquare,
+            badge: unreadBadge,
+          },
+          {
+            to: "/dashboard/notifications",
+            label: t("notifications.title"),
+            icon: Bell,
+          },
+        ],
+      },
+      {
+        label: t("navigation:sidebar.account"),
+        items: [
+          {
+            to: "/dashboard/agency-profile",
+            label: t("nav.agencyProfile"),
+            icon: ShieldCheck,
+          },
+          { to: "/dashboard/profile", label: t("nav.myProfile"), icon: User },
+        ],
+      },
+    ];
+  }
+
+  const identity = <WorkspaceIdentity />;
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface">
-      <SiteHeader />
-      <div
-        className={
-          isAdmin
-            ? "w-full px-4 py-6 sm:px-6 lg:px-8 grid lg:grid-cols-[220px_minmax(0,1fr)] gap-6 flex-1"
-            : "container-page py-8 grid lg:grid-cols-[220px_1fr] gap-8 flex-1"
-        }
-      >
-        <aside className="lg:sticky lg:top-24 h-fit">
-          <div className="rounded-lg border border-border bg-card p-3">
-            <div className="px-2 py-2 text-sm font-semibold text-muted-foreground">
-              {t("dashboard.welcome")}
-            </div>
-            <div className="px-2 pb-3 text-sm text-foreground truncate">{user?.email}</div>
-            <nav className="flex flex-col gap-1">
-              {isAdmin ? (
-                <Link
-                  to="/admin"
-                  activeOptions={{ exact: true }}
-                  className={navItem}
-                  activeProps={{ className: "active" }}
-                >
-                  <LayoutDashboard className="h-4 w-4" /> {t("nav.overview")}
-                </Link>
-              ) : (
-                <Link
-                  to="/dashboard"
-                  activeOptions={{ exact: true }}
-                  className={navItem}
-                  activeProps={{ className: "active" }}
-                >
-                  <LayoutDashboard className="h-4 w-4" /> {t("dashboard.welcome")}
-                </Link>
-              )}
-
-              {isAdmin && (
-                <>
-                  <Link
-                    to="/admin/hotel-companies"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <Building2 className="h-4 w-4" /> {t("admin.hotelCompanies.title")}
-                  </Link>
-                  <Link
-                    to="/admin/hotel-listings"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <Inbox className="h-4 w-4" /> {t("admin.hotelListings.title")}
-                  </Link>
-                  <Link
-                    to="/admin/agency-verifications"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <ShieldCheck className="h-4 w-4" /> {t("admin.agencyVerifications.title")}
-                  </Link>
-                  <Link
-                    to="/admin/group-requests"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <FileText className="h-4 w-4" /> {t("nav.groupRequests")}
-                  </Link>
-                  <Link to="/admin/users" className={navItem} activeProps={{ className: "active" }}>
-                    <Users className="h-4 w-4" /> {t("nav.users")}
-                  </Link>
-                  <Link
-                    to="/admin/subscription-interest"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <ShieldCheck className="h-4 w-4" /> {t("nav.subscriptionInterest")}
-                  </Link>
-
-                  <Link
-                    to="/admin/subscriptions"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <CreditCard className="h-4 w-4" />
-                    <span className="flex-1">{t("nav.subscriptions")}</span>
-                    <span className="ml-auto text-[10px] uppercase tracking-wide rounded bg-muted px-1.5 py-0.5 text-muted-foreground">
-                      {t("common.soon")}
-                    </span>
-                  </Link>
-                  <Link
-                    to="/admin/settings"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <SettingsIcon className="h-4 w-4" /> {t("nav.settings")}
-                  </Link>
-                </>
-              )}
-
-              {!isAdmin && isHotel && (
-                <>
-                  <Link
-                    to="/dashboard/invitations"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <Inbox className="h-4 w-4" /> {t("nav.groupRequests")}
-                  </Link>
-                  <Link
-                    to="/dashboard/messages"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    <span className="flex-1">{t("dashboard.messagesTitle")}</span>
-                    {unread > 0 && (
-                      <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-gold text-primary text-[11px] font-semibold">
-                        {unread}
-                      </span>
-                    )}
-                  </Link>
-                  <Link
-                    to="/dashboard/hotel"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                    activeOptions={{ exact: true }}
-                  >
-                    <Building2 className="h-4 w-4" /> {t("nav.hotelProfile")}
-                  </Link>
-                  <Link
-                    to="/dashboard/hotel/pms"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <Server className="h-4 w-4" /> {t("nav.pmsIntegration")}
-                  </Link>
-
-                  <Link to="/pricing" className={navItem} activeProps={{ className: "active" }}>
-                    <CreditCard className="h-4 w-4" /> {t("nav.subscription")}
-                  </Link>
-                  <Link
-                    to="/dashboard/profile"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <User className="h-4 w-4" /> {t("profile.title")}
-                  </Link>
-                </>
-              )}
-
-              {!isAdmin && !isHotel && isOrganizer && (
-                <>
-                  <Link
-                    to="/dashboard/rfqs/new"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <Plus className="h-4 w-4" /> {t("nav.createRequest")}
-                  </Link>
-                  <Link
-                    to="/dashboard/rfqs"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <FileText className="h-4 w-4" /> {t("nav.myRequests")}
-                  </Link>
-                  <Link
-                    to="/dashboard/messages"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    <span className="flex-1">{t("dashboard.messagesTitle")}</span>
-                    {unread > 0 && (
-                      <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-gold text-primary text-[11px] font-semibold">
-                        {unread}
-                      </span>
-                    )}
-                  </Link>
-                  <Link
-                    to="/dashboard/agency-profile"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <ShieldCheck className="h-4 w-4" /> {t("nav.agencyProfile")}
-                  </Link>
-                  <Link
-                    to="/dashboard/profile"
-                    className={navItem}
-                    activeProps={{ className: "active" }}
-                  >
-                    <User className="h-4 w-4" /> {t("nav.myProfile")}
-                  </Link>
-                </>
-              )}
-            </nav>
-          </div>
-        </aside>
-        <main className="min-w-0">
-          <Outlet />
-        </main>
-      </div>
-    </div>
+    <WorkspaceShell
+      brand={t("common.brand.name")}
+      identity={identity}
+      compactIdentity={<WorkspaceIdentity compact />}
+      groups={groups}
+      header={<SiteHeader />}
+      wide={isAdmin}
+    >
+      <Outlet />
+    </WorkspaceShell>
   );
 }

@@ -50,6 +50,20 @@
     "submitQuote": "إرسال عرض السعر",
     "quoteSentToast": "تم إرسال عرض السعر إلى الوكالة.",
     "quoteSubmitted": "تم إرسال عرض السعر",
+    "quoteManagement": {
+      "submitQuote": "إرسال عرض السعر",
+      "editQuote": "تعديل عرض السعر",
+      "withdraw": "سحب عرض السعر",
+      "withdrawTitle": "هل تريد سحب عرض السعر؟",
+      "withdrawDescription": "سيبقى العرض محفوظًا في سجل الطلب، لكن لن تتمكن الوكالة من قبوله بعد السحب.",
+      "decline": "رفض الدعوة",
+      "declineTitle": "هل تريد رفض هذه الدعوة؟",
+      "declineDescription": "سيبقى القرار محفوظًا في سجل الطلب، ولن تتمكن من تقديم عرض سعر بعد الرفض.",
+      "submittedToast": "تم إرسال عرض السعر إلى الوكالة.",
+      "updatedToast": "تم تحديث عرض السعر.",
+      "withdrawnToast": "تم سحب عرض السعر.",
+      "declinedToast": "تم رفض الدعوة."
+    },
     "statuses": {
       "pending": "قيد المراجعة",
       "approved": "معتمد",

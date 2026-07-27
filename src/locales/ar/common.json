@@ -30,6 +30,8 @@
     "retry": "إعادة المحاولة",
     "save": "حفظ",
     "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
     "language": "اللغة",
     "city": "المدينة",
     "country": "الدولة",
@@ -52,7 +54,8 @@
     "hotel": "فندق",
     "admin": "مسؤول",
     "visitor": "زائر",
-    "superAdmin": "مسؤول رئيسي"
+    "superAdmin": "مسؤول رئيسي",
+    "assistantAdmin": "مسؤول مساعد"
   },
   "stats": {
     "rooms": "الغرف المشمولة بالعروض",
@@ -70,6 +73,11 @@
     "success": "ناجح",
     "submitted": "مقدّم",
     "pending": "قيد الانتظار",
+    "changes_requested": "مطلوب تعديلات",
+    "protected": "محمي",
+    "high": "عالية",
+    "medium": "متوسطة",
+    "normal": "عادية",
     "pending_review": "قيد المراجعة",
     "quoting": "استقبال العروض",
     "under_review": "قيد المراجعة",
@@ -82,6 +90,8 @@
     "expired": "منتهي الصلاحية",
     "error": "خطأ",
     "closed": "مغلق",
+    "confirmed": "مؤكد",
+    "completed": "مكتمل",
     "locked": "مقفل",
     "archived": "مؤرشف",
     "notified": "تم الإشعار",
@@ -99,6 +109,7 @@
     "contact": "التواصل",
     "legal": "الشؤون القانونية",
     "location": "الرياض، المملكة العربية السعودية",
+    "copyright": "© {{year}} {{brand}}. جميع الحقوق محفوظة.",
     "madeFor": "مصممة لقطاع الضيافة الجماعية."
   }
 }

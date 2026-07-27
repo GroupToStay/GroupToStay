@@ -13,6 +13,15 @@
     "unreadCount_many": "{{count}} unread",
     "unreadCount_other": "{{count}} unread",
     "delete": "Delete notification",
-    "viewAll": "View all notifications"
+    "viewAll": "View all notifications",
+    "panel": {
+      "title": "Notification center",
+      "filters": "Notification filters",
+      "all": "All",
+      "unread": "Unread",
+      "read": "Read",
+      "priority": "Priority",
+      "loadingMore": "Loading more notifications..."
+    }
   }
 }

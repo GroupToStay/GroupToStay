@@ -91,9 +91,9 @@ function Page() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <section className="bg-primary text-primary-foreground">
-          <div className="container-page py-14">
-            <h1 className="font-display text-4xl">{t("rfq.publicRequests.title")}</h1>
+        <section className="border-b border-primary/10 bg-primary text-primary-foreground">
+          <div className="container-page py-10 sm:py-12">
+            <h1 className="text-3xl font-semibold md:text-4xl">{t("rfq.publicRequests.title")}</h1>
             <p className="mt-2 text-primary-foreground/80">{t("rfq.publicRequests.subtitle")}</p>
           </div>
         </section>
@@ -142,10 +142,10 @@ function Page() {
               actionTo="/dashboard"
             />
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {filtered.map((r) => (
                 <Link key={r.id} to="/requests/$id" params={{ id: r.id }}>
-                  <Card className="h-full hover:shadow-[var(--shadow-elevated)] transition border-border">
+                  <Card className="h-full border-border transition-colors hover:border-primary/30 hover:bg-muted/20">
                     <CardContent className="p-5 space-y-3">
                       <div className="flex items-start justify-between gap-2">
                         <Badge className="bg-success/15 text-success border-0 uppercase tracking-wide">
@@ -155,7 +155,9 @@ function Page() {
                           {formatDate(r.created_at)}
                         </span>
                       </div>
-                      <h3 className="font-display text-lg text-primary line-clamp-2">{r.title}</h3>
+                      <h3 className="line-clamp-2 text-lg font-semibold text-foreground">
+                        {r.title}
+                      </h3>
                       <div className="text-sm text-muted-foreground space-y-1">
                         <div className="flex items-center gap-1.5">
                           <MapPin className="h-3.5 w-3.5" /> {r.destination_city},{" "}
@@ -167,7 +169,7 @@ function Page() {
                         </div>
                         <div className="flex items-center gap-1.5">
                           <Users className="h-3.5 w-3.5" /> {formatNumber(r.guests_count)}{" "}
-                          {t("dashboard.guests")} · {formatNumber(r.rooms_needed)}{" "}
+                          {t("dashboard.guests")} / {formatNumber(r.rooms_needed)}{" "}
                           {t("dashboard.rooms")}
                         </div>
                       </div>

@@ -1,6 +1,6 @@
 # Enterprise i18n Audit Report
 
-Generated: 2026-07-06T10:04:59.927Z
+Generated: 2026-07-26T10:46:30.794Z
 
 ## Executive Summary
 
@@ -8,29 +8,29 @@ This report classifies every non-empty string literal and source comment detecte
 
 | Metric                               | Result |
 | ------------------------------------ | ------ |
-| Source files scanned                 | 153    |
-| Strings detected and classified      | 9574   |
-| Hardcoded USER_VISIBLE occurrences   | 0      |
-| Unique hardcoded USER_VISIBLE values | 0      |
-| Translation references               | 1564   |
-| Catalog keys (union)                 | 1475   |
-| English keys                         | 1475   |
-| Arabic keys                          | 1475   |
+| Source files scanned                 | 169    |
+| Strings detected and classified      | 9939   |
+| Hardcoded USER_VISIBLE occurrences   | 1      |
+| Unique hardcoded USER_VISIBLE values | 1      |
+| Translation references               | 1649   |
+| Catalog keys (union)                 | 1532   |
+| English keys                         | 1532   |
+| Arabic keys                          | 1532   |
 | Catalog parity                       | 100.0% |
-| Estimated effective UI coverage      | 100.0% |
+| Estimated effective UI coverage      | 99.9%  |
 | Risk assessment                      | LOW    |
 
 ## Classification Totals
 
 | Category          | Occurrences |
 | ----------------- | ----------- |
-| USER_VISIBLE      | 0           |
-| TECHNICAL         | 6052        |
-| INTERNAL_CONSTANT | 745         |
-| ROUTES            | 318         |
-| QUERY_KEYS        | 738         |
-| DEVELOPER_ONLY    | 1315        |
-| THIRD_PARTY       | 406         |
+| USER_VISIBLE      | 1           |
+| TECHNICAL         | 6403        |
+| INTERNAL_CONSTANT | 739         |
+| ROUTES            | 351         |
+| QUERY_KEYS        | 607         |
+| DEVELOPER_ONLY    | 1391        |
+| THIRD_PARTY       | 447         |
 
 ## Catalog Integrity
 
@@ -48,7 +48,7 @@ This report classifies every non-empty string literal and source comment detecte
 | Interpolation mismatches              | 0        |
 | Pluralization issues                  | 0        |
 | Suspicious encoding values            | 0        |
-| Unused keys                           | 84       |
+| Unused keys                           | 103      |
 
 ## Risk Assessment
 
@@ -56,7 +56,7 @@ This report classifies every non-empty string literal and source comment detecte
 
 ## Phase 1.4B Recommendation
 
-Phase 1.4B localization coverage is complete. Keep `pnpm i18n:audit` in the quality gate and require every new user-visible string to ship with paired English and Arabic keys.
+Process USER_VISIBLE findings feature by feature, starting with high-volume pages. Resolve broken references and interpolation issues before translating additional copy. Keep TECHNICAL, INTERNAL_CONSTANT, ROUTES, QUERY_KEYS, DEVELOPER_ONLY, and THIRD_PARTY findings out of translation catalogs unless their runtime use is proven user-visible.
 
 ## Translation Key Quality
 

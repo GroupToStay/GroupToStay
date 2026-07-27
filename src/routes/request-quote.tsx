@@ -86,11 +86,13 @@ function Page() {
   const patchShared = (patch: Partial<RfqSharedValues>) => setShared((v) => ({ ...v, ...patch }));
   const {
     status: verifStatus,
-    isVerified,
     isPending,
     isRejected,
     isDraft,
     rejectionReason,
+    isProfileComplete,
+    canCreateRfq,
+    loading: verificationLoading,
   } = useAgencyVerification();
 
   const { data: countries = [] } = useCountries();
@@ -107,6 +109,10 @@ function Page() {
       toast.info(t("rfq.authRequired"));
       sessionStorage.setItem("pending_rfq", JSON.stringify(payload));
       navigate({ to: "/auth", search: { redirect: "/request-quote" } });
+      return;
+    }
+    if (isOrganizer && !canCreateRfq) {
+      toast.error(t("rfq.create.verification.draftBody"));
       return;
     }
     setSubmitting(true);
@@ -167,19 +173,37 @@ function Page() {
   return (
     <div className="min-h-screen flex flex-col bg-surface">
       <SiteHeader />
-      <main className="flex-1 container-page py-12 max-w-2xl">
-        <div className="text-sm text-muted-foreground">
-          {t("rfq.step")} {step} {t("rfq.of")} {totalSteps}
+      <main className="container-page max-w-3xl flex-1 py-8 sm:py-12">
+        <div className="border-b border-border pb-5">
+          <div className="text-sm font-medium text-muted-foreground">
+            {t("rfq.step")} {step} {t("rfq.of")} {totalSteps}
+          </div>
+          <h1 className="mt-1 text-3xl font-semibold text-foreground md:text-4xl">
+            {t("rfq.title")}
+          </h1>
+          <p className="mt-2 text-muted-foreground">{t("rfq.subtitle")}</p>
+          <div
+            className="mt-5 grid grid-cols-3 gap-1"
+            role="progressbar"
+            aria-valuenow={step}
+            aria-valuemin={1}
+            aria-valuemax={totalSteps}
+          >
+            {Array.from({ length: totalSteps }, (_, index) => (
+              <span
+                key={index}
+                className={`h-1.5 rounded-full ${index < step ? "bg-primary" : "bg-muted"}`}
+              />
+            ))}
+          </div>
         </div>
-        <h1 className="font-display text-3xl md:text-4xl text-primary mt-1">{t("rfq.title")}</h1>
-        <p className="mt-1 text-muted-foreground">{t("rfq.subtitle")}</p>
         {!user && (
           <div className="mt-3 text-sm rounded-md bg-warning/10 text-warning border border-warning/30 px-3 py-2">
             {t("rfq.anonymous")}
           </div>
         )}
 
-        {user && isOrganizer && !isVerified && (
+        {user && isOrganizer && !canCreateRfq && (
           <div className="mt-4 rounded-md border border-amber-300 bg-amber-50 text-amber-900 p-4">
             <div className="flex items-start gap-2">
               {isPending ? (
@@ -203,7 +227,9 @@ function Page() {
                     {t("rfq.create.verification.rejectedBody")}
                   </>
                 )}
-                {(isDraft || (!isPending && !isRejected && verifStatus !== "verified")) && (
+                {(isDraft ||
+                  !isProfileComplete ||
+                  (!isPending && !isRejected && verifStatus !== "verified")) && (
                   <>
                     <b>{t("rfq.create.verification.draftTitle")}</b>{" "}
                     {t("rfq.create.verification.draftBody")}
@@ -222,7 +248,7 @@ function Page() {
         )}
 
         <Card className="mt-6">
-          <CardContent className="p-6 space-y-4">
+          <CardContent className="space-y-4 p-4 sm:p-6">
             {step === 1 && (
               <>
                 <div>
@@ -352,7 +378,9 @@ function Page() {
               ) : (
                 <Button
                   variant="gold"
-                  disabled={submitting || (!!user && isOrganizer && !isVerified)}
+                  disabled={
+                    submitting || (!!user && isOrganizer && (verificationLoading || !canCreateRfq))
+                  }
                   onClick={submit}
                 >
                   {submitting ? t("rfq.submitting") : t("rfq.submit")}

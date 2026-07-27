@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -19,6 +18,8 @@ import {
 import { ensureNotificationPermission, notify } from "@/lib/notifications";
 import { useApplicationLocale } from "@/lib/application-locale";
 import i18n from "@/lib/i18n";
+import { AccountAvatar } from "@/components/account-avatar";
+import { useAccountIdentity } from "@/hooks/use-account-identity";
 
 export const Route = createFileRoute("/_authenticated/dashboard/messages/$id")({
   head: () => ({ meta: [{ title: i18n.t("dashboard.messages.chatMetaTitle") }] }),
@@ -54,6 +55,7 @@ function ChatPage() {
   const { t } = useTranslation();
   const { id } = Route.useParams();
   const { user } = useAuth();
+  const { avatarUrl, displayName } = useAccountIdentity();
   const userId = user?.id;
   const [conv, setConv] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -245,17 +247,18 @@ function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-160px)]">
+    <div className="flex h-[calc(100dvh-180px)] min-h-[560px] flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-border pb-3 mb-3">
-        <Link to="/dashboard/messages" className="text-muted-foreground hover:text-primary">
-          <ArrowLeft className="h-5 w-5" />
+      <div className="flex items-center gap-3 border-b border-border bg-surface/60 p-3">
+        <Link
+          to="/dashboard/messages"
+          className="grid h-9 w-9 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-primary"
+        >
+          <ArrowLeft className="h-5 w-5 rtl:rotate-180" />
         </Link>
-        <div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-gold font-display flex-shrink-0">
-          {counterpart.charAt(0).toUpperCase()}
-        </div>
+        <AccountAvatar name={counterpart} className="h-10 w-10 shrink-0" />
         <div className="min-w-0 flex-1">
-          <div className="font-medium text-primary truncate">{counterpart}</div>
+          <div className="truncate font-semibold text-foreground">{counterpart}</div>
           <div className="text-xs text-muted-foreground truncate">
             {conv?.rfqs?.title ?? "—"} · {conv?.rfqs?.destination_city ?? ""}
           </div>
@@ -270,10 +273,7 @@ function ChatPage() {
       </div>
 
       {/* Message list */}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto px-2 py-4 space-y-3 bg-surface rounded-lg"
-      >
+      <div ref={scrollRef} className="flex-1 space-y-1 overflow-y-auto bg-card px-3 py-4 sm:px-5">
         {messages.length === 0 && (
           <div className="text-center text-muted-foreground text-sm py-8">
             {t("dashboard.messages.startConversation", { counterpart })}
@@ -282,11 +282,29 @@ function ChatPage() {
         {messages.map((m) => {
           const mine = m.sender_id === user?.id;
           return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-[75%] rounded-2xl px-4 py-2 shadow-sm ${mine ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-card border border-border rounded-bl-sm"}`}
-              >
-                {m.body && <div className="whitespace-pre-wrap break-words text-sm">{m.body}</div>}
+            <div key={m.id} className="group flex gap-3 rounded-md px-2 py-2 hover:bg-muted/30">
+              <AccountAvatar
+                name={mine ? displayName : counterpart}
+                imageUrl={mine ? avatarUrl : null}
+                className="h-9 w-9 shrink-0"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="text-sm font-semibold text-foreground">
+                    {mine ? displayName : counterpart}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {formatTime(m.created_at, {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+                {m.body && (
+                  <div className="mt-0.5 whitespace-pre-wrap break-words text-sm leading-6 text-foreground">
+                    {m.body}
+                  </div>
+                )}
                 {m.attachments?.length > 0 && (
                   <div className="mt-2 flex flex-col gap-1">
                     {m.attachments.map((a, i) => (
@@ -294,14 +312,6 @@ function ChatPage() {
                     ))}
                   </div>
                 )}
-                <div
-                  className={`text-[10px] mt-1 ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}
-                >
-                  {formatTime(m.created_at, {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
               </div>
             </div>
           );
@@ -315,7 +325,7 @@ function ChatPage() {
 
       {/* Pending attachments preview */}
       {pendingFiles.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
+        <div className="flex flex-wrap gap-2 border-t border-border bg-surface/60 px-3 py-2">
           {pendingFiles.map((f, i) => (
             <div key={i} className="flex items-center gap-2 bg-muted px-2 py-1 rounded-md text-xs">
               <FileText className="h-3 w-3" />
@@ -333,7 +343,7 @@ function ChatPage() {
       )}
 
       {/* Composer */}
-      <Card className="mt-3 p-2 flex items-end gap-2">
+      <div className="flex items-end gap-2 border-t border-border bg-surface/60 p-3">
         <input
           ref={fileInputRef}
           type="file"
@@ -370,12 +380,11 @@ function ChatPage() {
         <Button
           onClick={() => void handleSend()}
           disabled={sending || (!body.trim() && pendingFiles.length === 0)}
-          variant="gold"
           aria-label={t("dashboard.sendMessage")}
         >
           <Send className="h-4 w-4" />
         </Button>
-      </Card>
+      </div>
     </div>
   );
 }

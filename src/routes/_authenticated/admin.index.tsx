@@ -1,34 +1,40 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Building2,
   Hotel,
   Users,
   CreditCard,
-  Sparkles,
   ShieldCheck,
   Inbox,
   BadgeCheck,
-  ArrowUpRight,
   CheckCircle2,
   XCircle,
   Clock,
   FileText,
+  FileCheck2,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import i18n from "@/lib/i18n";
+import { PageHeader } from "@/components/workspace/page-header";
+import { WorkspaceSection } from "@/components/workspace/section";
+import { QuickActions } from "@/components/workspace/quick-actions";
+import { TaskGrid } from "@/components/workspace/task-card";
+import { requireAdminPermission } from "@/lib/admin-authorization";
+import { useAdminAccess } from "@/hooks/use-admin-access";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
+  beforeLoad: () => requireAdminPermission("view_analytics"),
   head: () => ({ meta: [{ title: i18n.t("admin.overview.metaTitle") }] }),
   component: AdminHome,
 });
 
 function AdminHome() {
   const { t } = useTranslation();
+  const { hasPermission } = useAdminAccess();
   const { data: stats } = useQuery({
     queryKey: ["admin-home-stats"],
     refetchInterval: 60_000,
@@ -42,9 +48,15 @@ function AdminHome() {
         listingsApproved,
         listingsPending,
         rolesAgency,
+        agenciesPending,
         rolesHotel,
         subActive,
         subWaiting,
+        pendingDocuments,
+        oldAgencyApprovals,
+        oldHotelApprovals,
+        oldListingApprovals,
+        recentDecisions,
       ] = await Promise.all([
         supabase
           .from("profiles")
@@ -76,6 +88,10 @@ function AdminHome() {
           .select("user_id", { count: "exact", head: true })
           .eq("role", "organizer"),
         supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .in("agency_verification_status", ["submitted", "pending_review"]),
+        supabase
           .from("user_roles")
           .select("user_id", { count: "exact", head: true })
           .eq("role", "hotel"),
@@ -87,6 +103,31 @@ function AdminHome() {
           .from("subscription_interest")
           .select("id", { count: "exact", head: true })
           .eq("status", "waiting"),
+        supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .in("agency_verification_status", ["submitted", "pending_review"])
+          .or("cr_document_path.not.is.null,tourism_license_document_path.not.is.null"),
+        supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .in("agency_verification_status", ["submitted", "pending_review"])
+          .lt("verification_submitted_at", new Date(Date.now() - 7 * 86_400_000).toISOString()),
+        supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("hotel_approval_status", "pending")
+          .lt("created_at", new Date(Date.now() - 7 * 86_400_000).toISOString()),
+        supabase
+          .from("hotels")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending")
+          .lt("created_at", new Date(Date.now() - 7 * 86_400_000).toISOString()),
+        supabase
+          .from("admin_audit_logs")
+          .select("id", { count: "exact", head: true })
+          .like("action", "approval_%")
+          .gte("created_at", new Date(Date.now() - 7 * 86_400_000).toISOString()),
       ]);
       return {
         companiesTotal: companiesTotal.count ?? 0,
@@ -97,9 +138,16 @@ function AdminHome() {
         listingsApproved: listingsApproved.count ?? 0,
         listingsPending: listingsPending.count ?? 0,
         agencies: rolesAgency.count ?? 0,
+        agenciesPending: agenciesPending.count ?? 0,
         hotelUsers: rolesHotel.count ?? 0,
         subActive: subActive.count ?? 0,
         subWaiting: subWaiting.count ?? 0,
+        pendingDocuments: pendingDocuments.count ?? 0,
+        priorityApprovals:
+          (oldAgencyApprovals.count ?? 0) +
+          (oldHotelApprovals.count ?? 0) +
+          (oldListingApprovals.count ?? 0),
+        recentDecisions: recentDecisions.count ?? 0,
       };
     },
   });
@@ -107,11 +155,47 @@ function AdminHome() {
   const sections: {
     title: string;
     tint: string;
+    icon: typeof Building2;
     cards: { label: string; value: number | string }[];
+    visible?: boolean;
   }[] = [
+    {
+      title: t("admin.overview.sections.approvals"),
+      tint: "text-warning bg-warning/10",
+      icon: FileCheck2,
+      visible: hasPermission("manage_approvals"),
+      cards: [
+        {
+          label: t("admin.overview.metrics.pendingApprovals"),
+          value:
+            (stats?.agenciesPending ?? 0) +
+            (stats?.companiesPending ?? 0) +
+            (stats?.listingsPending ?? 0) +
+            (stats?.subWaiting ?? 0),
+        },
+        {
+          label: t("admin.overview.metrics.verificationQueue"),
+          value: (stats?.agenciesPending ?? 0) + (stats?.companiesPending ?? 0),
+        },
+        {
+          label: t("admin.overview.metrics.pendingDocuments"),
+          value: stats?.pendingDocuments ?? 0,
+        },
+        {
+          label: t("admin.overview.metrics.priorityQueue"),
+          value: stats?.priorityApprovals ?? 0,
+        },
+        {
+          label: t("admin.overview.metrics.recentDecisions"),
+          value: stats?.recentDecisions ?? 0,
+        },
+      ],
+    },
     {
       title: t("admin.overview.sections.hotels"),
       tint: "text-brand-blue bg-brand-blue/10",
+      icon: Building2,
+      visible: hasPermission("manage_hotels"),
       cards: [
         {
           label: t("admin.overview.metrics.totalHotelCompanies"),
@@ -125,6 +209,8 @@ function AdminHome() {
     {
       title: t("admin.overview.sections.listings"),
       tint: "text-premium bg-premium/15",
+      icon: Hotel,
+      visible: hasPermission("manage_hotels"),
       cards: [
         { label: t("admin.overview.metrics.totalListings"), value: stats?.listingsTotal ?? 0 },
         { label: t("admin.overview.metrics.activeListings"), value: stats?.listingsApproved ?? 0 },
@@ -134,6 +220,8 @@ function AdminHome() {
     {
       title: t("admin.overview.sections.users"),
       tint: "text-success bg-success/10",
+      icon: Users,
+      visible: hasPermission("view_analytics"),
       cards: [
         { label: t("admin.overview.metrics.totalAgencies"), value: stats?.agencies ?? 0 },
         { label: t("admin.overview.metrics.totalHotelAccounts"), value: stats?.hotelUsers ?? 0 },
@@ -142,6 +230,8 @@ function AdminHome() {
     {
       title: t("admin.overview.sections.subscriptions"),
       tint: "text-primary bg-primary/10",
+      icon: CreditCard,
+      visible: hasPermission("manage_subscriptions"),
       cards: [
         { label: t("admin.overview.metrics.activeSubscriptions"), value: stats?.subActive ?? 0 },
         {
@@ -152,141 +242,176 @@ function AdminHome() {
     },
   ];
 
-  const quickActions = [
+  const tasks = [
     {
-      title: t("admin.hotelCompanies.title"),
-      desc: t("admin.overview.actions.hotelCompanies"),
+      id: "approval-center",
+      title: t("admin.approvals.title"),
+      description: t("admin.overview.actions.approvalCenter"),
+      count:
+        (stats?.agenciesPending ?? 0) +
+        (stats?.companiesPending ?? 0) +
+        (stats?.listingsPending ?? 0) +
+        (stats?.subWaiting ?? 0),
+      to: "/admin/approvals",
+      icon: FileCheck2,
+      tone: "warning" as const,
+      visible: hasPermission("manage_approvals"),
+    },
+    {
+      id: "pending-hotels",
+      title: t("dashboard.tasks.admin.hotels"),
+      description: t("dashboard.tasks.admin.hotelsDescription"),
+      count: stats?.companiesPending ?? 0,
       to: "/admin/hotel-companies",
       icon: Building2,
-      badge: null as string | null,
+      tone: "warning" as const,
+      visible: hasPermission("manage_hotels"),
     },
     {
-      title: t("admin.hotelListings.title"),
-      desc: t("admin.overview.actions.hotelListings"),
+      id: "pending-listings",
+      title: t("dashboard.tasks.admin.listings"),
+      description: t("dashboard.tasks.admin.listingsDescription"),
+      count: stats?.listingsPending ?? 0,
       to: "/admin/hotel-listings",
       icon: Hotel,
-      badge: null,
+      tone: "info" as const,
+      visible: hasPermission("manage_hotels"),
     },
     {
-      title: t("admin.agencyVerifications.title"),
-      desc: t("admin.overview.actions.agencyVerifications"),
+      id: "agency-verification",
+      title: t("dashboard.tasks.admin.agencies"),
+      description: t("dashboard.tasks.admin.agenciesDescription"),
+      count: stats?.agenciesPending ?? 0,
       to: "/admin/agency-verifications",
       icon: BadgeCheck,
-      badge: null,
+      tone: "success" as const,
+      visible: hasPermission("manage_agencies"),
     },
     {
-      title: t("nav.groupRequests"),
-      desc: t("admin.overview.actions.groupRequests"),
+      id: "subscriptions",
+      title: t("dashboard.tasks.admin.subscriptions"),
+      description: t("dashboard.tasks.admin.subscriptionsDescription"),
+      count: stats?.subWaiting ?? 0,
+      to: "/admin/subscription-interest",
+      icon: CreditCard,
+      tone: "primary" as const,
+      visible: hasPermission("manage_subscriptions"),
+    },
+  ];
+
+  const quickActions = [
+    {
+      id: "approvals",
+      label: t("admin.approvals.title"),
+      description: t("admin.overview.actions.approvalCenter"),
+      to: "/admin/approvals",
+      icon: FileCheck2,
+      visible: hasPermission("manage_approvals"),
+    },
+    {
+      id: "hotels",
+      label: t("admin.hotelCompanies.title"),
+      description: t("admin.overview.actions.hotelCompanies"),
+      to: "/admin/hotel-companies",
+      icon: Building2,
+      visible: hasPermission("manage_hotels"),
+    },
+    {
+      id: "listings",
+      label: t("admin.hotelListings.title"),
+      description: t("admin.overview.actions.hotelListings"),
+      to: "/admin/hotel-listings",
+      icon: Hotel,
+      visible: hasPermission("manage_hotels"),
+    },
+    {
+      id: "agencies",
+      label: t("admin.agencyVerifications.title"),
+      description: t("admin.overview.actions.agencyVerifications"),
+      to: "/admin/agency-verifications",
+      icon: BadgeCheck,
+      visible: hasPermission("manage_agencies"),
+    },
+    {
+      id: "rfqs",
+      label: t("nav.groupRequests"),
+      description: t("admin.overview.actions.groupRequests"),
       to: "/admin/group-requests",
       icon: FileText,
-      badge: null,
+      visible: hasPermission("manage_rfqs"),
     },
     {
-      title: t("nav.users"),
-      desc: t("admin.overview.actions.users"),
+      id: "users",
+      label: t("nav.users"),
+      description: t("admin.overview.actions.users"),
       to: "/admin/users",
       icon: Users,
-      badge: null,
+      visible: hasPermission("manage_users"),
     },
     {
-      title: t("nav.subscriptionInterest"),
-      desc: t("admin.overview.actions.subscriptionInterest"),
+      id: "interest",
+      label: t("nav.subscriptionInterest"),
+      description: t("admin.overview.actions.subscriptionInterest"),
       to: "/admin/subscription-interest",
       icon: Inbox,
-      badge: null,
+      visible: hasPermission("manage_subscriptions"),
     },
     {
-      title: t("nav.subscriptions"),
-      desc: t("admin.overview.actions.subscriptions"),
-      to: "/admin/subscriptions",
-      icon: CreditCard,
-      badge: t("common.comingSoon"),
-    },
-    {
-      title: t("nav.settings"),
-      desc: t("admin.overview.actions.settings"),
+      id: "settings",
+      label: t("nav.settings"),
+      description: t("admin.overview.actions.settings"),
       to: "/admin/settings",
       icon: ShieldCheck,
-      badge: null,
+      visible: hasPermission("manage_settings"),
     },
   ];
 
   return (
     <section className="space-y-8">
-      <div className="rounded-2xl bg-gradient-to-br from-[oklch(0.18_0.04_265)] to-[oklch(0.32_0.10_264)] text-primary-foreground p-8 md:p-10">
-        <Badge className="bg-premium text-premium-foreground border-0 mb-3 uppercase tracking-wider">
-          {t("admin.overview.console")}
-        </Badge>
-        <h1 className="font-display text-3xl md:text-4xl font-semibold">
-          {t("admin.overview.title")}
-        </h1>
-        <p className="mt-2 text-primary-foreground/80 max-w-2xl">
-          {t("admin.overview.description")}
-        </p>
-      </div>
+      <PageHeader
+        eyebrow={t("admin.overview.console")}
+        title={t("admin.overview.title")}
+        description={t("admin.overview.description")}
+        icon={ShieldCheck}
+      />
 
       <div className="space-y-8">
-        {sections.map((sec) => (
-          <div key={sec.title}>
-            <div className="flex items-center gap-2 mb-3">
-              <h2 className="font-display text-xl text-primary">{sec.title}</h2>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {sec.cards.map((c) => (
-                <div
-                  key={c.label}
-                  className="rounded-2xl bg-card border border-border p-5 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition"
-                >
-                  <div className={`inline-grid h-9 w-9 place-items-center rounded-lg ${sec.tint}`}>
-                    <Sparkles className="h-4 w-4" />
+        {sections
+          .filter((section) => section.visible !== false)
+          .map((sec) => (
+            <WorkspaceSection key={sec.title} title={sec.title}>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {sec.cards.map((c) => (
+                  <div
+                    key={c.label}
+                    className="rounded-lg border border-border bg-card p-4 shadow-sm"
+                  >
+                    <div
+                      className={`inline-grid h-9 w-9 place-items-center rounded-md ${sec.tint}`}
+                    >
+                      <sec.icon className="h-4 w-4" />
+                    </div>
+                    <div className="mt-4 text-2xl font-semibold text-foreground tabular-nums">
+                      {c.value}
+                    </div>
+                    <div className="mt-1 text-xs font-medium text-muted-foreground">{c.label}</div>
                   </div>
-                  <div className="mt-3 font-display text-3xl font-semibold text-primary">
-                    {c.value}
-                  </div>
-                  <div className="mt-0.5 text-sm text-muted-foreground">{c.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+                ))}
+              </div>
+            </WorkspaceSection>
+          ))}
       </div>
 
-      <div>
-        <h2 className="font-display text-xl text-primary mb-3">
-          {t("admin.overview.quickActions")}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {quickActions.map((qa) => {
-            const Inner = (
-              <Card className="h-full hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] transition">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between">
-                    <span className="grid h-10 w-10 place-items-center rounded-lg bg-brand-blue/10 text-brand-blue">
-                      <qa.icon className="h-5 w-5" />
-                    </span>
-                    {qa.badge ? (
-                      <Badge className="bg-muted text-muted-foreground">{qa.badge}</Badge>
-                    ) : (
-                      <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="mt-3 font-display text-lg text-primary">{qa.title}</div>
-                  <div className="text-sm text-muted-foreground">{qa.desc}</div>
-                </CardContent>
-              </Card>
-            );
-            return qa.badge ? (
-              <div key={qa.title} className="opacity-70 cursor-not-allowed">
-                {Inner}
-              </div>
-            ) : (
-              <Link key={qa.title} to={qa.to}>
-                {Inner}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      <WorkspaceSection
+        title={t("dashboard.tasks.title")}
+        description={t("dashboard.tasks.description")}
+      >
+        <TaskGrid tasks={tasks.filter((task) => task.visible !== false)} />
+      </WorkspaceSection>
+
+      <WorkspaceSection title={t("admin.overview.quickActions")}>
+        <QuickActions actions={quickActions.filter((action) => action.visible !== false)} />
+      </WorkspaceSection>
 
       <RecentActivity />
     </section>
@@ -351,10 +476,7 @@ function RecentActivity() {
   });
 
   return (
-    <div>
-      <h2 className="font-display text-xl text-primary mb-3 flex items-center gap-2">
-        <Users className="h-5 w-5" /> {t("admin.overview.recentActivity")}
-      </h2>
+    <WorkspaceSection title={t("admin.overview.recentActivity")}>
       <Card>
         <CardContent className="p-0">
           {activity.length === 0 ? (
@@ -365,7 +487,7 @@ function RecentActivity() {
             <ul className="divide-y divide-border">
               {activity.map((a) => (
                 <li key={a.key} className="flex items-center gap-3 p-4">
-                  <span className={`grid h-9 w-9 place-items-center rounded-lg ${a.tint}`}>
+                  <span className={`grid h-9 w-9 place-items-center rounded-md ${a.tint}`}>
                     <a.icon className="h-4 w-4" />
                   </span>
                   <div className="flex-1 min-w-0">
@@ -380,6 +502,6 @@ function RecentActivity() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </WorkspaceSection>
   );
 }

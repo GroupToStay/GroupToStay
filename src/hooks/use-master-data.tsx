@@ -31,7 +31,7 @@ export function useCountries() {
 export function useCities(countryId?: string | null) {
   return useQuery({
     queryKey: ["master-cities", countryId ?? "all"],
-    enabled: true,
+    enabled: Boolean(countryId),
     staleTime: 1000 * 60 * 10,
     queryFn: async (): Promise<CityRow[]> => {
       let q = supabase

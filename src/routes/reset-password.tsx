@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { SiteHeader } from "@/components/site-header";
+import { PublicSiteHeader } from "@/components/public-site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,11 +53,13 @@ function Page() {
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
-      <SiteHeader />
-      <main className="flex-1 container-page py-16 max-w-md w-full mx-auto">
-        <Card>
-          <CardContent className="p-6">
-            <h1 className="font-display text-2xl text-primary">{t("auth.resetPasswordTitle")}</h1>
+      <PublicSiteHeader />
+      <main className="container-page mx-auto w-full max-w-lg flex-1 py-10 md:py-14">
+        <Card className="overflow-hidden border-t-4 border-t-gold">
+          <CardContent className="p-6 md:p-8">
+            <h1 className="font-display text-2xl text-primary md:text-3xl">
+              {t("auth.resetPasswordTitle")}
+            </h1>
 
             {validRecovery === null && (
               <p className="mt-4 text-sm text-muted-foreground">{t("common.loading")}</p>
@@ -87,19 +89,19 @@ function Page() {
                       minLength={8}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pr-10"
+                      className="pe-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
-                      className="absolute inset-y-0 right-0 flex items-center justify-center w-10 text-muted-foreground hover:text-foreground"
+                      className="absolute inset-y-0 end-0 flex w-10 items-center justify-center rounded-e-md text-muted-foreground hover:bg-accent hover:text-foreground"
                       aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                 </div>
-                <Button type="submit" variant="gold" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading}>
                   {t("auth.resetPasswordBtn")}
                 </Button>
               </form>

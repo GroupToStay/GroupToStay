@@ -4,10 +4,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* GroupToStay design system
- * Primary navy #0F172A, gold accent #D4AF37, slate neutrals.
- * Tokens defined in :root and mapped through @theme inline so utilities
- * like bg-primary, text-gold, etc. work everywhere.
+/* GroupToStay V2 design system
+ * Premium hospitality brand cues with quiet, operational SaaS surfaces.
  */
 
 @theme inline {
@@ -45,7 +43,9 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-error: var(--error);
+  --color-info: var(--info);
   --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
 
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -59,17 +59,18 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Playfair Display", "Inter", serif;
 
-  --shadow-elevated: 0 20px 50px -20px oklch(0.2 0.04 265 / 0.25);
-  --shadow-gold: 0 10px 30px -10px oklch(0.78 0.13 85 / 0.45);
+  --shadow-elevated: 0 18px 48px -24px oklch(0.2 0.04 265 / 0.24);
+  --shadow-gold: 0 12px 32px -18px oklch(0.72 0.12 82 / 0.42);
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.5rem;
 
   /* Brand palette in oklch (approx of: #0F172A navy, #D4AF37 gold,
      #F8FAFC light, #111827 text, #E5E7EB border) */
   --background: oklch(1 0 0);
-  --surface: oklch(0.984 0.005 247); /* #F8FAFC */
+  --surface: oklch(0.982 0.006 247); /* cool off-white */
+  --surface-strong: oklch(0.962 0.009 247);
   --foreground: oklch(0.18 0.03 264); /* #111827 */
   --card: oklch(1 0 0);
   --card-foreground: var(--foreground);
@@ -98,6 +99,7 @@
   --success: oklch(0.72 0.17 156); /* #10B981 */
   --warning: oklch(0.78 0.17 75); /* #F59E0B */
   --error: oklch(0.65 0.22 27); /* #EF4444 */
+  --info: oklch(0.61 0.16 252);
   --destructive: var(--error);
   --destructive-foreground: oklch(0.985 0.003 248);
 
@@ -118,6 +120,7 @@
 .dark {
   --background: oklch(0.18 0.03 264);
   --surface: oklch(0.22 0.03 265);
+  --surface-strong: oklch(0.25 0.03 265);
   --foreground: oklch(0.985 0.003 248);
   --card: oklch(0.22 0.03 265);
   --card-foreground: oklch(0.985 0.003 248);
@@ -151,6 +154,7 @@
     font-family: var(--font-sans);
     font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   img,
   video,
@@ -171,12 +175,35 @@
   h3,
   .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
   }
 
   /* RTL helpers */
   [dir="rtl"] body {
     font-family: "Tajawal", "Cairo", var(--font-sans);
+  }
+
+  [dir="rtl"] h1,
+  [dir="rtl"] h2,
+  [dir="rtl"] h3,
+  [dir="rtl"] .font-display {
+    font-family: "Tajawal", "Cairo", var(--font-sans);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
@@ -202,4 +229,25 @@
   .container-page {
     padding-inline: 2rem;
   }
+}
+
+@utility workspace-page {
+  width: 100%;
+  min-width: 0;
+  padding: 1rem;
+}
+@media (min-width: 768px) {
+  .workspace-page {
+    padding: 1.5rem;
+  }
+}
+@media (min-width: 1280px) {
+  .workspace-page {
+    padding: 2rem;
+  }
+}
+
+@utility focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-ring) 24%, transparent);
 }

@@ -11,6 +11,7 @@ import {
   Loader2,
   Search,
   ShieldCheck,
+  ShieldPlus,
   UserCheck,
   UserRound,
   UserX,
@@ -35,13 +36,14 @@ import {
   getPageSlice,
 } from "@/components/admin/management-utils";
 import { EmptyState } from "@/components/empty-state";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AccountAvatar } from "@/components/account-avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -64,8 +66,13 @@ import {
 import type { Database } from "@/integrations/supabase/types";
 import { useApplicationLocale } from "@/lib/application-locale";
 import i18n from "@/lib/i18n";
+import { useAccountIdentity } from "@/hooks/use-account-identity";
+import { requireAdminPermission } from "@/lib/admin-authorization";
+import { useAdminAccess } from "@/hooks/use-admin-access";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
+  beforeLoad: () => requireAdminPermission("manage_users"),
   head: () => ({ meta: [{ title: i18n.t("admin.users.metaTitle") }] }),
   component: Page,
 });
@@ -73,6 +80,10 @@ export const Route = createFileRoute("/_authenticated/admin/users")({
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type ProfilePatch = Database["public"]["Tables"]["profiles"]["Update"];
 type AppRole = Database["public"]["Tables"]["user_roles"]["Row"]["role"];
+type EnterpriseRole = Database["public"]["Tables"]["enterprise_roles"]["Row"];
+type Permission = Database["public"]["Tables"]["permissions"]["Row"];
+type RolePermission = Database["public"]["Tables"]["role_permissions"]["Row"];
+type PermissionOverride = Database["public"]["Tables"]["user_permission_overrides"]["Row"];
 type RoleFilter = "all" | "visitor" | AppRole;
 type AccountStatus = "active" | "suspended" | "disabled";
 type VerificationFilter = "all" | "verified" | "pending" | "rejected" | "draft" | "unverified";
@@ -82,6 +93,7 @@ type UserDialog =
   | { type: "activity"; row: UserRow }
   | { type: "verification"; row: UserRow }
   | null;
+type AccessDialog = { type: "role"; row: UserRow } | { type: "permissions"; row: UserRow } | null;
 
 type ProfileWithStatus = Profile & {
   account_status?: AccountStatus | null;
@@ -90,8 +102,12 @@ type ProfileWithStatus = Profile & {
 
 type UserRow = {
   user_id: string;
+  authEmail?: string;
+  lastSignInAt?: string | null;
   roles: AppRole[];
   roleLabel: string;
+  enterpriseRole?: EnterpriseRole;
+  effectivePermissions: string[];
   profile?: ProfileWithStatus;
   created_at: string;
 };
@@ -123,6 +139,8 @@ const accountFilterKeys: { value: "all" | AccountStatus; labelKey: string }[] = 
 function Page() {
   const qc = useQueryClient();
   const { t } = useTranslation();
+  const { avatarUrl: currentAvatarUrl, user: currentUser } = useAccountIdentity();
+  const { hasPermission } = useAdminAccess();
   const { compare, language } = useApplicationLocale();
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [countryFilter, setCountryFilter] = useState("all");
@@ -130,6 +148,7 @@ function Page() {
   const [accountFilter, setAccountFilter] = useState<"all" | AccountStatus>("all");
   const [query, setQuery] = useState("");
   const [dialog, setDialog] = useState<UserDialog>(null);
+  const [accessDialog, setAccessDialog] = useState<AccessDialog>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
 
@@ -140,13 +159,36 @@ function Page() {
   } = useQuery({
     queryKey: ["admin-user-management"],
     queryFn: async () => {
-      const [rolesResult, profilesResult] = await Promise.all([
+      const [
+        rolesResult,
+        profilesResult,
+        enterpriseRolesResult,
+        assignmentsResult,
+        permissionsResult,
+        rolePermissionsResult,
+        overridesResult,
+        authMetadataResult,
+      ] = await Promise.all([
         supabase.from("user_roles").select("*").order("created_at", { ascending: false }),
         supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+        supabase.from("enterprise_roles").select("*").order("access_level", { ascending: false }),
+        supabase.from("user_enterprise_roles").select("*"),
+        supabase.from("permissions").select("*").order("category").order("key"),
+        supabase.from("role_permissions").select("*"),
+        supabase.from("user_permission_overrides").select("*"),
+        supabase.rpc("admin_get_user_auth_metadata"),
       ]);
 
-      if (rolesResult.error) throw rolesResult.error;
-      if (profilesResult.error) throw profilesResult.error;
+      const firstError =
+        rolesResult.error ||
+        profilesResult.error ||
+        enterpriseRolesResult.error ||
+        assignmentsResult.error ||
+        permissionsResult.error ||
+        rolePermissionsResult.error ||
+        overridesResult.error ||
+        authMetadataResult.error;
+      if (firstError) throw firstError;
 
       const rolesByUser = new Map<string, AppRole[]>();
       const roleCreatedByUser = new Map<string, string>();
@@ -158,27 +200,83 @@ function Page() {
 
       const profiles = (profilesResult.data ?? []) as ProfileWithStatus[];
       const profileById = new Map(profiles.map((profile) => [profile.id, profile]));
+      const enterpriseRoles = enterpriseRolesResult.data ?? [];
+      const enterpriseRoleById = new Map(enterpriseRoles.map((role) => [role.id, role]));
+      const assignmentByUser = new Map(
+        (assignmentsResult.data ?? []).map((assignment) => [
+          assignment.user_id,
+          enterpriseRoleById.get(assignment.role_id),
+        ]),
+      );
+      const rolePermissions = rolePermissionsResult.data ?? [];
+      const overridesByUser = new Map<string, PermissionOverride[]>();
+      (overridesResult.data ?? []).forEach((override) =>
+        overridesByUser.set(override.user_id, [
+          ...(overridesByUser.get(override.user_id) ?? []),
+          override,
+        ]),
+      );
+      const authMetadataByUser = new Map(
+        (authMetadataResult.data ?? []).map((metadata) => [metadata.user_id, metadata]),
+      );
       const userIds = new Set<string>([
         ...profiles.map((profile) => profile.id),
         ...(rolesResult.data ?? []).map((role) => role.user_id),
+        ...(authMetadataResult.data ?? []).map((metadata) => metadata.user_id),
       ]);
 
       return [...userIds]
         .map((user_id) => {
           const roles = rolesByUser.get(user_id) ?? [];
           const profile = profileById.get(user_id);
+          const authMetadata = authMetadataByUser.get(user_id);
+          const enterpriseRole = assignmentByUser.get(user_id);
+          const inheritedPermissions =
+            enterpriseRole?.slug === "super_admin"
+              ? (permissionsResult.data ?? []).map((permission) => permission.key)
+              : rolePermissions
+                  .filter((permission) => permission.role_id === enterpriseRole?.id)
+                  .map((permission) => permission.permission_key);
+          const effectivePermissions = new Set(inheritedPermissions);
+          (overridesByUser.get(user_id) ?? []).forEach((override) => {
+            if (override.granted) effectivePermissions.add(override.permission_key);
+            else effectivePermissions.delete(override.permission_key);
+          });
           return {
             user_id,
+            authEmail: authMetadata?.email,
+            lastSignInAt: authMetadata?.last_sign_in_at,
             roles,
             roleLabel: roles.length ? roles.join(", ") : "visitor",
+            enterpriseRole,
+            effectivePermissions: [...effectivePermissions].sort(),
             profile,
             created_at:
-              profile?.created_at ?? roleCreatedByUser.get(user_id) ?? new Date(0).toISOString(),
+              authMetadata?.created_at ??
+              profile?.created_at ??
+              roleCreatedByUser.get(user_id) ??
+              new Date(0).toISOString(),
           };
         })
         .sort(
           (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
         ) satisfies UserRow[];
+    },
+  });
+
+  const { data: accessCatalog } = useQuery({
+    queryKey: ["admin-access-catalog"],
+    queryFn: async () => {
+      const [rolesResult, permissionsResult] = await Promise.all([
+        supabase.from("enterprise_roles").select("*").order("access_level", { ascending: false }),
+        supabase.from("permissions").select("*").order("category").order("key"),
+      ]);
+      if (rolesResult.error) throw rolesResult.error;
+      if (permissionsResult.error) throw permissionsResult.error;
+      return {
+        roles: rolesResult.data ?? [],
+        permissions: permissionsResult.data ?? [],
+      };
     },
   });
 
@@ -237,8 +335,13 @@ function Page() {
     const text = query.trim().toLowerCase();
     return rows.filter((row) => {
       if (roleFilter !== "all") {
-        if (roleFilter === "visitor" && row.roles.length > 0) return false;
-        if (roleFilter !== "visitor" && !row.roles.includes(roleFilter)) return false;
+        if (roleFilter === "visitor" && (row.roles.length > 0 || row.enterpriseRole)) return false;
+        if (
+          roleFilter !== "visitor" &&
+          !row.roles.includes(roleFilter) &&
+          !(roleFilter === "admin" && row.enterpriseRole)
+        )
+          return false;
       }
       if (countryFilter !== "all" && row.profile?.country !== countryFilter) return false;
       if (accountFilter !== "all" && accountStatus(row.profile) !== accountFilter) return false;
@@ -248,7 +351,7 @@ function Page() {
       return [
         displayName(row.profile),
         companyName(row.profile),
-        contactEmail(row.profile),
+        contactEmail(row),
         row.profile?.phone_number,
         row.profile?.phone,
         row.user_id,
@@ -269,7 +372,7 @@ function Page() {
       all: rows.length,
       agencies: rows.filter((row) => row.roles.includes("organizer")).length,
       hotels: rows.filter((row) => row.roles.includes("hotel")).length,
-      admins: rows.filter((row) => row.roles.includes("admin")).length,
+      admins: rows.filter((row) => row.roles.includes("admin") || row.enterpriseRole).length,
       active: rows.filter((row) => accountStatus(row.profile) === "active").length,
     };
   }, [rows]);
@@ -440,6 +543,9 @@ function Page() {
                     {t("admin.users.table.phone")}
                   </TableHead>
                   <TableHead>{t("admin.users.table.role")}</TableHead>
+                  <TableHead className="hidden 2xl:table-cell">
+                    {t("admin.users.table.permissions")}
+                  </TableHead>
                   <TableHead>{t("admin.users.table.verification")}</TableHead>
                   <TableHead>{t("admin.users.table.account")}</TableHead>
                   <TableHead className="hidden xl:table-cell">
@@ -455,7 +561,7 @@ function Page() {
               </TableHeader>
               <TableBody>
                 {pageRows.map((row) => {
-                  const email = contactEmail(row.profile);
+                  const email = contactEmail(row);
                   const status = accountStatus(row.profile);
                   return (
                     <TableRow
@@ -465,13 +571,15 @@ function Page() {
                     >
                       <TableCell className="min-w-[230px]">
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-9 w-9">
-                            <AvatarImage
-                              src={row.profile?.avatar_url ?? undefined}
-                              alt={displayName(row.profile)}
-                            />
-                            <AvatarFallback>{initials(row.profile)}</AvatarFallback>
-                          </Avatar>
+                          <AccountAvatar
+                            name={displayName(row.profile)}
+                            imageUrl={
+                              row.user_id === currentUser?.id
+                                ? currentAvatarUrl
+                                : row.profile?.avatar_url
+                            }
+                            className="h-9 w-9"
+                          />
                           <div className="min-w-0">
                             <div className="truncate font-medium text-foreground">
                               {displayName(row.profile)}
@@ -488,6 +596,11 @@ function Page() {
                       </TableCell>
                       <TableCell>
                         <RoleBadges row={row} />
+                      </TableCell>
+                      <TableCell className="hidden 2xl:table-cell">
+                        {t("admin.users.details.permissionCount", {
+                          count: row.effectivePermissions.length,
+                        })}
                       </TableCell>
                       <TableCell>
                         <AdminStatusBadge status={verificationLabel(row)} />
@@ -511,6 +624,9 @@ function Page() {
                             onEdit={() => setDialog({ type: "edit", row })}
                             onActivity={() => setDialog({ type: "activity", row })}
                             onVerification={() => setDialog({ type: "verification", row })}
+                            canManageRoles={hasPermission("manage_roles")}
+                            onRole={() => setAccessDialog({ type: "role", row })}
+                            onPermissions={() => setAccessDialog({ type: "permissions", row })}
                             onSuspend={() =>
                               updateAccountStatus.mutate({ id: row.user_id, status: "suspended" })
                             }
@@ -533,7 +649,7 @@ function Page() {
 
           <div className="divide-y divide-border md:hidden">
             {pageRows.map((row) => {
-              const email = contactEmail(row.profile);
+              const email = contactEmail(row);
               const status = accountStatus(row.profile);
               return (
                 <div key={row.user_id} className="p-4">
@@ -543,13 +659,15 @@ function Page() {
                       className="flex min-w-0 items-center gap-3 text-left"
                       onClick={() => setDialog({ type: "profile", row })}
                     >
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage
-                          src={row.profile?.avatar_url ?? undefined}
-                          alt={displayName(row.profile)}
-                        />
-                        <AvatarFallback>{initials(row.profile)}</AvatarFallback>
-                      </Avatar>
+                      <AccountAvatar
+                        name={displayName(row.profile)}
+                        imageUrl={
+                          row.user_id === currentUser?.id
+                            ? currentAvatarUrl
+                            : row.profile?.avatar_url
+                        }
+                        className="h-9 w-9"
+                      />
                       <span className="min-w-0">
                         <span className="block truncate font-medium">
                           {displayName(row.profile)}
@@ -567,6 +685,9 @@ function Page() {
                       onEdit={() => setDialog({ type: "edit", row })}
                       onActivity={() => setDialog({ type: "activity", row })}
                       onVerification={() => setDialog({ type: "verification", row })}
+                      canManageRoles={hasPermission("manage_roles")}
+                      onRole={() => setAccessDialog({ type: "role", row })}
+                      onPermissions={() => setAccessDialog({ type: "permissions", row })}
                       onSuspend={() =>
                         updateAccountStatus.mutate({ id: row.user_id, status: "suspended" })
                       }
@@ -581,6 +702,11 @@ function Page() {
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <RoleBadges row={row} />
+                    <span className="inline-flex items-center rounded-full border border-border bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                      {t("admin.users.details.permissionCount", {
+                        count: row.effectivePermissions.length,
+                      })}
+                    </span>
                     <AdminStatusBadge status={verificationLabel(row)} />
                     <AdminStatusBadge status={status} />
                   </div>
@@ -596,6 +722,12 @@ function Page() {
         onOpenChange={(open) => !open && setDialog(null)}
         onSave={(id, patch) => updateProfile.mutate({ id, patch })}
       />
+      <EnterpriseAccessDialog
+        dialog={accessDialog}
+        roles={accessCatalog?.roles ?? []}
+        permissions={accessCatalog?.permissions ?? []}
+        onClose={() => setAccessDialog(null)}
+      />
     </AdminManagementPage>
   );
 }
@@ -608,6 +740,9 @@ function UserActions({
   onEdit,
   onActivity,
   onVerification,
+  canManageRoles,
+  onRole,
+  onPermissions,
   onSuspend,
   onActivate,
   onDisable,
@@ -620,6 +755,9 @@ function UserActions({
   onEdit: () => void;
   onActivity: () => void;
   onVerification: () => void;
+  canManageRoles: boolean;
+  onRole: () => void;
+  onPermissions: () => void;
   onSuspend: () => void;
   onActivate: () => void;
   onDisable: () => void;
@@ -642,6 +780,19 @@ function UserActions({
           label: t("admin.users.actions.viewVerification"),
           icon: ShieldCheck,
           onSelect: onVerification,
+        },
+        {
+          label: t("admin.users.actions.changeRole"),
+          icon: ShieldPlus,
+          onSelect: onRole,
+          disabled: !canManageRoles,
+          separatorBefore: true,
+        },
+        {
+          label: t("admin.users.actions.assignPermissions"),
+          icon: KeyRound,
+          onSelect: onPermissions,
+          disabled: !canManageRoles,
         },
         status === "suspended"
           ? {
@@ -827,6 +978,206 @@ function UserDialogContent({
   );
 }
 
+function EnterpriseAccessDialog({
+  dialog,
+  roles,
+  permissions,
+  onClose,
+}: {
+  dialog: AccessDialog;
+  roles: EnterpriseRole[];
+  permissions: Permission[];
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const { access } = useAdminAccess();
+  const [selectedRole, setSelectedRole] = useState("none");
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!dialog) return;
+    setSelectedRole(dialog.row.enterpriseRole?.slug ?? "none");
+    setSelectedPermissions(dialog.row.effectivePermissions);
+  }, [dialog]);
+
+  const saveRole = useMutation({
+    mutationFn: async () => {
+      if (!dialog) return;
+      const { error } = await supabase.rpc("admin_set_user_role", {
+        _target_user_id: dialog.row.user_id,
+        _role_slug: selectedRole === "none" ? "" : selectedRole,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("admin.users.toasts.roleUpdated"));
+      queryClient.invalidateQueries({ queryKey: ["admin-user-management"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-role-catalog"] });
+      onClose();
+    },
+    onError: (mutationError: unknown) =>
+      toast.error(
+        mutationError instanceof Error
+          ? mutationError.message
+          : t("admin.users.errors.roleUpdateFailed"),
+      ),
+  });
+
+  const savePermissions = useMutation({
+    mutationFn: async () => {
+      if (!dialog) return;
+      const { error } = await supabase.rpc("admin_set_user_permissions", {
+        _target_user_id: dialog.row.user_id,
+        _permission_keys: selectedPermissions,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("admin.users.toasts.permissionsUpdated"));
+      queryClient.invalidateQueries({ queryKey: ["admin-user-management"] });
+      onClose();
+    },
+    onError: (mutationError: unknown) =>
+      toast.error(
+        mutationError instanceof Error
+          ? mutationError.message
+          : t("admin.users.errors.permissionsUpdateFailed"),
+      ),
+  });
+
+  const grouped = useMemo(() => {
+    const groups = new Map<string, Permission[]>();
+    permissions.forEach((permission) =>
+      groups.set(permission.category, [...(groups.get(permission.category) ?? []), permission]),
+    );
+    return [...groups.entries()];
+  }, [permissions]);
+
+  const targetProtected = dialog?.row.enterpriseRole?.slug === "super_admin";
+  const targetAccessLevel = dialog?.row.enterpriseRole?.access_level ?? 0;
+  const canChangeTarget =
+    access.role === "super_admin" || (!targetProtected && access.accessLevel > targetAccessLevel);
+
+  return (
+    <Dialog open={!!dialog} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        {dialog ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>
+                {dialog.type === "role"
+                  ? t("admin.users.access.roleTitle")
+                  : t("admin.users.access.permissionsTitle")}
+              </DialogTitle>
+              <DialogDescription>
+                {t("admin.users.access.description", {
+                  name: displayName(dialog.row.profile),
+                })}
+              </DialogDescription>
+            </DialogHeader>
+
+            {dialog.type === "role" ? (
+              <div className="space-y-3">
+                <label className="space-y-2 text-sm">
+                  <span className="font-medium">{t("admin.users.access.enterpriseRole")}</span>
+                  <Select
+                    value={selectedRole}
+                    onValueChange={setSelectedRole}
+                    disabled={!canChangeTarget}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">{t("admin.users.access.noAdminRole")}</SelectItem>
+                      {roles.map((role) => (
+                        <SelectItem
+                          key={role.id}
+                          value={role.slug}
+                          disabled={
+                            role.access_level >= access.accessLevel && access.role !== "super_admin"
+                          }
+                        >
+                          {t(`admin.roles.defaults.${role.slug}.name`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </label>
+                <p className="text-xs leading-5 text-muted-foreground">
+                  {t("admin.users.access.roleHelp")}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {targetProtected ? (
+                  <div className="rounded-md border border-warning/25 bg-warning/10 p-3 text-sm text-warning">
+                    {t("admin.users.access.superAdminProtected")}
+                  </div>
+                ) : null}
+                {grouped.map(([category, categoryPermissions]) => (
+                  <section key={category} className="space-y-2">
+                    <h3 className="text-sm font-semibold">
+                      {t(`admin.roles.categories.${category}`)}
+                    </h3>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {categoryPermissions.map((permission) => (
+                        <label
+                          key={permission.key}
+                          className="flex min-h-16 items-start gap-3 rounded-md border border-border p-3"
+                        >
+                          <Checkbox
+                            checked={selectedPermissions.includes(permission.key)}
+                            disabled={targetProtected}
+                            onCheckedChange={(checked) =>
+                              setSelectedPermissions((current) =>
+                                checked
+                                  ? [...new Set([...current, permission.key])]
+                                  : current.filter((key) => key !== permission.key),
+                              )
+                            }
+                          />
+                          <span className="text-sm">
+                            {t(`admin.roles.permissions.${permission.key}.name`)}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button variant="outline" onClick={onClose}>
+                {t("common.cancel")}
+              </Button>
+              <Button
+                variant="gold"
+                disabled={
+                  !canChangeTarget ||
+                  saveRole.isPending ||
+                  savePermissions.isPending ||
+                  (dialog.type === "permissions" && targetProtected)
+                }
+                onClick={() =>
+                  dialog.type === "role" ? saveRole.mutate() : savePermissions.mutate()
+                }
+              >
+                {saveRole.isPending || savePermissions.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : null}
+                {t("common.save")}
+              </Button>
+            </DialogFooter>
+          </>
+        ) : null}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function ActivitySummary({ userId }: { userId: string }) {
   const { t } = useTranslation();
   const { data, isLoading } = useQuery({
@@ -889,12 +1240,18 @@ function ProfileDetails({ row }: { row: UserRow }) {
     <AdminDetailGrid>
       <AdminDetailItem label={t("admin.users.fields.fullName")} value={displayName(row.profile)} />
       <AdminDetailItem label={t("admin.users.table.company")} value={companyName(row.profile)} />
-      <AdminDetailItem label={t("admin.users.fields.email")} value={contactEmail(row.profile)} />
+      <AdminDetailItem label={t("admin.users.fields.email")} value={contactEmail(row)} />
       <AdminDetailItem
         label={t("admin.users.table.phone")}
         value={row.profile?.phone_number || row.profile?.phone || "-"}
       />
       <AdminDetailItem label={t("admin.users.table.role")} value={<RoleBadges row={row} />} />
+      <AdminDetailItem
+        label={t("admin.users.details.assignedPermissions")}
+        value={t("admin.users.details.permissionCount", {
+          count: row.effectivePermissions.length,
+        })}
+      />
       <AdminDetailItem
         label={t("admin.users.details.accountStatus")}
         value={<AdminStatusBadge status={accountStatus(row.profile)} />}
@@ -906,7 +1263,7 @@ function ProfileDetails({ row }: { row: UserRow }) {
       />
       <AdminDetailItem
         label={t("admin.users.details.lastLogin")}
-        value={t("admin.users.fallbacks.requiresAuthAdmin")}
+        value={row.lastSignInAt ? formatAdminDate(row.lastSignInAt) : "-"}
       />
       <AdminDetailItem label={t("admin.users.details.userId")} value={row.user_id} />
     </AdminDetailGrid>
@@ -914,7 +1271,11 @@ function ProfileDetails({ row }: { row: UserRow }) {
 }
 
 function RoleBadges({ row }: { row: UserRow }) {
-  const roles = row.roles.length ? row.roles : ["visitor"];
+  const roles = [
+    ...(row.enterpriseRole ? [row.enterpriseRole.slug] : []),
+    ...row.roles.filter((role) => role !== "admin" || !row.enterpriseRole),
+  ];
+  if (!roles.length) roles.push("visitor");
   return (
     <div className="flex flex-wrap gap-1">
       {roles.map((role) => (
@@ -975,19 +1336,13 @@ function companyName(profile?: ProfileWithStatus) {
   );
 }
 
-function contactEmail(profile?: ProfileWithStatus) {
-  return profile?.contact_email || profile?.contact_person_email || profile?.billing_email || "-";
-}
-
-function initials(profile?: ProfileWithStatus) {
-  const name = displayName(profile);
+function contactEmail(row: UserRow) {
   return (
-    name
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase())
-      .join("") || "U"
+    row.authEmail ||
+    row.profile?.contact_email ||
+    row.profile?.contact_person_email ||
+    row.profile?.billing_email ||
+    "-"
   );
 }
 

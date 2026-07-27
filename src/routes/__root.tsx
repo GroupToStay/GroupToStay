@@ -22,13 +22,18 @@ import {
   installExternalDomMutationRecovery,
   isExternalDomMutationError,
 } from "@/lib/translation-hardening";
+import {
+  getHtmlLang,
+  getTextDirection,
+  normalizeAppLanguage,
+  type AppLanguage,
+} from "@/lib/locale";
 
 installExternalDomMutationRecovery();
 
-const SUPABASE_ORIGIN =
-  (import.meta.env.VITE_SUPABASE_URL
-    ? new URL(import.meta.env.VITE_SUPABASE_URL).origin
-    : undefined) ?? "https://atxecflhmphaqqkatjlm.supabase.co";
+const SUPABASE_ORIGIN = import.meta.env.VITE_SUPABASE_URL
+  ? new URL(import.meta.env.VITE_SUPABASE_URL).origin
+  : undefined;
 
 function NotFoundComponent() {
   const { t } = useTranslation();
@@ -110,7 +115,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+  appLanguage: AppLanguage;
+}>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -140,8 +148,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
-      { rel: "dns-prefetch", href: SUPABASE_ORIGIN },
-      { rel: "preconnect", href: SUPABASE_ORIGIN, crossOrigin: "" },
+      ...(SUPABASE_ORIGIN
+        ? [
+            { rel: "dns-prefetch", href: SUPABASE_ORIGIN },
+            {
+              rel: "preconnect",
+              href: SUPABASE_ORIGIN,
+              crossOrigin: "anonymous" as const,
+            },
+          ]
+        : []),
     ],
     scripts: [
       {
@@ -172,12 +188,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const language = normalizeAppLanguage(i18n.language);
+
   return (
-    <html lang="en" dir="ltr" translate="no" className="notranslate" suppressHydrationWarning>
+    <html
+      lang={getHtmlLang(language)}
+      dir={getTextDirection(language)}
+      translate="no"
+      className="notranslate"
+    >
       <head>
         <HeadContent />
       </head>
-      <body translate="no" className="notranslate" suppressHydrationWarning>
+      <body translate="no" className="notranslate">
         {children}
         <Scripts />
       </body>

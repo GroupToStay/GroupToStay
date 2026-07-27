@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
-import { Card, CardContent } from "@/components/ui/card";
+import { PublicPageHero, PublicPageLayout } from "@/components/public-page";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
@@ -37,37 +35,37 @@ function Page() {
   const showHotelCta = !user || (isHotel && !isAdmin && !isOrganizer);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <SiteHeader />
-      <main className="flex-1">
-        <section className="bg-primary text-primary-foreground">
-          <div className="container-page py-20">
-            <h1 className="font-display text-4xl md:text-5xl">{t("forHotels.title")}</h1>
-            <p className="mt-3 text-primary-foreground/80 max-w-2xl">{t("forHotels.subtitle")}</p>
-            {showHotelCta && (
-              <Button asChild variant="hero" size="lg" className="mt-6">
-                <Link to={user ? "/dashboard/hotel" : "/auth"}>{t("forHotels.ctaList")}</Link>
-              </Button>
-            )}
-          </div>
-        </section>
-        <section className="container-page py-16 grid md:grid-cols-3 gap-6">
+    <PublicPageLayout>
+      <PublicPageHero
+        dark
+        title={t("forHotels.title")}
+        description={t("forHotels.subtitle")}
+        actions={
+          showHotelCta ? (
+            <Button asChild variant="hero" size="lg">
+              <Link to={user ? "/dashboard/hotel" : "/auth"}>{t("forHotels.ctaList")}</Link>
+            </Button>
+          ) : undefined
+        }
+      />
+      <section className="container-page py-12 md:py-16">
+        <div className="grid border-y border-border md:grid-cols-3">
           {[1, 2, 3].map((n) => (
-            <Card key={n}>
-              <CardContent className="p-6">
-                <CheckCircle2 className="h-6 w-6 text-gold" />
-                <h2 className="mt-3 font-display text-xl text-primary">
-                  {t(`forHotels.benefit${n}Title`)}
-                </h2>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {t(`forHotels.benefit${n}Body`)}
-                </p>
-              </CardContent>
-            </Card>
+            <article
+              key={n}
+              className="border-b border-border p-6 last:border-b-0 md:border-b-0 md:border-e md:last:border-e-0 md:p-8"
+            >
+              <CheckCircle2 className="h-6 w-6 text-success" />
+              <h2 className="mt-4 text-lg font-semibold text-foreground">
+                {t(`forHotels.benefit${n}Title`)}
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {t(`forHotels.benefit${n}Body`)}
+              </p>
+            </article>
           ))}
-        </section>
-      </main>
-      <SiteFooter />
-    </div>
+        </div>
+      </section>
+    </PublicPageLayout>
   );
 }

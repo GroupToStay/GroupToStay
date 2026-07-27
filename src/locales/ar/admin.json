@@ -76,6 +76,7 @@
         "company": "الشركة",
         "phone": "الهاتف",
         "role": "الدور",
+        "permissions": "الصلاحيات المسندة",
         "verification": "التوثيق",
         "account": "الحساب",
         "country": "الدولة",
@@ -87,6 +88,8 @@
         "editUser": "تعديل المستخدم",
         "viewActivity": "عرض النشاط",
         "viewVerification": "عرض التوثيق",
+        "changeRole": "تغيير الدور",
+        "assignPermissions": "إسناد الصلاحيات",
         "activateUser": "تنشيط المستخدم",
         "suspendUser": "إيقاف المستخدم",
         "disableAccount": "تعطيل الحساب",
@@ -117,7 +120,14 @@
         "accountStatus": "حالة الحساب",
         "registrationDate": "تاريخ التسجيل",
         "lastLogin": "آخر تسجيل دخول",
-        "userId": "معرف المستخدم"
+        "userId": "معرف المستخدم",
+        "assignedPermissions": "الصلاحيات المسندة",
+        "permissionCount_zero": "{{count}} صلاحية",
+        "permissionCount_one": "صلاحية واحدة",
+        "permissionCount_two": "صلاحيتان",
+        "permissionCount_few": "{{count}} صلاحيات",
+        "permissionCount_many": "{{count}} صلاحية",
+        "permissionCount_other": "{{count}} صلاحية"
       },
       "activity": {
         "loading": "جارٍ تحميل النشاط...",
@@ -134,18 +144,31 @@
       "toasts": {
         "accountStatusUpdated": "تم تحديث حالة الحساب",
         "profileUpdated": "تم تحديث الملف",
-        "passwordResetSent": "تم إرسال رسالة إعادة تعيين كلمة المرور"
+        "passwordResetSent": "تم إرسال رسالة إعادة تعيين كلمة المرور",
+        "roleUpdated": "تم تحديث الدور الإداري",
+        "permissionsUpdated": "تم تحديث صلاحيات المستخدم"
       },
       "errors": {
         "loadFailed": "تعذر تحميل بيانات إدارة المستخدمين.",
         "accountStatusUpdateFailed": "تعذر تحديث حالة الحساب",
         "profileUpdateFailed": "تعذر تحديث الملف",
-        "passwordResetFailed": "تعذرت إعادة تعيين كلمة المرور"
+        "passwordResetFailed": "تعذرت إعادة تعيين كلمة المرور",
+        "roleUpdateFailed": "تعذر تحديث الدور الإداري",
+        "permissionsUpdateFailed": "تعذر تحديث صلاحيات المستخدم"
       },
       "fallbacks": {
         "unnamedUser": "مستخدم بلا اسم",
         "notAssigned": "غير معيّن",
         "requiresAuthAdmin": "يتطلب مسؤول مصادقة Supabase"
+      },
+      "access": {
+        "roleTitle": "تغيير الدور الإداري",
+        "permissionsTitle": "إسناد صلاحيات المستخدم",
+        "description": "إدارة الصلاحيات الإدارية للمستخدم {{name}}.",
+        "enterpriseRole": "الدور الإداري",
+        "noAdminRole": "دون دور إداري",
+        "roleHelp": "تبقى أدوار السوق دون تغيير. يتحكم هذا الإسناد في صلاحيات الإدارة فقط.",
+        "superAdminProtected": "صلاحيات المسؤول الرئيسي محمية ولا يمكن تجاوزها."
       }
     },
     "groupRequests": {
@@ -285,6 +308,9 @@
       "fallbacks": {
         "hotelCompany": "شركة فندقية"
       },
+      "audit": {
+        "reopened": "أُعيد فتح الطلب للمراجعة"
+      },
       "pms": {
         "title": "إحصاءات أنظمة إدارة الفنادق",
         "description": "شركات الفنادق المعتمدة حسب نظام إدارة الفنادق.",
@@ -343,6 +369,9 @@
       "empty": {
         "title": "لا توجد منشآت فندقية",
         "description": "لا توجد منشآت فندقية تطابق عوامل التصفية حاليًا."
+      },
+      "audit": {
+        "suspended": "تم إيقاف المنشأة أثناء مراجعة الاعتماد"
       }
     },
     "agencyVerifications": {
@@ -453,6 +482,7 @@
       "recentActivity": "النشاط الأخير",
       "noRecentActivity": "لا يوجد نشاط حديث.",
       "sections": {
+        "approvals": "مركز الاعتمادات",
         "hotels": "الفنادق",
         "listings": "المنشآت",
         "users": "المستخدمون",
@@ -461,6 +491,11 @@
         "revenue": "الإيرادات"
       },
       "metrics": {
+        "pendingApprovals": "الاعتمادات المعلقة",
+        "verificationQueue": "قائمة التوثيق",
+        "pendingDocuments": "المستندات المعلقة",
+        "priorityQueue": "قائمة الأولوية",
+        "recentDecisions": "القرارات الأخيرة",
         "totalHotelCompanies": "إجمالي شركات الفنادق",
         "approvedHotels": "الفنادق المعتمدة",
         "pendingHotels": "الفنادق قيد المراجعة",
@@ -484,6 +519,7 @@
         "totalHotelUsers": "إجمالي مستخدمي الفنادق"
       },
       "actions": {
+        "approvalCenter": "مراجعة الاعتمادات والمستندات والقرارات ذات الأولوية.",
         "hotelCompanies": "مراجعة شركات الفنادق واعتمادها.",
         "hotelListings": "مراجعة منشآت الفنادق.",
         "agencyVerifications": "مراجعة طلبات توثيق الوكالات.",
@@ -546,6 +582,210 @@
       "welcomeAdmin": "مرحبًا أيها المسؤول",
       "legacyDescription": "إدارة الفنادق والاشتراكات والاعتمادات وأداء المنصة.",
       "notActiveYet": "غير نشط بعد"
+    },
+    "approvals": {
+      "metaTitle": "مركز الاعتمادات - الإدارة",
+      "title": "مركز الاعتمادات",
+      "description": "مراجعة جميع طلبات التوثيق والاعتمادات اليدوية من قائمة آمنة وموحدة.",
+      "searchPlaceholder": "البحث باسم الشركة أو مقدم الطلب أو الحالة",
+      "sectionLabel": "قسم الاعتمادات",
+      "loading": "جارٍ تحميل قائمة الاعتمادات...",
+      "sections": {
+        "all": "جميع الاعتمادات",
+        "agencies": "توثيق الوكالات",
+        "hotels": "توثيق الفنادق",
+        "subscriptions": "طلبات الاشتراك",
+        "documents": "مستندات الشركات",
+        "profiles": "توثيق الملفات",
+        "pending": "المراجعات المعلقة",
+        "manual": "الإجراءات اليدوية"
+      },
+      "metrics": {
+        "pending": "الاعتمادات المعلقة",
+        "agencies": "قائمة الوكالات",
+        "hotels": "قائمة الفنادق",
+        "priority": "أولوية عالية"
+      },
+      "table": {
+        "item": "طلب الاعتماد",
+        "type": "النوع",
+        "status": "الحالة",
+        "priority": "الأولوية",
+        "submitted": "تاريخ التقديم",
+        "submittedBy": "مقدم الطلب",
+        "actions": "الإجراءات"
+      },
+      "sources": {
+        "agency_verification": "توثيق وكالة",
+        "hotel_verification": "توثيق فندق",
+        "hotel_listing": "منشأة فندقية",
+        "subscription_request": "طلب اشتراك"
+      },
+      "decisions": {
+        "approve": "اعتماد الطلب",
+        "reject": "رفض الطلب",
+        "request_changes": "طلب تعديلات"
+      },
+      "commentLabel": "تعليق المراجعة",
+      "commentPlaceholder": "وضّح القرار أو التعديلات المطلوبة...",
+      "details": {
+        "notes": "الملاحظات",
+        "country": "الدولة",
+        "city": "المدينة",
+        "address": "العنوان",
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "registrationNumber": "رقم السجل التجاري",
+        "crDocument": "مستند السجل التجاري",
+        "tourismDocument": "مستند الترخيص السياحي",
+        "pmsProvider": "مزود نظام إدارة الفندق",
+        "requestedPlan": "الخطة المطلوبة",
+        "openCommercialRegistration": "فتح السجل التجاري",
+        "openTourismLicense": "فتح الترخيص السياحي"
+      },
+      "history": {
+        "title": "سجل القرارات",
+        "empty": "لم تُسجل قرارات بعد.",
+        "events": {
+          "approval_approve": "تم الاعتماد",
+          "approval_reject": "تم الرفض",
+          "approval_request_changes": "طُلبت تعديلات",
+          "approved": "تم الاعتماد",
+          "rejected": "تم الرفض",
+          "info_requested": "طُلبت معلومات إضافية",
+          "submitted": "تم التقديم",
+          "resubmitted": "أُعيد التقديم"
+        }
+      },
+      "empty": {
+        "title": "لا توجد طلبات اعتماد",
+        "description": "لا توجد عناصر تطابق القسم والبحث المحددين."
+      },
+      "toasts": {
+        "decisionSaved": "تم حفظ قرار الاعتماد"
+      },
+      "errors": {
+        "loadFailed": "تعذر تحميل قائمة الاعتمادات.",
+        "decisionFailed": "تعذر حفظ قرار الاعتماد.",
+        "commentRequired": "يلزم إضافة تعليق مراجعة لهذا القرار.",
+        "documentFailed": "تعذر فتح المستند المحمي."
+      },
+      "fallbacks": {
+        "agency": "وكالة بلا اسم",
+        "hotel": "فندق بلا اسم"
+      }
+    },
+    "roles": {
+      "metaTitle": "الأدوار والصلاحيات - الإدارة",
+      "title": "الأدوار والصلاحيات",
+      "description": "إدارة الأدوار الإدارية والصلاحيات المستقلة القابلة للإسناد.",
+      "roleList": "الأدوار الإدارية",
+      "searchPermissions": "البحث في الصلاحيات",
+      "accessLevel": "مستوى الصلاحية {{level}}",
+      "protectedRole": "يحتفظ هذا الدور المحمي دائمًا بكامل صلاحيات المنصة.",
+      "higherRoleRequired": "لا يمكن تعديل هذه الصلاحيات إلا من خلال دور ذي مستوى أعلى.",
+      "assignedUsers": "المستخدمون المسندون",
+      "noAssignedUsers": "لا يوجد مستخدمون مسندون إلى هذا الدور حاليًا.",
+      "defaults": {
+        "super_admin": {
+          "name": "المسؤول الرئيسي",
+          "description": "صلاحية كاملة ومحمية لجميع إمكانات المنصة."
+        },
+        "admin": {
+          "name": "المسؤول",
+          "description": "إدارة عمليات المنصة دون صلاحية إعدادات النظام الأساسية المحمية."
+        },
+        "assistant_admin": {
+          "name": "المسؤول المساعد",
+          "description": "إدارة العمليات اليومية للسوق والاعتمادات والرسائل والحجوزات."
+        }
+      },
+      "categories": {
+        "marketplace": "السوق",
+        "communications": "التواصل",
+        "users": "المستخدمون والصلاحيات",
+        "approvals": "الاعتمادات",
+        "commerce": "التجارة",
+        "insights": "التقارير والتحليلات",
+        "system": "النظام"
+      },
+      "permissions": {
+        "manage_hotels": {
+          "name": "إدارة الفنادق",
+          "description": "مراجعة وإدارة شركات الفنادق والمنشآت."
+        },
+        "manage_agencies": {
+          "name": "إدارة الوكالات",
+          "description": "مراجعة وإدارة حسابات الوكالات."
+        },
+        "manage_rfqs": {
+          "name": "إدارة طلبات العروض",
+          "description": "عرض طلبات المجموعات والإشراف عليها."
+        },
+        "manage_quotations": {
+          "name": "إدارة عروض الأسعار",
+          "description": "عرض عروض الفنادق والإشراف عليها."
+        },
+        "manage_bookings": {
+          "name": "إدارة الحجوزات",
+          "description": "عرض سجلات الحجوزات وإدارتها."
+        },
+        "manage_messages": {
+          "name": "إدارة الرسائل",
+          "description": "مراجعة محادثات السوق والرد عليها."
+        },
+        "manage_notifications": {
+          "name": "إدارة الإشعارات",
+          "description": "إدارة سجلات إشعارات المنصة."
+        },
+        "manage_users": {
+          "name": "إدارة المستخدمين",
+          "description": "إدارة ملفات الحسابات وحالاتها."
+        },
+        "manage_roles": {
+          "name": "إدارة الأدوار",
+          "description": "إسناد الأدوار الإدارية والصلاحيات."
+        },
+        "manage_approvals": {
+          "name": "إدارة الاعتمادات",
+          "description": "مراجعة طلبات الاعتماد واتخاذ القرار."
+        },
+        "manage_subscriptions": {
+          "name": "إدارة الاشتراكات",
+          "description": "إدارة طلبات الاشتراك والخطط."
+        },
+        "manage_payments": {
+          "name": "إدارة المدفوعات",
+          "description": "إدارة عمليات الدفع المدعومة."
+        },
+        "view_reports": {
+          "name": "عرض التقارير",
+          "description": "عرض التقارير التشغيلية."
+        },
+        "view_analytics": {
+          "name": "عرض التحليلات",
+          "description": "عرض تحليلات المنصة ولوحات المعلومات."
+        },
+        "manage_settings": {
+          "name": "إدارة الإعدادات",
+          "description": "إدارة إعدادات المنصة غير الأساسية."
+        },
+        "manage_system_configuration": {
+          "name": "إدارة تهيئة النظام",
+          "description": "إدارة إعدادات النظام الأساسية المحمية."
+        },
+        "manage_audit_logs": {
+          "name": "إدارة سجلات التدقيق",
+          "description": "عرض سجل الإدارة غير القابل للتعديل."
+        }
+      },
+      "toasts": {
+        "permissionsSaved": "تم تحديث صلاحيات الدور"
+      },
+      "errors": {
+        "loadFailed": "تعذر تحميل الأدوار والصلاحيات.",
+        "saveFailed": "تعذر حفظ صلاحيات الدور."
+      }
     },
     "legacy": {
       "metaTitle": "المسؤول - GroupToStay",

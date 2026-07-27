@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,10 +17,33 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Inbox, MapPin, Calendar, Users, Building2, ShieldCheck } from "lucide-react";
+import {
+  Inbox,
+  MapPin,
+  Calendar,
+  Users,
+  Building2,
+  ShieldCheck,
+  Pencil,
+  Undo2,
+  XCircle,
+} from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { useApplicationLocale } from "@/lib/application-locale";
+import { PageHeader } from "@/components/workspace/page-header";
+import { StatusBadge } from "@/components/workspace/status-badge";
 import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invitations")({
@@ -79,7 +101,9 @@ function Page() {
       if (rfqIds.length > 0) {
         const { data: qs } = await supabase
           .from("quotes")
-          .select("id, rfq_id, status, hotel_id, total_price, currency")
+          .select(
+            "id, rfq_id, status, hotel_id, total_price, price_per_room_night, currency, board_included, valid_until, inclusions, notes",
+          )
           .in("rfq_id", rfqIds)
           .in("hotel_id", hotelIds);
         quotes = qs ?? [];
@@ -121,22 +145,23 @@ function Page() {
   }
 
   return (
-    <div>
-      <h1 className="font-display text-3xl text-primary">{t("hotelDash.invitations")}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{t("hotelDash.invitationsSubtitle")}</p>
+    <div className="space-y-6">
+      <PageHeader
+        title={t("hotelDash.invitations")}
+        description={t("hotelDash.invitationsSubtitle")}
+        icon={Inbox}
+      />
 
       {isLoading ? (
-        <div className="mt-6 text-muted-foreground">{t("common.loading")}</div>
+        <div className="text-muted-foreground">{t("common.loading")}</div>
       ) : invitations.length === 0 ? (
-        <div className="mt-6">
-          <EmptyState
-            icon={Inbox}
-            title={t("hotelDash.noInvitations")}
-            description={t("hotelDash.noInvitationsDescription")}
-          />
-        </div>
+        <EmptyState
+          icon={Inbox}
+          title={t("hotelDash.noInvitations")}
+          description={t("hotelDash.noInvitationsDescription")}
+        />
       ) : (
-        <div className="mt-6 space-y-3">
+        <div className="space-y-3">
           {invitations.map((inv: any) => (
             <InvitationCard
               key={inv.id}
@@ -153,8 +178,49 @@ function Page() {
 function InvitationCard({ inv, hotelName }: { inv: any; hotelName: string }) {
   const { t } = useTranslation();
   const { formatNumber } = useApplicationLocale();
+  const qc = useQueryClient();
   const rfq = inv.rfqs;
+  const rfqIsActive = ["open", "quoting", "under_review"].includes(rfq?.status);
+  const quoteIsActive =
+    inv.myQuote && ["submitted", "viewed", "shortlisted"].includes(inv.myQuote.status);
+  const canSubmit = !inv.myQuote && ["pending", "viewed"].includes(inv.status) && rfqIsActive;
+
+  const withdraw = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("quotes")
+        .update({ status: "withdrawn" })
+        .eq("id", inv.myQuote.id)
+        .select("id")
+        .single();
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("hotelDash.quoteManagement.withdrawnToast"));
+      qc.invalidateQueries({ queryKey: ["hotel-invitations"] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
+  const decline = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("rfq_invitations")
+        .update({ status: "declined" })
+        .eq("id", inv.id)
+        .select("id")
+        .single();
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success(t("hotelDash.quoteManagement.declinedToast"));
+      qc.invalidateQueries({ queryKey: ["hotel-invitations"] });
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+
   if (!rfq) return null;
+
   return (
     <Card>
       <CardContent className="p-5">
@@ -162,20 +228,8 @@ function InvitationCard({ inv, hotelName }: { inv: any; hotelName: string }) {
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-display text-lg text-primary">{rfq.title}</h3>
-              <Badge
-                className={
-                  rfq.status === "open"
-                    ? "bg-success/15 text-success"
-                    : "bg-muted text-muted-foreground"
-                }
-              >
-                {t(`dashboard.status.${rfq.status}`)}
-              </Badge>
-              {inv.myQuote && (
-                <Badge className="bg-gold/20 text-gold-foreground border border-gold/30">
-                  {t(`dashboard.status.${inv.myQuote.status}`)}
-                </Badge>
-              )}
+              <StatusBadge status={rfq.status} />
+              {inv.myQuote && <StatusBadge status={inv.myQuote.status} />}
             </div>
             {hotelName && (
               <div className="mt-1 text-xs text-muted-foreground">
@@ -207,7 +261,7 @@ function InvitationCard({ inv, hotelName }: { inv: any; hotelName: string }) {
               )}
             </div>
           </div>
-          <div className="text-end">
+          <div className="flex flex-col items-end gap-3 text-end">
             {inv.myQuote ? (
               <div>
                 <div className="font-display text-xl text-primary">
@@ -217,8 +271,33 @@ function InvitationCard({ inv, hotelName }: { inv: any; hotelName: string }) {
                   {t("hotelDash.quoteSubmitted")}
                 </div>
               </div>
-            ) : rfq.status === "open" ? (
-              <QuoteDialog rfq={rfq} hotelId={inv.hotel_id} />
+            ) : null}
+            {quoteIsActive && rfqIsActive ? (
+              <div className="flex flex-wrap justify-end gap-2">
+                <QuoteDialog rfq={rfq} hotelId={inv.hotel_id} quote={inv.myQuote} />
+                <ConfirmationAction
+                  icon={Undo2}
+                  label={t("hotelDash.quoteManagement.withdraw")}
+                  title={t("hotelDash.quoteManagement.withdrawTitle")}
+                  description={t("hotelDash.quoteManagement.withdrawDescription")}
+                  pending={withdraw.isPending}
+                  onConfirm={() => withdraw.mutate()}
+                />
+              </div>
+            ) : canSubmit ? (
+              <div className="flex flex-wrap justify-end gap-2">
+                <QuoteDialog rfq={rfq} hotelId={inv.hotel_id} />
+                <ConfirmationAction
+                  icon={XCircle}
+                  label={t("hotelDash.quoteManagement.decline")}
+                  title={t("hotelDash.quoteManagement.declineTitle")}
+                  description={t("hotelDash.quoteManagement.declineDescription")}
+                  pending={decline.isPending}
+                  onConfirm={() => decline.mutate()}
+                />
+              </div>
+            ) : inv.status === "declined" ? (
+              <StatusBadge status="declined" />
             ) : null}
           </div>
         </div>
@@ -227,22 +306,75 @@ function InvitationCard({ inv, hotelName }: { inv: any; hotelName: string }) {
   );
 }
 
-function QuoteDialog({ rfq, hotelId }: { rfq: any; hotelId: string }) {
+function ConfirmationAction({
+  icon: Icon,
+  label,
+  title,
+  description,
+  pending,
+  onConfirm,
+}: {
+  icon: typeof Undo2;
+  label: string;
+  title: string;
+  description: string;
+  pending: boolean;
+  onConfirm: () => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Icon className="h-4 w-4" />
+          {label}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm} disabled={pending}>
+            {label}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+function QuoteDialog({ rfq, hotelId, quote }: { rfq: any; hotelId: string; quote?: any }) {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [totalPrice, setTotalPrice] = useState("");
-  const [perNight, setPerNight] = useState("");
-  const [board, setBoard] = useState<string>(rfq.board_type);
-  const [validUntil, setValidUntil] = useState("");
-  const [inclusions, setInclusions] = useState("");
-  const [notes, setNotes] = useState("");
+  const [totalPrice, setTotalPrice] = useState(String(quote?.total_price ?? ""));
+  const [perNight, setPerNight] = useState(String(quote?.price_per_room_night ?? ""));
+  const [board, setBoard] = useState<string>(quote?.board_included ?? rfq.board_type);
+  const [validUntil, setValidUntil] = useState(quote?.valid_until ?? "");
+  const [inclusions, setInclusions] = useState(quote?.inclusions ?? "");
+  const [notes, setNotes] = useState(quote?.notes ?? "");
   const [submitting, setSubmitting] = useState(false);
+  const editing = !!quote;
+
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+    if (nextOpen) {
+      setTotalPrice(String(quote?.total_price ?? ""));
+      setPerNight(String(quote?.price_per_room_night ?? ""));
+      setBoard(quote?.board_included ?? rfq.board_type);
+      setValidUntil(quote?.valid_until ?? "");
+      setInclusions(quote?.inclusions ?? "");
+      setNotes(quote?.notes ?? "");
+    }
+  }
 
   async function submit() {
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("quotes").insert({
+      const values = {
         rfq_id: rfq.id,
         hotel_id: hotelId,
         total_price: Number(totalPrice),
@@ -252,9 +384,30 @@ function QuoteDialog({ rfq, hotelId }: { rfq: any; hotelId: string }) {
         valid_until: validUntil || null,
         inclusions: inclusions || null,
         notes: notes || null,
-      });
+      };
+      const { error } = editing
+        ? await supabase
+            .from("quotes")
+            .update({
+              total_price: values.total_price,
+              price_per_room_night: values.price_per_room_night,
+              board_included: values.board_included,
+              valid_until: values.valid_until,
+              inclusions: values.inclusions,
+              notes: values.notes,
+            })
+            .eq("id", quote.id)
+            .select("id")
+            .single()
+        : await supabase.from("quotes").insert(values);
       if (error) throw error;
-      toast.success(t("hotelDash.quoteSentToast"));
+      toast.success(
+        t(
+          editing
+            ? "hotelDash.quoteManagement.updatedToast"
+            : "hotelDash.quoteManagement.submittedToast",
+        ),
+      );
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["hotel-invitations"] });
     } catch (e: any) {
@@ -265,15 +418,26 @@ function QuoteDialog({ rfq, hotelId }: { rfq: any; hotelId: string }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="gold" size="sm">
-          {t("hotelDash.submitQuote")}
+        <Button variant={editing ? "outline" : "gold"} size="sm">
+          {editing ? <Pencil className="h-4 w-4" /> : null}
+          {t(
+            editing
+              ? "hotelDash.quoteManagement.editQuote"
+              : "hotelDash.quoteManagement.submitQuote",
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{t("hotelDash.submitQuote")}</DialogTitle>
+          <DialogTitle>
+            {t(
+              editing
+                ? "hotelDash.quoteManagement.editQuote"
+                : "hotelDash.quoteManagement.submitQuote",
+            )}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div>
@@ -346,7 +510,9 @@ function QuoteDialog({ rfq, hotelId }: { rfq: any; hotelId: string }) {
         </div>
         <DialogFooter>
           <Button variant="gold" onClick={submit} disabled={!totalPrice || submitting}>
-            {submitting ? t("rfq.submitting") : t("hotelDash.submitQuote")}
+            {submitting
+              ? t("rfq.submitting")
+              : t(editing ? "common.save" : "hotelDash.quoteManagement.submitQuote")}
           </Button>
         </DialogFooter>
       </DialogContent>

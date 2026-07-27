@@ -45,15 +45,16 @@ import {
 } from "@/components/ui/table";
 import type { Database } from "@/integrations/supabase/types";
 import i18n from "@/lib/i18n";
+import { requireAdminPermission } from "@/lib/admin-authorization";
 
 export const Route = createFileRoute("/_authenticated/admin/hotel-listings")({
+  beforeLoad: () => requireAdminPermission("manage_hotels"),
   head: () => ({ meta: [{ title: i18n.t("admin.hotelListings.metaTitle") }] }),
   component: Page,
 });
 
 type HotelStatus = "pending" | "approved" | "suspended";
 type HotelRow = Database["public"]["Tables"]["hotels"]["Row"];
-type HotelPatch = Database["public"]["Tables"]["hotels"]["Update"];
 
 const statusOptionKeys: { value: HotelStatus; labelKey: string }[] = [
   { value: "pending", labelKey: "status.pending_review" },
@@ -87,12 +88,12 @@ function Page() {
 
   const setStatusFor = useMutation({
     mutationFn: async ({ id, next }: { id: string; next: "approved" | "suspended" }) => {
-      const patch: HotelPatch = { status: next };
-      if (next === "suspended") {
-        patch.archived = true;
-        patch.owner_id = null;
-      }
-      const { error } = await supabase.from("hotels").update(patch).eq("id", id);
+      const { error } = await supabase.rpc("admin_decide_approval", {
+        _source_type: "hotel_listing",
+        _source_id: id,
+        _decision: next === "approved" ? "approve" : "reject",
+        _comment: next === "suspended" ? t("admin.hotelListings.audit.suspended") : undefined,
+      });
       if (error) throw error;
     },
     onSuccess: () => {

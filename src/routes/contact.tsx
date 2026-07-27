@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { PublicPageHero, PublicPageLayout } from "@/components/public-page";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,30 +33,43 @@ function Page() {
     }, 600);
   };
   return (
-    <div className="min-h-screen flex flex-col">
-      <SiteHeader />
-      <main className="container-page py-16 flex-1 max-w-xl">
-        <h1 className="font-display text-4xl text-primary">{t("contact.title")}</h1>
-        <p className="mt-2 text-muted-foreground">{t("contact.subtitle")}</p>
-        <form method="post" onSubmit={onSubmit} className="mt-8 space-y-4">
-          <div>
-            <Label htmlFor="contact-name">{t("contact.name")}</Label>
-            <Input id="contact-name" required maxLength={120} />
-          </div>
-          <div>
-            <Label htmlFor="contact-email">{t("contact.email")}</Label>
-            <Input id="contact-email" type="email" required maxLength={200} />
-          </div>
-          <div>
-            <Label htmlFor="contact-message">{t("contact.message")}</Label>
-            <Textarea id="contact-message" required maxLength={2000} rows={5} />
-          </div>
-          <Button type="submit" variant="gold" disabled={sending}>
-            {t("contact.send")}
-          </Button>
-        </form>
-      </main>
-      <SiteFooter />
-    </div>
+    <PublicPageLayout>
+      <PublicPageHero title={t("contact.title")} description={t("contact.subtitle")} />
+      <section className="container-page py-12 md:py-16">
+        <Card className="mx-auto max-w-xl">
+          <CardContent className="p-6 md:p-8">
+            <form method="post" onSubmit={onSubmit} className="space-y-5">
+              <div>
+                <Label htmlFor="contact-name">{t("contact.name")}</Label>
+                <Input id="contact-name" required maxLength={120} className="mt-1.5" />
+              </div>
+              <div>
+                <Label htmlFor="contact-email">{t("contact.email")}</Label>
+                <Input
+                  id="contact-email"
+                  type="email"
+                  required
+                  maxLength={200}
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label htmlFor="contact-message">{t("contact.message")}</Label>
+                <Textarea
+                  id="contact-message"
+                  required
+                  maxLength={2000}
+                  rows={6}
+                  className="mt-1.5"
+                />
+              </div>
+              <Button type="submit" className="w-full sm:w-auto" disabled={sending}>
+                {t("contact.send")}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </section>
+    </PublicPageLayout>
   );
 }

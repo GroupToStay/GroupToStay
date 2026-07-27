@@ -6,6 +6,7 @@ import {
   formatDateValue,
   formatMonthShort,
   formatNumberValue,
+  getAppLanguageFromCookieHeader,
   normalizeAppLanguage,
   type AppLanguage,
 } from "../src/lib/locale";
@@ -44,5 +45,13 @@ describe("locale manager", () => {
       "City 2",
       "City 10",
     ]);
+  });
+
+  it("reads only supported application locales from the shared cookie", () => {
+    expect(getAppLanguageFromCookieHeader("session=abc; gts_lang=ar")).toBe("ar");
+    expect(getAppLanguageFromCookieHeader("gts_lang=en; session=abc")).toBe("en");
+    expect(getAppLanguageFromCookieHeader("gts_lang=fr")).toBe("en");
+    expect(getAppLanguageFromCookieHeader("gts_lang=%E0%A4%A")).toBe("en");
+    expect(getAppLanguageFromCookieHeader(null)).toBeNull();
   });
 });

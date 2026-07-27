@@ -1,8 +1,8 @@
 # Unused Translation Keys
 
-Generated: 2026-07-06T10:04:59.927Z
+Generated: 2026-07-26T10:46:30.794Z
 
-Static analysis found **84** keys with no resolvable reference. Dynamic runtime key construction can create false positives; review before deleting anything.
+Static analysis found **103** keys with no resolvable reference. Dynamic runtime key construction can create false positives; review before deleting anything.
 
 ## Human Review
 
@@ -30,7 +30,6 @@ These keys are intentionally retained. The list contains dynamically selected me
 - `auth:auth.signOut`
 - `auth:auth.website`
 - `auth:auth.websitePh`
-- `common:common.brand.tagline`
 - `common:common.language`
 - `common:common.other`
 - `common:stats.destinations`
@@ -59,6 +58,12 @@ These keys are intentionally retained. The list contains dynamically selected me
 - `hotel:hotelDash.myHotels`
 - `hotel:hotelDash.myHotelsSubtitle`
 - `hotel:hotelDash.noHotels`
+- `hotel:hotelDash.quoteManagement.editQuote`
+- `hotel:hotelDash.quoteManagement.submitQuote`
+- `hotel:hotelDash.quoteManagement.submittedToast`
+- `hotel:hotelDash.quoteManagement.updatedToast`
+- `hotel:hotelDash.quoteSentToast`
+- `hotel:hotelDash.submitQuote`
 - `hotel:hotels.detailMetaWithCity`
 - `hotel:hotels.detailMetaWithoutCity`
 - `hotel:hotels.viewDetails`
@@ -80,9 +85,23 @@ These keys are intentionally retained. The list contains dynamically selected me
 - `landing:hero.title`
 - `landing:hero.trust`
 - `landing:home.messages.empty`
+- `landing:landing.heroStats.availableRooms`
+- `landing:landing.heroStats.countriesServed`
+- `landing:landing.heroStats.hotelsListed`
+- `landing:landing.heroStats.openRequests`
+- `landing:landing.liveStats.avgResponseTime`
+- `landing:landing.liveStats.avgResponseTimeValue`
+- `landing:landing.liveStats.eyebrow`
+- `landing:landing.liveStats.openRequests`
+- `landing:landing.liveStats.quotationCycle`
+- `landing:landing.liveStats.quotationCycleValue`
+- `landing:landing.liveStats.subtitle`
+- `landing:landing.liveStats.title`
+- `landing:landing.liveStats.verifiedHotels`
 - `navigation:footer.company`
 - `navigation:footer.platform`
 - `navigation:footer.privacy`
+- `navigation:footer.rights`
 - `navigation:footer.terms`
 - `navigation:nav.cms`
 - `navigation:nav.contracts`

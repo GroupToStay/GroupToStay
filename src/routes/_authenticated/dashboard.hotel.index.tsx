@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -19,12 +18,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Building2, Plus, Star, MapPin } from "lucide-react";
+import { ArrowRight, Building2, Plus, Star, MapPin } from "lucide-react";
 import { SubscriptionCards } from "@/components/subscription-cards";
 import { CountryCitySelect } from "@/components/country-city-select";
 import { useCountries, useCities } from "@/hooks/use-master-data";
 import { EmptyState } from "@/components/empty-state";
 import { HotelPhoto } from "@/components/hotel-photo";
+import { PageHeader } from "@/components/workspace/page-header";
+import { StatusBadge } from "@/components/workspace/status-badge";
 import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard/hotel/")({
@@ -93,19 +94,11 @@ function Page() {
   if (profile?.hotel_approval_status !== "approved") {
     return (
       <div className="space-y-6">
-        <h1 className="font-display text-3xl text-primary">{t("hotelDash.myHotel")}</h1>
+        <PageHeader title={t("hotelDash.myHotel")} icon={Building2} />
         <Card>
           <CardContent className="p-6">
-            <Badge
-              className={
-                profile?.hotel_approval_status === "rejected"
-                  ? "bg-error/15 text-error"
-                  : "bg-muted text-muted-foreground"
-              }
-            >
-              {t(`hotelDash.companyStatus.${profile?.hotel_approval_status ?? "pending"}`)}
-            </Badge>
-            <h2 className="mt-3 font-display text-xl text-primary">
+            <StatusBadge status={profile?.hotel_approval_status ?? "pending"} />
+            <h2 className="mt-4 text-lg font-semibold text-foreground">
               {t("hotelDash.companyReviewTitle")}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -133,12 +126,11 @@ function Page() {
   if (!hotel) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="font-display text-3xl text-primary flex items-center gap-2">
-            <Building2 className="h-7 w-7" /> {t("hotelDash.completeProfileTitle")}
-          </h1>
-          <p className="mt-1 text-muted-foreground">{t("hotelDash.completeProfileSubtitle")}</p>
-        </div>
+        <PageHeader
+          title={t("hotelDash.completeProfileTitle")}
+          description={t("hotelDash.completeProfileSubtitle")}
+          icon={Building2}
+        />
         <EmptyState
           icon={Building2}
           title={t("hotelDash.noProfileYet")}
@@ -170,74 +162,76 @@ function Page() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl text-primary flex items-center gap-2">
-          <Building2 className="h-7 w-7" /> {t("hotelDash.myHotel")}
-        </h1>
-      </div>
+      <PageHeader
+        title={t("hotelDash.myHotel")}
+        icon={Building2}
+        meta={<StatusBadge status={hotel.status} />}
+      />
 
-      <Card>
+      <Card className="bg-surface/60">
         <CardContent className="p-5">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="text-sm font-medium">
               {t("hotelDash.profileCompletion")}: {completion}%
             </div>
-            <Badge
-              className={
-                hotel.status === "approved"
-                  ? "bg-success/15 text-success"
-                  : "bg-muted text-muted-foreground"
-              }
-            >
-              {t(`hotelDash.statuses.${hotel.status}`)}
-            </Badge>
+            <span className="text-xs text-muted-foreground">{t("hotelDash.completionHint")}</span>
           </div>
-          <div className="mt-3 h-2 rounded-full bg-muted overflow-hidden">
-            <div className="h-full bg-gold transition-all" style={{ width: `${completion}%` }} />
+          <div
+            className="mt-3 h-2 overflow-hidden rounded-full bg-muted"
+            role="progressbar"
+            aria-valuenow={completion}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <div className="h-full bg-primary transition-all" style={{ width: `${completion}%` }} />
           </div>
-          {completion < 80 && (
-            <p className="mt-3 text-xs text-muted-foreground">{t("hotelDash.completionHint")}</p>
-          )}
         </CardContent>
       </Card>
 
       <Card className="overflow-hidden">
-        {hotel.cover_image ? (
-          <div className="aspect-video bg-surface">
-            <HotelPhoto
-              src={hotel.cover_image}
-              alt={hotel.name ?? ""}
-              width={1280}
-              height={720}
-              loading="lazy"
-              className="h-full w-full object-cover"
-            />
-          </div>
-        ) : (
-          <div className="aspect-video bg-surface grid place-items-center text-muted-foreground">
-            <Building2 className="h-8 w-8" />
-          </div>
-        )}
-        <CardContent className="p-5">
-          <h3 className="font-display text-lg text-primary">{hotel.name ?? ""}</h3>
-          <div className="mt-1 text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
-            <MapPin className="h-3 w-3" /> {hotel.city ?? ""}
-            {hotel.city && hotel.country ? ", " : ""}
-            {hotel.country ?? ""}
-            <span className="flex text-gold">
-              {Array.from({ length: Math.max(0, Number(hotel.star_rating) || 0) }).map((_, i) => (
-                <Star key={i} className="h-3 w-3 fill-current" />
-              ))}
-            </span>
-          </div>
-          <div className="mt-4">
-            <Button asChild variant="default" size="sm">
-              <Link to="/dashboard/hotel/$id" params={{ id: hotel.id }}>
-                {t("hotelDash.manage")}
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
+        <div className="flex flex-col sm:flex-row">
+          {hotel.cover_image ? (
+            <div className="aspect-[16/10] bg-surface sm:w-72 sm:shrink-0">
+              <HotelPhoto
+                src={hotel.cover_image}
+                alt={hotel.name ?? ""}
+                width={1280}
+                height={720}
+                loading="lazy"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="grid aspect-[16/10] place-items-center bg-surface text-muted-foreground sm:w-72 sm:shrink-0">
+              <Building2 className="h-8 w-8" />
+            </div>
+          )}
+          <CardContent className="flex flex-1 flex-col justify-between p-5">
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">{hotel.name ?? ""}</h3>
+              <div className="mt-1 text-xs text-muted-foreground flex items-center gap-2 flex-wrap">
+                <MapPin className="h-3 w-3" /> {hotel.city ?? ""}
+                {hotel.city && hotel.country ? ", " : ""}
+                {hotel.country ?? ""}
+                <span className="flex text-gold">
+                  {Array.from({ length: Math.max(0, Number(hotel.star_rating) || 0) }).map(
+                    (_, i) => (
+                      <Star key={i} className="h-3 w-3 fill-current" />
+                    ),
+                  )}
+                </span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <Button asChild size="sm">
+                <Link to="/dashboard/hotel/$id" params={{ id: hotel.id }}>
+                  {t("hotelDash.manage")}
+                  <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </div>
       </Card>
 
       <SubscriptionCards />
@@ -309,7 +303,7 @@ function AddHotelDialog({ onCreated }: { onCreated: () => void }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="gold">
+        <Button>
           <Plus className="h-4 w-4" /> {t("hotelDash.addHotel")}
         </Button>
       </DialogTrigger>

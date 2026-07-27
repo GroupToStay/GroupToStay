@@ -27,7 +27,6 @@ import {
 } from "@/components/admin/management-ui";
 import { formatAdminDate, getPageSlice } from "@/components/admin/management-utils";
 import { EmptyState } from "@/components/empty-state";
-import { useAuth } from "@/hooks/use-auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,14 +56,15 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import type { Database } from "@/integrations/supabase/types";
 import i18n from "@/lib/i18n";
+import { requireAdminPermission } from "@/lib/admin-authorization";
 
 export const Route = createFileRoute("/_authenticated/admin/agency-verifications")({
+  beforeLoad: () => requireAdminPermission("manage_agencies"),
   head: () => ({ meta: [{ title: i18n.t("admin.agencyVerifications.metaTitle") }] }),
   component: Page,
 });
 
 type Row = Database["public"]["Tables"]["profiles"]["Row"] & { city?: string | null };
-type ProfilePatch = Database["public"]["Tables"]["profiles"]["Update"];
 type AgencyEvent = Database["public"]["Tables"]["agency_verification_events"]["Row"];
 type Tab = "pending" | "verified" | "rejected" | "all";
 
@@ -78,7 +78,6 @@ const tabOptionKeys: { value: Tab; labelKey: string }[] = [
 function Page() {
   const { t } = useTranslation();
   const qc = useQueryClient();
-  const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("pending");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Row | null>(null);
@@ -159,29 +158,19 @@ function Page() {
   }
 
   async function act(kind: "approve" | "reject" | "info", row = selected) {
-    if (!row || !user) return;
+    if (!row) return;
     if ((kind === "reject" || kind === "info") && !note.trim())
       return toast.error(t("admin.agencyVerifications.errors.reasonRequired"));
     setBusy(true);
     try {
-      const status =
-        kind === "approve" ? "verified" : kind === "reject" ? "rejected" : "pending_review";
-      const patch: ProfilePatch = {
-        agency_verification_status: status,
-        verification_reviewed_at: new Date().toISOString(),
-        verification_reviewed_by: user.id,
-      };
-      if (kind === "reject" || kind === "info") patch.verification_rejection_reason = note.trim();
-      if (kind === "approve") patch.verification_rejection_reason = null;
-      const { error } = await supabase.from("profiles").update(patch).eq("id", row.id);
-      if (error) throw error;
-      await supabase.from("agency_verification_events").insert({
-        agency_id: row.id,
-        event_type:
-          kind === "approve" ? "approved" : kind === "reject" ? "rejected" : "info_requested",
-        notes: note.trim() || null,
-        actor_id: user.id,
+      const { error } = await supabase.rpc("admin_decide_approval", {
+        _source_type: "agency_verification",
+        _source_id: row.id,
+        _decision:
+          kind === "approve" ? "approve" : kind === "reject" ? "reject" : "request_changes",
+        _comment: note.trim() || undefined,
       });
+      if (error) throw error;
       toast.success(
         kind === "approve"
           ? t("admin.agencyVerifications.toasts.verified")

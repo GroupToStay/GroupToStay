@@ -38,6 +38,58 @@
     "agencyProfile": "ملف الوكالة",
     "myProfile": "ملفي الشخصي"
   },
+  "accountMenu": {
+    "open": "فتح قائمة الحساب",
+    "openProfile": "فتح الملف الشخصي لـ {{name}}",
+    "dashboard": "لوحة التحكم",
+    "profile": "الملف الشخصي",
+    "settings": "إعدادات الحساب",
+    "notifications": "الإشعارات",
+    "language": "اللغة",
+    "help": "مركز المساعدة",
+    "signOut": "تسجيل الخروج"
+  },
+  "globalSearch": {
+    "open": "فتح البحث الشامل",
+    "title": "البحث الشامل",
+    "description": "ابحث في أقسام المنصة والسجلات المتاحة لحسابك.",
+    "placeholder": "ابحث في مساحة العمل...",
+    "shortcut": "Ctrl K",
+    "empty": "لا توجد نتائج مطابقة.",
+    "navigation": "التنقل",
+    "records": "نتائج البحث",
+    "recent": "العناصر الأخيرة",
+    "quickActions": "إجراءات سريعة",
+    "clearRecent": "مسح العناصر الأخيرة",
+    "minimumCharacters": "اكتب حرفين على الأقل للبحث في السجلات.",
+    "actions": {
+      "newRfq": "طلب عرض أسعار جديد",
+      "myRequests": "طلباتي",
+      "bookings": "الحجوزات",
+      "messages": "الرسائل",
+      "reviewInvitations": "مراجعة الدعوات",
+      "submitQuote": "تقديم عرض سعر",
+      "availability": "التوافر",
+      "approveHotel": "اعتماد فندق",
+      "approveAgency": "اعتماد وكالة",
+      "users": "المستخدمون",
+      "reports": "التقارير",
+      "subscriptions": "الاشتراكات"
+    }
+  },
+  "sidebar": {
+    "overview": "نظرة عامة",
+    "marketplace": "السوق",
+    "management": "الإدارة",
+    "workspace": "مساحة العمل",
+    "account": "الحساب"
+  },
+  "breadcrumbs": {
+    "admin": "الإدارة",
+    "agency": "الوكالة",
+    "hotel": "الفندق",
+    "details": "التفاصيل"
+  },
   "footer": {
     "rights": "جميع الحقوق محفوظة.",
     "platform": "المنصة",

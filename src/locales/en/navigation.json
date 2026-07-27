@@ -38,6 +38,58 @@
     "agencyProfile": "Agency Profile",
     "myProfile": "My Profile"
   },
+  "accountMenu": {
+    "open": "Open account menu",
+    "openProfile": "Open {{name}} profile",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Account settings",
+    "notifications": "Notifications",
+    "language": "Language",
+    "help": "Help center",
+    "signOut": "Sign out"
+  },
+  "globalSearch": {
+    "open": "Open global search",
+    "title": "Global search",
+    "description": "Search navigation and records available to your account.",
+    "placeholder": "Search workspace...",
+    "shortcut": "Ctrl K",
+    "empty": "No matching results.",
+    "navigation": "Navigation",
+    "records": "Search results",
+    "recent": "Recent items",
+    "quickActions": "Quick actions",
+    "clearRecent": "Clear recent items",
+    "minimumCharacters": "Type at least two characters to search records.",
+    "actions": {
+      "newRfq": "New RFQ",
+      "myRequests": "My requests",
+      "bookings": "Bookings",
+      "messages": "Messages",
+      "reviewInvitations": "Review invitations",
+      "submitQuote": "Submit quote",
+      "availability": "Availability",
+      "approveHotel": "Approve hotel",
+      "approveAgency": "Approve agency",
+      "users": "Users",
+      "reports": "Reports",
+      "subscriptions": "Subscriptions"
+    }
+  },
+  "sidebar": {
+    "overview": "Overview",
+    "marketplace": "Marketplace",
+    "management": "Management",
+    "workspace": "Workspace",
+    "account": "Account"
+  },
+  "breadcrumbs": {
+    "admin": "Admin",
+    "agency": "Agency",
+    "hotel": "Hotel",
+    "details": "Details"
+  },
   "footer": {
     "rights": "All rights reserved.",
     "platform": "Platform",
