@@ -76,7 +76,7 @@ export function NotificationPanel() {
         >
           <Bell className="h-5 w-5" aria-hidden="true" />
           {unreadCount > 0 ? (
-            <span className="absolute end-1 top-1 grid min-h-[18px] min-w-[18px] place-items-center rounded-full bg-gold px-1 text-[10px] font-bold text-gold-foreground">
+            <span className="absolute end-1 top-1 grid min-h-[18px] min-w-[18px] place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground shadow-sm">
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           ) : null}
@@ -84,7 +84,7 @@ export function NotificationPanel() {
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="flex w-[min(100vw,440px)] max-w-none flex-col gap-0 p-0 sm:max-w-[440px]"
+        className="inset-x-0 flex w-auto max-w-none flex-col gap-0 p-0 sm:left-auto sm:w-[440px] sm:max-w-[440px]"
       >
         <SheetHeader className="border-b border-border px-5 py-5 pe-12 text-start">
           <div className="flex items-center justify-between gap-3">

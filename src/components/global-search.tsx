@@ -2,15 +2,19 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
+  BarChart3,
   Building2,
   CalendarCheck,
+  Clock3,
   FileText,
   Hotel,
   LayoutDashboard,
   MessageSquare,
+  Plus,
   Search,
   Settings,
   Users,
+  Zap,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -39,6 +43,31 @@ type SearchResult = {
   group: "navigation" | "records";
   icon: LucideIcon;
 };
+
+type RecentItem = Omit<SearchResult, "group" | "icon"> & {
+  iconKey: "booking" | "hotel" | "message" | "rfq" | "user" | "navigation";
+};
+
+const RECENT_LIMIT = 6;
+
+function iconKeyFor(item: SearchResult): RecentItem["iconKey"] {
+  if (item.id.includes("booking")) return "booking";
+  if (item.id.includes("hotel")) return "hotel";
+  if (item.id.includes("conversation") || item.id.includes("message")) return "message";
+  if (item.id.includes("profile") || item.id.includes("user")) return "user";
+  if (item.id.includes("rfq") || item.id.includes("quote") || item.id.includes("invitation"))
+    return "rfq";
+  return "navigation";
+}
+
+function iconForRecent(item: RecentItem): LucideIcon {
+  if (item.iconKey === "booking") return CalendarCheck;
+  if (item.iconKey === "hotel") return Hotel;
+  if (item.iconKey === "message") return MessageSquare;
+  if (item.iconKey === "user") return Users;
+  if (item.iconKey === "rfq") return FileText;
+  return Clock3;
+}
 
 function publicNavigation(t: (key: string) => string): SearchResult[] {
   return [
@@ -198,6 +227,110 @@ function roleNavigation(
   return publicNavigation(t);
 }
 
+function roleQuickActions(
+  t: (key: string) => string,
+  role: "guest" | "agency" | "hotel" | "admin",
+): SearchResult[] {
+  if (role === "agency") {
+    return [
+      {
+        id: "action-new-rfq",
+        label: t("globalSearch.actions.newRfq"),
+        to: "/dashboard/rfqs/new",
+        group: "navigation",
+        icon: Plus,
+      },
+      {
+        id: "action-my-requests",
+        label: t("globalSearch.actions.myRequests"),
+        to: "/dashboard/rfqs",
+        group: "navigation",
+        icon: FileText,
+      },
+      {
+        id: "action-bookings",
+        label: t("globalSearch.actions.bookings"),
+        to: "/dashboard/bookings",
+        group: "navigation",
+        icon: CalendarCheck,
+      },
+      {
+        id: "action-messages",
+        label: t("globalSearch.actions.messages"),
+        to: "/dashboard/messages",
+        group: "navigation",
+        icon: MessageSquare,
+      },
+    ];
+  }
+  if (role === "hotel") {
+    return [
+      {
+        id: "action-review-invitations",
+        label: t("globalSearch.actions.reviewInvitations"),
+        to: "/dashboard/invitations",
+        group: "navigation",
+        icon: FileText,
+      },
+      {
+        id: "action-submit-quote",
+        label: t("globalSearch.actions.submitQuote"),
+        to: "/dashboard/invitations",
+        group: "navigation",
+        icon: Plus,
+      },
+      {
+        id: "action-availability",
+        label: t("globalSearch.actions.availability"),
+        to: "/dashboard/hotel",
+        group: "navigation",
+        icon: CalendarCheck,
+      },
+      {
+        id: "action-messages",
+        label: t("globalSearch.actions.messages"),
+        to: "/dashboard/messages",
+        group: "navigation",
+        icon: MessageSquare,
+      },
+    ];
+  }
+  if (role === "admin") {
+    return [
+      {
+        id: "action-approve-hotel",
+        label: t("globalSearch.actions.approveHotel"),
+        to: "/admin/hotel-companies",
+        group: "navigation",
+        icon: Hotel,
+      },
+      {
+        id: "action-approve-agency",
+        label: t("globalSearch.actions.approveAgency"),
+        to: "/admin/agency-verifications",
+        group: "navigation",
+        icon: Building2,
+      },
+      {
+        id: "action-users",
+        label: t("globalSearch.actions.users"),
+        to: "/admin/users",
+        group: "navigation",
+        icon: Users,
+      },
+      {
+        id: "action-reports",
+        label: t("globalSearch.actions.reports"),
+        description: t("nav.overview"),
+        to: "/admin",
+        group: "navigation",
+        icon: BarChart3,
+      },
+    ];
+  }
+  return [];
+}
+
 async function searchVisibleRecords(
   query: string,
   role: "agency" | "hotel" | "admin",
@@ -349,8 +482,11 @@ export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [recentItems, setRecentItems] = useState<RecentItem[]>([]);
   const role = !user ? "guest" : isAdmin ? "admin" : isHotel ? "hotel" : "agency";
   const navigation = useMemo(() => roleNavigation(t, role), [role, t]);
+  const quickActions = useMemo(() => roleQuickActions(t, role), [role, t]);
+  const recentStorageKey = `gts-command-recent:${user?.id ?? "guest"}:${role}`;
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -368,6 +504,15 @@ export function GlobalSearch() {
     return () => window.clearTimeout(timer);
   }, [query]);
 
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(recentStorageKey);
+      setRecentItems(stored ? (JSON.parse(stored) as RecentItem[]).slice(0, RECENT_LIMIT) : []);
+    } catch {
+      setRecentItems([]);
+    }
+  }, [recentStorageKey]);
+
   const { data: records = [], isFetching } = useQuery({
     queryKey: ["global-search", user?.id, role, debouncedQuery],
     enabled: !!user && role !== "guest" && debouncedQuery.length >= 2,
@@ -375,10 +520,42 @@ export function GlobalSearch() {
     queryFn: () => searchVisibleRecords(debouncedQuery, role as "agency" | "hotel" | "admin"),
   });
 
-  const select = (to: string) => {
+  const remember = (item: SearchResult) => {
+    const recent: RecentItem = {
+      id: item.id,
+      label: item.label,
+      description: item.description,
+      to: item.to,
+      iconKey: iconKeyFor(item),
+    };
+    setRecentItems((current) => {
+      const next = [recent, ...current.filter((entry) => entry.to !== recent.to)].slice(
+        0,
+        RECENT_LIMIT,
+      );
+      try {
+        window.localStorage.setItem(recentStorageKey, JSON.stringify(next));
+      } catch {
+        // Recent history is optional when browser storage is unavailable.
+      }
+      return next;
+    });
+  };
+
+  const select = (item: SearchResult) => {
+    remember(item);
     setOpen(false);
     setQuery("");
-    navigate({ to: to as any });
+    navigate({ to: item.to as any });
+  };
+
+  const clearRecent = () => {
+    setRecentItems([]);
+    try {
+      window.localStorage.removeItem(recentStorageKey);
+    } catch {
+      // Recent history is optional when browser storage is unavailable.
+    }
   };
 
   return (
@@ -400,7 +577,7 @@ export function GlobalSearch() {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="top-[12vh] max-h-[76vh] translate-y-0 gap-0 overflow-hidden p-0 sm:max-w-2xl">
+        <DialogContent className="max-h-[min(82vh,720px)] w-[calc(100vw-2rem)] max-w-[800px] gap-0 overflow-hidden border-border/80 bg-popover/98 p-0 shadow-2xl backdrop-blur-xl">
           <DialogTitle className="sr-only">{t("navigation:globalSearch.title")}</DialogTitle>
           <DialogDescription className="sr-only">
             {t("navigation:globalSearch.description")}
@@ -412,14 +589,87 @@ export function GlobalSearch() {
               placeholder={t("navigation:globalSearch.placeholder")}
               aria-label={t("navigation:globalSearch.placeholder")}
             />
-            <CommandList className="max-h-[min(62vh,520px)]">
+            <CommandList className="max-h-[min(68vh,590px)] scroll-py-2 p-2">
               <CommandEmpty>{t("navigation:globalSearch.empty")}</CommandEmpty>
+              {!query.trim() && recentItems.length > 0 ? (
+                <>
+                  <div className="flex min-h-9 items-center justify-between gap-3 px-2">
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      {t("navigation:globalSearch.recent")}
+                    </span>
+                    <button
+                      type="button"
+                      className="min-h-9 rounded-md px-2 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      onClick={clearRecent}
+                    >
+                      {t("navigation:globalSearch.clearRecent")}
+                    </button>
+                  </div>
+                  <CommandGroup>
+                    {recentItems.map((item) => {
+                      const Icon = iconForRecent(item);
+                      return (
+                        <CommandItem
+                          key={`recent-${item.id}`}
+                          value={`recent ${item.label} ${item.description ?? ""}`}
+                          className="min-h-12"
+                          onSelect={() =>
+                            select({
+                              ...item,
+                              group: "navigation",
+                              icon: Icon,
+                            })
+                          }
+                        >
+                          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">
+                            <Icon />
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate">{item.label}</span>
+                            {item.description ? (
+                              <span className="block truncate text-xs text-muted-foreground">
+                                {item.description}
+                              </span>
+                            ) : null}
+                          </span>
+                          <CommandShortcut>↵</CommandShortcut>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                  <CommandSeparator />
+                </>
+              ) : null}
+              {quickActions.length > 0 ? (
+                <>
+                  <CommandGroup heading={t("navigation:globalSearch.quickActions")}>
+                    <div className="grid gap-1 sm:grid-cols-2">
+                      {quickActions.map((item) => (
+                        <CommandItem
+                          key={item.id}
+                          value={`action ${item.label} ${item.description ?? ""}`}
+                          className="min-h-12 border border-transparent data-[selected=true]:border-border"
+                          onSelect={() => select(item)}
+                        >
+                          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-primary/5 text-primary">
+                            <item.icon />
+                          </span>
+                          <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                          <Zap className="h-3.5 w-3.5 text-muted-foreground" />
+                        </CommandItem>
+                      ))}
+                    </div>
+                  </CommandGroup>
+                  <CommandSeparator />
+                </>
+              ) : null}
               <CommandGroup heading={t("navigation:globalSearch.navigation")}>
                 {navigation.map((item) => (
                   <CommandItem
                     key={item.id}
                     value={`${item.label} ${item.description ?? ""}`}
-                    onSelect={() => select(item.to)}
+                    className="min-h-11"
+                    onSelect={() => select(item)}
                   >
                     <item.icon />
                     <span>{item.label}</span>
@@ -427,6 +677,11 @@ export function GlobalSearch() {
                   </CommandItem>
                 ))}
               </CommandGroup>
+              {query.trim().length === 1 ? (
+                <p className="px-3 py-3 text-xs text-muted-foreground">
+                  {t("navigation:globalSearch.minimumCharacters")}
+                </p>
+              ) : null}
               {isFetching ? (
                 <>
                   <CommandSeparator />
@@ -443,7 +698,8 @@ export function GlobalSearch() {
                       <CommandItem
                         key={item.id}
                         value={`${item.label} ${item.description ?? ""}`}
-                        onSelect={() => select(item.to)}
+                        className="min-h-12"
+                        onSelect={() => select(item)}
                       >
                         <item.icon />
                         <span className="min-w-0 flex-1">
