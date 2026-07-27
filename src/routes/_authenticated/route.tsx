@@ -16,7 +16,6 @@ import {
   Building2,
   Inbox,
   ShieldCheck,
-  User,
   Users,
   MessageSquare,
   CreditCard,
@@ -140,7 +139,7 @@ function AuthLayout() {
             ),
           },
           {
-            to: "/admin/settings",
+            to: "/settings",
             label: t("nav.settings"),
             icon: SettingsIcon,
             hidden: !can("manage_settings"),
@@ -200,7 +199,7 @@ function AuthLayout() {
             icon: Server,
           },
           { to: "/pricing", label: t("nav.subscription"), icon: CreditCard },
-          { to: "/dashboard/profile", label: t("profile.title"), icon: User },
+          { to: "/settings", label: t("nav.settings"), icon: SettingsIcon },
         ],
       },
     ];
@@ -256,7 +255,7 @@ function AuthLayout() {
             label: t("nav.agencyProfile"),
             icon: ShieldCheck,
           },
-          { to: "/dashboard/profile", label: t("nav.myProfile"), icon: User },
+          { to: "/settings", label: t("nav.settings"), icon: SettingsIcon },
         ],
       },
     ];

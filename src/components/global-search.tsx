@@ -140,7 +140,7 @@ function roleNavigation(
       {
         id: "admin-settings",
         label: t("nav.settings"),
-        to: "/admin/settings",
+        to: "/settings",
         group: "navigation",
         icon: Settings,
       },

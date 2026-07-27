@@ -518,7 +518,7 @@ function AdminExecutiveDashboard({ accessToken }: { accessToken?: string }) {
     },
     {
       label: t("admin.overview.actions.platformSettings"),
-      to: "/admin/settings",
+      to: "/settings",
       icon: ShieldCheck,
     },
   ];
@@ -839,7 +839,7 @@ function AdminLanding({ accessToken }: { accessToken?: string }) {
     {
       title: t("admin.overview.actions.settingsTitle"),
       desc: t("admin.overview.actions.settings"),
-      to: "/admin/settings",
+      to: "/settings",
       search: undefined,
       icon: ShieldCheck,
       badge: null,

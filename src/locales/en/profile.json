@@ -62,6 +62,41 @@
     "vatNumber": "VAT number",
     "crNumber": "Commercial registration",
     "idNumber": "ID number",
+    "settings": {
+      "metaTitle": "Settings - GroupToStay",
+      "title": "Settings",
+      "description": "Manage your personal details, account preferences, notifications, language, and security.",
+      "tabsLabel": "Settings sections",
+      "tabs": {
+        "profile": "Profile",
+        "account": "Account",
+        "notifications": "Notifications",
+        "language": "Language",
+        "security": "Security"
+      },
+      "profile": {
+        "preferredLanguage": "Preferred language",
+        "manageLanguage": "Manage language"
+      },
+      "account": {
+        "information": "Account information",
+        "role": "Role",
+        "created": "Member since",
+        "contact": "Contact information",
+        "saved": "Account information updated.",
+        "changePassword": "Change password",
+        "changePasswordDescription": "Send a secure password reset link to your login email.",
+        "sendPasswordReset": "Send password reset link",
+        "passwordResetSent": "Password reset link sent. Check your email.",
+        "activeSessions": "Active sessions",
+        "activeSessionsPlaceholder": "Session management will be available when supported by the authentication service.",
+        "signOutAll": "Sign out from all devices"
+      },
+      "security": {
+        "mfa": "Multi-factor authentication",
+        "mfaPlaceholder": "Multi-factor authentication will be available in a future security update."
+      }
+    },
     "admin": {
       "title": "Admin Account",
       "description": "Read-only account information.",
