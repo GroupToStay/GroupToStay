@@ -13,6 +13,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { AccountAvatar } from "@/components/account-avatar";
 import { RoleBadge } from "@/components/role-badge";
+import { isAdminDisplayRole, normalizeDisplayRole } from "@/lib/account-identity";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -35,8 +36,9 @@ export function UserMenu() {
 
   if (!user) return null;
 
-  const dashboard = role === "admin" ? "/admin" : "/dashboard";
-  const settings = role === "admin" ? "/admin/settings" : "/dashboard/profile";
+  const adminRole = isAdminDisplayRole(normalizeDisplayRole(role));
+  const dashboard = adminRole ? "/admin" : "/dashboard";
+  const settings = adminRole ? "/admin/settings" : "/dashboard/profile";
 
   const go = (to: string) => navigate({ to });
   const handleSignOut = async () => {

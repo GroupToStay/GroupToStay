@@ -7,9 +7,9 @@ import { getUserAvatarUrl } from "@/lib/account-identity";
 export function useAccountIdentity() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { isAdmin, isHotel, loading: rolesLoading } = useRoles();
+  const { adminRole, isAdmin, isHotel, loading: rolesLoading } = useRoles();
   const { data: profile, isLoading: profileLoading } = useCurrentProfile();
-  const role = isAdmin ? "admin" : isHotel ? "hotel" : "agency";
+  const role = isAdmin ? (adminRole ?? "admin") : isHotel ? "hotel" : "agency";
   const displayName =
     profile?.full_name ||
     profile?.legal_company_name ||

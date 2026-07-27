@@ -56,6 +56,48 @@ export type Database = {
           },
         ]
       }
+      admin_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string
+          comment: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          ip_address: unknown | null
+          metadata: Json
+          new_state: Json
+          previous_state: Json
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          comment?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json
+          new_state?: Json
+          previous_state?: Json
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          comment?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json
+          new_state?: Json
+          previous_state?: Json
+        }
+        Relationships: []
+      }
       amenities: {
         Row: {
           created_at: string
@@ -329,6 +371,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      enterprise_roles: {
+        Row: {
+          access_level: number
+          created_at: string
+          description: string
+          id: string
+          is_protected: boolean
+          is_system: boolean
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          access_level?: number
+          created_at?: string
+          description?: string
+          id?: string
+          is_protected?: boolean
+          is_system?: boolean
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          access_level?: number
+          created_at?: string
+          description?: string
+          id?: string
+          is_protected?: boolean
+          is_system?: boolean
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       countries: {
         Row: {
@@ -717,6 +795,30 @@ export type Database = {
         }
         Relationships: []
       }
+      permissions: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          key: string
+          name: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string
+          key: string
+          name: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          key?: string
+          name?: string
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           key: string
@@ -1039,6 +1141,42 @@ export type Database = {
           },
         ]
       }
+      role_permissions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          permission_key: string
+          role_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          permission_key: string
+          role_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          permission_key?: string
+          role_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "role_permissions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rfq_invitations: {
         Row: {
           created_at: string
@@ -1235,6 +1373,10 @@ export type Database = {
       }
       subscription_interest: {
         Row: {
+          approval_notes: string | null
+          approval_reviewed_at: string | null
+          approval_reviewed_by: string | null
+          approval_status: string
           created_at: string
           email: string
           full_name: string
@@ -1247,6 +1389,10 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          approval_notes?: string | null
+          approval_reviewed_at?: string | null
+          approval_reviewed_by?: string | null
+          approval_status?: string
           created_at?: string
           email: string
           full_name: string
@@ -1259,6 +1405,10 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          approval_notes?: string | null
+          approval_reviewed_at?: string | null
+          approval_reviewed_by?: string | null
+          approval_status?: string
           created_at?: string
           email?: string
           full_name?: string
@@ -1307,6 +1457,70 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_enterprise_roles: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          role_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          role_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          role_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_enterprise_roles_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_permission_overrides: {
+        Row: {
+          assigned_by: string | null
+          created_at: string
+          granted: boolean
+          permission_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          created_at?: string
+          granted: boolean
+          permission_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          created_at?: string
+          granted?: boolean
+          permission_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permission_overrides_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["key"]
+          },
+        ]
       }
     }
     Views: {
@@ -1480,6 +1694,36 @@ export type Database = {
     }
     Functions: {
       _norm: { Args: { t: string }; Returns: string }
+      admin_get_user_auth_metadata: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          last_sign_in_at: string | null
+          user_id: string
+        }[]
+      }
+      admin_decide_approval: {
+        Args: {
+          _comment?: string
+          _decision: string
+          _source_id: string
+          _source_type: string
+        }
+        Returns: Json
+      }
+      admin_set_role_permissions: {
+        Args: { _permission_keys: string[]; _role_slug: string }
+        Returns: undefined
+      }
+      admin_set_user_permissions: {
+        Args: { _permission_keys: string[]; _target_user_id: string }
+        Returns: undefined
+      }
+      admin_set_user_role: {
+        Args: { _role_slug: string; _target_user_id: string }
+        Returns: undefined
+      }
       award_quote: {
         Args: { _quote_id: string; _rfq_id: string }
         Returns: string
@@ -1500,6 +1744,15 @@ export type Database = {
         }
         Returns: string
       }
+      get_my_admin_access: { Args: never; Returns: Json }
+      has_enterprise_role: {
+        Args: { _role_slug: string; _user_id: string }
+        Returns: boolean
+      }
+      has_permission: {
+        Args: { _permission_key: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1507,6 +1760,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_enterprise_admin: { Args: { _user_id: string }; Returns: boolean }
       is_account_active: { Args: { _user_id: string }; Returns: boolean }
       is_conversation_participant: {
         Args: { _conv: string; _user: string }

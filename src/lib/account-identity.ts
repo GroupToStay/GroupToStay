@@ -1,4 +1,5 @@
-export type DisplayRole = "admin" | "super_admin" | "organizer" | "agency" | "hotel" | "visitor";
+export type DisplayRole =
+  "admin" | "super_admin" | "assistant_admin" | "organizer" | "agency" | "hotel" | "visitor";
 
 export function getInitials(value?: string | null) {
   const words = String(value ?? "")
@@ -12,18 +13,23 @@ export function getInitials(value?: string | null) {
 
 export function normalizeDisplayRole(role?: string | null): DisplayRole {
   const normalized = String(role ?? "visitor").toLowerCase();
-  if (normalized === "admin" || normalized === "super_admin") return normalized;
+  if (normalized === "admin" || normalized === "super_admin" || normalized === "assistant_admin")
+    return normalized;
   if (normalized === "hotel") return "hotel";
   if (normalized === "organizer" || normalized === "agency") return "agency";
   return "visitor";
 }
 
 export function isAdminDisplayRole(role: DisplayRole) {
-  return role === "admin" || role === "super_admin";
+  return role === "admin" || role === "super_admin" || role === "assistant_admin";
 }
 
 export function isSuperAdminDisplayRole(role: DisplayRole) {
   return role === "super_admin";
+}
+
+export function isAssistantAdminDisplayRole(role: DisplayRole) {
+  return role === "assistant_admin";
 }
 
 export function getUserAvatarUrl(metadata?: Record<string, unknown> | null) {

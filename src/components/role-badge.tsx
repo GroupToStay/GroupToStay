@@ -2,6 +2,7 @@ import { BadgeCheck, Building2, Hotel, ShieldCheck, UserRound } from "lucide-rea
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import {
+  isAssistantAdminDisplayRole,
   isAdminDisplayRole,
   isSuperAdminDisplayRole,
   normalizeDisplayRole,
@@ -21,7 +22,11 @@ export function RoleBadge({
   const normalized = normalizeDisplayRole(role);
   const config = isAdminDisplayRole(normalized)
     ? {
-        label: isSuperAdminDisplayRole(normalized) ? t("role.superAdmin") : t("role.admin"),
+        label: isSuperAdminDisplayRole(normalized)
+          ? t("role.superAdmin")
+          : isAssistantAdminDisplayRole(normalized)
+            ? t("role.assistantAdmin")
+            : t("role.admin"),
         Icon: ShieldCheck,
         style: "border-success/25 bg-success/10 text-success",
       }
