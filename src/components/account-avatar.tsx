@@ -6,14 +6,25 @@ export function AccountAvatar({
   name,
   imageUrl,
   className,
+  imageClassName,
 }: {
   name?: string | null;
   imageUrl?: string | null;
   className?: string;
+  imageClassName?: string;
 }) {
   return (
-    <Avatar className={cn("h-9 w-9 border border-border bg-card", className)}>
-      {imageUrl ? <AvatarImage src={imageUrl} alt="" /> : null}
+    <Avatar
+      className={cn("h-9 w-9 border border-border bg-card", className)}
+      aria-label={name || undefined}
+    >
+      {imageUrl ? (
+        <AvatarImage
+          src={imageUrl}
+          alt={name ?? ""}
+          className={cn("object-cover", imageClassName)}
+        />
+      ) : null}
       <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
         {getInitials(name)}
       </AvatarFallback>

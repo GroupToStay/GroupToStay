@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getInitials, normalizeDisplayRole } from "../src/lib/account-identity";
+import { getInitials, getUserAvatarUrl, normalizeDisplayRole } from "../src/lib/account-identity";
 
 describe("enterprise identity utilities", () => {
   it("creates stable initials for personal and company names", () => {
@@ -15,5 +15,21 @@ describe("enterprise identity utilities", () => {
     expect(normalizeDisplayRole("hotel")).toBe("hotel");
     expect(normalizeDisplayRole("admin")).toBe("admin");
     expect(normalizeDisplayRole(null)).toBe("visitor");
+  });
+
+  it("uses profile photos when present and preserves the initials fallback", () => {
+    expect(getUserAvatarUrl({ avatar_url: "data:image/webp;base64,photo" })).toBe(
+      "data:image/webp;base64,photo",
+    );
+    expect(getUserAvatarUrl({ picture: "https://example.com/photo.webp" })).toBe(
+      "https://example.com/photo.webp",
+    );
+    expect(
+      getUserAvatarUrl({
+        avatar_removed: true,
+        picture: "https://example.com/photo.webp",
+      }),
+    ).toBeNull();
+    expect(getUserAvatarUrl(null)).toBeNull();
   });
 });

@@ -35,7 +35,7 @@ import {
   getPageSlice,
 } from "@/components/admin/management-utils";
 import { EmptyState } from "@/components/empty-state";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AccountAvatar } from "@/components/account-avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -64,6 +64,7 @@ import {
 import type { Database } from "@/integrations/supabase/types";
 import { useApplicationLocale } from "@/lib/application-locale";
 import i18n from "@/lib/i18n";
+import { useAccountIdentity } from "@/hooks/use-account-identity";
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
   head: () => ({ meta: [{ title: i18n.t("admin.users.metaTitle") }] }),
@@ -123,6 +124,7 @@ const accountFilterKeys: { value: "all" | AccountStatus; labelKey: string }[] = 
 function Page() {
   const qc = useQueryClient();
   const { t } = useTranslation();
+  const { avatarUrl: currentAvatarUrl, user: currentUser } = useAccountIdentity();
   const { compare, language } = useApplicationLocale();
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [countryFilter, setCountryFilter] = useState("all");
@@ -465,13 +467,15 @@ function Page() {
                     >
                       <TableCell className="min-w-[230px]">
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-9 w-9">
-                            <AvatarImage
-                              src={row.profile?.avatar_url ?? undefined}
-                              alt={displayName(row.profile)}
-                            />
-                            <AvatarFallback>{initials(row.profile)}</AvatarFallback>
-                          </Avatar>
+                          <AccountAvatar
+                            name={displayName(row.profile)}
+                            imageUrl={
+                              row.user_id === currentUser?.id
+                                ? currentAvatarUrl
+                                : row.profile?.avatar_url
+                            }
+                            className="h-9 w-9"
+                          />
                           <div className="min-w-0">
                             <div className="truncate font-medium text-foreground">
                               {displayName(row.profile)}
@@ -543,13 +547,15 @@ function Page() {
                       className="flex min-w-0 items-center gap-3 text-left"
                       onClick={() => setDialog({ type: "profile", row })}
                     >
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage
-                          src={row.profile?.avatar_url ?? undefined}
-                          alt={displayName(row.profile)}
-                        />
-                        <AvatarFallback>{initials(row.profile)}</AvatarFallback>
-                      </Avatar>
+                      <AccountAvatar
+                        name={displayName(row.profile)}
+                        imageUrl={
+                          row.user_id === currentUser?.id
+                            ? currentAvatarUrl
+                            : row.profile?.avatar_url
+                        }
+                        className="h-9 w-9"
+                      />
                       <span className="min-w-0">
                         <span className="block truncate font-medium">
                           {displayName(row.profile)}
@@ -977,18 +983,6 @@ function companyName(profile?: ProfileWithStatus) {
 
 function contactEmail(profile?: ProfileWithStatus) {
   return profile?.contact_email || profile?.contact_person_email || profile?.billing_email || "-";
-}
-
-function initials(profile?: ProfileWithStatus) {
-  const name = displayName(profile);
-  return (
-    name
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase())
-      .join("") || "U"
-  );
 }
 
 function errorMessage(err: unknown, fallback: string) {

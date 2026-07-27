@@ -40,6 +40,7 @@
   },
   "accountMenu": {
     "open": "فتح قائمة الحساب",
+    "openProfile": "فتح الملف الشخصي لـ {{name}}",
     "dashboard": "لوحة التحكم",
     "profile": "الملف الشخصي",
     "settings": "إعدادات الحساب",
@@ -56,7 +57,25 @@
     "shortcut": "Ctrl K",
     "empty": "لا توجد نتائج مطابقة.",
     "navigation": "التنقل",
-    "records": "السجلات"
+    "records": "نتائج البحث",
+    "recent": "العناصر الأخيرة",
+    "quickActions": "إجراءات سريعة",
+    "clearRecent": "مسح العناصر الأخيرة",
+    "minimumCharacters": "اكتب حرفين على الأقل للبحث في السجلات.",
+    "actions": {
+      "newRfq": "طلب عرض أسعار جديد",
+      "myRequests": "طلباتي",
+      "bookings": "الحجوزات",
+      "messages": "الرسائل",
+      "reviewInvitations": "مراجعة الدعوات",
+      "submitQuote": "تقديم عرض سعر",
+      "availability": "التوافر",
+      "approveHotel": "اعتماد فندق",
+      "approveAgency": "اعتماد وكالة",
+      "users": "المستخدمون",
+      "reports": "التقارير",
+      "subscriptions": "الاشتراكات"
+    }
   },
   "sidebar": {
     "overview": "نظرة عامة",

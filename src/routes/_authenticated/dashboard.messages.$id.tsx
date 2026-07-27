@@ -18,6 +18,8 @@ import {
 import { ensureNotificationPermission, notify } from "@/lib/notifications";
 import { useApplicationLocale } from "@/lib/application-locale";
 import i18n from "@/lib/i18n";
+import { AccountAvatar } from "@/components/account-avatar";
+import { useAccountIdentity } from "@/hooks/use-account-identity";
 
 export const Route = createFileRoute("/_authenticated/dashboard/messages/$id")({
   head: () => ({ meta: [{ title: i18n.t("dashboard.messages.chatMetaTitle") }] }),
@@ -53,6 +55,7 @@ function ChatPage() {
   const { t } = useTranslation();
   const { id } = Route.useParams();
   const { user } = useAuth();
+  const { avatarUrl, displayName } = useAccountIdentity();
   const userId = user?.id;
   const [conv, setConv] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -253,9 +256,7 @@ function ChatPage() {
         >
           <ArrowLeft className="h-5 w-5 rtl:rotate-180" />
         </Link>
-        <div className="grid h-10 w-10 flex-shrink-0 place-items-center rounded-md border border-primary/10 bg-primary/5 font-semibold text-primary">
-          {counterpart.charAt(0).toUpperCase()}
-        </div>
+        <AccountAvatar name={counterpart} className="h-10 w-10 shrink-0" />
         <div className="min-w-0 flex-1">
           <div className="truncate font-semibold text-foreground">{counterpart}</div>
           <div className="text-xs text-muted-foreground truncate">
@@ -282,19 +283,15 @@ function ChatPage() {
           const mine = m.sender_id === user?.id;
           return (
             <div key={m.id} className="group flex gap-3 rounded-md px-2 py-2 hover:bg-muted/30">
-              <div
-                className={`grid h-9 w-9 shrink-0 place-items-center rounded-md text-xs font-semibold ${
-                  mine
-                    ? "border border-primary/10 bg-primary/5 text-primary"
-                    : "border border-gold/20 bg-gold/10 text-gold-foreground"
-                }`}
-              >
-                {(mine ? user?.email?.charAt(0) : counterpart.charAt(0))?.toUpperCase()}
-              </div>
+              <AccountAvatar
+                name={mine ? displayName : counterpart}
+                imageUrl={mine ? avatarUrl : null}
+                className="h-9 w-9 shrink-0"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-2">
                   <span className="text-sm font-semibold text-foreground">
-                    {mine ? user?.email : counterpart}
+                    {mine ? displayName : counterpart}
                   </span>
                   <span className="text-[11px] text-muted-foreground">
                     {formatTime(m.created_at, {

@@ -25,3 +25,9 @@ export function isAdminDisplayRole(role: DisplayRole) {
 export function isSuperAdminDisplayRole(role: DisplayRole) {
   return role === "super_admin";
 }
+
+export function getUserAvatarUrl(metadata?: Record<string, unknown> | null) {
+  if (!metadata || metadata.avatar_removed === true) return null;
+  const value = metadata.avatar_url ?? metadata.picture;
+  return typeof value === "string" && value.trim() ? value : null;
+}

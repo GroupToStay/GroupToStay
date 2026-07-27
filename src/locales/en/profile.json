@@ -3,6 +3,24 @@
     "metaTitle": "My profile - GroupToStay",
     "title": "My profile",
     "subtitle": "Manage your personal contact details and account email.",
+    "photo": {
+      "title": "Profile photo",
+      "description": "Add a photo so teammates can recognize you across the workspace.",
+      "hint": "JPG, PNG, or WebP up to 8 MB. The image is centered, cropped to a square, and optimized for workspace avatars before saving.",
+      "upload": "Upload photo",
+      "remove": "Remove photo",
+      "save": "Save photo",
+      "processing": "Preparing photo...",
+      "saved": "Profile photo updated.",
+      "removed": "Profile photo removed.",
+      "errors": {
+        "type": "Choose a JPG, PNG, or WebP image.",
+        "size": "The image must be smaller than 8 MB.",
+        "processing": "The image could not be prepared. Try another file.",
+        "save": "The profile photo could not be saved.",
+        "remove": "The profile photo could not be removed."
+      }
+    },
     "personalInfo": "Personal information",
     "fullName": "Full name",
     "phone": "Phone",
@@ -18,6 +36,26 @@
     "loginEmailHint": "Changing this will send a confirmation link to the new address.",
     "changeEmail": "Change email",
     "emailChangeSent": "Confirmation email sent. Check your new inbox.",
+    "account": {
+      "title": "Account"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Choose the language used throughout your workspace.",
+      "switchToEnglish": "Switch to English",
+      "switchToArabic": "Switch to Arabic"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Review alerts and updates related to your work.",
+      "open": "Open notifications"
+    },
+    "security": {
+      "title": "Security",
+      "description": "Your account uses the existing secure sign-in and verification settings.",
+      "emailVerified": "Email address verified",
+      "emailPending": "Email verification pending"
+    },
     "companyInfo": "Company details (read-only)",
     "companyLockedHint": "Company name, VAT, and CR numbers are locked after verification. Contact support to request a change.",
     "companyName": "Company name",

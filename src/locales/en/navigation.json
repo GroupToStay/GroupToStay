@@ -40,6 +40,7 @@
   },
   "accountMenu": {
     "open": "Open account menu",
+    "openProfile": "Open {{name}} profile",
     "dashboard": "Dashboard",
     "profile": "Profile",
     "settings": "Account settings",
@@ -56,7 +57,25 @@
     "shortcut": "Ctrl K",
     "empty": "No matching results.",
     "navigation": "Navigation",
-    "records": "Records"
+    "records": "Search results",
+    "recent": "Recent items",
+    "quickActions": "Quick actions",
+    "clearRecent": "Clear recent items",
+    "minimumCharacters": "Type at least two characters to search records.",
+    "actions": {
+      "newRfq": "New RFQ",
+      "myRequests": "My requests",
+      "bookings": "Bookings",
+      "messages": "Messages",
+      "reviewInvitations": "Review invitations",
+      "submitQuote": "Submit quote",
+      "availability": "Availability",
+      "approveHotel": "Approve hotel",
+      "approveAgency": "Approve agency",
+      "users": "Users",
+      "reports": "Reports",
+      "subscriptions": "Subscriptions"
+    }
   },
   "sidebar": {
     "overview": "Overview",

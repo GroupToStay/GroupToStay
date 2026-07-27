@@ -18,13 +18,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
-import { useCurrentProfile } from "@/hooks/use-current-profile";
-import { useRoles } from "@/hooks/use-role";
+import { useAccountIdentity } from "@/hooks/use-account-identity";
 import { useApplicationLocale } from "@/lib/application-locale";
 
 export function UserMenu() {
@@ -32,25 +30,13 @@ export function UserMenu() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, signOut } = useAuth();
-  const { isAdmin, isHotel } = useRoles();
-  const { data: profile } = useCurrentProfile();
+  const { avatarUrl, displayName, role } = useAccountIdentity();
   const { language, setLanguage } = useApplicationLocale();
 
   if (!user) return null;
 
-  const role = isAdmin ? "admin" : isHotel ? "hotel" : "agency";
-  const dashboard = isAdmin ? "/admin" : "/dashboard";
-  const settings = isAdmin ? "/admin/settings" : "/dashboard/profile";
-  const displayName =
-    profile?.full_name ||
-    profile?.legal_company_name ||
-    profile?.company_name ||
-    profile?.org_name ||
-    user.email?.split("@")[0] ||
-    t("common.brand.name");
-  const avatarUrl =
-    (user.user_metadata?.avatar_url as string | undefined) ||
-    (user.user_metadata?.picture as string | undefined);
+  const dashboard = role === "admin" ? "/admin" : "/dashboard";
+  const settings = role === "admin" ? "/admin/settings" : "/dashboard/profile";
 
   const go = (to: string) => navigate({ to });
   const handleSignOut = async () => {
@@ -86,7 +72,11 @@ export function UserMenu() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[min(92vw,320px)] p-2">
-        <DropdownMenuLabel className="p-2">
+        <DropdownMenuItem
+          className="min-h-[76px] cursor-pointer p-2 focus:bg-accent"
+          onSelect={() => go("/dashboard/profile")}
+          aria-label={t("navigation:accountMenu.openProfile", { name: displayName })}
+        >
           <div className="flex items-center gap-3">
             <AccountAvatar name={displayName} imageUrl={avatarUrl} className="h-11 w-11" />
             <div className="min-w-0 flex-1">
@@ -95,7 +85,7 @@ export function UserMenu() {
               <RoleBadge role={role} className="mt-2" />
             </div>
           </div>
-        </DropdownMenuLabel>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="min-h-11" onSelect={() => go(dashboard)}>
           <LayoutDashboard />
