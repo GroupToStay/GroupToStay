@@ -28,6 +28,11 @@ import i18n from "@/lib/i18n";
 import { PageHeader } from "@/components/workspace/page-header";
 import { StatusBadge } from "@/components/workspace/status-badge";
 import { RoleBadge } from "@/components/role-badge";
+import {
+  canSubmitAgencyVerification,
+  getAgencyVerificationEditablePatch,
+  isAgencyVerificationLocked,
+} from "@/lib/agency-verification";
 
 export const Route = createFileRoute("/_authenticated/dashboard/agency-profile")({
   head: () => ({ meta: [{ title: i18n.t("profile.agency.metaTitle") }] }),
@@ -136,7 +141,9 @@ function Page() {
     return <AccessDenied message={t("profile.agency.errors.agencyOnly")} />;
   }
 
-  const readOnly = isPending || isVerified;
+  const currentProfile = profile;
+  const readOnly = isAgencyVerificationLocked(status);
+  const canSubmit = canSubmitAgencyVerification(status);
 
   const set = (k: string, v: any) => setProfile((p) => ({ ...(p ?? {}), [k]: v }));
 
@@ -144,17 +151,7 @@ function Page() {
     if (!user) return;
     setSaving(true);
     try {
-      const patch = { ...profile };
-      delete patch.id;
-      delete patch.created_at;
-      delete patch.updated_at;
-      delete patch.agency_verification_status;
-      delete patch.verification_reviewed_at;
-      delete patch.verification_reviewed_by;
-      delete patch.hotel_approval_status;
-      delete patch.approved_at;
-      delete patch.approved_by;
-      delete patch.approval_notes;
+      const patch = getAgencyVerificationEditablePatch(currentProfile);
       const { error } = await supabase
         .from("profiles")
         .update(patch as any)
@@ -229,23 +226,16 @@ function Page() {
     }
     setSaving(true);
     try {
-      const { error } = await supabase
+      const { error: profileError } = await supabase
         .from("profiles")
         .update({
-          ...profile,
+          ...getAgencyVerificationEditablePatch(currentProfile),
           agency_verification_status: "pending_review",
-          verification_submitted_at: new Date().toISOString(),
-          verification_rejection_reason: null,
           legal_agreements_accepted_at: new Date().toISOString(),
         } as any)
         .eq("id", user.id);
 
-      if (error) throw error;
-      await supabase.from("agency_verification_events").insert({
-        agency_id: user.id,
-        event_type: isRejected ? "resubmitted" : "submitted",
-        actor_id: user.id,
-      });
+      if (profileError) throw profileError;
       toast.success(t("profile.agency.toasts.submitted"));
       await refetchStatus();
       navigate({ to: "/dashboard" });
@@ -615,7 +605,7 @@ function Page() {
           </Field>
         </Section>
 
-        {!readOnly && (
+        {canSubmit && (
           <Section title={t("profile.agency.sections.legalAgreements")}>
             <label className="flex items-start gap-2 text-sm">
               <Checkbox checked={agree1} onCheckedChange={(v) => setAgree1(!!v)} />{" "}
@@ -642,13 +632,15 @@ function Page() {
           <Button variant="outline" onClick={saveDraft} disabled={saving}>
             {t("profile.agency.actions.saveDraft")}
           </Button>
-          <Button variant="gold" onClick={submit} disabled={saving}>
-            {saving
-              ? t("rfq.submitting")
-              : isRejected
-                ? t("profile.agency.actions.resubmit")
-                : t("profile.agency.actions.submit")}
-          </Button>
+          {canSubmit && (
+            <Button variant="gold" onClick={submit} disabled={saving}>
+              {saving
+                ? t("rfq.submitting")
+                : isRejected
+                  ? t("profile.agency.actions.resubmit")
+                  : t("profile.agency.actions.submit")}
+            </Button>
+          )}
         </div>
       )}
     </div>

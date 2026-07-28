@@ -22,6 +22,50 @@ export type AgencyVerificationProfile = {
   legal_agreements_accepted_at?: string | null;
 };
 
+export const AGENCY_VERIFICATION_EDITABLE_FIELDS = [
+  "legal_company_name",
+  "trade_name",
+  "country_id",
+  "city_id",
+  "full_address",
+  "website",
+  "year_established",
+  "employees_count",
+  "cr_number",
+  "cr_expiry_date",
+  "issuing_authority",
+  "tourism_license_number",
+  "tourism_license_authority",
+  "cr_document_path",
+  "tourism_license_document_path",
+  "contact_person_name",
+  "contact_person_position",
+  "contact_person_email",
+  "contact_person_phone",
+  "contact_person_whatsapp",
+  "agency_type",
+  "annual_group_bookings",
+  "avg_rooms_per_booking",
+  "legal_billing_name",
+  "vat_billing_number",
+  "billing_address",
+  "billing_email",
+] as const;
+
+export function isAgencyVerificationLocked(status: string | null | undefined) {
+  return status === "submitted" || status === "pending_review" || status === "verified";
+}
+
+export function canSubmitAgencyVerification(status: string | null | undefined) {
+  return status == null || status === "draft" || status === "rejected";
+}
+
+export function getAgencyVerificationEditablePatch(profile: Record<string, unknown>) {
+  return Object.fromEntries(
+    AGENCY_VERIFICATION_EDITABLE_FIELDS.map((field) => [field, profile[field]]),
+  );
+}
+
 function hasText(value: string | null | undefined) {
   return typeof value === "string" && value.trim().length > 0;
 }

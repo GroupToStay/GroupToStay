@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { hasCompleteAgencyVerificationProfile } from "../src/lib/agency-verification";
+import {
+  canSubmitAgencyVerification,
+  getAgencyVerificationEditablePatch,
+  hasCompleteAgencyVerificationProfile,
+  isAgencyVerificationLocked,
+} from "../src/lib/agency-verification";
 import { getSafeNotificationHref } from "../src/lib/notification-link";
 
 const completeAgency = {
@@ -33,6 +38,44 @@ describe("critical blocker guards", () => {
       hasCompleteAgencyVerificationProfile({ ...completeAgency, legal_company_name: " " }),
     ).toBe(false);
     expect(hasCompleteAgencyVerificationProfile(null)).toBe(false);
+  });
+
+  it("locks company verification only after approval", () => {
+    for (const status of [null, "draft", "rejected"]) {
+      expect(isAgencyVerificationLocked(status)).toBe(false);
+    }
+    expect(isAgencyVerificationLocked("submitted")).toBe(true);
+    expect(isAgencyVerificationLocked("pending_review")).toBe(true);
+    expect(isAgencyVerificationLocked("verified")).toBe(true);
+  });
+
+  it("allows only initial agency submissions and resubmissions", () => {
+    expect(canSubmitAgencyVerification(null)).toBe(true);
+    expect(canSubmitAgencyVerification("draft")).toBe(true);
+    expect(canSubmitAgencyVerification("rejected")).toBe(true);
+    expect(canSubmitAgencyVerification("submitted")).toBe(false);
+    expect(canSubmitAgencyVerification("pending_review")).toBe(false);
+    expect(canSubmitAgencyVerification("verified")).toBe(false);
+  });
+
+  it("sends only owner-editable verification fields to profile updates", () => {
+    const patch = getAgencyVerificationEditablePatch({
+      legal_company_name: "TEST_Agency",
+      cr_number: "TEST_CR",
+      agency_verification_status: "verified",
+      verification_reviewed_by: "reviewer-id",
+      approval_notes: "reviewer-only",
+      account_status: "suspended",
+    });
+
+    expect(patch).toMatchObject({
+      legal_company_name: "TEST_Agency",
+      cr_number: "TEST_CR",
+    });
+    expect(patch).not.toHaveProperty("agency_verification_status");
+    expect(patch).not.toHaveProperty("verification_reviewed_by");
+    expect(patch).not.toHaveProperty("approval_notes");
+    expect(patch).not.toHaveProperty("account_status");
   });
 
   it("allows only internal dashboard notification destinations", () => {
