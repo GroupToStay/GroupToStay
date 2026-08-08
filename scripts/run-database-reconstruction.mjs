@@ -113,6 +113,10 @@ function normalizeSql(value) {
   return value.replace(/\r\n/gu, "\n");
 }
 
+export function normalizeGeneratedTypes(value) {
+  return value.replace(/\s+$/u, "\n");
+}
+
 function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
 }
@@ -142,6 +146,42 @@ function queryIsolatedDatabase(sql, options) {
     throw new Error(`Isolated catalog query failed: ${result.stderr || result.stdout}`);
   }
   return `${result.stdout ?? ""}`.trim();
+}
+
+function runDuplicateTriggerFixtures(options) {
+  const fixtureSql = readFileSync(
+    resolve(options.repositoryRoot, "supabase/tests/duplicate-trigger-fixtures.sql"),
+    "utf8",
+  );
+  const result = run(
+    options.dockerCommand,
+    [
+      "exec",
+      "-i",
+      "supabase_db_grouptostay_reconstruction",
+      "psql",
+      "-U",
+      "postgres",
+      "-d",
+      "postgres",
+      "-X",
+      "-A",
+      "-t",
+      "-v",
+      "ON_ERROR_STOP=1",
+    ],
+    { ...options, input: fixtureSql },
+  );
+  if (result.status !== 0) {
+    throw new Error(`Duplicate trigger fixtures failed: ${result.stderr || result.stdout}`);
+  }
+  const fixtureResult = `${result.stdout ?? ""}`
+    .split(/\r?\n/gu)
+    .find((line) => line.trim().startsWith("["));
+  if (!fixtureResult) {
+    throw new Error("Duplicate trigger fixtures did not produce a result payload.");
+  }
+  return JSON.parse(fixtureResult);
 }
 
 function extractGeneratedTypeMembers(value, sectionName) {
@@ -180,6 +220,7 @@ export function runDatabaseReconstruction({
   repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), ".."),
   env = process.env,
   cliCommand = process.platform === "win32" ? "supabase.exe" : "supabase",
+  cliPrefixArgs = [],
   dockerCommand = process.platform === "win32" ? "docker.exe" : "docker",
 } = {}) {
   assertIsolatedEnvironment(env);
@@ -208,15 +249,15 @@ export function runDatabaseReconstruction({
   const childEnvironment = { ...env };
   for (const name of forbiddenRemoteEnvironment) delete childEnvironment[name];
 
-  const versionResult = run(cliCommand, ["--version"], {
-    cwd: isolatedRoot,
-    env: childEnvironment,
-  });
+  const runCli = (args) =>
+    run(cliCommand, [...cliPrefixArgs, ...args], {
+      cwd: isolatedRoot,
+      env: childEnvironment,
+    });
+
+  const versionResult = runCli(["--version"]);
   const cliVersion = `${versionResult.stdout ?? ""}`.trim() || "unknown";
-  const startResult = run(cliCommand, ["db", "start"], {
-    cwd: isolatedRoot,
-    env: childEnvironment,
-  });
+  const startResult = runCli(["db", "start"]);
 
   const rawLog = `${startResult.stdout ?? ""}\n${startResult.stderr ?? ""}`;
   const safeLog = sanitizeReconstructionLog(rawLog, repositoryRoot);
@@ -242,27 +283,34 @@ export function runDatabaseReconstruction({
     referenceData: null,
     candidateTypesGenerated: false,
     candidateTypes: null,
+    catalogEvidence: null,
+    duplicateTriggerFixtures: null,
     validationFailure: null,
   };
 
   if (startResult.status !== 0) {
     report.firstFailure = classifyMigrationFailure(safeLog);
   } else {
-    const candidateTypesResult = run(cliCommand, ["gen", "types", "typescript", "--local"], {
+    report.duplicateTriggerFixtures = runDuplicateTriggerFixtures({
       cwd: isolatedRoot,
       env: childEnvironment,
+      dockerCommand,
+      repositoryRoot,
     });
+
+    const candidateTypesResult = runCli(["gen", "types", "typescript", "--local"]);
     if (candidateTypesResult.status !== 0) {
       throw new Error("Clean reconstruction succeeded, but candidate type generation failed.");
     }
-    writeFileSync(join(artifactRoot, "candidate-types.ts"), candidateTypesResult.stdout);
+    const candidateTypes = normalizeGeneratedTypes(candidateTypesResult.stdout);
+    writeFileSync(join(artifactRoot, "candidate-types.ts"), candidateTypes);
     report.candidateTypesGenerated = true;
 
     const committedTypes = readFileSync(
       resolve(repositoryRoot, "src/integrations/supabase/types.ts"),
       "utf8",
     );
-    const typeComparison = compareGeneratedTypes(candidateTypesResult.stdout, committedTypes);
+    const typeComparison = compareGeneratedTypes(candidateTypes, committedTypes);
     const typeDiffResult = run(
       "git",
       [
@@ -281,26 +329,30 @@ export function runDatabaseReconstruction({
     );
     writeFileSync(join(artifactRoot, "candidate-types.diff"), safeTypeDiff);
     report.candidateTypes = {
-      candidateSha256: sha256(candidateTypesResult.stdout),
+      candidateSha256: sha256(candidateTypes),
       committedSha256: sha256(committedTypes),
-      exactMatch: candidateTypesResult.stdout === committedTypes,
-      includesProfilesCityName: /\bcity_name:\s+string\s+\|\s+null/gu.test(
-        candidateTypesResult.stdout,
-      ),
-      includesRfqLifecycleEvents: /\brfq_lifecycle_events:\s*\{/gu.test(
-        candidateTypesResult.stdout,
-      ),
+      exactMatch: candidateTypes === committedTypes,
+      includesProfilesCityName: /\bcity_name:\s+string\s+\|\s+null/gu.test(candidateTypes),
+      includesRfqLifecycleEvents: /\brfq_lifecycle_events:\s*\{/gu.test(candidateTypes),
       sectionDiff: typeComparison,
       diffAddedLines: safeTypeDiff.split("\n").filter((line) => /^\+(?!\+\+)/u.test(line)).length,
       diffRemovedLines: safeTypeDiff.split("\n").filter((line) => /^-(?!--)/u.test(line)).length,
     };
+    if (!report.candidateTypes.exactMatch && report.validationFailure === null) {
+      report.status = "failed";
+      report.validationFailure = "generated_type_drift";
+    }
 
     const schemaDumpPath = join(artifactRoot, "candidate-schema.sql");
-    const dumpResult = run(
-      cliCommand,
-      ["db", "dump", "--local", "--schema", "public,auth,storage", "--file", schemaDumpPath],
-      { cwd: isolatedRoot, env: childEnvironment },
-    );
+    const dumpResult = runCli([
+      "db",
+      "dump",
+      "--local",
+      "--schema",
+      "public,auth,storage",
+      "--file",
+      schemaDumpPath,
+    ]);
     if (dumpResult.status !== 0 || !existsSync(schemaDumpPath)) {
       throw new Error("Clean reconstruction succeeded, but schema fingerprint generation failed.");
     }
@@ -336,6 +388,42 @@ export function runDatabaseReconstruction({
       report.status = "failed";
       report.validationFailure = "schema_fingerprint_mismatch";
     }
+
+    const policyExport = JSON.parse(
+      queryIsolatedDatabase(
+        readFileSync(resolve(repositoryRoot, "supabase/tests/policy-export.sql"), "utf8"),
+        { cwd: isolatedRoot, env: childEnvironment, dockerCommand },
+      ),
+    );
+    const grantExport = JSON.parse(
+      queryIsolatedDatabase(
+        readFileSync(resolve(repositoryRoot, "supabase/tests/grant-export.sql"), "utf8"),
+        { cwd: isolatedRoot, env: childEnvironment, dockerCommand },
+      ),
+    );
+    const functionAclExport = JSON.parse(
+      queryIsolatedDatabase(
+        readFileSync(resolve(repositoryRoot, "supabase/tests/function-acl-export.sql"), "utf8"),
+        { cwd: isolatedRoot, env: childEnvironment, dockerCommand },
+      ),
+    );
+    writeFileSync(
+      join(artifactRoot, "candidate-policies-current.json"),
+      `${JSON.stringify(policyExport, null, 2)}\n`,
+    );
+    writeFileSync(
+      join(artifactRoot, "candidate-grants-current.json"),
+      `${JSON.stringify(grantExport, null, 2)}\n`,
+    );
+    writeFileSync(
+      join(artifactRoot, "candidate-function-acl-current.json"),
+      `${JSON.stringify(functionAclExport, null, 2)}\n`,
+    );
+    report.catalogEvidence = {
+      policyCount: policyExport.policyCount,
+      grantCounts: grantExport.counts,
+      targetFunctionCount: functionAclExport.functionCount,
+    };
 
     const cityRowsJson = queryIsolatedDatabase(
       `SELECT coalesce(json_agg(json_build_object(
@@ -381,7 +469,7 @@ export function runDatabaseReconstruction({
 
   writeFileSync(join(artifactRoot, "result.json"), `${JSON.stringify(report, null, 2)}\n`);
 
-  run(cliCommand, ["stop", "--no-backup"], { cwd: isolatedRoot, env: childEnvironment });
+  runCli(["stop", "--no-backup"]);
   rmSync(isolatedRoot, { recursive: true, force: true });
 
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);

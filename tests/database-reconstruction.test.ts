@@ -5,6 +5,7 @@ import {
   assertIsolatedEnvironment,
   classifyMigrationFailure,
   compareGeneratedTypes,
+  normalizeGeneratedTypes,
   sanitizeReconstructionLog,
 } from "../scripts/run-database-reconstruction.mjs";
 
@@ -86,6 +87,7 @@ RAISE EXCEPTION 'Approved city localization stable-key mismatch';
     expect(workflow).not.toMatch(/SUPABASE_(?:ACCESS_TOKEN|DB_PASSWORD|PROJECT_REF):/u);
     expect(runner).toContain('"db", "start"');
     expect(runner).toContain('project_id = "grouptostay_reconstruction"');
+    expect(runner).toContain('"supabase/tests/duplicate-trigger-fixtures.sql"');
     expect(runner).not.toMatch(/\["(?:link|db push|migration repair)"/u);
   });
 
@@ -97,6 +99,12 @@ RAISE EXCEPTION 'Approved city localization stable-key mismatch';
       Tables: { added: ["rfq_lifecycle_events"], removed: [] },
       Functions: { added: ["award_quote"], removed: [] },
     });
+  });
+
+  it("normalizes generated-type end-of-file whitespace deterministically", () => {
+    expect(normalizeGeneratedTypes("export type Database = {}\n\n")).toBe(
+      "export type Database = {}\n",
+    );
   });
 
   it("uses a catalog-only fingerprint query with no application-row selection", () => {
@@ -111,15 +119,16 @@ RAISE EXCEPTION 'Approved city localization stable-key mismatch';
       "functions",
       "triggers",
       "policies",
-      "table_grants",
-      "column_grants",
-      "routine_grants",
+      "application_table_grants",
+      "application_column_grants",
+      "application_routine_grants",
       "extensions",
     ]) {
       expect(fingerprintSql).toContain(`'${category}'`);
     }
     expect(fingerprintSql).not.toMatch(/FROM\s+public\./iu);
     expect(fingerprintSql).not.toMatch(/FROM\s+auth\.users/iu);
+    expect(fingerprintSql).not.toContain("specific_name");
   });
 
   it("pins the reviewed clean-reconstruction catalog fingerprint", () => {
@@ -134,6 +143,12 @@ RAISE EXCEPTION 'Approved city localization stable-key mismatch';
       objectCount: 34,
       definitionMd5: "6422b5595777ff69da86e28393e6c73e",
     });
+    expect(expected.find((entry) => entry.category === "policies")).toEqual({
+      category: "policies",
+      objectCount: 148,
+      definitionMd5: "b877e85f40b5578be5416b929ed95071",
+    });
     expect(runner).toContain("schema_fingerprint_mismatch");
+    expect(runner).toContain("generated_type_drift");
   });
 });
