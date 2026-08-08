@@ -110,7 +110,10 @@ function resolveContext(repositoryRoot, env) {
   if (env.GITHUB_ACTIONS === "true") {
     return {
       sha: requireSha(env.GITHUB_SHA, "GitHub Actions builds"),
-      branch: requireBranch(env.GITHUB_HEAD_REF ?? env.GITHUB_REF_NAME, "GitHub Actions builds"),
+      branch: requireBranch(
+        env.GITHUB_HEAD_REF?.trim() || env.GITHUB_REF_NAME,
+        "GitHub Actions builds",
+      ),
       environment: "CI",
       vercel: false,
     };

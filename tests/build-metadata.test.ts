@@ -39,6 +39,7 @@ describe("build metadata", () => {
         GITHUB_ACTIONS: "true",
         GITHUB_SHA: sha,
         GITHUB_HEAD_REF: branch,
+        GITHUB_REF_NAME: "2/merge",
       },
       now: timestamp,
       nodeVersion: "v22.23.1",
@@ -57,6 +58,60 @@ describe("build metadata", () => {
     expect(readMetadata(join(repositoryRoot, ".output/public/build-metadata.json"))).toEqual(
       metadata,
     );
+  });
+
+  it("uses GITHUB_REF_NAME when a push event has an empty GITHUB_HEAD_REF", () => {
+    const repositoryRoot = createRepository();
+
+    const metadata = writeBuildMetadata({
+      repositoryRoot,
+      env: {
+        GITHUB_ACTIONS: "true",
+        GITHUB_SHA: sha,
+        GITHUB_HEAD_REF: "",
+        GITHUB_REF_NAME: branch,
+      },
+      now: timestamp,
+      nodeVersion: "v22.23.1",
+    });
+
+    expect(metadata.branch).toBe(branch);
+  });
+
+  it("uses a trimmed GITHUB_REF_NAME when GITHUB_HEAD_REF is whitespace", () => {
+    const repositoryRoot = createRepository();
+
+    const metadata = writeBuildMetadata({
+      repositoryRoot,
+      env: {
+        GITHUB_ACTIONS: "true",
+        GITHUB_SHA: sha,
+        GITHUB_HEAD_REF: "   ",
+        GITHUB_REF_NAME: `  ${branch}  `,
+      },
+      now: timestamp,
+      nodeVersion: "v22.23.1",
+    });
+
+    expect(metadata.branch).toBe(branch);
+  });
+
+  it("rejects GitHub Actions when both branch contexts are missing or empty", () => {
+    const repositoryRoot = createRepository();
+
+    expect(() =>
+      writeBuildMetadata({
+        repositoryRoot,
+        env: {
+          GITHUB_ACTIONS: "true",
+          GITHUB_SHA: sha,
+          GITHUB_HEAD_REF: "",
+          GITHUB_REF_NAME: "   ",
+        },
+        now: timestamp,
+        nodeVersion: "v22.23.1",
+      }),
+    ).toThrow("GitHub Actions builds requires a Git branch/ref");
   });
 
   it("writes identical metadata into the existing Vercel static artifact", () => {
