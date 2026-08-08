@@ -13,6 +13,8 @@
     "env:check": "node scripts/validate-env.mjs",
     "build": "node scripts/validate-env.mjs && vite build && node scripts/write-build-metadata.mjs",
     "provenance:verify": "node scripts/verify-build-metadata.mjs",
+    "database:reconstruct": "node scripts/run-database-reconstruction.mjs",
+    "database:localization:verify": "node scripts/city-localization-provenance.mjs --check",
     "build:dev": "vite build --mode development",
     "preview": "node scripts/preview.mjs",
     "lint": "eslint .",

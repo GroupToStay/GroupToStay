@@ -1,0 +1,36 @@
+import { describe, expect, it } from "vitest";
+import {
+  generateCityLocalizationSql,
+  readCityLocalizationSource,
+  validateCityLocalizationSource,
+} from "../scripts/city-localization-provenance.mjs";
+
+describe("approved Arabic city localization provenance", () => {
+  const source = readCityLocalizationSource();
+
+  it("reproduces all approved live labels with the recorded stable checksum", () => {
+    expect(validateCityLocalizationSource(source)).toEqual({
+      rowCount: 1583,
+      canonicalRowsSha256: "eebc37b6132a04a96cdb9756b0ff6fa823a46bd96c05e76e8eb4b20effd41b9a",
+    });
+  });
+
+  it("generates deterministic, guarded SQL without remote connectivity", () => {
+    const first = generateCityLocalizationSql(source);
+    const second = generateCityLocalizationSql(source);
+
+    expect(first).toBe(second);
+    expect(first).toContain("CREATE TEMP TABLE approved_city_localization");
+    expect(first).toContain("Approved city localization identity/source mismatch");
+    expect(first).toContain("UPDATE public.cities AS city");
+    expect(first).not.toContain("supabase.co");
+    expect(first).not.toContain("service_role");
+  });
+
+  it("rejects source data that no longer matches the approved checksum", () => {
+    const tampered = structuredClone(source);
+    tampered.cities[0].name_ar = "قيمة معدلة";
+
+    expect(() => validateCityLocalizationSource(tampered)).toThrow("checksum does not match");
+  });
+});

@@ -19,7 +19,7 @@ its SQL should be replayed.
 - Git baseline: `7918ea532eeeba809357a05db07117dc4aeb103a`
 - Supabase project reference: `atxecflhmphaqqkatjlm`
 - Audit date: 2026-08-08
-- Repository migration files: 79
+- Repository migration files: 80 after exact ledger-sourced global migration restoration
 - Production ledger rows: 60
 - Exact stored-statement matches under shifted Lovable versions: 56
 - Production writes during audit: 0
@@ -76,10 +76,13 @@ Live Production drift, if later automated, belongs in a separate protected workf
 environment-scoped read-only database role, explicit approval, masked output, and no pull-request
 execution from forks.
 
-This workflow is not added in the audit pass because the current migration chain is known not to
-replay and the host cannot validate the container path. Adding the ephemeral Supabase CI job is an
-owner-visible workflow/runner decision. No new Production secret is required for the isolated
-portion.
+The owner-approved workflow is now present at `.github/workflows/database-reconstruction.yml` and
+pins Supabase CLI `2.113.0`. It creates a temporary copy of `supabase/`, replaces the local Docker
+project ID, refuses remote database/project environment variables, invokes only `supabase db start`,
+records the first failing migration/error class/object, sanitizes public artifacts, and tears down
+the local stack. It does not use `supabase link`, Production credentials, customer data, or Vercel
+secrets. Candidate types and a normalized schema fingerprint are emitted only if clean
+reconstruction succeeds.
 
 ## Future release gate
 

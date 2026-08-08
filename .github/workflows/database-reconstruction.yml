@@ -1,0 +1,60 @@
+name: Database Reconstruction
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/database-reconstruction.yml"
+      - "scripts/run-database-reconstruction.mjs"
+      - "supabase/config.toml"
+      - "supabase/migrations/**"
+      - "tests/database-reconstruction.test.ts"
+  pull_request:
+    paths:
+      - ".github/workflows/database-reconstruction.yml"
+      - "scripts/run-database-reconstruction.mjs"
+      - "supabase/config.toml"
+      - "supabase/migrations/**"
+      - "tests/database-reconstruction.test.ts"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: database-reconstruction-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reconstruct:
+    name: Reconstruct Empty Database
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI_DATABASE_RECONSTRUCTION: "1"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v2
+        with:
+          version: 2.113.0
+          github-token: ${{ github.token }}
+
+      - name: Reconstruct from an empty isolated database
+        run: node scripts/run-database-reconstruction.mjs
+
+      - name: Upload public-safe reconstruction evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-reconstruction-${{ github.sha }}
+          path: artifacts/database-reconstruction/
+          if-no-files-found: error
+          retention-days: 14

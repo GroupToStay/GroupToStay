@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-08",
+  "baselineGitSha": "7918ea532eeeba809357a05db07117dc4aeb103a",
+  "productionProjectRef": "atxecflhmphaqqkatjlm",
+  "productionWritesPerformed": false,
+  "bodyNormalization": "UTF-8 function prosrc with CRLF converted to LF",
+  "semanticNormalization": "Preserve quoted contents; lowercase and remove whitespace outside quoted contents",
+  "functions": [
+    {
+      "function": "is_agency_rfq_eligible",
+      "trackedSourceFile": "20260714190000_fix_critical_production_blockers.sql",
+      "trackedBodySha256": "0f90eeb10966e500cba7553e3f4ecc54715e0ebfb5d064e92fd68e2fce5372ab",
+      "liveBodySha256": "8ad5a8331fc38ec4b92745a69bffc95bfc581a62a0ecbb1e6b8c5e096f721867",
+      "trackedSemanticSha256": "6f55695e63457fd44ce8ef0f0972d67ad6bc4d3bc5f99d7bf8bad364290c740c",
+      "liveSemanticSha256": "6f55695e63457fd44ce8ef0f0972d67ad6bc4d3bc5f99d7bf8bad364290c740c",
+      "securityDefiner": true,
+      "searchPath": "public",
+      "executeRoles": ["postgres", "service_role"],
+      "semanticMatch": true
+    },
+    {
+      "function": "record_rfq_lifecycle_event",
+      "trackedSourceFile": "20260714190000_fix_critical_production_blockers.sql",
+      "trackedBodySha256": "df0ea04b27d6af49970f18524ba61202b88eacc1e9bc39f36e4a52c58a6c97a3",
+      "liveBodySha256": "e107d604916d4ab0ca0b3a536e921644b4cc730bb310cccb7382cf57a27f2849",
+      "trackedSemanticSha256": "45df0392d5bf2f19f98fd257b2571e6d426ab357bca5ef3c5c2c976d6a3c2342",
+      "liveSemanticSha256": "45df0392d5bf2f19f98fd257b2571e6d426ab357bca5ef3c5c2c976d6a3c2342",
+      "securityDefiner": true,
+      "searchPath": "public",
+      "executeRoles": ["postgres", "service_role"],
+      "semanticMatch": true
+    },
+    {
+      "function": "require_verified_agency_for_rfq",
+      "trackedSourceFile": "20260714190000_fix_critical_production_blockers.sql",
+      "trackedBodySha256": "79103a175c6332a6fb36bff723f6c7e169552320f7af475b203d32c6c6bcf695",
+      "liveBodySha256": "0c39f4f5a65e2345af0b9d9c1b264d7eab5dfe1447587766e3607e714000b628",
+      "trackedSemanticSha256": "1b05324176538f62856624bc48a7af102cecff2ff114e7b54b7ac5e697ec61e6",
+      "liveSemanticSha256": "1b05324176538f62856624bc48a7af102cecff2ff114e7b54b7ac5e697ec61e6",
+      "securityDefiner": true,
+      "searchPath": "public",
+      "executeRoles": ["postgres", "service_role"],
+      "semanticMatch": true
+    },
+    {
+      "function": "update_updated_at_column",
+      "trackedSourceFile": "20260712153351_2b072552-53fa-42d9-a145-a69d792938cd.sql",
+      "originalSourceFile": "20260613080917_acae207a-07d5-4e50-9434-78ac8fb76f8b.sql",
+      "trackedBodySha256": "c65132a2c298725f67acf5857b5f6ee3a5df5eb94047848b690650542f6de5fb",
+      "liveBodySha256": "c65132a2c298725f67acf5857b5f6ee3a5df5eb94047848b690650542f6de5fb",
+      "trackedSemanticSha256": "951d65d5a5b24cd8b4b413ce00f0a74955d1d05219a107e1cccf86a46fc9c4fe",
+      "liveSemanticSha256": "951d65d5a5b24cd8b4b413ce00f0a74955d1d05219a107e1cccf86a46fc9c4fe",
+      "securityDefiner": false,
+      "searchPath": "public",
+      "executeRoles": ["postgres", "service_role"],
+      "semanticMatch": true
+    }
+  ]
+}

@@ -14,8 +14,10 @@ policies, functions, triggers, storage configuration, or data.
 
 ## Repository history
 
-The baseline contains 79 SQL files in `supabase/migrations`. There are no duplicate filename
-versions. The complete per-file inventory is in [MIGRATION_INVENTORY.md](./MIGRATION_INVENTORY.md).
+The starting baseline contained 79 SQL files in `supabase/migrations`. The owner-approved,
+repository-only restoration of `20260729180000_global_country_city_experience.sql` brings the
+candidate chain to 80 files. There are no duplicate filename versions. The complete per-file
+inventory is in [MIGRATION_INVENTORY.md](./MIGRATION_INVENTORY.md).
 
 The repository migration chain is not currently replayable as a clean history:
 
@@ -28,9 +30,12 @@ The repository migration chain is not currently replayable as a clean history:
   partially represented in the live schema.
 - Five named files outside July 12 have no ledger row: the two July 2 files, the named July 4
   hardening file, the July 14 blocker fix, and the July 26 quote lifecycle migration.
-- Production contains `20260729180000_global_country_city_experience`, but the repository does not.
+- `20260729180000_global_country_city_experience` has now been restored to the repository from the
+  exact trusted ledger SQL payload. Its normalized SHA-256 matches the ledger; it has not been
+  executed against Production.
 - No tracked or ledger migration exists for the known
-  `20260801170000_complete_city_arabic_localization` operation.
+  `20260801170000_complete_city_arabic_localization` operation. The approved live city labels are
+  now captured as deterministic reference data, not asserted to be the missing historical source.
 
 ## Production migration ledger
 
@@ -40,8 +45,9 @@ The live ledger has 60 rows:
 - Three exact version/name rows: `20260727120000`, `20260727123000`, and `20260728153000`.
   Their ledger statement arrays are empty, so the physical catalog—not the ledger payload—is the
   definition evidence.
-- One ledger-only row, `20260729180000_global_country_city_experience`, with one stored statement
-  payload. Its normalized payload hash is `4b32d7e3fc9af63cd2417ee321e930cc`.
+- One formerly ledger-only row, `20260729180000_global_country_city_experience`, with one stored
+  statement payload. The restored repository file and ledger payload share normalized SHA-256
+  `0b37a1ed8a8bd402696b1618959160852f651bd6b68abb8f7125d01c06cff6f9`.
 
 The full execution order and classification are recorded in
 [MIGRATION_RECONCILIATION.md](./MIGRATION_RECONCILIATION.md).
@@ -107,6 +113,10 @@ label equals its English label. The read-only reference-data hashes are:
 - Cities: `58ae5b9aac034ab0d3848f8c5ecf2b46`
 - Countries: `4c794bd1c46f761a319e00e579868fbf`
 
+The deterministic city reference snapshot contains all 1,583 rows ordered by city ID. Its
+quoted-content-preserving canonical row SHA-256 is
+`eebc37b6132a04a96cdb9756b0ff6fa823a46bd96c05e76e8eb4b20effd41b9a`.
+
 `profiles.city_name` exists with its length check, but all ten current rows are null in that column.
 
 ## Generated types
@@ -129,13 +139,16 @@ assertions, not credential values. `.env.example` is the only tracked environmen
 
 ## Reconstruction status
 
-A full disposable Supabase reconstruction was attempted but could not start because the host has
-Docker Desktop without an operational engine: WSL2/virtualization is disabled. No local database
-was created and Production was not used as a reconstruction target.
+A full disposable Supabase reconstruction was attempted locally but could not start because the
+host has Docker Desktop without an operational engine: WSL2/virtualization is disabled. No local
+database was created and Production was not used as a reconstruction target. An owner-approved
+GitHub Actions workflow now defines an isolated `supabase db start` reconstruction using pinned
+Supabase CLI `2.113.0`, no project link, and no Production credentials.
 
 Static reconstruction proves the tracked final object-name set contains the 57 observed public
 functions and the 56 observed public triggers plus the `auth.users` profile trigger. It does not
-prove that the full 79-file chain can execute; the July 12 replay bundles prove the opposite.
+prove that the full 80-file candidate chain can execute; the July 12 replay bundles prove the
+opposite.
 Full definition-level expected-schema certification therefore remains pending an isolated
 Supabase-capable runner.
 
