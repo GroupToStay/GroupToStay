@@ -5,6 +5,7 @@ import { spawnSync } from "node:child_process";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const scriptPath = resolve(process.cwd(), "scripts/validate-env.mjs");
+const expectedUrl = "https://atxecflhmphaqqkatjlm.supabase.co";
 let emptyWorkingDirectory: string;
 
 function runEnvironmentCheck(values: Record<string, string> = {}) {
@@ -39,20 +40,30 @@ describe("build environment validation", () => {
 
   it("accepts the Supabase anonymous key", () => {
     const result = runEnvironmentCheck({
-      VITE_SUPABASE_URL: "https://project.supabase.co",
+      VITE_SUPABASE_URL: expectedUrl,
       VITE_SUPABASE_ANON_KEY: "public-anon-key",
     });
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("Required Supabase environment variables are configured");
+    expect(result.stdout).toContain("atxecflhmphaqqkatjlm");
   });
 
   it("accepts the Supabase publishable key as an alternative", () => {
     const result = runEnvironmentCheck({
-      VITE_SUPABASE_URL: "https://project.supabase.co",
+      VITE_SUPABASE_URL: expectedUrl,
       VITE_SUPABASE_PUBLISHABLE_KEY: "public-publishable-key",
     });
 
     expect(result.status).toBe(0);
+  });
+
+  it("rejects a different Supabase project", () => {
+    const result = runEnvironmentCheck({
+      VITE_SUPABASE_URL: "https://divgqjlotvmlmkzjtlzw.supabase.co",
+      VITE_SUPABASE_ANON_KEY: "public-anon-key",
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("atxecflhmphaqqkatjlm.supabase.co");
   });
 });

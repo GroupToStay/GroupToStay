@@ -6,12 +6,13 @@
   "packageManager": "pnpm@11.7.0",
   "engines": {
     "node": ">=22.23.1 <23",
-    "pnpm": ">=11 <12"
+    "pnpm": "11.7.0"
   },
   "scripts": {
     "dev": "vite dev",
     "env:check": "node scripts/validate-env.mjs",
-    "build": "pnpm env:check && vite build",
+    "build": "node scripts/validate-env.mjs && vite build && node scripts/write-build-metadata.mjs",
+    "provenance:verify": "node scripts/verify-build-metadata.mjs",
     "build:dev": "vite build --mode development",
     "preview": "node scripts/preview.mjs",
     "lint": "eslint .",
