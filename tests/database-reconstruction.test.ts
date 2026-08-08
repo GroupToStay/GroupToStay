@@ -79,6 +79,8 @@ RAISE EXCEPTION 'Approved city localization stable-key mismatch';
     const workflow = readFileSync(resolve(".github/workflows/database-reconstruction.yml"), "utf8");
     const runner = readFileSync(resolve("scripts/run-database-reconstruction.mjs"), "utf8");
 
+    expect(workflow).toContain("pnpm/action-setup@v4");
+    expect(workflow).toContain("version: 11.7.0");
     expect(workflow).toContain("version: 2.113.0");
     expect(workflow).toContain('CI_DATABASE_RECONSTRUCTION: "1"');
     expect(workflow).toContain('"supabase/reference-data/cities-arabic.json"');
