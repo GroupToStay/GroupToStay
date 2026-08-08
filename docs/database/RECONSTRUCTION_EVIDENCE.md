@@ -22,7 +22,17 @@ Static execution-order analysis identifies the deterministic first repository bl
 - **First affected object:** `public.app_role`
 - **Cause:** the file begins by recreating the enum already created by `20260613080917_acae207a-07d5-4e50-9434-78ac8fb76f8b.sql` with unguarded `CREATE TYPE`.
 
-The workflow is designed to confirm this on a real Supabase-compatible runner. Local execution remains unavailable because the host Docker engine cannot start while WSL2/virtualization is disabled. The workflow must not suppress or repair this error.
+GitHub Actions run
+[`31263370680`](https://github.com/GroupToStay/GroupToStay/actions/runs/31263370680),
+against commit `cbea16bc53906c4d7dbf75e5ad3b9623739b647f`, confirmed this exact failure with
+Supabase CLI `2.113.0`. The report recorded `productionConnectivityUsed=false`,
+`productionCredentialsUsed=false`, `projectLinkUsed=false`, migration
+`20260712153351_2b072552-53fa-42d9-a145-a69d792938cd.sql`, class `duplicate_object`, and affected
+object `app_role`. The public-safe artifact upload succeeded; candidate types and a schema
+fingerprint were correctly not generated.
+
+Local execution remains unavailable because the host Docker engine cannot start while
+WSL2/virtualization is disabled. The workflow did not suppress or repair the migration error.
 
 ## Blocker inventory
 
