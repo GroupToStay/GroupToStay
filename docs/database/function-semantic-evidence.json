@@ -45,8 +45,8 @@
     },
     {
       "function": "update_updated_at_column",
-      "trackedSourceFile": "20260712153351_2b072552-53fa-42d9-a145-a69d792938cd.sql",
-      "originalSourceFile": "20260613080917_acae207a-07d5-4e50-9434-78ac8fb76f8b.sql",
+      "trackedSourceFile": "20260613080917_acae207a-07d5-4e50-9434-78ac8fb76f8b.sql",
+      "archivedReplaySourceFile": "20260712153351_2b072552-53fa-42d9-a145-a69d792938cd.sql",
       "trackedBodySha256": "c65132a2c298725f67acf5857b5f6ee3a5df5eb94047848b690650542f6de5fb",
       "liveBodySha256": "c65132a2c298725f67acf5857b5f6ee3a5df5eb94047848b690650542f6de5fb",
       "trackedSemanticSha256": "951d65d5a5b24cd8b4b413ce00f0a74955d1d05219a107e1cccf86a46fc9c4fe",

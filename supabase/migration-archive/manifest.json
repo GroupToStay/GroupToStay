@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "archivedAt": "2026-08-08",
+  "productionWritesPerformed": false,
+  "executionPolicy": "never_execute_automatically",
+  "entries": [
+    {
+      "filename": "20260712153351_2b072552-53fa-42d9-a145-a69d792938cd.sql",
+      "originalPath": "supabase/migrations/20260712153351_2b072552-53fa-42d9-a145-a69d792938cd.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-replays/20260712153351_2b072552-53fa-42d9-a145-a69d792938cd.sql",
+      "bytes": 14958,
+      "byteSha256": "52f9a9db9983962973d94b17f17c46ee32baf2a75e04764ae07a751fc539fe6e",
+      "normalizedSqlSha256": "52f9a9db9983962973d94b17f17c46ee32baf2a75e04764ae07a751fc539fe6e",
+      "productionLedgerVersion": null,
+      "classification": "pure_replay_import_bundle",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712153448_dcf1c728-566b-41aa-91ee-82173e1ea31f.sql",
+      "originalPath": "supabase/migrations/20260712153448_dcf1c728-566b-41aa-91ee-82173e1ea31f.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-replays/20260712153448_dcf1c728-566b-41aa-91ee-82173e1ea31f.sql",
+      "bytes": 17539,
+      "byteSha256": "7e2e06d8be25102cf288468dd2e4dae000826c09392d53618d0f092c5a392be6",
+      "normalizedSqlSha256": "7e2e06d8be25102cf288468dd2e4dae000826c09392d53618d0f092c5a392be6",
+      "productionLedgerVersion": null,
+      "classification": "pure_replay_import_bundle",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712153604_79d7a2a5-92fa-41d9-a978-9b59b38c7bd3.sql",
+      "originalPath": "supabase/migrations/20260712153604_79d7a2a5-92fa-41d9-a978-9b59b38c7bd3.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-replays/20260712153604_79d7a2a5-92fa-41d9-a978-9b59b38c7bd3.sql",
+      "bytes": 13488,
+      "byteSha256": "bb58f15eead30163a670aadcd888ddfb88201802be12a885b0ffc4cc1051497b",
+      "normalizedSqlSha256": "bb58f15eead30163a670aadcd888ddfb88201802be12a885b0ffc4cc1051497b",
+      "productionLedgerVersion": null,
+      "classification": "pure_replay_import_bundle",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712153645_76f66869-833c-49d7-b9a5-e549e7bfdcb6.sql",
+      "originalPath": "supabase/migrations/20260712153645_76f66869-833c-49d7-b9a5-e549e7bfdcb6.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-replays/20260712153645_76f66869-833c-49d7-b9a5-e549e7bfdcb6.sql",
+      "bytes": 16350,
+      "byteSha256": "8291bbc71acbdb10b597c41c4c42872fd3bf44ed84b88931243975351c173428",
+      "normalizedSqlSha256": "8291bbc71acbdb10b597c41c4c42872fd3bf44ed84b88931243975351c173428",
+      "productionLedgerVersion": null,
+      "classification": "pure_replay_import_bundle",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712153748_9a5600f6-8c84-4d9d-995e-de4aa5360838.sql",
+      "originalPath": "supabase/migrations/20260712153748_9a5600f6-8c84-4d9d-995e-de4aa5360838.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-replays/20260712153748_9a5600f6-8c84-4d9d-995e-de4aa5360838.sql",
+      "bytes": 12057,
+      "byteSha256": "7ff0b331aa4c66aeb45a618524612fcaf1147c1a4143a1faab540d22f418ed47",
+      "normalizedSqlSha256": "7ff0b331aa4c66aeb45a618524612fcaf1147c1a4143a1faab540d22f418ed47",
+      "productionLedgerVersion": null,
+      "classification": "pure_replay_import_bundle",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712153826_8358b20e-23ba-4c2e-b1c0-7c35bf50ebdf.sql",
+      "originalPath": "supabase/migrations/20260712153826_8358b20e-23ba-4c2e-b1c0-7c35bf50ebdf.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-replays/20260712153826_8358b20e-23ba-4c2e-b1c0-7c35bf50ebdf.sql",
+      "bytes": 14152,
+      "byteSha256": "179be4e8912e81dd244ef12d13cdfd6aa328e958445ab6d7f449fe5c08b8a8ce",
+      "normalizedSqlSha256": "179be4e8912e81dd244ef12d13cdfd6aa328e958445ab6d7f449fe5c08b8a8ce",
+      "productionLedgerVersion": null,
+      "classification": "pure_replay_import_bundle",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712153901_c43be5aa-4b1b-4a83-a862-dd071f05af2e.sql",
+      "originalPath": "supabase/migrations/20260712153901_c43be5aa-4b1b-4a83-a862-dd071f05af2e.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-replays/20260712153901_c43be5aa-4b1b-4a83-a862-dd071f05af2e.sql",
+      "bytes": 13651,
+      "byteSha256": "e34c5c360e8c284016e027d7a728da062e6a8d7ab07f528c32bfd37a05913f37",
+      "normalizedSqlSha256": "e34c5c360e8c284016e027d7a728da062e6a8d7ab07f528c32bfd37a05913f37",
+      "productionLedgerVersion": null,
+      "classification": "pure_replay_import_bundle",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712153946_8f99f032-ca35-4de0-8fdc-d334318e46b4.sql",
+      "originalPath": "supabase/migrations/20260712153946_8f99f032-ca35-4de0-8fdc-d334318e46b4.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-replays/20260712153946_8f99f032-ca35-4de0-8fdc-d334318e46b4.sql",
+      "bytes": 9960,
+      "byteSha256": "b72b7ddc30c93cba9b677af6e8f4ad6b002ace0abce58728ac5f3991579a52a2",
+      "normalizedSqlSha256": "b72b7ddc30c93cba9b677af6e8f4ad6b002ace0abce58728ac5f3991579a52a2",
+      "productionLedgerVersion": null,
+      "classification": "pure_replay_import_bundle",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712154027_7afa69b9-849d-43ee-9d31-c47ccfd3016b.sql",
+      "originalPath": "supabase/migrations/20260712154027_7afa69b9-849d-43ee-9d31-c47ccfd3016b.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-replays/20260712154027_7afa69b9-849d-43ee-9d31-c47ccfd3016b.sql",
+      "bytes": 12423,
+      "byteSha256": "85f1cb33514d2e0846ce53be5f4fc6c81d5a5478a001d3e90ad045c29d33ede1",
+      "normalizedSqlSha256": "85f1cb33514d2e0846ce53be5f4fc6c81d5a5478a001d3e90ad045c29d33ede1",
+      "productionLedgerVersion": null,
+      "classification": "pure_replay_import_bundle",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712154120_e44c95f9-63a8-4847-93aa-198ed227aa0f.sql",
+      "originalPath": "supabase/migrations/20260712154120_e44c95f9-63a8-4847-93aa-198ed227aa0f.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-replays/20260712154120_e44c95f9-63a8-4847-93aa-198ed227aa0f.sql",
+      "bytes": 8433,
+      "byteSha256": "3017923176b8afb74cbca1142cdf667230a4203281930872f68b7e8a6daefd9f",
+      "normalizedSqlSha256": "3017923176b8afb74cbca1142cdf667230a4203281930872f68b7e8a6daefd9f",
+      "productionLedgerVersion": null,
+      "classification": "pure_replay_import_bundle",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712154229_144e7a16-21de-4e19-879b-f7cffb53d407.sql",
+      "originalPath": "supabase/migrations/20260712154229_144e7a16-21de-4e19-879b-f7cffb53d407.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-replays/20260712154229_144e7a16-21de-4e19-879b-f7cffb53d407.sql",
+      "bytes": 15222,
+      "byteSha256": "e50797ac4c69388b6de56b509d318ec4f45f4a694a913f97cf9a095f38a18220",
+      "normalizedSqlSha256": "e50797ac4c69388b6de56b509d318ec4f45f4a694a913f97cf9a095f38a18220",
+      "productionLedgerVersion": null,
+      "classification": "pure_replay_import_bundle",
+      "disposition": "archived_non_executable"
+    }
+  ]
+}

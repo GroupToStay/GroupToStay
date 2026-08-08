@@ -5,6 +5,8 @@
   "productionProjectRef": "atxecflhmphaqqkatjlm",
   "normalization": "UTF-8 SQL text with CRLF converted to LF; no whitespace or statement rewriting",
   "productionWritesPerformed": false,
+  "archivedReplayManifest": "supabase/migration-archive/manifest.json",
+  "archivedReplayCount": 11,
   "entries": [
     {
       "executionOrder": 1,
