@@ -1,0 +1,62 @@
+[
+  {
+    "category": "column_grants",
+    "objectCount": 4892,
+    "definitionMd5": "6bfa5ffa21d7b6088534c8c8b9448f9c"
+  },
+  {
+    "category": "columns",
+    "objectCount": 357,
+    "definitionMd5": "9e62f047a04d856dacd4e9a22bf178a7"
+  },
+  {
+    "category": "constraints",
+    "objectCount": 111,
+    "definitionMd5": "3da708f15dedc3bf7e5478eaefa800a9"
+  },
+  {
+    "category": "enums",
+    "objectCount": 63,
+    "definitionMd5": "95666787dba933edd62d87dac0ac822d"
+  },
+  {
+    "category": "extensions",
+    "objectCount": 6,
+    "definitionMd5": "75e2fade0e6fd5c421822e5278d3efce"
+  },
+  {
+    "category": "functions",
+    "objectCount": 57,
+    "definitionMd5": "8b9e4bc59f8039ac2022f9f391abe89a"
+  },
+  {
+    "category": "indexes",
+    "objectCount": 74,
+    "definitionMd5": "1c098f77b56397380c62c2cc095de7da"
+  },
+  {
+    "category": "policies",
+    "objectCount": 158,
+    "definitionMd5": "59d112cd26165a66170ad901b77e469b"
+  },
+  {
+    "category": "relations",
+    "objectCount": 34,
+    "definitionMd5": "6422b5595777ff69da86e28393e6c73e"
+  },
+  {
+    "category": "routine_grants",
+    "objectCount": 76,
+    "definitionMd5": "c2a93310850de89833e3ce04022912d3"
+  },
+  {
+    "category": "table_grants",
+    "objectCount": 821,
+    "definitionMd5": "f852ac9ed9fd3553b2fe7d4b492ae288"
+  },
+  {
+    "category": "triggers",
+    "objectCount": 57,
+    "definitionMd5": "90223977d2cc70db99cbbccb72ceec47"
+  }
+]

@@ -237,6 +237,8 @@ export function runDatabaseReconstruction({
     schemaFingerprintSha256: null,
     catalogFingerprintSha256: null,
     catalogFingerprintCategories: null,
+    expectedCatalogFingerprintSha256: null,
+    expectedCatalogFingerprintMatch: null,
     referenceData: null,
     candidateTypesGenerated: false,
     candidateTypes: null,
@@ -321,6 +323,19 @@ export function runDatabaseReconstruction({
     writeFileSync(join(artifactRoot, "catalog-fingerprint.json"), canonicalCatalog);
     report.catalogFingerprintSha256 = sha256(canonicalCatalog);
     report.catalogFingerprintCategories = catalogCategories;
+    const expectedCatalogCategories = JSON.parse(
+      readFileSync(
+        resolve(repositoryRoot, "supabase/tests/expected-candidate-catalog-fingerprint.json"),
+        "utf8",
+      ),
+    );
+    const canonicalExpectedCatalog = `${JSON.stringify(expectedCatalogCategories)}\n`;
+    report.expectedCatalogFingerprintSha256 = sha256(canonicalExpectedCatalog);
+    report.expectedCatalogFingerprintMatch = canonicalCatalog === canonicalExpectedCatalog;
+    if (!report.expectedCatalogFingerprintMatch) {
+      report.status = "failed";
+      report.validationFailure = "schema_fingerprint_mismatch";
+    }
 
     const cityRowsJson = queryIsolatedDatabase(
       `SELECT coalesce(json_agg(json_build_object(
@@ -358,7 +373,7 @@ export function runDatabaseReconstruction({
         reconstructedCities.length === approvedCityVerification.rowCount &&
         reconstructedCitySha256 === approvedResolvedCitySha256,
     };
-    if (!report.referenceData.exactMatch) {
+    if (!report.referenceData.exactMatch && report.validationFailure === null) {
       report.status = "failed";
       report.validationFailure = "canonical_reference_data_mismatch";
     }

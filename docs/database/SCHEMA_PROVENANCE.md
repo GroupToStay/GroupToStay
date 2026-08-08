@@ -94,6 +94,10 @@ the stable semantic key `(country.code, city.name_en)` and `name_ar`, using the 
 Production country-ID mapping. It also emits a
 category-level catalog fingerprint for relations, columns, constraints, indexes, enums, functions,
 triggers, policies, table/column/routine grants, and extensions.
+The reviewed clean-reconstruction fingerprint is pinned at
+`supabase/tests/expected-candidate-catalog-fingerprint.json`; changing schema without updating that
+reviewed evidence fails the isolated workflow. The Production comparison and unresolved drift
+classifications are recorded separately in `docs/database/catalog-fingerprint-comparison.json`.
 
 ## Future release gate
 

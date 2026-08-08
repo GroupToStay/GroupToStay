@@ -63,6 +63,16 @@ Production UUID-to-ISO-code map. It addresses a city by the stable unique key
 Production city and country UUIDs remain snapshot provenance; they are not fabricated as clean-run
 identifiers. The migration has not been executed against Production.
 
+The corrected stable-key run
+[`31266498380`](https://github.com/GroupToStay/GroupToStay/actions/runs/31266498380) completed the full
+chain, reference-data assertion, catalog fingerprint, and candidate-type generation successfully.
+Its reviewed candidate catalog SHA-256 is
+`32648e2896ced36a30b2395b995ff0f636d909958698f5e6907a5e80c88075a8`. Routine isolated CI now
+fails if any of its 12 catalog category fingerprints changes without an explicit reviewed snapshot
+update. Production parity remains a separate decision: six categories match exactly; policy,
+function, grant, and environment-managed extension differences remain classified in
+`catalog-fingerprint-comparison.json`.
+
 ## Blocker inventory
 
 The 11 files from `20260712153351` through `20260712154229` are archived under

@@ -121,4 +121,19 @@ RAISE EXCEPTION 'Approved city localization stable-key mismatch';
     expect(fingerprintSql).not.toMatch(/FROM\s+public\./iu);
     expect(fingerprintSql).not.toMatch(/FROM\s+auth\.users/iu);
   });
+
+  it("pins the reviewed clean-reconstruction catalog fingerprint", () => {
+    const expected = JSON.parse(
+      readFileSync(resolve("supabase/tests/expected-candidate-catalog-fingerprint.json"), "utf8"),
+    );
+    const runner = readFileSync(resolve("scripts/run-database-reconstruction.mjs"), "utf8");
+
+    expect(expected).toHaveLength(12);
+    expect(expected.find((entry) => entry.category === "relations")).toEqual({
+      category: "relations",
+      objectCount: 34,
+      definitionMd5: "6422b5595777ff69da86e28393e6c73e",
+    });
+    expect(runner).toContain("schema_fingerprint_mismatch");
+  });
 });

@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-08",
+  "productionProjectRef": "atxecflhmphaqqkatjlm",
+  "productionInspection": "read_only_catalog_query",
+  "productionWritesPerformed": false,
+  "candidateSourceRun": "https://github.com/GroupToStay/GroupToStay/actions/runs/31266498380",
+  "candidateCatalogSha256": "32648e2896ced36a30b2395b995ff0f636d909958698f5e6907a5e80c88075a8",
+  "categories": [
+    {
+      "category": "column_grants",
+      "candidate": { "objectCount": 4892, "definitionMd5": "6bfa5ffa21d7b6088534c8c8b9448f9c" },
+      "production": { "objectCount": 5847, "definitionMd5": "e9408238f98ab7f036d6fc0550e4e4df" },
+      "match": false,
+      "classification": "permission_drift_requires_object_level_review"
+    },
+    {
+      "category": "columns",
+      "candidate": { "objectCount": 357, "definitionMd5": "9e62f047a04d856dacd4e9a22bf178a7" },
+      "production": { "objectCount": 357, "definitionMd5": "9e62f047a04d856dacd4e9a22bf178a7" },
+      "match": true,
+      "classification": "exact_match"
+    },
+    {
+      "category": "constraints",
+      "candidate": { "objectCount": 111, "definitionMd5": "3da708f15dedc3bf7e5478eaefa800a9" },
+      "production": { "objectCount": 111, "definitionMd5": "3da708f15dedc3bf7e5478eaefa800a9" },
+      "match": true,
+      "classification": "exact_match"
+    },
+    {
+      "category": "enums",
+      "candidate": { "objectCount": 63, "definitionMd5": "95666787dba933edd62d87dac0ac822d" },
+      "production": { "objectCount": 63, "definitionMd5": "95666787dba933edd62d87dac0ac822d" },
+      "match": true,
+      "classification": "exact_match"
+    },
+    {
+      "category": "extensions",
+      "candidate": { "objectCount": 6, "definitionMd5": "75e2fade0e6fd5c421822e5278d3efce" },
+      "production": { "objectCount": 5, "definitionMd5": "69518ed89596542e557e50aa1c4b9d2b" },
+      "match": false,
+      "classification": "isolated_stack_environment_difference"
+    },
+    {
+      "category": "functions",
+      "candidate": { "objectCount": 57, "definitionMd5": "8b9e4bc59f8039ac2022f9f391abe89a" },
+      "production": { "objectCount": 57, "definitionMd5": "e456b836073753f159eb24da21bbbed6" },
+      "match": false,
+      "classification": "definition_or_acl_drift_requires_object_level_review"
+    },
+    {
+      "category": "indexes",
+      "candidate": { "objectCount": 74, "definitionMd5": "1c098f77b56397380c62c2cc095de7da" },
+      "production": { "objectCount": 74, "definitionMd5": "1c098f77b56397380c62c2cc095de7da" },
+      "match": true,
+      "classification": "exact_match"
+    },
+    {
+      "category": "policies",
+      "candidate": { "objectCount": 158, "definitionMd5": "59d112cd26165a66170ad901b77e469b" },
+      "production": { "objectCount": 148, "definitionMd5": "b877e85f40b5578be5416b929ed95071" },
+      "match": false,
+      "classification": "known_july_12_policy_drift_owner_decision_required"
+    },
+    {
+      "category": "relations",
+      "candidate": { "objectCount": 34, "definitionMd5": "6422b5595777ff69da86e28393e6c73e" },
+      "production": { "objectCount": 34, "definitionMd5": "6422b5595777ff69da86e28393e6c73e" },
+      "match": true,
+      "classification": "exact_match"
+    },
+    {
+      "category": "routine_grants",
+      "candidate": { "objectCount": 76, "definitionMd5": "c2a93310850de89833e3ce04022912d3" },
+      "production": { "objectCount": 133, "definitionMd5": "216c5407350cecd96eace073d9f68a39" },
+      "match": false,
+      "classification": "permission_drift_requires_object_level_review"
+    },
+    {
+      "category": "table_grants",
+      "candidate": { "objectCount": 821, "definitionMd5": "f852ac9ed9fd3553b2fe7d4b492ae288" },
+      "production": { "objectCount": 945, "definitionMd5": "bf3248815fdf6ce58f8401d28a641e7f" },
+      "match": false,
+      "classification": "permission_drift_requires_object_level_review"
+    },
+    {
+      "category": "triggers",
+      "candidate": { "objectCount": 57, "definitionMd5": "90223977d2cc70db99cbbccb72ceec47" },
+      "production": { "objectCount": 57, "definitionMd5": "90223977d2cc70db99cbbccb72ceec47" },
+      "match": true,
+      "classification": "exact_match"
+    }
+  ]
+}
