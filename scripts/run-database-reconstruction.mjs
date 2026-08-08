@@ -138,7 +138,9 @@ function queryIsolatedDatabase(sql, options) {
 }
 
 function extractGeneratedTypeMembers(value, sectionName) {
-  const start = value.indexOf(`    ${sectionName}: {`);
+  const publicSchemaStart = value.indexOf("  public: {");
+  if (publicSchemaStart < 0) return [];
+  const start = value.indexOf(`    ${sectionName}: {`, publicSchemaStart);
   if (start < 0) return [];
   const sectionNames = ["Tables", "Views", "Functions", "Enums", "CompositeTypes"];
   const nextOffsets = sectionNames

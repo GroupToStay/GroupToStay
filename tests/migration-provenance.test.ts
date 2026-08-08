@@ -55,4 +55,17 @@ describe("Production migration provenance map", () => {
     expect(migration).toContain("ADD COLUMN IF NOT EXISTS city_name text");
     expect(migration).toContain("profiles_city_name_length_check");
   });
+
+  it("records the guarded repository-only localization reconciliation separately", () => {
+    const reconciliation = provenance.canonicalReconciliationMigration;
+
+    expect(reconciliation.productionLedgerVersion).toBeNull();
+    expect(reconciliation.productionExecutionAuthorized).toBe(false);
+    expect(
+      normalizedSha256(resolve("supabase/migrations", reconciliation.repositoryFilename)),
+    ).toBe(reconciliation.normalizedSqlSha256);
+    expect(reconciliation.normalizedSqlSha256).toBe(
+      "48bc7da579f4f170db0a838e30a65c67595de273a6f10c500e380b963d6e3614",
+    );
+  });
 });

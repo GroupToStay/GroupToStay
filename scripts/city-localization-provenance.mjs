@@ -1,10 +1,14 @@
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { readFileSync, writeFileSync } from "node:fs";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultSourcePath = resolve(repositoryRoot, "supabase/reference-data/cities-arabic.json");
+const defaultMigrationPath = resolve(
+  repositoryRoot,
+  "supabase/migrations/20260808190000_canonical_database_reconciliation.sql",
+);
 
 function sqlLiteral(value) {
   return `'${value.replaceAll("'", "''")}'`;
@@ -69,7 +73,9 @@ export function generateCityLocalizationSql(source) {
 
   return `-- Deterministically generated from supabase/reference-data/cities-arabic.json.
 -- Canonical row SHA-256: ${verification.canonicalRowsSha256}
--- Repository candidate only. Do not execute without explicit owner approval.
+-- The snapshot is canonical for the currently approved live state.
+-- The original historical translation provenance is unknown.
+-- Production execution requires separate explicit owner approval.
 BEGIN;
 
 CREATE TEMP TABLE approved_city_localization (
@@ -134,10 +140,16 @@ if (invokedPath === fileURLToPath(import.meta.url)) {
   const source = readCityLocalizationSource();
   if (process.argv.includes("--emit-sql")) {
     process.stdout.write(generateCityLocalizationSql(source));
+  } else if (process.argv.includes("--write-migration")) {
+    const migration = generateCityLocalizationSql(source);
+    writeFileSync(defaultMigrationPath, migration, { encoding: "utf8" });
+    process.stdout.write(
+      `${JSON.stringify({ path: relative(repositoryRoot, defaultMigrationPath).replaceAll("\\", "/"), sha256: sha256(migration) })}\n`,
+    );
   } else if (process.argv.includes("--check")) {
     process.stdout.write(`${JSON.stringify(validateCityLocalizationSource(source))}\n`);
   } else {
-    process.stderr.write("Use --check or --emit-sql.\n");
+    process.stderr.write("Use --check, --emit-sql, or --write-migration.\n");
     process.exitCode = 1;
   }
 }

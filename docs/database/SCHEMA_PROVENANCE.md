@@ -19,8 +19,8 @@ its SQL should be replayed.
 - Git baseline: `7918ea532eeeba809357a05db07117dc4aeb103a`
 - Supabase project reference: `atxecflhmphaqqkatjlm`
 - Audit date: 2026-08-08
-- Repository migration files: 80 after exact ledger-sourced global migration restoration
-- Executable migration files: 69 after the approved archive of 11 pure replay bundles
+- Repository migration files: 81 after exact ledger-sourced global restoration and the guarded reconciliation candidate
+- Executable migration files: 70 after the approved archive of 11 pure replay bundles
 - Production ledger rows: 60
 - Exact stored-statement matches under shifted Lovable versions: 56
 - Production writes during audit: 0

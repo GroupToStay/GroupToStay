@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   generateCityLocalizationSql,
@@ -32,5 +34,16 @@ describe("approved Arabic city localization provenance", () => {
     tampered.cities[0].name_ar = "قيمة معدلة";
 
     expect(() => validateCityLocalizationSource(tampered)).toThrow("checksum does not match");
+  });
+
+  it("keeps the executable reconciliation migration deterministic", () => {
+    const migration = readFileSync(
+      resolve("supabase/migrations/20260808190000_canonical_database_reconciliation.sql"),
+      "utf8",
+    );
+
+    expect(migration).toBe(generateCityLocalizationSql(source));
+    expect(migration).toContain("The snapshot is canonical for the currently approved live state.");
+    expect(migration).toContain("Production execution requires separate explicit owner approval.");
   });
 });

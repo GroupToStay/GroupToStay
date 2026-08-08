@@ -7,6 +7,13 @@
   "productionWritesPerformed": false,
   "archivedReplayManifest": "supabase/migration-archive/manifest.json",
   "archivedReplayCount": 11,
+  "canonicalReconciliationMigration": {
+    "repositoryFilename": "20260808190000_canonical_database_reconciliation.sql",
+    "normalizedSqlSha256": "48bc7da579f4f170db0a838e30a65c67595de273a6f10c500e380b963d6e3614",
+    "productionLedgerVersion": null,
+    "classification": "repository_only_guarded_reference_data_reconciliation",
+    "productionExecutionAuthorized": false
+  },
   "entries": [
     {
       "executionOrder": 1,

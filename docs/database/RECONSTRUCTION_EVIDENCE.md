@@ -49,6 +49,16 @@ This proves executable ordering, not approved schema parity. The four mixed July
 produce policy/ACL differences from Production. Their object-level evidence is in
 `july-12-unique-effects.json`; active-account intent remains an owner decision.
 
+The upgraded postcondition gate in run
+[`31265405078`](https://github.com/GroupToStay/GroupToStay/actions/runs/31265405078) proved that all
+1,583 reconstructed city identities exist but their canonical label checksum was
+`6d8c0f331248746fec6f6369a370daafd3617e379a6b9743c0a1d79aabff694a`, not the approved
+`eebc37b6132a04a96cdb9756b0ff6fa823a46bd96c05e76e8eb4b20effd41b9a`. The executable migrations
+therefore did not reproduce the approved localization state. The single generated migration
+`20260808190000_canonical_database_reconciliation.sql` now loads the canonical snapshot into a
+temporary table, verifies every city identity and English source value, updates only differing
+Arabic labels, and verifies the result. It has not been executed against Production.
+
 ## Blocker inventory
 
 The 11 files from `20260712153351` through `20260712154229` are archived under

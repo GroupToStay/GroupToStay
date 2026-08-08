@@ -73,8 +73,8 @@ ERROR: function public.required_helper() does not exist
   });
 
   it("reports candidate generated-type members without replacing committed types", () => {
-    const committed = `    Tables: {\n      profiles: {\n      }\n    Views: {\n    Functions: {\n    Enums: {\n`;
-    const candidate = `    Tables: {\n      profiles: {\n      }\n      rfq_lifecycle_events: {\n      }\n    Views: {\n    Functions: {\n      award_quote: {\n      }\n    Enums: {\n`;
+    const committed = `  public: {\n    Tables: {\n      profiles: {\n      }\n    Views: {\n    Functions: {\n    Enums: {\n`;
+    const candidate = `  public: {\n    Tables: {\n      profiles: {\n      }\n      rfq_lifecycle_events: {\n      }\n    Views: {\n    Functions: {\n      award_quote: {\n      }\n    Enums: {\n`;
 
     expect(compareGeneratedTypes(candidate, committed)).toMatchObject({
       Tables: { added: ["rfq_lifecycle_events"], removed: [] },
