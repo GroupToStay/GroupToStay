@@ -13,21 +13,44 @@ try {
   process.exit(1);
 }
 
-const requiredFields = [
-  "version",
-  "gitSha",
-  "gitBranch",
-  "environment",
-  "buildTime",
-  "nodeVersion",
-  "packageManager",
-  "source",
-];
+const requiredFields = ["version", "sha", "branch", "environment", "timestamp", "node", "pnpm"];
 const missingFields = requiredFields.filter((field) => !metadata[field]);
+const extraFields = Object.keys(metadata).filter((field) => !requiredFields.includes(field));
+const timestampValid = !Number.isNaN(Date.parse(metadata.timestamp));
+const environmentValid = ["Local", "CI", "Development", "Preview", "Production"].includes(
+  metadata.environment,
+);
+const nodeMatch = /^v(\d+)\.(\d+)\.(\d+)$/.exec(metadata.node ?? "");
+const nodeParts = nodeMatch?.slice(1).map(Number);
+const nodeMinimum = ["Development", "Preview", "Production"].includes(metadata.environment)
+  ? [22, 22, 2]
+  : [22, 23, 1];
+const nodeCompatible =
+  nodeParts != null &&
+  nodeParts[0] === 22 &&
+  nodeParts.every((part, index) => {
+    const previousPartsMatch = nodeParts
+      .slice(0, index)
+      .every((item, offset) => item === nodeMinimum[offset]);
+    return !previousPartsMatch || part >= nodeMinimum[index];
+  });
 
-if (missingFields.length > 0 || !/^[0-9a-f]{40}$/i.test(metadata.gitSha)) {
-  console.error(`[provenance] Invalid build metadata: ${missingFields.join(", ") || "gitSha"}.`);
+if (
+  missingFields.length > 0 ||
+  extraFields.length > 0 ||
+  !/^[0-9a-f]{40}$/i.test(metadata.sha) ||
+  !timestampValid ||
+  !environmentValid ||
+  !nodeCompatible ||
+  metadata.pnpm !== "11.7.0"
+) {
+  console.error(
+    `[provenance] Invalid build metadata: ${
+      [...missingFields, ...extraFields.map((field) => `unexpected:${field}`)].join(", ") ||
+      "sha/timestamp/runtime"
+    }.`,
+  );
   process.exit(1);
 }
 
-console.log(`[provenance] Verified build ${metadata.version} (${metadata.gitSha.slice(0, 12)}).`);
+console.log(`[provenance] Verified build ${metadata.version} (${metadata.sha.slice(0, 12)}).`);

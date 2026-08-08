@@ -16,13 +16,17 @@ threads, and no force pushes or branch deletion. Require owner approval for prod
 
 ## Vercel
 
-- Git repository: `Rmdn96/GroupToStay`
+- Git repository: `GroupToStay/GroupToStay`
 - Production branch: `main`
 - Git-based deployments only; manual `vercel deploy --prod` is prohibited.
 - Preview deployments originate from reviewed branches or pull requests.
 - Production and Preview variables are scoped separately and contain one canonical Supabase URL
   and one public key variable.
 - The deployment's `/build-metadata.json` SHA must equal the approved commit before smoke tests.
+- Vercel may use its managed Node runtime within `>=22.22.2 <23` as a temporary platform
+  exception. Local development and GitHub Actions remain pinned to `22.23.1`; Node 24 is not
+  approved. Remove this exception when Vercel's managed Node 22 runtime reaches the preferred
+  `22.23.1` floor.
 
 ## Database Gate
 
@@ -40,11 +44,9 @@ destructive rollback is not automatic.
 
 1. GitHub Actions secret `VITE_SUPABASE_ANON_KEY` is configured. Keep its value external to the
    repository and rotate it through GitHub if needed.
-2. Branch protection for `main` is configured, but GitHub cannot enforce it while this repository
-   remains private on GitHub Free. Treat it as documented policy until the repository is moved to
-   an eligible plan or organization.
-3. Confirm Vercel uses Node `22.x` and retains the `main` production branch; verify the actual
-   patch in `/build-metadata.json` after deployment.
+2. Keep the public GitHub repository's `main` branch protection and required checks enabled.
+3. Confirm Vercel uses Node `>=22.22.2 <23` and retains the `main` production branch; verify the
+   actual patch in `/build-metadata.json` after deployment.
 4. Stop manual Production deployments and promote only Git-backed builds.
 5. Review duplicate Vercel environment entries and keep one canonical variable per scope.
 
