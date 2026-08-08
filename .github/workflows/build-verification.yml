@@ -16,6 +16,9 @@ jobs:
     name: Verify Build
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      VITE_SUPABASE_URL: https://atxecflhmphaqqkatjlm.supabase.co
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
     steps:
       - name: Checkout repository
@@ -34,16 +37,8 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('.node-version') }}-node-modules-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-node-${{ hashFiles('.node-version') }}-node-modules-
-
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Check formatting
         run: pnpm format:check
@@ -54,5 +49,11 @@ jobs:
       - name: Lint
         run: pnpm exec eslint .
 
+      - name: Test
+        run: pnpm test
+
       - name: Build
         run: pnpm build
+
+      - name: Verify build provenance
+        run: pnpm provenance:verify
