@@ -1,9 +1,23 @@
 # Reconstruction Evidence and Canonical Strategy
 
-- Audit date: 2026-08-08
+- Audit date: 2026-08-09
 - Baseline: `7918ea532eeeba809357a05db07117dc4aeb103a`
-- Candidate migration count: 80
+- Canonical executable migration count: 67
+- Canonical archive count: 15
 - Production writes: none
+
+## Final canonical result
+
+The final empty reconstruction succeeds with exactly 148 policies and no Production connection,
+credential, or project link. The reviewed catalog SHA-256 is
+`b0c215980d192222d19da193b98eff7cae41bb6b6a715f348d9bfc851d44cb5d`; the schema dump SHA-256 is
+`7d13a27c750922f78e405e93a9c873d5459888e2f6c4ad94cc35db871f239e15`.
+
+The forward migration `20260809120000_canonicalize_production_authorization_baseline.sql`
+removes only `public.rfqs.Admin updates all RFQs` and
+`public.rfqs.Admin deletes all RFQs` when their definitions match the reviewed historical drift.
+Candidate and Production policy exports now have zero object or semantic differences. Generated
+types are promoted and exact equality is a blocking reconstruction gate.
 
 ## Ephemeral workflow
 
@@ -31,8 +45,9 @@ Supabase CLI `2.113.0`. The report recorded `productionConnectivityUsed=false`,
 object `app_role`. The public-safe artifact upload succeeded; candidate types and a schema
 fingerprint were correctly not generated.
 
-Local execution remains unavailable because the host Docker engine cannot start while
-WSL2/virtualization is disabled. The workflow did not suppress or repair the migration error.
+That historical run occurred before local Docker became available. The final canonical chain has
+since been reconstructed locally with the same pinned Supabase CLI and without suppressing or
+repairing migration errors.
 
 ## Third-pass reconstruction result
 
@@ -92,11 +107,11 @@ superseded. Their per-effect disposition is in `july-12-unique-effects.json`.
 
 ## Candidate generated types
 
-Generated as a short-lived public-safe workflow artifact after clean reconstruction. The permanent
-gate now records an exact type diff and structured table/view/function/enum member changes without
-overwriting `src/integrations/supabase/types.ts`. `profiles.city_name` and
-`rfq_lifecycle_events` are explicitly asserted in the candidate report. Final replacement remains
-deferred until the canonical schema decisions are approved.
+Generated from the final clean reconstruction and promoted to
+`src/integrations/supabase/types.ts` after owner approval. The permanent gate normalizes only
+end-of-file whitespace, requires exact byte equality, and fails with `generated_type_drift` on any
+difference. `profiles.city_name`, `rfq_lifecycle_events`, and `is_agency_rfq_eligible` are
+explicitly asserted.
 
 ## Permanent CI drift gate
 

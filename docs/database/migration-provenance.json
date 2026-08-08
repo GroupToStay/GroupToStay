@@ -7,11 +7,21 @@
   "productionWritesPerformed": false,
   "archivedReplayManifest": "supabase/migration-archive/manifest.json",
   "archivedReplayCount": 11,
+  "archivedMixedHistoryCount": 4,
+  "archivedMigrationCount": 15,
   "canonicalReconciliationMigration": {
     "repositoryFilename": "20260808190000_canonical_database_reconciliation.sql",
     "normalizedSqlSha256": "00f13283b36b3b63accdfd1e13bd9225b26f07e9d66636a18d7891bdaf4c1add",
     "productionLedgerVersion": null,
     "classification": "repository_only_guarded_reference_data_reconciliation",
+    "productionExecutionAuthorized": false
+  },
+  "authorizationCanonicalizationMigration": {
+    "repositoryFilename": "20260809120000_canonicalize_production_authorization_baseline.sql",
+    "normalizedSqlSha256": "f6a213c2529c41a3cec7151e8a5a7be7be073df42f9a7720a76dbff40d00c405",
+    "productionLedgerVersion": null,
+    "classification": "repository_forward_policy_canonicalization",
+    "expectedProductionObjectChanges": 0,
     "productionExecutionAuthorized": false
   },
   "entries": [

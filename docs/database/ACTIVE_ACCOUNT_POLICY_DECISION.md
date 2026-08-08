@@ -3,7 +3,7 @@
 - Audit date: 2026-08-08
 - Production project: `atxecflhmphaqqkatjlm`
 - Production writes: none
-- Decision status: **OWNER DECISION REQUIRED**
+- Decision status: **OWNER DECISION RECORDED — current Production behavior is canonical**
 
 ## Current Production semantics
 
@@ -39,12 +39,12 @@ Relying on client checks would not substitute for database authorization, but th
 - Removing the four existing triggers would weaken current write protection and is not proposed.
 - Revoking direct EXECUTE on the internal trigger function is least-privilege hardening and should be decided separately from the all-command policy model.
 
-## Decision required
+## Recorded canonical decision
 
-The evidence does not establish one unambiguous intended model. Owner approval is required for:
-
-1. retain Production's four trigger-only guards and omit the seven unledgered restrictive policies from the canonical final state; or
-2. adopt the seven all-command policies as a deliberate authorization change with role/route regression tests; and
-3. independently approve or defer the authenticated EXECUTE revocation on `prevent_non_admin_account_status_change()`.
+The owner selected Production's four trigger-only guards and current visibility behavior as the
+canonical baseline. The seven unledgered restrictive policies are historical security proposals,
+not executable baseline changes. The authenticated `EXECUTE` revocation on
+`prevent_non_admin_account_status_change()` is **Deferred Security Hardening**; it is not part of
+this reconciliation and must be reconsidered in a separately approved least-privilege change.
 
 No candidate migration in this pass changes active-account semantics or the live function ACL.

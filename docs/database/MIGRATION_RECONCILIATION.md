@@ -1,5 +1,20 @@
 # Migration Reconciliation
 
+## Final canonicalization outcome
+
+The owner-approved forward migration
+`20260809120000_canonicalize_production_authorization_baseline.sql` removes only the two
+candidate-only RFQ administrator policies after validating their exact definitions. Fresh
+reconstruction now produces 148 policies with zero object-level or semantic policy differences
+from the read-only Production export.
+
+Current Production already lacks both policies, so execution there is expected to be object-level
+no-op. The migration has not been executed and the Production ledger remains unchanged.
+
+The final repository chain contains 67 executable migrations and 15 byte-preserved archived files.
+The generated types and normalized catalog fingerprint now derive from the clean canonical
+reconstruction.
+
 ## Audit conclusion
 
 Production must not receive a migration replay or ledger repair in the first pass. The repository
@@ -287,6 +302,7 @@ migrations. It must not be applied without a separate owner approval containing 
 
 ## Current gate
 
-- GO for repository documentation and further isolated verification: **YES**
-- GO for Production ledger/schema/RLS/data writes: **NO**
-- Ready to implement owner-approved reconciliation changes: **NO, pending the decisions above**
+- Repository canonicalization: **COMPLETE LOCALLY**
+- Production object repair required: **NO**
+- Production migration or ledger execution authorized: **NO**
+- PR2 merge: **PENDING exact-head GitHub checks and owner approval**

@@ -3,6 +3,7 @@
 - Audit date: 2026-08-08
 - Production project: `atxecflhmphaqqkatjlm`
 - Production writes/removals: none
+- Fourth-pass fixture status: **PASS in isolated reconstruction only**
 
 All eight triggers are enabled (`tgenabled = O`). [PostgreSQL fires triggers for the same event on
 the same relation in alphabetical trigger-name order](https://www.postgresql.org/docs/current/trigger-definition.html).
@@ -19,4 +20,18 @@ stops at the first raising trigger, while an accepted row executes the same chec
 
 The suggested candidates are provenance-based, not authorized removals. Before any additive cleanup migration, an isolated database must prove equivalent success/error behavior and verify that no later migration explicitly refers to the candidate name. Current live row counts are three bookings, three conversations, and four RFQs; existing rows do not require duplicate execution to remain valid.
 
-The canonical chain now reconstructs successfully, but the required before/after role fixtures (allowed and rejected operations, SQLSTATE/error parity, and audit/lifecycle/notification assertions) are not yet complete. Therefore the candidate reconciliation migration contains no `DROP TRIGGER` statement. All eight triggers remain in the reconstructed candidate and Production, and trigger fingerprint parity is exact.
+The fourth-pass transaction-scoped fixture now proves before/after equivalence for every pair:
+
+- allowed booking status update and denied commercial-field update;
+- allowed verified-agency conversation insert and denied draft-agency insert;
+- allowed verified-agency RFQ insert, denied incomplete-agency RFQ insert, and denied invalid RFQ row;
+- matching `P0001`/message semantics, unchanged denied rows, and no duplicate lifecycle,
+  notification, audit, or conversation side effects.
+
+The fixture runs in the disposable reconstruction database and rolls back fixture data plus each
+temporary disabled-trigger state. Candidate cleanup SQL is available at
+`supabase/migration-candidates/20260808193000_remove_duplicate_guard_triggers.sql`. It has exact
+`DROP TRIGGER IF EXISTS` statements and pre/postconditions that require the intended survivor once.
+It is **not executable migration history** and has not been applied to Production. All eight
+triggers therefore remain in the reconstructed canonical baseline and Production pending a
+separate owner approval to promote that candidate.
