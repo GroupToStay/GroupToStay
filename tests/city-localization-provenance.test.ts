@@ -4,11 +4,14 @@ import { describe, expect, it } from "vitest";
 import {
   generateCityLocalizationSql,
   readCityLocalizationSource,
+  readProductionCountryMap,
   validateCityLocalizationSource,
+  validateProductionCountryMap,
 } from "../scripts/city-localization-provenance.mjs";
 
 describe("approved Arabic city localization provenance", () => {
   const source = readCityLocalizationSource();
+  const countryMap = readProductionCountryMap();
 
   it("reproduces all approved live labels with the recorded stable checksum", () => {
     expect(validateCityLocalizationSource(source)).toEqual({
@@ -23,10 +26,18 @@ describe("approved Arabic city localization provenance", () => {
 
     expect(first).toBe(second);
     expect(first).toContain("CREATE TEMP TABLE approved_city_localization");
-    expect(first).toContain("Approved city localization identity/source mismatch");
+    expect(first).toContain("Approved city localization stable-key mismatch");
+    expect(first).toContain("country.code = approved.country_code");
     expect(first).toContain("UPDATE public.cities AS city");
     expect(first).not.toContain("supabase.co");
     expect(first).not.toContain("service_role");
+  });
+
+  it("resolves every generated Production UUID through a stable country code", () => {
+    const mapping = validateProductionCountryMap(countryMap, source);
+
+    expect(mapping.size).toBe(76);
+    expect(source.cities.every((city) => mapping.has(city.country_id))).toBe(true);
   });
 
   it("rejects source data that no longer matches the approved checksum", () => {

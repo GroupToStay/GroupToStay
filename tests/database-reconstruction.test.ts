@@ -36,6 +36,22 @@ ERROR: function public.required_helper() does not exist
     });
   });
 
+  it("classifies only the final migration error, ignoring earlier benign notices", () => {
+    const result = classifyMigrationFailure(`
+Applying migration 20260712154548_earlier.sql...
+NOTICE: policy "example" already exists, skipping
+Applying migration 20260808190000_canonical_database_reconciliation.sql...
+ERROR: Approved city localization stable-key mismatch (SQLSTATE P0001)
+RAISE EXCEPTION 'Approved city localization stable-key mismatch';
+`);
+
+    expect(result).toEqual({
+      migration: "20260808190000_canonical_database_reconciliation.sql",
+      errorClass: "invalid_assumption",
+      affectedObject: null,
+    });
+  });
+
   it("redacts credentials and connection strings from public-safe logs", () => {
     const sanitized = sanitizeReconstructionLog(
       "postgresql://postgres:private@localhost:5432/postgres token=private sb_secret_private",
@@ -65,6 +81,7 @@ ERROR: function public.required_helper() does not exist
     expect(workflow).toContain("version: 2.113.0");
     expect(workflow).toContain('CI_DATABASE_RECONSTRUCTION: "1"');
     expect(workflow).toContain('"supabase/reference-data/cities-arabic.json"');
+    expect(workflow).toContain('"supabase/reference-data/production-country-id-code.json"');
     expect(workflow).toContain('"supabase/tests/**"');
     expect(workflow).not.toMatch(/SUPABASE_(?:ACCESS_TOKEN|DB_PASSWORD|PROJECT_REF):/u);
     expect(runner).toContain('"db", "start"');

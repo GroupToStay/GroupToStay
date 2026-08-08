@@ -51,13 +51,17 @@ produce policy/ACL differences from Production. Their object-level evidence is i
 
 The upgraded postcondition gate in run
 [`31265405078`](https://github.com/GroupToStay/GroupToStay/actions/runs/31265405078) proved that all
-1,583 reconstructed city identities exist but their canonical label checksum was
+1,583 reconstructed cities exist but their generated UUIDs and canonical label checksum were not
+portable across a clean database. The clean-run checksum was
 `6d8c0f331248746fec6f6369a370daafd3617e379a6b9743c0a1d79aabff694a`, not the approved
 `eebc37b6132a04a96cdb9756b0ff6fa823a46bd96c05e76e8eb4b20effd41b9a`. The executable migrations
 therefore did not reproduce the approved localization state. The single generated migration
 `20260808190000_canonical_database_reconciliation.sql` now loads the canonical snapshot into a
-temporary table, verifies every city identity and English source value, updates only differing
-Arabic labels, and verifies the result. It has not been executed against Production.
+temporary table and resolves each live country UUID through the separately captured 76-row
+Production UUID-to-ISO-code map. It addresses a city by the stable unique key
+`(country.code, city.name_en)`, updates only differing Arabic labels, and verifies the result. The
+Production city and country UUIDs remain snapshot provenance; they are not fabricated as clean-run
+identifiers. The migration has not been executed against Production.
 
 ## Blocker inventory
 

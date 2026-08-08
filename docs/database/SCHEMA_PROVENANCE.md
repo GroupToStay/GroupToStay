@@ -87,9 +87,11 @@ reconstruction succeeds.
 
 The snapshot is canonical for the currently approved live state. The original historical translation provenance is unknown.
 
-The reconstruction gate validates all 1,583 city rows against
-`supabase/reference-data/cities-arabic.json` and the canonical checksum
-`eebc37b6132a04a96cdb9756b0ff6fa823a46bd96c05e76e8eb4b20effd41b9a`. It also emits a
+The reconstruction gate validates the canonical 1,583-row live snapshot and its immutable checksum
+`eebc37b6132a04a96cdb9756b0ff6fa823a46bd96c05e76e8eb4b20effd41b9a`. Because the historical
+migrations generated country and city UUIDs at execution time, clean-run parity is evaluated by
+the stable semantic key `(country.code, city.name_en)` and `name_ar`, using the separately captured
+Production country-ID mapping. It also emits a
 category-level catalog fingerprint for relations, columns, constraints, indexes, enums, functions,
 triggers, policies, table/column/routine grants, and extensions.
 

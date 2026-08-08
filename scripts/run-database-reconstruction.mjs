@@ -14,9 +14,11 @@ import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  canonicalizeCityRows,
+  canonicalizeResolvedCityRows,
   readCityLocalizationSource,
+  readProductionCountryMap,
   validateCityLocalizationSource,
+  validateProductionCountryMap,
 } from "./city-localization-provenance.mjs";
 
 const forbiddenRemoteEnvironment = [
@@ -51,21 +53,26 @@ export function sanitizeReconstructionLog(value, workspace = "") {
 export function classifyMigrationFailure(log) {
   const migrationMatches = [...log.matchAll(migrationPattern)];
   const migration = migrationMatches.at(-1)?.[1] ?? null;
+  const relevantLog = migrationMatches.at(-1)
+    ? log.slice((migrationMatches.at(-1)?.index ?? 0) + migrationMatches.at(-1)[0].length)
+    : log;
 
   let errorClass = "other";
-  if (/already exists|duplicate_object/iu.test(log)) {
+  if (/already exists|duplicate_object/iu.test(relevantLog)) {
     errorClass = "duplicate_object";
-  } else if (/duplicate key|unique constraint/iu.test(log)) {
+  } else if (/duplicate key|unique constraint/iu.test(relevantLog)) {
     errorClass = "replay_migration";
-  } else if (/does not exist|undefined_(?:table|function|column|object)/iu.test(log)) {
+  } else if (/does not exist|undefined_(?:table|function|column|object)/iu.test(relevantLog)) {
     errorClass = "missing_prerequisite";
-  } else if (/permission denied|must be owner|unsupported extension/iu.test(log)) {
+  } else if (/permission denied|must be owner|unsupported extension/iu.test(relevantLog)) {
     errorClass = "environment_difference";
-  } else if (/syntax error|invalid input|violates .* constraint/iu.test(log)) {
+  } else if (
+    /syntax error|invalid input|violates .* constraint|RAISE EXCEPTION/iu.test(relevantLog)
+  ) {
     errorClass = "invalid_assumption";
   }
 
-  const objectMatch = log.match(
+  const objectMatch = relevantLog.match(
     /(?:relation|table|column|function|constraint|type|schema|trigger|policy)\s+["']?([^"'\s,;]+)/iu,
   );
 
@@ -317,11 +324,12 @@ export function runDatabaseReconstruction({
 
     const cityRowsJson = queryIsolatedDatabase(
       `SELECT coalesce(json_agg(json_build_object(
-        'id', id::text,
-        'country_id', country_id::text,
-        'name_en', name_en,
-        'name_ar', name_ar
-      ) ORDER BY id)::text, '[]') FROM public.cities;`,
+        'country_code', country.code,
+        'name_en', city.name_en,
+        'name_ar', city.name_ar
+      ) ORDER BY country.code, city.name_en)::text, '[]')
+      FROM public.cities city
+      JOIN public.countries country ON country.id = city.country_id;`,
       { cwd: isolatedRoot, env: childEnvironment, dockerCommand },
     );
     const reconstructedCities = JSON.parse(cityRowsJson);
@@ -329,15 +337,26 @@ export function runDatabaseReconstruction({
       resolve(repositoryRoot, "supabase/reference-data/cities-arabic.json"),
     );
     const approvedCityVerification = validateCityLocalizationSource(approvedCitySource);
-    const reconstructedCitySha256 = sha256(canonicalizeCityRows(reconstructedCities));
+    const approvedCountryMap = readProductionCountryMap(
+      resolve(repositoryRoot, "supabase/reference-data/production-country-id-code.json"),
+    );
+    const countryIdToCode = validateProductionCountryMap(approvedCountryMap, approvedCitySource);
+    const approvedResolvedCities = approvedCitySource.cities.map((city) => ({
+      country_code: countryIdToCode.get(city.country_id),
+      name_en: city.name_en,
+      name_ar: city.name_ar,
+    }));
+    const reconstructedCitySha256 = sha256(canonicalizeResolvedCityRows(reconstructedCities));
+    const approvedResolvedCitySha256 = sha256(canonicalizeResolvedCityRows(approvedResolvedCities));
     report.referenceData = {
       reconstructedRowCount: reconstructedCities.length,
       approvedRowCount: approvedCityVerification.rowCount,
-      reconstructedCanonicalRowsSha256: reconstructedCitySha256,
-      approvedCanonicalRowsSha256: approvedCityVerification.canonicalRowsSha256,
+      approvedLiveSnapshotSha256: approvedCityVerification.canonicalRowsSha256,
+      reconstructedStableRowsSha256: reconstructedCitySha256,
+      approvedStableRowsSha256: approvedResolvedCitySha256,
       exactMatch:
         reconstructedCities.length === approvedCityVerification.rowCount &&
-        reconstructedCitySha256 === approvedCityVerification.canonicalRowsSha256,
+        reconstructedCitySha256 === approvedResolvedCitySha256,
     };
     if (!report.referenceData.exactMatch) {
       report.status = "failed";

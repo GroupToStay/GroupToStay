@@ -116,6 +116,9 @@ label equals its English label. The read-only reference-data hashes are:
 The deterministic city reference snapshot contains all 1,583 rows ordered by city ID. Its
 quoted-content-preserving canonical row SHA-256 is
 `eebc37b6132a04a96cdb9756b0ff6fa823a46bd96c05e76e8eb4b20effd41b9a`.
+The UUIDs record the approved live state; they are not stable reconstruction keys. The accompanying
+76-row Production country-ID-to-ISO-code mapping permits deterministic clean reconstruction by
+`(country.code, city.name_en)` without inventing or rewriting identifiers.
 
 `profiles.city_name` exists with its length check, but all ten current rows are null in that column.
 

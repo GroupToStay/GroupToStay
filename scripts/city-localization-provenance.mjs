@@ -5,6 +5,10 @@ import { fileURLToPath } from "node:url";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const defaultSourcePath = resolve(repositoryRoot, "supabase/reference-data/cities-arabic.json");
+const defaultCountryMapPath = resolve(
+  repositoryRoot,
+  "supabase/reference-data/production-country-id-code.json",
+);
 const defaultMigrationPath = resolve(
   repositoryRoot,
   "supabase/migrations/20260808190000_canonical_database_reconciliation.sql",
@@ -19,6 +23,15 @@ export function canonicalizeCityRows(rows) {
     .map(({ id, country_id: countryId, name_en: nameEn, name_ar: nameAr }) =>
       JSON.stringify([id, countryId, nameEn, nameAr]),
     )
+    .join("\n")}\n`;
+}
+
+export function canonicalizeResolvedCityRows(rows) {
+  return `${rows
+    .map(({ country_code: countryCode, name_en: nameEn, name_ar: nameAr }) =>
+      JSON.stringify([countryCode, nameEn, nameAr]),
+    )
+    .sort()
     .join("\n")}\n`;
 }
 
@@ -62,12 +75,52 @@ export function validateCityLocalizationSource(source) {
   };
 }
 
-export function generateCityLocalizationSql(source) {
+export function validateProductionCountryMap(source, citySource) {
+  if (source.schemaVersion !== 1 || !Array.isArray(source.countries)) {
+    throw new Error("Unsupported Production country mapping schema.");
+  }
+
+  const idToCode = new Map();
+  const codes = new Set();
+  let previousCode = "";
+  for (const [index, country] of source.countries.entries()) {
+    if (
+      typeof country.id !== "string" ||
+      country.id.trim() === "" ||
+      typeof country.code !== "string" ||
+      !/^[A-Z]{2}$/u.test(country.code)
+    ) {
+      throw new Error(`Country mapping row ${index} is invalid.`);
+    }
+    if (idToCode.has(country.id)) throw new Error(`Duplicate country id: ${country.id}`);
+    if (codes.has(country.code)) throw new Error(`Duplicate country code: ${country.code}`);
+    if (previousCode && country.code.localeCompare(previousCode) < 0) {
+      throw new Error("Production country mapping must be ordered by code.");
+    }
+    idToCode.set(country.id, country.code);
+    codes.add(country.code);
+    previousCode = country.code;
+  }
+
+  if (source.provenance.rowCount !== source.countries.length) {
+    throw new Error("Production country mapping row count does not match provenance metadata.");
+  }
+  for (const city of citySource.cities) {
+    if (!idToCode.has(city.country_id)) {
+      throw new Error(`City country id is absent from Production mapping: ${city.country_id}`);
+    }
+  }
+
+  return idToCode;
+}
+
+export function generateCityLocalizationSql(source, countryMapSource = readProductionCountryMap()) {
   const verification = validateCityLocalizationSource(source);
+  const countryIdToCode = validateProductionCountryMap(countryMapSource, source);
   const values = source.cities
     .map(
       (row) =>
-        `  (${sqlLiteral(row.id)}::uuid, ${sqlLiteral(row.country_id)}::uuid, ${sqlLiteral(row.name_en)}, ${sqlLiteral(row.name_ar)})`,
+        `  (${sqlLiteral(row.id)}::uuid, ${sqlLiteral(row.country_id)}::uuid, ${sqlLiteral(countryIdToCode.get(row.country_id))}, ${sqlLiteral(row.name_en)}, ${sqlLiteral(row.name_ar)})`,
     )
     .join(",\n");
 
@@ -79,13 +132,21 @@ export function generateCityLocalizationSql(source) {
 BEGIN;
 
 CREATE TEMP TABLE approved_city_localization (
-  id uuid PRIMARY KEY,
-  country_id uuid NOT NULL,
+  production_city_id uuid PRIMARY KEY,
+  production_country_id uuid NOT NULL,
+  country_code text NOT NULL,
   name_en text NOT NULL,
-  name_ar text NOT NULL
+  name_ar text NOT NULL,
+  UNIQUE (country_code, name_en)
 ) ON COMMIT DROP;
 
-INSERT INTO approved_city_localization (id, country_id, name_en, name_ar)
+INSERT INTO approved_city_localization (
+  production_city_id,
+  production_country_id,
+  country_code,
+  name_en,
+  name_ar
+)
 VALUES
 ${values};
 
@@ -98,12 +159,14 @@ BEGIN
   IF EXISTS (
     SELECT 1
     FROM approved_city_localization approved
-    LEFT JOIN public.cities live ON live.id = approved.id
-    WHERE live.id IS NULL
-       OR live.country_id IS DISTINCT FROM approved.country_id
-       OR live.name_en IS DISTINCT FROM approved.name_en
+    LEFT JOIN public.countries country ON country.code = approved.country_code
+    LEFT JOIN public.cities live
+      ON live.country_id = country.id
+     AND live.name_en = approved.name_en
+    WHERE country.id IS NULL
+       OR live.id IS NULL
   ) THEN
-    RAISE EXCEPTION 'Approved city localization identity/source mismatch';
+    RAISE EXCEPTION 'Approved city localization stable-key mismatch';
   END IF;
 END;
 $$;
@@ -111,7 +174,9 @@ $$;
 UPDATE public.cities AS city
 SET name_ar = approved.name_ar
 FROM approved_city_localization AS approved
-WHERE city.id = approved.id
+JOIN public.countries AS country ON country.code = approved.country_code
+WHERE city.country_id = country.id
+  AND city.name_en = approved.name_en
   AND city.name_ar IS DISTINCT FROM approved.name_ar;
 
 DO $$
@@ -119,7 +184,10 @@ BEGIN
   IF EXISTS (
     SELECT 1
     FROM approved_city_localization approved
-    JOIN public.cities live USING (id)
+    JOIN public.countries country ON country.code = approved.country_code
+    JOIN public.cities live
+      ON live.country_id = country.id
+     AND live.name_en = approved.name_en
     WHERE live.name_ar IS DISTINCT FROM approved.name_ar
   ) THEN
     RAISE EXCEPTION 'Approved city localization verification failed';
@@ -132,6 +200,10 @@ COMMIT;
 }
 
 export function readCityLocalizationSource(path = defaultSourcePath) {
+  return JSON.parse(readFileSync(path, "utf8"));
+}
+
+export function readProductionCountryMap(path = defaultCountryMapPath) {
   return JSON.parse(readFileSync(path, "utf8"));
 }
 
