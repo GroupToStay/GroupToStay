@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "candidateFunctionAclSha256": "d6696ea24a232de1aaf50c6e364f2555410257aa2a247f8f0d30e07c51eca4d0",
+  "productionFunctionAclSha256": "6d3cd48583d2b7c3571654d663dc19a54991842fd8e8b5d8799eb0ab265270c4",
+  "candidate": {
+    "owner": "postgres",
+    "schema": "public",
+    "function": "prevent_non_admin_account_status_change",
+    "search_path": "public",
+    "execute_grants": [
+      {
+        "grantee": "postgres",
+        "grantor": "postgres",
+        "grantable": false,
+        "privilege": "execute"
+      }
+    ],
+    "security_definer": true,
+    "identity_arguments": ""
+  },
+  "production": {
+    "owner": "postgres",
+    "schema": "public",
+    "function": "prevent_non_admin_account_status_change",
+    "search_path": "public",
+    "execute_grants": [
+      {
+        "grantee": "authenticated",
+        "grantor": "postgres",
+        "grantable": false,
+        "privilege": "execute"
+      },
+      {
+        "grantee": "postgres",
+        "grantor": "postgres",
+        "grantable": false,
+        "privilege": "execute"
+      },
+      {
+        "grantee": "service_role",
+        "grantor": "postgres",
+        "grantable": false,
+        "privilege": "execute"
+      }
+    ],
+    "security_definer": true,
+    "identity_arguments": ""
+  },
+  "definitionMatch": true,
+  "executeOnlyCandidate": [],
+  "executeOnlyProduction": [
+    {
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": false,
+      "privilege": "execute",
+      "classification": "canonical_production_acl_reconstruction_gap",
+      "reason": "The owner deferred revocation, so current Production authenticated EXECUTE remains canonical and is missing from the candidate."
+    },
+    {
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": false,
+      "privilege": "execute",
+      "classification": "supabase_managed_environment_difference",
+      "reason": "service_role default privileges differ between hosted Supabase and the isolated local stack."
+    }
+  ]
+}

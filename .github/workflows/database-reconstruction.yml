@@ -7,8 +7,10 @@ on:
       - ".github/workflows/database-reconstruction.yml"
       - "scripts/run-database-reconstruction.mjs"
       - "scripts/city-localization-provenance.mjs"
+      - "scripts/compare-database-evidence.mjs"
       - "supabase/config.toml"
       - "supabase/migration-archive/**"
+      - "supabase/migration-candidates/**"
       - "supabase/migrations/**"
       - "supabase/reference-data/cities-arabic.json"
       - "supabase/reference-data/production-country-id-code.json"
@@ -17,16 +19,25 @@ on:
       - "tests/database-reconstruction.test.ts"
       - "tests/city-localization-provenance.test.ts"
       - "tests/migration-archive.test.ts"
+      - "tests/duplicate-trigger-candidate.test.ts"
+      - "tests/database-provenance-analysis.test.ts"
+      - "tests/database-evidence.test.ts"
       - "docs/database/FUNCTION_SEMANTIC_REVIEW.md"
       - "docs/database/DUPLICATE_TRIGGER_REVIEW.md"
+      - "docs/database/JULY_12_MIXED_FINAL_DISPOSITION.md"
+      - "docs/database/FOURTH_PASS_POLICY_AND_GRANT_PARITY.md"
       - "docs/database/catalog-fingerprint-comparison.json"
+      - "docs/database/*-current.json"
+      - "docs/database/FINAL_PRODUCTION_RECONCILIATION_EVIDENCE.md"
   pull_request:
     paths:
       - ".github/workflows/database-reconstruction.yml"
       - "scripts/run-database-reconstruction.mjs"
       - "scripts/city-localization-provenance.mjs"
+      - "scripts/compare-database-evidence.mjs"
       - "supabase/config.toml"
       - "supabase/migration-archive/**"
+      - "supabase/migration-candidates/**"
       - "supabase/migrations/**"
       - "supabase/reference-data/cities-arabic.json"
       - "supabase/reference-data/production-country-id-code.json"
@@ -35,9 +46,16 @@ on:
       - "tests/database-reconstruction.test.ts"
       - "tests/city-localization-provenance.test.ts"
       - "tests/migration-archive.test.ts"
+      - "tests/duplicate-trigger-candidate.test.ts"
+      - "tests/database-provenance-analysis.test.ts"
+      - "tests/database-evidence.test.ts"
       - "docs/database/FUNCTION_SEMANTIC_REVIEW.md"
       - "docs/database/DUPLICATE_TRIGGER_REVIEW.md"
+      - "docs/database/JULY_12_MIXED_FINAL_DISPOSITION.md"
+      - "docs/database/FOURTH_PASS_POLICY_AND_GRANT_PARITY.md"
       - "docs/database/catalog-fingerprint-comparison.json"
+      - "docs/database/*-current.json"
+      - "docs/database/FINAL_PRODUCTION_RECONCILIATION_EVIDENCE.md"
 
 permissions:
   contents: read
@@ -68,6 +86,19 @@ jobs:
         with:
           version: 2.113.0
           github-token: ${{ github.token }}
+
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify archive and localization provenance
+        run: >-
+          pnpm exec vitest run
+          tests/migration-archive.test.ts
+          tests/duplicate-trigger-candidate.test.ts
+          tests/city-localization-provenance.test.ts
+          tests/database-provenance-analysis.test.ts
+          tests/database-evidence.test.ts
+          --reporter=dot
 
       - name: Reconstruct from an empty isolated database
         run: node scripts/run-database-reconstruction.mjs

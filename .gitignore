@@ -22,6 +22,10 @@ dist-ssr
 .nitro
 *.local
 
+# Disposable local Supabase reconstruction outputs
+artifacts/database-reconstruction/
+supabase/.branches/
+
 # Vercel build output and local project metadata
 .vercel/
 

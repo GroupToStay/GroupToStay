@@ -15,14 +15,22 @@ function sha256(path: string, normalizeLineEndings = false) {
 }
 
 describe("non-executable migration archive", () => {
-  it("keeps exactly the 11 approved pure replay bundles outside the executable path", () => {
-    expect(manifest.entries).toHaveLength(11);
+  it("keeps all 15 approved July 12 history files outside the executable path", () => {
+    expect(manifest.entries).toHaveLength(15);
     expect(
       new Set(manifest.entries.map((entry: { filename: string }) => entry.filename)).size,
-    ).toBe(11);
+    ).toBe(15);
+
+    const replayEntries = manifest.entries.filter(
+      (entry: { classification: string }) => entry.classification === "pure_replay_import_bundle",
+    );
+    const mixedEntries = manifest.entries.filter(
+      (entry: { classification: string }) => entry.classification !== "pure_replay_import_bundle",
+    );
+    expect(replayEntries).toHaveLength(11);
+    expect(mixedEntries).toHaveLength(4);
 
     for (const entry of manifest.entries) {
-      expect(entry.classification).toBe("pure_replay_import_bundle");
       expect(entry.disposition).toBe("archived_non_executable");
       expect(entry.productionLedgerVersion).toBeNull();
       expect(existsSync(resolve(entry.originalPath)), entry.originalPath).toBe(false);
@@ -46,6 +54,8 @@ describe("non-executable migration archive", () => {
     );
     expect(provenance.archivedReplayManifest).toBe("supabase/migration-archive/manifest.json");
     expect(provenance.archivedReplayCount).toBe(11);
+    expect(provenance.archivedMixedHistoryCount).toBe(4);
+    expect(provenance.archivedMigrationCount).toBe(15);
     expect(provenance.entries).toHaveLength(60);
   });
 });

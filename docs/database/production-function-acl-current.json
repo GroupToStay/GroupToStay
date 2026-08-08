@@ -1,0 +1,37 @@
+{
+  "functions": [
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "function": "prevent_non_admin_account_status_change",
+      "search_path": "public",
+      "execute_grants": [
+        {
+          "grantee": "authenticated",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "execute"
+        },
+        {
+          "grantee": "postgres",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "execute"
+        },
+        {
+          "grantee": "service_role",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "execute"
+        }
+      ],
+      "security_definer": true,
+      "identity_arguments": ""
+    }
+  ],
+  "accessMode": "read_only_catalog_query",
+  "capturedAt": "2026-08-08T18:47:17.08784+00:00",
+  "projectRef": "atxecflhmphaqqkatjlm",
+  "functionCount": 1,
+  "schemaVersion": 1
+}

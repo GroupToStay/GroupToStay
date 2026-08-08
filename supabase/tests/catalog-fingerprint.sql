@@ -116,24 +116,27 @@ WITH catalog_objects AS (
 
   UNION ALL
   SELECT
-    'table_grants',
+    'application_table_grants',
     format('%I.%I|grantee=%I|grantor=%I|%s|grantable=%s', table_schema, table_name, grantee, grantor, privilege_type, is_grantable)
   FROM information_schema.role_table_grants
-  WHERE table_schema IN ('public', 'storage')
+  WHERE table_schema = 'public'
+    AND grantee IN ('anon', 'authenticated')
 
   UNION ALL
   SELECT
-    'column_grants',
+    'application_column_grants',
     format('%I.%I.%I|grantee=%I|grantor=%I|%s|grantable=%s', table_schema, table_name, column_name, grantee, grantor, privilege_type, is_grantable)
   FROM information_schema.column_privileges
-  WHERE table_schema IN ('public', 'storage')
+  WHERE table_schema = 'public'
+    AND grantee IN ('anon', 'authenticated')
 
   UNION ALL
   SELECT
-    'routine_grants',
-    format('%I.%I|specific=%I|grantee=%I|grantor=%I|%s|grantable=%s', routine_schema, routine_name, specific_name, grantee, grantor, privilege_type, is_grantable)
+    'application_routine_grants',
+    format('%I.%I|grantee=%I|grantor=%I|%s|grantable=%s', routine_schema, routine_name, grantee, grantor, privilege_type, is_grantable)
   FROM information_schema.role_routine_grants
   WHERE routine_schema = 'public'
+    AND grantee IN ('anon', 'authenticated')
 
   UNION ALL
   SELECT 'extensions', format('%I|%s|schema=%I', e.extname, e.extversion, n.nspname)

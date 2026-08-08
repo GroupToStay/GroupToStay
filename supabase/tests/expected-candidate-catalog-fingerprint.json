@@ -1,8 +1,18 @@
 [
   {
-    "category": "column_grants",
-    "objectCount": 4892,
-    "definitionMd5": "6bfa5ffa21d7b6088534c8c8b9448f9c"
+    "category": "application_column_grants",
+    "objectCount": 1444,
+    "definitionMd5": "b1ad9be7f0838178c526db97bef8ec28"
+  },
+  {
+    "category": "application_routine_grants",
+    "objectCount": 18,
+    "definitionMd5": "737a523209eb8261c586067766344acf"
+  },
+  {
+    "category": "application_table_grants",
+    "objectCount": 240,
+    "definitionMd5": "a0d8c3a93bce438819caa44fd43b14a4"
   },
   {
     "category": "columns",
@@ -14,11 +24,7 @@
     "objectCount": 111,
     "definitionMd5": "3da708f15dedc3bf7e5478eaefa800a9"
   },
-  {
-    "category": "enums",
-    "objectCount": 63,
-    "definitionMd5": "95666787dba933edd62d87dac0ac822d"
-  },
+  { "category": "enums", "objectCount": 63, "definitionMd5": "95666787dba933edd62d87dac0ac822d" },
   {
     "category": "extensions",
     "objectCount": 6,
@@ -29,34 +35,16 @@
     "objectCount": 57,
     "definitionMd5": "8b9e4bc59f8039ac2022f9f391abe89a"
   },
-  {
-    "category": "indexes",
-    "objectCount": 74,
-    "definitionMd5": "1c098f77b56397380c62c2cc095de7da"
-  },
+  { "category": "indexes", "objectCount": 74, "definitionMd5": "1c098f77b56397380c62c2cc095de7da" },
   {
     "category": "policies",
-    "objectCount": 158,
-    "definitionMd5": "59d112cd26165a66170ad901b77e469b"
+    "objectCount": 148,
+    "definitionMd5": "b877e85f40b5578be5416b929ed95071"
   },
   {
     "category": "relations",
     "objectCount": 34,
     "definitionMd5": "6422b5595777ff69da86e28393e6c73e"
   },
-  {
-    "category": "routine_grants",
-    "objectCount": 76,
-    "definitionMd5": "c2a93310850de89833e3ce04022912d3"
-  },
-  {
-    "category": "table_grants",
-    "objectCount": 821,
-    "definitionMd5": "f852ac9ed9fd3553b2fe7d4b492ae288"
-  },
-  {
-    "category": "triggers",
-    "objectCount": 57,
-    "definitionMd5": "90223977d2cc70db99cbbccb72ceec47"
-  }
+  { "category": "triggers", "objectCount": 57, "definitionMd5": "90223977d2cc70db99cbbccb72ceec47" }
 ]

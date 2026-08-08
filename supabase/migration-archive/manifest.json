@@ -124,6 +124,50 @@
       "productionLedgerVersion": null,
       "classification": "pure_replay_import_bundle",
       "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712154405_a69b7885-b229-4ac5-8b07-db3231d60df0.sql",
+      "originalPath": "supabase/migrations/20260712154405_a69b7885-b229-4ac5-8b07-db3231d60df0.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-mixed/20260712154405_a69b7885-b229-4ac5-8b07-db3231d60df0.sql",
+      "bytes": 109,
+      "byteSha256": "dc3b860bc20d6a4401b7d1b8fc3c26095b08f508ada815160fd8ef25f5e124a8",
+      "normalizedSqlSha256": "dc3b860bc20d6a4401b7d1b8fc3c26095b08f508ada815160fd8ef25f5e124a8",
+      "productionLedgerVersion": null,
+      "classification": "deferred_security_hardening",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712154452_7cbb1cd9-e932-4819-b60f-4a4e9427c326.sql",
+      "originalPath": "supabase/migrations/20260712154452_7cbb1cd9-e932-4819-b60f-4a4e9427c326.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-mixed/20260712154452_7cbb1cd9-e932-4819-b60f-4a4e9427c326.sql",
+      "bytes": 506,
+      "byteSha256": "c5b009837c02d5873fad3f297e21c6147da36782e2c398c11e210768454c542f",
+      "normalizedSqlSha256": "c5b009837c02d5873fad3f297e21c6147da36782e2c398c11e210768454c542f",
+      "productionLedgerVersion": null,
+      "classification": "superseded_noncanonical_policy_history",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712154548_ef620850-2e80-48ea-9c74-86f31fe6957d.sql",
+      "originalPath": "supabase/migrations/20260712154548_ef620850-2e80-48ea-9c74-86f31fe6957d.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-mixed/20260712154548_ef620850-2e80-48ea-9c74-86f31fe6957d.sql",
+      "bytes": 3770,
+      "byteSha256": "e72f61d2b8c682f96895cb4fa52d2b0ce74943b9598b749ea33f5fa84473db7d",
+      "normalizedSqlSha256": "e72f61d2b8c682f96895cb4fa52d2b0ce74943b9598b749ea33f5fa84473db7d",
+      "productionLedgerVersion": null,
+      "classification": "mixed_noncanonical_policy_history",
+      "disposition": "archived_non_executable"
+    },
+    {
+      "filename": "20260712165650_a5408296-3f3a-43ae-83c6-1cc1a388cff0.sql",
+      "originalPath": "supabase/migrations/20260712165650_a5408296-3f3a-43ae-83c6-1cc1a388cff0.sql",
+      "archivePath": "supabase/migration-archive/2026-07-12-mixed/20260712165650_a5408296-3f3a-43ae-83c6-1cc1a388cff0.sql",
+      "bytes": 388,
+      "byteSha256": "91cb45c9e32bc01cbfe7a576d5fe304e2c200bba7d59a916deab3c126026c1f9",
+      "normalizedSqlSha256": "91cb45c9e32bc01cbfe7a576d5fe304e2c200bba7d59a916deab3c126026c1f9",
+      "productionLedgerVersion": null,
+      "classification": "superseded_noncanonical_policy_history",
+      "disposition": "archived_non_executable"
     }
   ]
 }
