@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   assertIsolatedEnvironment,
   classifyMigrationFailure,
+  compareGeneratedTypes,
   sanitizeReconstructionLog,
 } from "../scripts/run-database-reconstruction.mjs";
 
@@ -63,9 +64,44 @@ ERROR: function public.required_helper() does not exist
 
     expect(workflow).toContain("version: 2.113.0");
     expect(workflow).toContain('CI_DATABASE_RECONSTRUCTION: "1"');
+    expect(workflow).toContain('"supabase/reference-data/cities-arabic.json"');
+    expect(workflow).toContain('"supabase/tests/**"');
     expect(workflow).not.toMatch(/SUPABASE_(?:ACCESS_TOKEN|DB_PASSWORD|PROJECT_REF):/u);
     expect(runner).toContain('"db", "start"');
     expect(runner).toContain('project_id = "grouptostay_reconstruction"');
     expect(runner).not.toMatch(/\["(?:link|db push|migration repair)"/u);
+  });
+
+  it("reports candidate generated-type members without replacing committed types", () => {
+    const committed = `    Tables: {\n      profiles: {\n      }\n    Views: {\n    Functions: {\n    Enums: {\n`;
+    const candidate = `    Tables: {\n      profiles: {\n      }\n      rfq_lifecycle_events: {\n      }\n    Views: {\n    Functions: {\n      award_quote: {\n      }\n    Enums: {\n`;
+
+    expect(compareGeneratedTypes(candidate, committed)).toMatchObject({
+      Tables: { added: ["rfq_lifecycle_events"], removed: [] },
+      Functions: { added: ["award_quote"], removed: [] },
+    });
+  });
+
+  it("uses a catalog-only fingerprint query with no application-row selection", () => {
+    const fingerprintSql = readFileSync(resolve("supabase/tests/catalog-fingerprint.sql"), "utf8");
+
+    for (const category of [
+      "relations",
+      "columns",
+      "constraints",
+      "indexes",
+      "enums",
+      "functions",
+      "triggers",
+      "policies",
+      "table_grants",
+      "column_grants",
+      "routine_grants",
+      "extensions",
+    ]) {
+      expect(fingerprintSql).toContain(`'${category}'`);
+    }
+    expect(fingerprintSql).not.toMatch(/FROM\s+public\./iu);
+    expect(fingerprintSql).not.toMatch(/FROM\s+auth\.users/iu);
   });
 });

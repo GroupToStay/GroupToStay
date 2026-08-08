@@ -20,6 +20,7 @@ its SQL should be replayed.
 - Supabase project reference: `atxecflhmphaqqkatjlm`
 - Audit date: 2026-08-08
 - Repository migration files: 80 after exact ledger-sourced global migration restoration
+- Executable migration files: 69 after the approved archive of 11 pure replay bundles
 - Production ledger rows: 60
 - Exact stored-statement matches under shifted Lovable versions: 56
 - Production writes during audit: 0
@@ -83,6 +84,14 @@ records the first failing migration/error class/object, sanitizes public artifac
 the local stack. It does not use `supabase link`, Production credentials, customer data, or Vercel
 secrets. Candidate types and a normalized schema fingerprint are emitted only if clean
 reconstruction succeeds.
+
+The snapshot is canonical for the currently approved live state. The original historical translation provenance is unknown.
+
+The reconstruction gate validates all 1,583 city rows against
+`supabase/reference-data/cities-arabic.json` and the canonical checksum
+`eebc37b6132a04a96cdb9756b0ff6fa823a46bd96c05e76e8eb4b20effd41b9a`. It also emits a
+category-level catalog fingerprint for relations, columns, constraints, indexes, enums, functions,
+triggers, policies, table/column/routine grants, and extensions.
 
 ## Future release gate
 

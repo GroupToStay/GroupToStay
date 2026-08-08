@@ -13,7 +13,7 @@ The runner refuses `DATABASE_URL`, `POSTGRES_URL`, `PGHOST`, `PGPASSWORD`, `SUPA
 
 `supabase db start` applies the migration directory in filename order and stops on the first error. A JSON artifact records the migration filename, error class, affected object, exit code, CLI version, and proof that no project link or Production credential was used. Candidate types and a normalized `public,auth,storage` schema fingerprint are produced only after a successful reconstruction.
 
-## Current first blocker
+## First run blocker (resolved by approved archive)
 
 Static execution-order analysis identifies the deterministic first repository blocker:
 
@@ -34,14 +34,32 @@ fingerprint were correctly not generated.
 Local execution remains unavailable because the host Docker engine cannot start while
 WSL2/virtualization is disabled. The workflow did not suppress or repair the migration error.
 
+## Third-pass reconstruction result
+
+The owner-approved byte-for-byte archive of the 11 pure replay bundles is commit
+`fbc36a396da7b1d3d281bb58ec39efebb0b9f5b3`. GitHub Actions Database Reconstruction run
+[`31264515142`](https://github.com/GroupToStay/GroupToStay/actions/runs/31264515142) then applied the
+complete remaining executable chain successfully with Supabase CLI `2.113.0`. The report recorded
+`productionConnectivityUsed=false`, `productionCredentialsUsed=false`, `projectLinkUsed=false`,
+`status=succeeded`, `exitCode=0`, `firstFailure=null`, schema dump SHA-256
+`77388cd8a30036c6148cfd764d7dba1b1e90031cf360d92ef2ac3340c90557de`, and successful candidate
+type generation.
+
+This proves executable ordering, not approved schema parity. The four mixed July 12 migrations still
+produce policy/ACL differences from Production. Their object-level evidence is in
+`july-12-unique-effects.json`; active-account intent remains an owner decision.
+
 ## Blocker inventory
 
-The 11 files from `20260712153351` through `20260712154229` are pure replay/import bundles and will cause additional duplicate type/table/policy/trigger errors if the first error is bypassed. Bypassing them one at a time would not be valid reconstruction. The four later July 12 files are unique or partially unique, but live policy evidence proves several effects are absent or superseded. Their per-file disposition is in `JULY_12_QUARANTINE_PROPOSAL.md`.
+The 11 files from `20260712153351` through `20260712154229` are archived under
+`supabase/migration-archive/2026-07-12-replays/` with exact hashes. The four later July 12 files are
+unique or partially unique, but live policy evidence proves several effects are absent or
+superseded. Their per-effect disposition is in `july-12-unique-effects.json`.
 
 ## Canonical migration strategy
 
 1. Preserve the 56 shifted Lovable filenames and use `migration-provenance.json` as the canonical repository-to-ledger mapping. No rename is proposed now.
-2. After owner approval, move the 11 pure July 12 replay bundles byte-for-byte to a non-executable archive with a signed hash manifest.
+2. Keep the 11 pure July 12 replay bundles byte-for-byte in the non-executable archive with its enforced hash manifest.
 3. Decide the four unique July 12 files separately. Preserve the least-privilege ACL effect, do not recreate policies absent from the approved live baseline, and use a new additive migration for any approved surviving effect.
 4. Keep the July 14 and July 26 historical files immutable. Their missing ledger rows are a separate provenance issue, not permission to replay Production.
 5. Keep the exact restored global migration in executable history for zero-to-current reconstruction. Never execute it against the already-matching Production database.
@@ -50,7 +68,11 @@ The 11 files from `20260712153351` through `20260712154229` are pure replay/impo
 
 ## Candidate generated types
 
-Not generated. The clean chain does not yet reconstruct, so generating types from a partial schema would be misleading. The expected candidate diff still includes at least `profiles.city_name` and `rfq_lifecycle_events`.
+Generated as a short-lived public-safe workflow artifact after clean reconstruction. The permanent
+gate now records an exact type diff and structured table/view/function/enum member changes without
+overwriting `src/integrations/supabase/types.ts`. `profiles.city_name` and
+`rfq_lifecycle_events` are explicitly asserted in the candidate report. Final replacement remains
+deferred until the canonical schema decisions are approved.
 
 ## Permanent CI drift gate
 

@@ -13,6 +13,11 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  canonicalizeCityRows,
+  readCityLocalizationSource,
+  validateCityLocalizationSource,
+} from "./city-localization-provenance.mjs";
 
 const forbiddenRemoteEnvironment = [
   "DATABASE_URL",
@@ -93,6 +98,7 @@ function run(command, args, options) {
     env: options.env,
     maxBuffer: 32 * 1024 * 1024,
     shell: false,
+    input: options.input,
   });
 }
 
@@ -100,10 +106,72 @@ function normalizeSql(value) {
   return value.replace(/\r\n/gu, "\n");
 }
 
+function sha256(value) {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function queryIsolatedDatabase(sql, options) {
+  const result = run(
+    options.dockerCommand,
+    [
+      "exec",
+      "supabase_db_grouptostay_reconstruction",
+      "psql",
+      "-U",
+      "postgres",
+      "-d",
+      "postgres",
+      "-X",
+      "-A",
+      "-t",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      sql,
+    ],
+    options,
+  );
+  if (result.status !== 0) {
+    throw new Error(`Isolated catalog query failed: ${result.stderr || result.stdout}`);
+  }
+  return `${result.stdout ?? ""}`.trim();
+}
+
+function extractGeneratedTypeMembers(value, sectionName) {
+  const start = value.indexOf(`    ${sectionName}: {`);
+  if (start < 0) return [];
+  const sectionNames = ["Tables", "Views", "Functions", "Enums", "CompositeTypes"];
+  const nextOffsets = sectionNames
+    .filter((candidate) => candidate !== sectionName)
+    .map((candidate) => value.indexOf(`    ${candidate}: {`, start + 1))
+    .filter((offset) => offset > start);
+  const end = nextOffsets.length > 0 ? Math.min(...nextOffsets) : value.length;
+  const members = [];
+  for (const match of value.slice(start, end).matchAll(/^      ([A-Za-z0-9_]+):/gmu)) {
+    members.push(match[1]);
+  }
+  return [...new Set(members)].sort();
+}
+
+export function compareGeneratedTypes(candidate, committed) {
+  const sections = ["Tables", "Views", "Functions", "Enums"];
+  const sectionDiff = {};
+  for (const section of sections) {
+    const candidateMembers = extractGeneratedTypeMembers(candidate, section);
+    const committedMembers = extractGeneratedTypeMembers(committed, section);
+    sectionDiff[section] = {
+      added: candidateMembers.filter((member) => !committedMembers.includes(member)),
+      removed: committedMembers.filter((member) => !candidateMembers.includes(member)),
+    };
+  }
+  return sectionDiff;
+}
+
 export function runDatabaseReconstruction({
   repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), ".."),
   env = process.env,
   cliCommand = process.platform === "win32" ? "supabase.exe" : "supabase",
+  dockerCommand = process.platform === "win32" ? "docker.exe" : "docker",
 } = {}) {
   assertIsolatedEnvironment(env);
 
@@ -158,7 +226,12 @@ export function runDatabaseReconstruction({
     exitCode: startResult.status,
     firstFailure: null,
     schemaFingerprintSha256: null,
+    catalogFingerprintSha256: null,
+    catalogFingerprintCategories: null,
+    referenceData: null,
     candidateTypesGenerated: false,
+    candidateTypes: null,
+    validationFailure: null,
   };
 
   if (startResult.status !== 0) {
@@ -174,6 +247,43 @@ export function runDatabaseReconstruction({
     writeFileSync(join(artifactRoot, "candidate-types.ts"), candidateTypesResult.stdout);
     report.candidateTypesGenerated = true;
 
+    const committedTypes = readFileSync(
+      resolve(repositoryRoot, "src/integrations/supabase/types.ts"),
+      "utf8",
+    );
+    const typeComparison = compareGeneratedTypes(candidateTypesResult.stdout, committedTypes);
+    const typeDiffResult = run(
+      "git",
+      [
+        "diff",
+        "--no-index",
+        "--no-color",
+        "--",
+        "src/integrations/supabase/types.ts",
+        "artifacts/database-reconstruction/candidate-types.ts",
+      ],
+      { cwd: repositoryRoot, env: childEnvironment },
+    );
+    const safeTypeDiff = sanitizeReconstructionLog(
+      `${typeDiffResult.stdout ?? ""}${typeDiffResult.stderr ?? ""}`,
+      repositoryRoot,
+    );
+    writeFileSync(join(artifactRoot, "candidate-types.diff"), safeTypeDiff);
+    report.candidateTypes = {
+      candidateSha256: sha256(candidateTypesResult.stdout),
+      committedSha256: sha256(committedTypes),
+      exactMatch: candidateTypesResult.stdout === committedTypes,
+      includesProfilesCityName: /\bcity_name:\s+string\s+\|\s+null/gu.test(
+        candidateTypesResult.stdout,
+      ),
+      includesRfqLifecycleEvents: /\brfq_lifecycle_events:\s*\{/gu.test(
+        candidateTypesResult.stdout,
+      ),
+      sectionDiff: typeComparison,
+      diffAddedLines: safeTypeDiff.split("\n").filter((line) => /^\+(?!\+\+)/u.test(line)).length,
+      diffRemovedLines: safeTypeDiff.split("\n").filter((line) => /^-(?!--)/u.test(line)).length,
+    };
+
     const schemaDumpPath = join(artifactRoot, "candidate-schema.sql");
     const dumpResult = run(
       cliCommand,
@@ -187,6 +297,50 @@ export function runDatabaseReconstruction({
       .update(normalizeSql(readFileSync(schemaDumpPath, "utf8")))
       .digest("hex");
     rmSync(schemaDumpPath, { force: true });
+
+    const catalogSql = readFileSync(
+      resolve(repositoryRoot, "supabase/tests/catalog-fingerprint.sql"),
+      "utf8",
+    );
+    const catalogJson = queryIsolatedDatabase(catalogSql, {
+      cwd: isolatedRoot,
+      env: childEnvironment,
+      dockerCommand,
+    });
+    const catalogCategories = JSON.parse(catalogJson);
+    const canonicalCatalog = `${JSON.stringify(catalogCategories)}\n`;
+    writeFileSync(join(artifactRoot, "catalog-fingerprint.json"), canonicalCatalog);
+    report.catalogFingerprintSha256 = sha256(canonicalCatalog);
+    report.catalogFingerprintCategories = catalogCategories;
+
+    const cityRowsJson = queryIsolatedDatabase(
+      `SELECT coalesce(json_agg(json_build_object(
+        'id', id::text,
+        'country_id', country_id::text,
+        'name_en', name_en,
+        'name_ar', name_ar
+      ) ORDER BY id)::text, '[]') FROM public.cities;`,
+      { cwd: isolatedRoot, env: childEnvironment, dockerCommand },
+    );
+    const reconstructedCities = JSON.parse(cityRowsJson);
+    const approvedCitySource = readCityLocalizationSource(
+      resolve(repositoryRoot, "supabase/reference-data/cities-arabic.json"),
+    );
+    const approvedCityVerification = validateCityLocalizationSource(approvedCitySource);
+    const reconstructedCitySha256 = sha256(canonicalizeCityRows(reconstructedCities));
+    report.referenceData = {
+      reconstructedRowCount: reconstructedCities.length,
+      approvedRowCount: approvedCityVerification.rowCount,
+      reconstructedCanonicalRowsSha256: reconstructedCitySha256,
+      approvedCanonicalRowsSha256: approvedCityVerification.canonicalRowsSha256,
+      exactMatch:
+        reconstructedCities.length === approvedCityVerification.rowCount &&
+        reconstructedCitySha256 === approvedCityVerification.canonicalRowsSha256,
+    };
+    if (!report.referenceData.exactMatch) {
+      report.status = "failed";
+      report.validationFailure = "canonical_reference_data_mismatch";
+    }
   }
 
   writeFileSync(join(artifactRoot, "result.json"), `${JSON.stringify(report, null, 2)}\n`);

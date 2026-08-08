@@ -17,9 +17,9 @@ function sha256(path: string, normalizeLineEndings = false) {
 describe("non-executable migration archive", () => {
   it("keeps exactly the 11 approved pure replay bundles outside the executable path", () => {
     expect(manifest.entries).toHaveLength(11);
-    expect(new Set(manifest.entries.map((entry: { filename: string }) => entry.filename)).size).toBe(
-      11,
-    );
+    expect(
+      new Set(manifest.entries.map((entry: { filename: string }) => entry.filename)).size,
+    ).toBe(11);
 
     for (const entry of manifest.entries) {
       expect(entry.classification).toBe("pure_replay_import_bundle");

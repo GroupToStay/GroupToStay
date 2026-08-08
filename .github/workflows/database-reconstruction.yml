@@ -6,16 +6,30 @@ on:
     paths:
       - ".github/workflows/database-reconstruction.yml"
       - "scripts/run-database-reconstruction.mjs"
+      - "scripts/city-localization-provenance.mjs"
       - "supabase/config.toml"
+      - "supabase/migration-archive/**"
       - "supabase/migrations/**"
+      - "supabase/reference-data/cities-arabic.json"
+      - "supabase/tests/**"
+      - "src/integrations/supabase/types.ts"
       - "tests/database-reconstruction.test.ts"
+      - "tests/city-localization-provenance.test.ts"
+      - "tests/migration-archive.test.ts"
   pull_request:
     paths:
       - ".github/workflows/database-reconstruction.yml"
       - "scripts/run-database-reconstruction.mjs"
+      - "scripts/city-localization-provenance.mjs"
       - "supabase/config.toml"
+      - "supabase/migration-archive/**"
       - "supabase/migrations/**"
+      - "supabase/reference-data/cities-arabic.json"
+      - "supabase/tests/**"
+      - "src/integrations/supabase/types.ts"
       - "tests/database-reconstruction.test.ts"
+      - "tests/city-localization-provenance.test.ts"
+      - "tests/migration-archive.test.ts"
 
 permissions:
   contents: read

@@ -9,4 +9,3 @@ The 11 files in `2026-07-12-replays/` were proved to be pure replay/import bundl
 These files have no matching Production migration-ledger rows. Their Production relationship is historical import evidence only; archiving them does not change Production and must not be interpreted as a ledger repair.
 
 The manifest records each original executable path, archive path, byte length, byte SHA-256, normalized SQL SHA-256, classification, and disposition. Archive integrity is enforced by automated tests.
-

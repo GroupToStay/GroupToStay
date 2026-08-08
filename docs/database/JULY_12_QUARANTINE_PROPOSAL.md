@@ -1,9 +1,9 @@
 # July 12 Migration Quarantine Proposal
 
 - Audit date: 2026-08-08
-- Action authorized: analysis only; no file move, rename, deletion, or Production execution
+- Current status: the owner approved and commit `fbc36a396da7b1d3d281bb58ec39efebb0b9f5b3` archived the first 11 files byte-for-byte; the four mixed files remain executable pending individual decisions; no Production execution occurred
 
-The first 11 July 12 files are semantic replay/import bundles. A normalized non-comment-line comparison found zero unique lines in nine files. The two apparent unique lines are concatenations of statements that already exist separately in the earlier history, so they are not unique SQL effects. These bundles recreate types, tables, functions, policies, and triggers without guards and cannot remain in an executable clean chain.
+The first 11 July 12 files are semantic replay/import bundles. A normalized non-comment-line comparison found zero unique lines in nine files. The two apparent unique lines are concatenations of statements that already exist separately in the earlier history, so they are not unique SQL effects. These bundles recreate types, tables, functions, policies, and triggers without guards and cannot remain in an executable clean chain. The table below preserves the original second-pass proposal; its first 11 quarantine recommendations are now completed and verified by `supabase/migration-archive/manifest.json`.
 
 | File                                                      | Classification                         | Unique effect                                                                             | Supersession/live evidence                                                                                                       | Required for clean reconstruction?                                      | Proposal                                                                    |
 | --------------------------------------------------------- | -------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------- |
@@ -25,6 +25,6 @@ The first 11 July 12 files are semantic replay/import bundles. A normalized non-
 
 ## Proposed physical quarantine
 
-No move is made in this pass. If approved, preserve the files byte-for-byte under a clearly non-executable archive such as `supabase/migration-archive/2026-07-12-import/`, add a manifest containing their hashes and classifications, and replace only approved surviving effects with a new additive migration. The archive must remain in Git history and documentation; nothing is deleted.
+The approved move is complete under `supabase/migration-archive/2026-07-12-replays/`. The files retain their names and byte hashes, automated tests prove that they are outside the executable path, and nothing was deleted from Git history. The four mixed files have not been moved; their object-level evidence is maintained in `july-12-unique-effects.json`.
 
 The first clean-chain correction should quarantine the 11 pure replays. The four unique/superseded files require a separate owner decision because current Production does not implement all of their policies.
