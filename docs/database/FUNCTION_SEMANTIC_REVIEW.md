@@ -19,7 +19,7 @@ The raw `prosrc` hashes initially appeared to identify four unexplained differen
 - **Active-data dependency:** four RFQs exist. The function affects future inserts; existing RFQ rows are not rewritten by this audit.
 - **Behavioral difference:** none found. Raw-hash difference is formatting only.
 - **Later migration history:** the canonical tracked body is in the unledgered July 14 blocker-fix migration; the same semantic body exists live, consistent with manual/schema application rather than a ledgered replay.
-- **Test coverage:** new token/hash regression coverage exists; no isolated behavioral database test can run until the migration chain reconstructs.
+- **Test coverage:** token/hash regression coverage passes and the migration chain now reconstructs; dedicated verified/incomplete/admin behavioral fixtures remain to be implemented before any trigger cleanup.
 - **Recommended canonical version:** retain the July 14 tracked definition unchanged in the eventual canonical chain.
 - **Confidence:** high.
 
@@ -34,7 +34,7 @@ The raw `prosrc` hashes initially appeared to identify four unexplained differen
 - **Active-data dependency:** four RFQs, three quotes, three invitations, and eight lifecycle events exist. Future status/auditable edit events depend on this body.
 - **Behavioral difference:** none found. Event selection, actor, foreign identifiers, and old/new statuses are token-identical.
 - **Later migration history:** defined by the unledgered July 14 blocker-fix migration and present live with identical semantics.
-- **Test coverage:** new token/hash regression coverage exists; database behavioral tests for every event transition remain required after reconstruction succeeds.
+- **Test coverage:** token/hash regression coverage passes; database behavioral fixtures for every event transition remain required and were not fabricated in this pass.
 - **Recommended canonical version:** retain the July 14 tracked definition and its three trigger bindings.
 - **Confidence:** high for definition parity; medium for exhaustive event behavior until database tests run.
 
@@ -49,7 +49,7 @@ The raw `prosrc` hashes initially appeared to identify four unexplained differen
 - **Active-data dependency:** four RFQs exist; future inserts are guarded twice because of the duplicate trigger pair.
 - **Behavioral difference:** none found. Admin bypass, eligibility call, error text, and returned row are token-identical.
 - **Later migration history:** earlier versions checked fewer profile conditions; the July 14 migration supersedes them and the live semantic body matches that later definition.
-- **Test coverage:** new token/hash regression coverage exists; insertion tests for verified, incomplete, and admin profiles remain required after reconstruction succeeds.
+- **Test coverage:** token/hash regression coverage passes; insertion fixtures for verified, incomplete, and admin profiles remain required before duplicate-trigger cleanup.
 - **Recommended canonical version:** retain the July 14 definition; address the duplicate trigger separately with an additive migration after approval.
 - **Confidence:** high.
 
@@ -64,10 +64,10 @@ The raw `prosrc` hashes initially appeared to identify four unexplained differen
 - **Active-data dependency:** nine amenities, three bookings, 1,583 cities, three conversations, and 76 countries currently use the trigger.
 - **Behavioral difference:** none; raw and semantic hashes match exactly.
 - **Later migration history:** originally introduced in the first migration, then copied into the July 12 replay bundle without semantic change. The replay copy is not independent provenance.
-- **Test coverage:** static body/hash coverage exists; a clean-database trigger test remains required.
+- **Test coverage:** static body/hash coverage exists; the clean chain succeeds, but a dedicated timestamp-trigger mutation fixture remains required.
 - **Recommended canonical version:** preserve the original definition and treat the July 12 copy as replay evidence, not a new canonical change.
 - **Confidence:** high.
 
 ## Decision
 
-No function repair migration is proposed. The evidence converts all four items from unexplained definition drift to semantic matches. The remaining risks are reconstruction ordering, missing ledger provenance for July 14, and absent live database behavioral tests.
+No function repair migration is proposed. The evidence converts all four items from unexplained definition drift to semantic matches. Reconstruction ordering now passes; the remaining risks are missing ledger provenance for July 14 and absent behavioral fixture coverage.

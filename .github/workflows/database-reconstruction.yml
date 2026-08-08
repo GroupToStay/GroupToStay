@@ -17,6 +17,9 @@ on:
       - "tests/database-reconstruction.test.ts"
       - "tests/city-localization-provenance.test.ts"
       - "tests/migration-archive.test.ts"
+      - "docs/database/FUNCTION_SEMANTIC_REVIEW.md"
+      - "docs/database/DUPLICATE_TRIGGER_REVIEW.md"
+      - "docs/database/catalog-fingerprint-comparison.json"
   pull_request:
     paths:
       - ".github/workflows/database-reconstruction.yml"
@@ -32,6 +35,9 @@ on:
       - "tests/database-reconstruction.test.ts"
       - "tests/city-localization-provenance.test.ts"
       - "tests/migration-archive.test.ts"
+      - "docs/database/FUNCTION_SEMANTIC_REVIEW.md"
+      - "docs/database/DUPLICATE_TRIGGER_REVIEW.md"
+      - "docs/database/catalog-fingerprint-comparison.json"
 
 permissions:
   contents: read
