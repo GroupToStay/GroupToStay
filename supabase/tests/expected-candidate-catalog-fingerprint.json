@@ -1,30 +1,30 @@
 [
   {
     "category": "application_column_grants",
-    "objectCount": 1468,
-    "definitionMd5": "79e4cdec4fbfb2630ca9d17907422c28"
+    "objectCount": 1510,
+    "definitionMd5": "568c1c1271714da5ca455093c4c0e697"
   },
   {
     "category": "application_routine_grants",
-    "objectCount": 21,
-    "definitionMd5": "ce7464936f3af9ab08d365dcfef1bfe9"
+    "objectCount": 22,
+    "definitionMd5": "5342f8fe56e6f554c924c759153e29d9"
   },
   {
     "category": "application_table_grants",
-    "objectCount": 243,
-    "definitionMd5": "40f783454cb1f8fe0f7cf9ca7a9f05be"
+    "objectCount": 247,
+    "definitionMd5": "15e32a0f268fa40baa6009783f0bfb3c"
   },
   {
     "category": "columns",
-    "objectCount": 381,
-    "definitionMd5": "940eda8a0f8b66a4bedaa09254554ad6"
+    "objectCount": 402,
+    "definitionMd5": "4234c6a5fb1a27e0eb6775b9ed91c1a0"
   },
   {
     "category": "constraints",
-    "objectCount": 128,
-    "definitionMd5": "191b19585c53adad3757dca1d9b8d390"
+    "objectCount": 145,
+    "definitionMd5": "93a3325a227d2cf5518ea7e8f352e4d1"
   },
-  { "category": "enums", "objectCount": 79, "definitionMd5": "dfb7f6b6bd6b817a4f3fb5b7fbeb3427" },
+  { "category": "enums", "objectCount": 88, "definitionMd5": "2d1db133d5fe89a17b28616c86063600" },
   {
     "category": "extensions",
     "objectCount": 6,
@@ -32,19 +32,19 @@
   },
   {
     "category": "functions",
-    "objectCount": 70,
-    "definitionMd5": "c6f7a2e0bbd5e4301755298ecd67ba18"
+    "objectCount": 73,
+    "definitionMd5": "3af5eaa1a1e8f1fe4b55ea6b965bc89a"
   },
-  { "category": "indexes", "objectCount": 84, "definitionMd5": "2a532f07e99750d46106cfccdcf6cf01" },
+  { "category": "indexes", "objectCount": 94, "definitionMd5": "f13730a42f83f7479945cc62b2b6bcde" },
   {
     "category": "policies",
-    "objectCount": 151,
-    "definitionMd5": "b44c71f0548870610388d0eeb47cfdd0"
+    "objectCount": 155,
+    "definitionMd5": "49eff27e795842ea21bd4e6631f96f10"
   },
   {
     "category": "relations",
-    "objectCount": 37,
-    "definitionMd5": "b9b6a8230b3f7452b4686eced3446860"
+    "objectCount": 39,
+    "definitionMd5": "123e92620bb085daaa422dee52789f3a"
   },
-  { "category": "triggers", "objectCount": 65, "definitionMd5": "bf844ea96226091b97498a45b519ab9f" }
+  { "category": "triggers", "objectCount": 69, "definitionMd5": "dc36d503d6f003c13667f3d8383d119a" }
 ]
