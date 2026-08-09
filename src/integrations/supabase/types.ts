@@ -788,6 +788,143 @@ export type Database = {
         }
         Relationships: []
       }
+      organization_hotel_mappings: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          hotel_id: string
+          organization_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          hotel_id: string
+          organization_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          hotel_id?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_hotel_mappings_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: true
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_hotel_mappings_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: true
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_hotel_mappings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_memberships: {
+        Row: {
+          created_at: string
+          id: string
+          invited_by: string | null
+          joined_at: string | null
+          membership_role: Database["public"]["Enums"]["organization_membership_role"]
+          organization_id: string
+          status: Database["public"]["Enums"]["organization_membership_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          invited_by?: string | null
+          joined_at?: string | null
+          membership_role: Database["public"]["Enums"]["organization_membership_role"]
+          organization_id: string
+          status?: Database["public"]["Enums"]["organization_membership_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          membership_role?: Database["public"]["Enums"]["organization_membership_role"]
+          organization_id?: string
+          status?: Database["public"]["Enums"]["organization_membership_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_memberships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          archived_at: string | null
+          country_id: string | null
+          created_at: string
+          created_by: string | null
+          display_name: string
+          id: string
+          legacy_owner_user_id: string | null
+          legal_name: string | null
+          organization_type: Database["public"]["Enums"]["organization_type"]
+          status: Database["public"]["Enums"]["organization_status"]
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          country_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_name: string
+          id: string
+          legacy_owner_user_id?: string | null
+          legal_name?: string | null
+          organization_type: Database["public"]["Enums"]["organization_type"]
+          status?: Database["public"]["Enums"]["organization_status"]
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          country_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          display_name?: string
+          id?: string
+          legacy_owner_user_id?: string | null
+          legal_name?: string | null
+          organization_type?: Database["public"]["Enums"]["organization_type"]
+          status?: Database["public"]["Enums"]["organization_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organizations_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizer_types: {
         Row: {
           created_at: string
@@ -1812,6 +1949,10 @@ export type Database = {
         Args: { _quote_id: string; _rfq_id: string }
         Returns: string
       }
+      can_manage_organization: {
+        Args: { _organization_id: string }
+        Returns: boolean
+      }
       can_view_hotel_photo: { Args: { _object_name: string }; Returns: boolean }
       can_view_hotel_through_rfq: {
         Args: { _hotel_id: string }
@@ -1845,6 +1986,10 @@ export type Database = {
         Returns: boolean
       }
       is_account_active: { Args: { _user_id: string }; Returns: boolean }
+      is_active_organization_member: {
+        Args: { _organization_id: string }
+        Returns: boolean
+      }
       is_agency_rfq_eligible: { Args: { _user_id: string }; Returns: boolean }
       is_conversation_participant: {
         Args: { _conv: string; _user: string }
@@ -1862,6 +2007,32 @@ export type Database = {
       is_rfq_organizer: {
         Args: { _rfq_id: string; _user_id: string }
         Returns: boolean
+      }
+      legacy_organization_id: {
+        Args: {
+          _organization_type: Database["public"]["Enums"]["organization_type"]
+          _user_id: string
+        }
+        Returns: string
+      }
+      legacy_organization_membership_id: {
+        Args: { _organization_id: string; _user_id: string }
+        Returns: string
+      }
+      organization_represents_legacy_owner: {
+        Args: { _legacy_owner_user_id: string; _organization_id: string }
+        Returns: boolean
+      }
+      provision_legacy_organization: {
+        Args: {
+          _organization_type: Database["public"]["Enums"]["organization_type"]
+          _user_id: string
+        }
+        Returns: string
+      }
+      user_organization_role: {
+        Args: { _organization_id: string }
+        Returns: Database["public"]["Enums"]["organization_membership_role"]
       }
     }
     Enums: {
@@ -1903,6 +2074,20 @@ export type Database = {
         | "subscription_expiring"
         | "rfq_awarded"
         | "rfq_closed"
+      organization_membership_role:
+        | "owner"
+        | "admin"
+        | "agent"
+        | "sales"
+        | "reservations"
+        | "viewer"
+      organization_membership_status:
+        | "invited"
+        | "active"
+        | "suspended"
+        | "removed"
+      organization_status: "active" | "suspended" | "archived"
+      organization_type: "agency" | "supplier" | "corporate_buyer"
       quote_status:
         | "submitted"
         | "shortlisted"
@@ -2089,6 +2274,22 @@ export const Constants = {
         "rfq_awarded",
         "rfq_closed",
       ],
+      organization_membership_role: [
+        "owner",
+        "admin",
+        "agent",
+        "sales",
+        "reservations",
+        "viewer",
+      ],
+      organization_membership_status: [
+        "invited",
+        "active",
+        "suspended",
+        "removed",
+      ],
+      organization_status: ["active", "suspended", "archived"],
+      organization_type: ["agency", "supplier", "corporate_buyer"],
       quote_status: [
         "submitted",
         "shortlisted",
