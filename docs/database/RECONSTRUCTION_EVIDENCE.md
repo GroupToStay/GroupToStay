@@ -1,0 +1,128 @@
+# Reconstruction Evidence and Canonical Strategy
+
+- Audit date: 2026-08-09
+- Baseline: `7918ea532eeeba809357a05db07117dc4aeb103a`
+- Canonical executable migration count: 67
+- Canonical archive count: 15
+- Production writes: none
+
+## Final canonical result
+
+The final empty reconstruction succeeds with exactly 148 policies and no Production connection,
+credential, or project link. The reviewed catalog SHA-256 is
+`b0c215980d192222d19da193b98eff7cae41bb6b6a715f348d9bfc851d44cb5d`; the schema dump SHA-256 is
+`7d13a27c750922f78e405e93a9c873d5459888e2f6c4ad94cc35db871f239e15`.
+
+The forward migration `20260809120000_canonicalize_production_authorization_baseline.sql`
+removes only `public.rfqs.Admin updates all RFQs` and
+`public.rfqs.Admin deletes all RFQs` when their definitions match the reviewed historical drift.
+Candidate and Production policy exports now have zero object or semantic differences. Generated
+types are promoted and exact equality is a blocking reconstruction gate.
+
+## Ephemeral workflow
+
+`.github/workflows/database-reconstruction.yml` runs on a GitHub-hosted Ubuntu runner with Supabase CLI `2.113.0`. The runner uses Docker only for an empty local Supabase database. The repository `supabase/` directory is copied to a temporary work directory and its local Docker project ID is replaced with `grouptostay_reconstruction`.
+
+The runner refuses `DATABASE_URL`, `POSTGRES_URL`, `PGHOST`, `PGPASSWORD`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, and `SUPABASE_PROJECT_REF`. It never calls `supabase link`, `db push`, `migration repair`, or any remote command. Logs redact connection strings, JWT-shaped values, Supabase keys, and named secret/token/password values before artifact upload.
+
+`supabase db start` applies the migration directory in filename order and stops on the first error. A JSON artifact records the migration filename, error class, affected object, exit code, CLI version, and proof that no project link or Production credential was used. Candidate types and a normalized `public,auth,storage` schema fingerprint are produced only after a successful reconstruction.
+
+## First run blocker (resolved by approved archive)
+
+Static execution-order analysis identifies the deterministic first repository blocker:
+
+- **Migration:** `20260712153351_2b072552-53fa-42d9-a145-a69d792938cd.sql`
+- **Class:** duplicate object / replay migration
+- **First affected object:** `public.app_role`
+- **Cause:** the file begins by recreating the enum already created by `20260613080917_acae207a-07d5-4e50-9434-78ac8fb76f8b.sql` with unguarded `CREATE TYPE`.
+
+GitHub Actions run
+[`31263370680`](https://github.com/GroupToStay/GroupToStay/actions/runs/31263370680),
+against commit `cbea16bc53906c4d7dbf75e5ad3b9623739b647f`, confirmed this exact failure with
+Supabase CLI `2.113.0`. The report recorded `productionConnectivityUsed=false`,
+`productionCredentialsUsed=false`, `projectLinkUsed=false`, migration
+`20260712153351_2b072552-53fa-42d9-a145-a69d792938cd.sql`, class `duplicate_object`, and affected
+object `app_role`. The public-safe artifact upload succeeded; candidate types and a schema
+fingerprint were correctly not generated.
+
+That historical run occurred before local Docker became available. The final canonical chain has
+since been reconstructed locally with the same pinned Supabase CLI and without suppressing or
+repairing migration errors.
+
+## Third-pass reconstruction result
+
+The owner-approved byte-for-byte archive of the 11 pure replay bundles is commit
+`fbc36a396da7b1d3d281bb58ec39efebb0b9f5b3`. GitHub Actions Database Reconstruction run
+[`31264515142`](https://github.com/GroupToStay/GroupToStay/actions/runs/31264515142) then applied the
+complete remaining executable chain successfully with Supabase CLI `2.113.0`. The report recorded
+`productionConnectivityUsed=false`, `productionCredentialsUsed=false`, `projectLinkUsed=false`,
+`status=succeeded`, `exitCode=0`, `firstFailure=null`, schema dump SHA-256
+`77388cd8a30036c6148cfd764d7dba1b1e90031cf360d92ef2ac3340c90557de`, and successful candidate
+type generation.
+
+This proves executable ordering, not approved schema parity. The four mixed July 12 migrations still
+produce policy/ACL differences from Production. Their object-level evidence is in
+`july-12-unique-effects.json`; active-account intent remains an owner decision.
+
+The upgraded postcondition gate in run
+[`31265405078`](https://github.com/GroupToStay/GroupToStay/actions/runs/31265405078) proved that all
+1,583 reconstructed cities exist but their generated UUIDs and canonical label checksum were not
+portable across a clean database. The clean-run checksum was
+`6d8c0f331248746fec6f6369a370daafd3617e379a6b9743c0a1d79aabff694a`, not the approved
+`eebc37b6132a04a96cdb9756b0ff6fa823a46bd96c05e76e8eb4b20effd41b9a`. The executable migrations
+therefore did not reproduce the approved localization state. The single generated migration
+`20260808190000_canonical_database_reconciliation.sql` now loads the canonical snapshot into a
+temporary table and resolves each live country UUID through the separately captured 76-row
+Production UUID-to-ISO-code map. It addresses a city by the stable unique key
+`(country.code, city.name_en)`, updates only differing Arabic labels, and verifies the result. The
+Production city and country UUIDs remain snapshot provenance; they are not fabricated as clean-run
+identifiers. The migration has not been executed against Production.
+
+The corrected stable-key run
+[`31266498380`](https://github.com/GroupToStay/GroupToStay/actions/runs/31266498380) completed the full
+chain, reference-data assertion, catalog fingerprint, and candidate-type generation successfully.
+Its reviewed candidate catalog SHA-256 is
+`32648e2896ced36a30b2395b995ff0f636d909958698f5e6907a5e80c88075a8`. Routine isolated CI now
+fails if any of its 12 catalog category fingerprints changes without an explicit reviewed snapshot
+update. Production parity remains a separate decision: six categories match exactly; policy,
+function, grant, and environment-managed extension differences remain classified in
+`catalog-fingerprint-comparison.json`.
+
+## Blocker inventory
+
+The 11 files from `20260712153351` through `20260712154229` are archived under
+`supabase/migration-archive/2026-07-12-replays/` with exact hashes. The four later July 12 files are
+unique or partially unique, but live policy evidence proves several effects are absent or
+superseded. Their per-effect disposition is in `july-12-unique-effects.json`.
+
+## Canonical migration strategy
+
+1. Preserve the 56 shifted Lovable filenames and use `migration-provenance.json` as the canonical repository-to-ledger mapping. No rename is proposed now.
+2. Keep the 11 pure July 12 replay bundles byte-for-byte in the non-executable archive with its enforced hash manifest.
+3. Decide the four unique July 12 files separately. Preserve the least-privilege ACL effect, do not recreate policies absent from the approved live baseline, and use a new additive migration for any approved surviving effect.
+4. Keep the July 14 and July 26 historical files immutable. Their missing ledger rows are a separate provenance issue, not permission to replay Production.
+5. Keep the exact restored global migration in executable history for zero-to-current reconstruction. Never execute it against the already-matching Production database.
+6. Once the chain reconstructs, generate a normalized catalog fingerprint, candidate types, and behavioral trigger/RLS tests.
+7. Only then draft an additive reconciliation migration and any ledger-only repair package. Neither is authorized by this pass.
+
+## Candidate generated types
+
+Generated from the final clean reconstruction and promoted to
+`src/integrations/supabase/types.ts` after owner approval. The permanent gate normalizes only
+end-of-file whitespace, requires exact byte equality, and fails with `generated_type_drift` on any
+difference. `profiles.city_name`, `rfq_lifecycle_events`, and `is_agency_rfq_eligible` are
+explicitly asserted.
+
+## Permanent CI drift gate
+
+After the canonical chain is approved, promote the diagnostic workflow into a required PR gate:
+
+1. reconstruct an empty local Supabase database with a pinned CLI/image set;
+2. run database lint and isolated behavioral/RLS tests;
+3. export a deterministic catalog manifest for types, columns, constraints, indexes, functions, triggers, policies, grants, extensions, and storage policy metadata;
+4. compare its SHA-256 fingerprint with a reviewed repository snapshot;
+5. generate TypeScript types locally and compare them with the committed generated types;
+6. fail on any migration, catalog, security, or type diff;
+7. upload only sanitized local artifacts and destroy the stack.
+
+Routine PR validation requires no Production connectivity. A future live-drift job, if approved, must be a separate protected workflow with a dedicated read-only role and environment approval.

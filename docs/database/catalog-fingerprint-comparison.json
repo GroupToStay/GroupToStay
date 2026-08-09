@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 2,
+  "capturedAt": "2026-08-09",
+  "productionProjectRef": "atxecflhmphaqqkatjlm",
+  "productionInspection": "read_only_catalog_query",
+  "productionWritesPerformed": false,
+  "candidateCatalogSha256": "b0c215980d192222d19da193b98eff7cae41bb6b6a715f348d9bfc851d44cb5d",
+  "candidateSchemaSha256": "7d13a27c750922f78e405e93a9c873d5459888e2f6c4ad94cc35db871f239e15",
+  "policyComparison": {
+    "candidateCount": 148,
+    "productionCount": 148,
+    "candidateOnly": 0,
+    "productionOnly": 0,
+    "semanticDifferences": 0,
+    "sharedSha256": "f5485b3f92914d07d214a49b0f64e0226182643475c1654d8eba6cf03f754b78"
+  },
+  "candidateCategories": [
+    {
+      "category": "application_column_grants",
+      "objectCount": 1444,
+      "definitionMd5": "b1ad9be7f0838178c526db97bef8ec28"
+    },
+    {
+      "category": "application_routine_grants",
+      "objectCount": 18,
+      "definitionMd5": "737a523209eb8261c586067766344acf"
+    },
+    {
+      "category": "application_table_grants",
+      "objectCount": 240,
+      "definitionMd5": "a0d8c3a93bce438819caa44fd43b14a4"
+    },
+    {
+      "category": "columns",
+      "objectCount": 357,
+      "definitionMd5": "9e62f047a04d856dacd4e9a22bf178a7"
+    },
+    {
+      "category": "constraints",
+      "objectCount": 111,
+      "definitionMd5": "3da708f15dedc3bf7e5478eaefa800a9"
+    },
+    {
+      "category": "enums",
+      "objectCount": 63,
+      "definitionMd5": "95666787dba933edd62d87dac0ac822d"
+    },
+    {
+      "category": "extensions",
+      "objectCount": 6,
+      "definitionMd5": "75e2fade0e6fd5c421822e5278d3efce",
+      "classification": "isolated_stack_environment_inventory"
+    },
+    {
+      "category": "functions",
+      "objectCount": 57,
+      "definitionMd5": "8b9e4bc59f8039ac2022f9f391abe89a"
+    },
+    {
+      "category": "indexes",
+      "objectCount": 74,
+      "definitionMd5": "1c098f77b56397380c62c2cc095de7da"
+    },
+    {
+      "category": "policies",
+      "objectCount": 148,
+      "definitionMd5": "b877e85f40b5578be5416b929ed95071"
+    },
+    {
+      "category": "relations",
+      "objectCount": 34,
+      "definitionMd5": "6422b5595777ff69da86e28393e6c73e"
+    },
+    {
+      "category": "triggers",
+      "objectCount": 57,
+      "definitionMd5": "90223977d2cc70db99cbbccb72ceec47"
+    }
+  ],
+  "grantComparison": {
+    "candidateSha256": "6fe10d7a4d9819d5cf7455ac9e3e176a9180b70837ce65a4a2740e691de5ed52",
+    "productionSha256": "0024d8405f899aa0fac51d8c1fbd41b7038d09c3b683606d8fe2a8c422ffe68a",
+    "managedLocalStorageTableDifferences": 18,
+    "hostedDefaultTableDifferences": 130,
+    "managedServiceRoleTableDifferences": 12,
+    "managedServiceRoleRoutineDifferences": 56,
+    "deferredAuthenticatedRoutineDifferences": 1,
+    "unexplainedDifferences": 0,
+    "policyDocument": "docs/database/GRANT_BASELINE_POLICY.md"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "candidatePolicySha256": "f5485b3f92914d07d214a49b0f64e0226182643475c1654d8eba6cf03f754b78",
+  "productionPolicySha256": "f5485b3f92914d07d214a49b0f64e0226182643475c1654d8eba6cf03f754b78",
+  "candidateCount": 148,
+  "productionCount": 148,
+  "summary": {
+    "onlyCandidate": 0,
+    "onlyProduction": 0,
+    "semanticDifferences": 0
+  },
+  "onlyCandidate": [],
+  "onlyProduction": [],
+  "semanticDifferences": []
+}

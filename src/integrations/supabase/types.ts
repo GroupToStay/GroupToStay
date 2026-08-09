@@ -7,13 +7,75 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
+      admin_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string
+          comment: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          ip_address: unknown
+          metadata: Json
+          new_state: Json
+          previous_state: Json
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          comment?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          ip_address?: unknown
+          metadata?: Json
+          new_state?: Json
+          previous_state?: Json
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          comment?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          ip_address?: unknown
+          metadata?: Json
+          new_state?: Json
+          previous_state?: Json
+        }
+        Relationships: []
+      }
       agency_verification_events: {
         Row: {
           actor_id: string | null
@@ -55,48 +117,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      admin_audit_logs: {
-        Row: {
-          action: string
-          actor_id: string
-          comment: string | null
-          created_at: string
-          entity_id: string
-          entity_type: string
-          id: string
-          ip_address: unknown | null
-          metadata: Json
-          new_state: Json
-          previous_state: Json
-        }
-        Insert: {
-          action: string
-          actor_id: string
-          comment?: string | null
-          created_at?: string
-          entity_id: string
-          entity_type: string
-          id?: string
-          ip_address?: unknown | null
-          metadata?: Json
-          new_state?: Json
-          previous_state?: Json
-        }
-        Update: {
-          action?: string
-          actor_id?: string
-          comment?: string | null
-          created_at?: string
-          entity_id?: string
-          entity_type?: string
-          id?: string
-          ip_address?: unknown | null
-          metadata?: Json
-          new_state?: Json
-          previous_state?: Json
-        }
-        Relationships: []
       }
       amenities: {
         Row: {
@@ -372,6 +392,36 @@ export type Database = {
           },
         ]
       }
+      countries: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name_ar: string
+          name_en: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_ar: string
+          name_en: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_ar?: string
+          name_en?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       enterprise_roles: {
         Row: {
           access_level: number
@@ -404,36 +454,6 @@ export type Database = {
           is_system?: boolean
           name?: string
           slug?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      countries: {
-        Row: {
-          code: string
-          created_at: string
-          id: string
-          is_active: boolean
-          name_ar: string
-          name_en: string
-          updated_at: string
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          name_ar: string
-          name_en: string
-          updated_at?: string
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          name_ar?: string
-          name_en?: string
           updated_at?: string
         }
         Relationships: []
@@ -854,6 +874,7 @@ export type Database = {
           billing_email: string | null
           business_address: string | null
           city_id: string | null
+          city_name: string | null
           company_name: string | null
           contact_email: string | null
           contact_person_email: string | null
@@ -922,6 +943,7 @@ export type Database = {
           billing_email?: string | null
           business_address?: string | null
           city_id?: string | null
+          city_name?: string | null
           company_name?: string | null
           contact_email?: string | null
           contact_person_email?: string | null
@@ -990,6 +1012,7 @@ export type Database = {
           billing_email?: string | null
           business_address?: string | null
           city_id?: string | null
+          city_name?: string | null
           company_name?: string | null
           contact_email?: string | null
           contact_person_email?: string | null
@@ -1141,42 +1164,6 @@ export type Database = {
           },
         ]
       }
-      role_permissions: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          permission_key: string
-          role_id: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          permission_key: string
-          role_id: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          permission_key?: string
-          role_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "role_permissions_permission_key_fkey"
-            columns: ["permission_key"]
-            isOneToOne: false
-            referencedRelation: "permissions"
-            referencedColumns: ["key"]
-          },
-          {
-            foreignKeyName: "role_permissions_role_id_fkey"
-            columns: ["role_id"]
-            isOneToOne: false
-            referencedRelation: "enterprise_roles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       rfq_invitations: {
         Row: {
           created_at: string
@@ -1216,6 +1203,67 @@ export type Database = {
           },
           {
             foreignKeyName: "rfq_invitations_rfq_id_fkey"
+            columns: ["rfq_id"]
+            isOneToOne: false
+            referencedRelation: "rfqs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rfq_lifecycle_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          from_status: string | null
+          id: string
+          invitation_id: string | null
+          metadata: Json
+          quote_id: string | null
+          rfq_id: string
+          to_status: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: string
+          from_status?: string | null
+          id?: string
+          invitation_id?: string | null
+          metadata?: Json
+          quote_id?: string | null
+          rfq_id: string
+          to_status?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: string
+          from_status?: string | null
+          id?: string
+          invitation_id?: string | null
+          metadata?: Json
+          quote_id?: string | null
+          rfq_id?: string
+          to_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rfq_lifecycle_events_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "rfq_invitations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rfq_lifecycle_events_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rfq_lifecycle_events_rfq_id_fkey"
             columns: ["rfq_id"]
             isOneToOne: false
             referencedRelation: "rfqs"
@@ -1344,6 +1392,42 @@ export type Database = {
           },
         ]
       }
+      role_permissions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          permission_key: string
+          role_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          permission_key: string
+          role_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          permission_key?: string
+          role_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "role_permissions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       room_types: {
         Row: {
           created_at: string
@@ -1437,27 +1521,6 @@ export type Database = {
           },
         ]
       }
-      user_roles: {
-        Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
       user_enterprise_roles: {
         Row: {
           assigned_at: string
@@ -1521,6 +1584,27 @@ export type Database = {
             referencedColumns: ["key"]
           },
         ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
@@ -1694,15 +1778,6 @@ export type Database = {
     }
     Functions: {
       _norm: { Args: { t: string }; Returns: string }
-      admin_get_user_auth_metadata: {
-        Args: never
-        Returns: {
-          created_at: string
-          email: string
-          last_sign_in_at: string | null
-          user_id: string
-        }[]
-      }
       admin_decide_approval: {
         Args: {
           _comment?: string
@@ -1711,6 +1786,15 @@ export type Database = {
           _source_type: string
         }
         Returns: Json
+      }
+      admin_get_user_auth_metadata: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          last_sign_in_at: string
+          user_id: string
+        }[]
       }
       admin_set_role_permissions: {
         Args: { _permission_keys: string[]; _role_slug: string }
@@ -1760,12 +1844,13 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_enterprise_admin: { Args: { _user_id: string }; Returns: boolean }
       is_account_active: { Args: { _user_id: string }; Returns: boolean }
+      is_agency_rfq_eligible: { Args: { _user_id: string }; Returns: boolean }
       is_conversation_participant: {
         Args: { _conv: string; _user: string }
         Returns: boolean
       }
+      is_enterprise_admin: { Args: { _user_id: string }; Returns: boolean }
       is_hotel_invited_to_rfq: {
         Args: { _rfq_id: string; _user_id: string }
         Returns: boolean
@@ -1958,6 +2043,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       agency_verification_status: [

@@ -1,0 +1,23 @@
+{
+  "functions": [
+    {
+      "owner": "postgres",
+      "schema": "public",
+      "function": "prevent_non_admin_account_status_change",
+      "search_path": "public",
+      "execute_grants": [
+        {
+          "grantee": "postgres",
+          "grantor": "postgres",
+          "grantable": false,
+          "privilege": "execute"
+        }
+      ],
+      "security_definer": true,
+      "identity_arguments": ""
+    }
+  ],
+  "accessMode": "isolated_local_catalog_query",
+  "functionCount": 1,
+  "schemaVersion": 1
+}
