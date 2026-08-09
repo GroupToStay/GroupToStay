@@ -42,11 +42,14 @@ DECLARE
 BEGIN
   INSERT INTO auth.users (id, aud, role, email, encrypted_password, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
   VALUES
-    (organizer_id, 'authenticated', 'authenticated', 'fixture-organizer@example.test', '', '{}'::jsonb, '{}'::jsonb, now(), now()),
-    (draft_organizer_id, 'authenticated', 'authenticated', 'fixture-draft@example.test', '', '{}'::jsonb, '{}'::jsonb, now(), now()),
-    (hotel_owner_id, 'authenticated', 'authenticated', 'fixture-hotel@example.test', '', '{}'::jsonb, '{}'::jsonb, now(), now()),
-    (admin_id, 'authenticated', 'authenticated', 'fixture-admin@example.test', '', '{}'::jsonb, '{}'::jsonb, now(), now());
+    (organizer_id, 'authenticated', 'authenticated', 'fixture-organizer@example.test', '', '{}'::jsonb, '{"role":"organizer"}'::jsonb, now(), now()),
+    (draft_organizer_id, 'authenticated', 'authenticated', 'fixture-draft@example.test', '', '{}'::jsonb, '{"role":"organizer"}'::jsonb, now(), now()),
+    (hotel_owner_id, 'authenticated', 'authenticated', 'fixture-hotel@example.test', '', '{}'::jsonb, '{"role":"hotel"}'::jsonb, now(), now()),
+    (admin_id, 'authenticated', 'authenticated', 'fixture-admin@example.test', '', '{}'::jsonb, '{"role":"organizer"}'::jsonb, now(), now());
 
+  DELETE FROM public.organization_memberships WHERE user_id = admin_id;
+  DELETE FROM public.organizations WHERE legacy_owner_user_id = admin_id;
+  DELETE FROM public.user_roles WHERE user_id = admin_id;
   INSERT INTO public.user_roles (user_id, role)
   VALUES (admin_id, 'admin');
   PERFORM set_config('request.jwt.claim.sub', admin_id::text, true);

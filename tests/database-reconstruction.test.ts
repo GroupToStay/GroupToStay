@@ -90,6 +90,7 @@ RAISE EXCEPTION 'Approved city localization stable-key mismatch';
     expect(runner).toContain('"db", "start"');
     expect(runner).toContain('project_id = "grouptostay_reconstruction"');
     expect(runner).toContain('"supabase/tests/duplicate-trigger-fixtures.sql"');
+    expect(runner).toContain('"supabase/tests/organization-membership-fixtures.sql"');
     expect(runner).not.toMatch(/\["(?:link|db push|migration repair)"/u);
   });
 
@@ -142,13 +143,13 @@ RAISE EXCEPTION 'Approved city localization stable-key mismatch';
     expect(expected).toHaveLength(12);
     expect(expected.find((entry) => entry.category === "relations")).toEqual({
       category: "relations",
-      objectCount: 34,
-      definitionMd5: "6422b5595777ff69da86e28393e6c73e",
+      objectCount: 37,
+      definitionMd5: "b9b6a8230b3f7452b4686eced3446860",
     });
     expect(expected.find((entry) => entry.category === "policies")).toEqual({
       category: "policies",
-      objectCount: 148,
-      definitionMd5: "b877e85f40b5578be5416b929ed95071",
+      objectCount: 151,
+      definitionMd5: "b44c71f0548870610388d0eeb47cfdd0",
     });
     expect(runner).toContain("schema_fingerprint_mismatch");
     expect(runner).toContain("generated_type_drift");
