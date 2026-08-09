@@ -220,6 +220,42 @@ function runOrganizationMembershipFixtures(options) {
   return JSON.parse(fixtureResult);
 }
 
+function runDealOfferFixtures(options) {
+  const fixtureSql = readFileSync(
+    resolve(options.repositoryRoot, "supabase/tests/deal-offer-fixtures.sql"),
+    "utf8",
+  );
+  const result = run(
+    options.dockerCommand,
+    [
+      "exec",
+      "-i",
+      "supabase_db_grouptostay_reconstruction",
+      "psql",
+      "-U",
+      "postgres",
+      "-d",
+      "postgres",
+      "-X",
+      "-A",
+      "-t",
+      "-v",
+      "ON_ERROR_STOP=1",
+    ],
+    { ...options, input: fixtureSql },
+  );
+  if (result.status !== 0) {
+    throw new Error(`Deal and Offer fixtures failed: ${result.stderr || result.stdout}`);
+  }
+  const fixtureResult = `${result.stdout ?? ""}`
+    .split(/\r?\n/gu)
+    .find((line) => line.trim().startsWith("["));
+  if (!fixtureResult) {
+    throw new Error("Deal and Offer fixtures did not produce a result payload.");
+  }
+  return JSON.parse(fixtureResult);
+}
+
 function extractGeneratedTypeMembers(value, sectionName) {
   const publicSchemaStart = value.indexOf("  public: {");
   if (publicSchemaStart < 0) return [];
@@ -322,6 +358,7 @@ export function runDatabaseReconstruction({
     catalogEvidence: null,
     duplicateTriggerFixtures: null,
     organizationMembershipFixtures: null,
+    dealOfferFixtures: null,
     validationFailure: null,
   };
 
@@ -335,6 +372,12 @@ export function runDatabaseReconstruction({
       repositoryRoot,
     });
     report.organizationMembershipFixtures = runOrganizationMembershipFixtures({
+      cwd: isolatedRoot,
+      env: childEnvironment,
+      dockerCommand,
+      repositoryRoot,
+    });
+    report.dealOfferFixtures = runDealOfferFixtures({
       cwd: isolatedRoot,
       env: childEnvironment,
       dockerCommand,
