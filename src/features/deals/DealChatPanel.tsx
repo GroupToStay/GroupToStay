@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, LockKeyhole, MessageSquareText, RefreshCw, Send } from "lucide-react";
+import {
+  AlertCircle,
+  LockKeyhole,
+  MessageSquareText,
+  RefreshCw,
+  Send,
+  ShieldCheck,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -154,6 +161,7 @@ export function DealChatPanel({ snapshot }: { snapshot: DealWorkspaceSnapshot })
 
   const messages = chatQuery.data?.messages ?? [];
   const readOnly = !canSend;
+  const contactRevealed = ["agreed", "closed"].includes(snapshot.deal.status);
 
   return (
     <section
@@ -177,6 +185,17 @@ export function DealChatPanel({ snapshot }: { snapshot: DealWorkspaceSnapshot })
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {announcement}
       </p>
+
+      <div className="flex items-start gap-2 border-b border-border bg-muted/30 px-4 py-3 text-xs text-muted-foreground sm:px-5">
+        {contactRevealed ? (
+          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden="true" />
+        ) : (
+          <LockKeyhole className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+        )}
+        <p>
+          {t(contactRevealed ? "workspace.chat.privacy.revealed" : "workspace.chat.privacy.locked")}
+        </p>
+      </div>
 
       {messages.length === 0 ? (
         <div className="grid min-h-72 place-items-center px-6 py-10 text-center">
@@ -262,7 +281,7 @@ export function DealChatPanel({ snapshot }: { snapshot: DealWorkspaceSnapshot })
             />
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-muted-foreground">
-                {t("workspace.chat.composer.privacy")}
+                {t("workspace.chat.privacy.commercial")}
               </p>
               <div className="flex items-center justify-between gap-3 sm:justify-end">
                 <span className="text-xs tabular-nums text-muted-foreground" aria-live="polite">
