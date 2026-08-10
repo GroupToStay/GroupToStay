@@ -2047,6 +2047,7 @@ export type Database = {
     }
     Functions: {
       _norm: { Args: { t: string }; Returns: string }
+      accept_deal_offer: { Args: { _offer_id: string }; Returns: Json }
       admin_decide_approval: {
         Args: {
           _comment?: string
@@ -2100,6 +2101,8 @@ export type Database = {
         Args: { _hotel_id: string }
         Returns: boolean
       }
+      cancel_deal: { Args: { _deal_id: string }; Returns: Json }
+      close_deal: { Args: { _deal_id: string }; Returns: Json }
       create_notification: {
         Args: {
           _body?: string
@@ -2111,6 +2114,7 @@ export type Database = {
         }
         Returns: string
       }
+      expire_deal_offer: { Args: { _offer_id: string }; Returns: Json }
       get_my_admin_access: { Args: never; Returns: Json }
       has_enterprise_role: {
         Args: { _role_slug: string; _user_id: string }
@@ -2172,10 +2176,22 @@ export type Database = {
         }
         Returns: string
       }
+      record_deal_offer_transition: {
+        Args: {
+          _entity_id: string
+          _entity_type: string
+          _from_status: string
+          _metadata?: Json
+          _to_status: string
+        }
+        Returns: undefined
+      }
+      reject_deal_offer: { Args: { _offer_id: string }; Returns: Json }
       user_organization_role: {
         Args: { _organization_id: string }
         Returns: Database["public"]["Enums"]["organization_membership_role"]
       }
+      withdraw_deal_offer: { Args: { _offer_id: string }; Returns: Json }
     }
     Enums: {
       agency_verification_status:

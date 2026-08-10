@@ -6,8 +6,8 @@
   },
   {
     "category": "application_routine_grants",
-    "objectCount": 22,
-    "definitionMd5": "5342f8fe56e6f554c924c759153e29d9"
+    "objectCount": 28,
+    "definitionMd5": "d9c7bea62487395ccbb90df7dd433547"
   },
   {
     "category": "application_table_grants",
@@ -32,10 +32,10 @@
   },
   {
     "category": "functions",
-    "objectCount": 73,
-    "definitionMd5": "3af5eaa1a1e8f1fe4b55ea6b965bc89a"
+    "objectCount": 80,
+    "definitionMd5": "8aa4f56db09c18c496438fd174c7bf71"
   },
-  { "category": "indexes", "objectCount": 94, "definitionMd5": "f13730a42f83f7479945cc62b2b6bcde" },
+  { "category": "indexes", "objectCount": 95, "definitionMd5": "b648d67723c42fdd5e9eb6d0f47f13ca" },
   {
     "category": "policies",
     "objectCount": 155,
