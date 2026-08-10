@@ -422,6 +422,88 @@ export type Database = {
         }
         Relationships: []
       }
+      deals: {
+        Row: {
+          buyer_organization_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          source_hotel_id: string | null
+          source_invitation_id: string | null
+          source_rfq_id: string | null
+          status: Database["public"]["Enums"]["deal_status"]
+          supplier_organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_organization_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          source_hotel_id?: string | null
+          source_invitation_id?: string | null
+          source_rfq_id?: string | null
+          status?: Database["public"]["Enums"]["deal_status"]
+          supplier_organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_organization_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          source_hotel_id?: string | null
+          source_invitation_id?: string | null
+          source_rfq_id?: string | null
+          status?: Database["public"]["Enums"]["deal_status"]
+          supplier_organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_buyer_organization_id_fkey"
+            columns: ["buyer_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_source_hotel_id_fkey"
+            columns: ["source_hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_source_hotel_id_fkey"
+            columns: ["source_hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_source_invitation_id_fkey"
+            columns: ["source_invitation_id"]
+            isOneToOne: true
+            referencedRelation: "rfq_invitations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_source_rfq_id_fkey"
+            columns: ["source_rfq_id"]
+            isOneToOne: false
+            referencedRelation: "rfqs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_supplier_organization_id_fkey"
+            columns: ["supplier_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enterprise_roles: {
         Row: {
           access_level: number
@@ -787,6 +869,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      offers: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          deal_id: string
+          id: string
+          notes: string | null
+          status: Database["public"]["Enums"]["offer_status"]
+          supplier_organization_id: string
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          deal_id: string
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["offer_status"]
+          supplier_organization_id: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          deal_id?: string
+          id?: string
+          notes?: string | null
+          status?: Database["public"]["Enums"]["offer_status"]
+          supplier_organization_id?: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_deal_supplier_fkey"
+            columns: ["deal_id", "supplier_organization_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id", "supplier_organization_id"]
+          },
+        ]
       }
       organization_hotel_mappings: {
         Row: {
@@ -1949,6 +2081,16 @@ export type Database = {
         Args: { _quote_id: string; _rfq_id: string }
         Returns: string
       }
+      can_create_sourced_deal: {
+        Args: {
+          _buyer_organization_id: string
+          _source_hotel_id: string
+          _source_invitation_id: string
+          _source_rfq_id: string
+          _supplier_organization_id: string
+        }
+        Returns: boolean
+      }
       can_manage_organization: {
         Args: { _organization_id: string }
         Returns: boolean
@@ -2045,6 +2187,7 @@ export type Database = {
       app_role: "organizer" | "hotel" | "admin"
       board_type: "room_only" | "breakfast" | "half_board" | "full_board"
       booking_status: "confirmed" | "cancelled" | "completed"
+      deal_status: "active" | "agreed" | "closed" | "cancelled"
       group_type:
         | "umrah"
         | "hajj"
@@ -2074,6 +2217,12 @@ export type Database = {
         | "subscription_expiring"
         | "rfq_awarded"
         | "rfq_closed"
+      offer_status:
+        | "submitted"
+        | "accepted"
+        | "rejected"
+        | "withdrawn"
+        | "expired"
       organization_membership_role:
         | "owner"
         | "admin"
@@ -2243,6 +2392,7 @@ export const Constants = {
       app_role: ["organizer", "hotel", "admin"],
       board_type: ["room_only", "breakfast", "half_board", "full_board"],
       booking_status: ["confirmed", "cancelled", "completed"],
+      deal_status: ["active", "agreed", "closed", "cancelled"],
       group_type: [
         "umrah",
         "hajj",
@@ -2273,6 +2423,13 @@ export const Constants = {
         "subscription_expiring",
         "rfq_awarded",
         "rfq_closed",
+      ],
+      offer_status: [
+        "submitted",
+        "accepted",
+        "rejected",
+        "withdrawn",
+        "expired",
       ],
       organization_membership_role: [
         "owner",
