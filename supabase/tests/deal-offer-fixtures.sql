@@ -550,6 +550,431 @@ END;
 $$;
 INSERT INTO deal_offer_fixture_results VALUES ('commercial_immutability', 'pass');
 
+-- Feature 3 lifecycle topology. These unsourced Deals exercise only the additive V3 workflow.
+UPDATE public.organization_memberships
+SET status = 'active'
+WHERE user_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_user')
+  AND organization_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_org');
+
+INSERT INTO public.deals (
+  id, buyer_organization_id, supplier_organization_id, created_by
+)
+SELECT deal_id, buyer.value, supplier.value, creator.value
+FROM unnest(ARRAY[
+  '20000000-0000-0000-0000-000000000411'::uuid,
+  '20000000-0000-0000-0000-000000000412'::uuid,
+  '20000000-0000-0000-0000-000000000413'::uuid,
+  '20000000-0000-0000-0000-000000000414'::uuid,
+  '20000000-0000-0000-0000-000000000416'::uuid,
+  '20000000-0000-0000-0000-000000000417'::uuid,
+  '20000000-0000-0000-0000-000000000418'::uuid
+]) deal_id
+CROSS JOIN deal_offer_fixture_context buyer
+CROSS JOIN deal_offer_fixture_context supplier
+CROSS JOIN deal_offer_fixture_context creator
+WHERE buyer.key = 'agency_one_org'
+  AND supplier.key = 'supplier_one_org'
+  AND creator.key = 'agency_one_user';
+
+INSERT INTO public.offers (
+  id, deal_id, supplier_organization_id, amount, currency, valid_until, notes, created_by
+)
+SELECT
+  fixture.id,
+  fixture.deal_id,
+  supplier.value,
+  fixture.amount,
+  'USD',
+  CASE fixture.id
+    WHEN '20000000-0000-0000-0000-000000000515'::uuid
+      THEN clock_timestamp() + interval '10 milliseconds'
+    ELSE clock_timestamp() + interval '30 days'
+  END,
+  'Workflow fixture terms',
+  creator.value
+FROM (VALUES
+  ('20000000-0000-0000-0000-000000000511'::uuid, '20000000-0000-0000-0000-000000000411'::uuid, 1100::numeric),
+  ('20000000-0000-0000-0000-000000000512'::uuid, '20000000-0000-0000-0000-000000000411'::uuid, 1200::numeric),
+  ('20000000-0000-0000-0000-000000000513'::uuid, '20000000-0000-0000-0000-000000000413'::uuid, 1300::numeric),
+  ('20000000-0000-0000-0000-000000000514'::uuid, '20000000-0000-0000-0000-000000000412'::uuid, 1400::numeric),
+  ('20000000-0000-0000-0000-000000000515'::uuid, '20000000-0000-0000-0000-000000000414'::uuid, 1500::numeric),
+  ('20000000-0000-0000-0000-000000000517'::uuid, '20000000-0000-0000-0000-000000000417'::uuid, 1700::numeric),
+  ('20000000-0000-0000-0000-000000000518'::uuid, '20000000-0000-0000-0000-000000000417'::uuid, 1800::numeric),
+  ('20000000-0000-0000-0000-000000000519'::uuid, '20000000-0000-0000-0000-000000000416'::uuid, 1900::numeric),
+  ('20000000-0000-0000-0000-000000000520'::uuid, '20000000-0000-0000-0000-000000000416'::uuid, 2000::numeric),
+  ('20000000-0000-0000-0000-000000000521'::uuid, '20000000-0000-0000-0000-000000000418'::uuid, 2100::numeric),
+  ('20000000-0000-0000-0000-000000000522'::uuid, '20000000-0000-0000-0000-000000000418'::uuid, 2200::numeric)
+) fixture(id, deal_id, amount)
+CROSS JOIN deal_offer_fixture_context supplier
+CROSS JOIN deal_offer_fixture_context creator
+WHERE supplier.key = 'supplier_one_org'
+  AND creator.key = 'supplier_one_user';
+
+-- No direct status path exists, even for a participating authenticated member.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_forbidden(
+  $$UPDATE public.deals SET status = 'cancelled'
+    WHERE id = '20000000-0000-0000-0000-000000000411'$$,
+  'Agency member directly changed Deal status'
+);
+SELECT pg_temp.assert_forbidden(
+  $$UPDATE public.offers SET status = 'accepted'
+    WHERE id = '20000000-0000-0000-0000-000000000511'$$,
+  'Agency member directly changed Offer status'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_direct_mutation_denial', 'pass');
+
+SET LOCAL ROLE anon;
+SELECT pg_temp.assert_forbidden(
+  $$SELECT public.accept_deal_offer('20000000-0000-0000-0000-000000000511')$$,
+  'Anonymous caller executed Deal workflow command'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_anonymous_denial', 'pass');
+
+-- Supplier, unrelated Agency, and platform Admin cannot accept a buyer-owned Offer.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT pg_temp.assert_forbidden(
+  $$SELECT public.accept_deal_offer('20000000-0000-0000-0000-000000000511')$$,
+  'Supplier accepted its own Offer'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_two_user'),
+  true
+);
+SELECT pg_temp.assert_forbidden(
+  $$SELECT public.accept_deal_offer('20000000-0000-0000-0000-000000000511')$$,
+  'Unrelated Agency accepted another Agency Offer'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'admin_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.deals) >= 9,
+  'Platform Admin lost inspection access to Deals'
+);
+SELECT pg_temp.assert_forbidden(
+  $$SELECT public.accept_deal_offer('20000000-0000-0000-0000-000000000511')$$,
+  'Platform Admin received marketplace acceptance authority'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_actor_boundaries', 'pass');
+
+-- An inactive buyer membership grants no command authority.
+UPDATE public.organization_memberships
+SET status = 'suspended'
+WHERE user_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_user')
+  AND organization_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org');
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_forbidden(
+  $$SELECT public.accept_deal_offer('20000000-0000-0000-0000-000000000511')$$,
+  'Inactive Agency membership retained acceptance authority'
+);
+RESET ROLE;
+
+UPDATE public.organization_memberships
+SET status = 'active'
+WHERE user_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_user')
+  AND organization_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org');
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_inactive_membership', 'pass');
+
+-- Accepting one Offer rejects every submitted competitor and agrees the Deal atomically.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT public.accept_deal_offer('20000000-0000-0000-0000-000000000511');
+SELECT pg_temp.assert_true(
+  (SELECT status = 'agreed' FROM public.deals
+    WHERE id = '20000000-0000-0000-0000-000000000411')
+  AND (SELECT status = 'accepted' FROM public.offers
+    WHERE id = '20000000-0000-0000-0000-000000000511')
+  AND (SELECT status = 'rejected' FROM public.offers
+    WHERE id = '20000000-0000-0000-0000-000000000512')
+  AND (SELECT count(*) = 1 FROM public.offers
+    WHERE deal_id = '20000000-0000-0000-0000-000000000411' AND status = 'accepted'),
+  'Atomic acceptance did not produce one winner and one agreed Deal'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_atomic_acceptance', 'pass');
+
+CREATE TEMP TABLE workflow_duplicate_audit_before AS
+SELECT count(*) AS event_count
+FROM public.admin_audit_logs
+WHERE entity_id IN (
+  '20000000-0000-0000-0000-000000000411',
+  '20000000-0000-0000-0000-000000000511',
+  '20000000-0000-0000-0000-000000000512'
+) AND action IN ('deal.status_changed', 'offer.status_changed');
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  (public.accept_deal_offer('20000000-0000-0000-0000-000000000511') ->> 'idempotent')::boolean,
+  'Duplicate acceptance did not return an idempotent result'
+);
+RESET ROLE;
+
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.admin_audit_logs
+    WHERE entity_id IN (
+      '20000000-0000-0000-0000-000000000411',
+      '20000000-0000-0000-0000-000000000511',
+      '20000000-0000-0000-0000-000000000512'
+    ) AND action IN ('deal.status_changed', 'offer.status_changed'))
+    = (SELECT event_count FROM workflow_duplicate_audit_before),
+  'Duplicate acceptance created duplicate audit evidence'
+);
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_duplicate_acceptance', 'pass');
+
+-- Suppliers may withdraw only their own submitted Offer.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_two_user'),
+  true
+);
+SELECT pg_temp.assert_forbidden(
+  $$SELECT public.withdraw_deal_offer('20000000-0000-0000-0000-000000000514')$$,
+  'Supplier withdrew another Supplier Offer'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT public.withdraw_deal_offer('20000000-0000-0000-0000-000000000514');
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.accept_deal_offer('20000000-0000-0000-0000-000000000514')$$,
+  ARRAY['55000'],
+  'Withdrawn Offer was accepted'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_supplier_withdrawal', 'pass');
+
+-- Buyers may reject a submitted Offer, which is then terminal.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT public.reject_deal_offer('20000000-0000-0000-0000-000000000513');
+SELECT pg_temp.assert_denied(
+  $$SELECT public.accept_deal_offer('20000000-0000-0000-0000-000000000513')$$,
+  ARRAY['55000'],
+  'Rejected Offer was accepted'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_agency_rejection', 'pass');
+
+-- Either active participant may materialize expiry, but only after the server deadline.
+SELECT pg_sleep(0.03);
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT public.expire_deal_offer('20000000-0000-0000-0000-000000000515');
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.accept_deal_offer('20000000-0000-0000-0000-000000000515')$$,
+  ARRAY['55000'],
+  'Expired Offer was accepted'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_expiration', 'pass');
+
+-- The database invariant rejects a simultaneous-style two-winner write atomically.
+DO $$
+DECLARE
+  _failed boolean := false;
+  _state text;
+BEGIN
+  BEGIN
+    UPDATE public.offers
+    SET status = 'accepted'
+    WHERE deal_id = '20000000-0000-0000-0000-000000000416';
+  EXCEPTION WHEN OTHERS THEN
+    _failed := true;
+    _state := SQLSTATE;
+  END;
+
+  PERFORM pg_temp.assert_true(
+    _failed
+      AND _state = '23505'
+      AND (SELECT count(*) = 2 FROM public.offers
+        WHERE deal_id = '20000000-0000-0000-0000-000000000416'
+          AND status = 'submitted'),
+    'Accepted Offer uniqueness invariant did not roll back the two-winner write'
+  );
+END;
+$$;
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_concurrency_invariant', 'pass');
+
+-- A late audit failure must roll back the accepted Offer, competing rejection, and Deal agreement.
+CREATE OR REPLACE FUNCTION public.fixture_fail_deal_workflow_audit()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = ''
+AS $$
+BEGIN
+  IF NEW.action = 'deal.status_changed'
+     AND NEW.entity_id = '20000000-0000-0000-0000-000000000417' THEN
+    RAISE EXCEPTION 'Fixture forced audit failure';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER fixture_fail_deal_workflow_audit
+BEFORE INSERT ON public.admin_audit_logs
+FOR EACH ROW EXECUTE FUNCTION public.fixture_fail_deal_workflow_audit();
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.accept_deal_offer('20000000-0000-0000-0000-000000000517')$$,
+  ARRAY['P0001'],
+  'Forced audit failure did not abort acceptance'
+);
+RESET ROLE;
+
+SELECT pg_temp.assert_true(
+  (SELECT status = 'active' FROM public.deals
+    WHERE id = '20000000-0000-0000-0000-000000000417')
+  AND (SELECT count(*) = 2 FROM public.offers
+    WHERE deal_id = '20000000-0000-0000-0000-000000000417'
+      AND status = 'submitted')
+  AND (SELECT count(*) = 0 FROM public.admin_audit_logs
+    WHERE entity_id IN (
+      '20000000-0000-0000-0000-000000000417',
+      '20000000-0000-0000-0000-000000000517',
+      '20000000-0000-0000-0000-000000000518'
+    ) AND action IN ('deal.status_changed', 'offer.status_changed')),
+  'Failed acceptance left partial state or audit evidence'
+);
+
+DROP TRIGGER fixture_fail_deal_workflow_audit ON public.admin_audit_logs;
+DROP FUNCTION public.fixture_fail_deal_workflow_audit();
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_atomic_rollback', 'pass');
+
+-- Cancelling an active Deal rejects its submitted Offers and remains terminal.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT public.cancel_deal('20000000-0000-0000-0000-000000000418');
+SELECT pg_temp.assert_true(
+  (SELECT status = 'cancelled' FROM public.deals
+    WHERE id = '20000000-0000-0000-0000-000000000418')
+  AND (SELECT count(*) = 2 FROM public.offers
+    WHERE deal_id = '20000000-0000-0000-0000-000000000418'
+      AND status = 'rejected'),
+  'Deal cancellation did not terminate submitted Offers'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.close_deal('20000000-0000-0000-0000-000000000418')$$,
+  ARRAY['55000'],
+  'Cancelled Deal was closed'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_cancellation', 'pass');
+
+-- Agreed Deals may close, but cannot be cancelled or leave their terminal state.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT public.close_deal('20000000-0000-0000-0000-000000000411');
+SELECT pg_temp.assert_denied(
+  $$SELECT public.cancel_deal('20000000-0000-0000-0000-000000000411')$$,
+  ARRAY['55000'],
+  'Closed Deal was cancelled'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.close_deal('20000000-0000-0000-0000-000000000411')$$,
+  ARRAY['55000'],
+  'Closed Deal transitioned again'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_terminal_deal', 'pass');
+
+SELECT pg_temp.assert_true(
+  (SELECT count(*) = 2 FROM public.admin_audit_logs
+    WHERE entity_id = '20000000-0000-0000-0000-000000000411'
+      AND action = 'deal.status_changed')
+  AND (SELECT count(*) = 1 FROM public.admin_audit_logs
+    WHERE entity_id = '20000000-0000-0000-0000-000000000511'
+      AND action = 'offer.status_changed'
+      AND actor_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_user'))
+  AND (SELECT count(*) = 1 FROM public.admin_audit_logs
+    WHERE entity_id = '20000000-0000-0000-0000-000000000514'
+      AND action = 'offer.status_changed'
+      AND actor_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_user')),
+  'Deal workflow audit evidence is incomplete or has the wrong actor'
+);
+INSERT INTO deal_offer_fixture_results VALUES ('workflow_audit_evidence', 'pass');
+
 SELECT pg_temp.assert_true(
   current_counts.rfqs = baseline.rfqs
     AND current_counts.invitations = baseline.invitations
