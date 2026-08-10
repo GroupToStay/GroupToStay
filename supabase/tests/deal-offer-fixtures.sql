@@ -1587,6 +1587,489 @@ CROSS JOIN LATERAL (
 ) current_counts;
 INSERT INTO deal_offer_fixture_results VALUES ('v2_compatibility', 'pass');
 
+-- Private Deal Chat reuses the V2 conversation/message tables without V2 participant rows.
+INSERT INTO public.deals (
+  id, buyer_organization_id, supplier_organization_id, created_by
+)
+SELECT
+  '20000000-0000-0000-0000-000000000801',
+  buyer.value,
+  supplier.value,
+  creator.value
+FROM deal_offer_fixture_context buyer
+JOIN deal_offer_fixture_context supplier ON supplier.key = 'supplier_one_org'
+JOIN deal_offer_fixture_context creator ON creator.key = 'agency_one_user'
+WHERE buyer.key = 'agency_one_org';
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  public.ensure_deal_conversation('20000000-0000-0000-0000-000000000801') =
+    public.ensure_deal_conversation('20000000-0000-0000-0000-000000000801'),
+  'Deal conversation provisioning was not idempotent'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_context (key, value)
+SELECT 'deal_chat_conversation', conversation.id
+FROM public.conversations conversation
+WHERE conversation.deal_id = '20000000-0000-0000-0000-000000000801';
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT public.send_deal_message(
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'),
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org'),
+  '  Agency clarification  '
+);
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.conversations
+   WHERE deal_id = '20000000-0000-0000-0000-000000000801') = 1
+  AND (SELECT body = 'Agency clarification'
+       FROM public.chat_messages
+       WHERE conversation_id = (
+         SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'
+       )),
+  'Deal conversation or message provisioning is invalid'
+);
+SELECT pg_temp.assert_denied(
+  $$INSERT INTO public.chat_messages (
+      conversation_id, sender_id, sender_organization_id, body
+    ) SELECT
+      conversation.value, actor.value, organization.value, 'Direct Deal message'
+    FROM deal_offer_fixture_context conversation
+    JOIN deal_offer_fixture_context actor ON actor.key = 'agency_one_user'
+    JOIN deal_offer_fixture_context organization ON organization.key = 'agency_one_org'
+    WHERE conversation.key = 'deal_chat_conversation'$$,
+  ARRAY['42501'],
+  'Agency bypassed the Deal message command'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.send_deal_message(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'),
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_org'),
+      'Forged supplier sender')$$,
+  ARRAY['42501'],
+  'Agency forged the Supplier organization sender'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.send_deal_message(
+      '20000000-0000-0000-0000-000000009999',
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org'),
+      'Forged conversation')$$,
+  ARRAY['42501'],
+  'Agency used a forged conversation identifier'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.send_deal_message(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'),
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org'),
+      '   ')$$,
+  ARRAY['22023'],
+  'Blank Deal message was accepted'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.send_deal_message(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'),
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org'),
+      repeat('x', 4001))$$,
+  ARRAY['22023'],
+  'Oversized Deal message was accepted'
+);
+SELECT public.send_deal_message(
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'),
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org'),
+  '<script>alert("safe text")</script>'
+);
+RESET ROLE;
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.admin_audit_logs
+   WHERE action = 'deal_chat.conversation_created'
+     AND entity_id = (
+       SELECT value::text FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'
+     )) = 1,
+  'Deal conversation audit evidence is invalid'
+);
+INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_agency_authority', 'pass');
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.conversations
+   WHERE deal_id = '20000000-0000-0000-0000-000000000801') = 1
+  AND (SELECT count(*) FROM public.chat_messages
+       WHERE conversation_id = (
+         SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'
+       )) = 2,
+  'Supplier could not read its Deal conversation history'
+);
+SELECT public.send_deal_message(
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'),
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_org'),
+  'Supplier clarification'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_supplier_authority', 'pass');
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_two_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.conversations
+   WHERE deal_id = '20000000-0000-0000-0000-000000000801') = 0
+  AND (SELECT count(*) FROM public.chat_messages
+       WHERE conversation_id = (
+         SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'
+       )) = 0,
+  'Unrelated Supplier could inspect Deal Chat'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.send_deal_message(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'),
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_two_org'),
+      'Unrelated Supplier message')$$,
+  ARRAY['42501'],
+  'Unrelated Supplier sent a Deal message'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_unrelated_supplier_denial', 'pass');
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_two_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.conversations
+   WHERE deal_id = '20000000-0000-0000-0000-000000000801') = 0
+  AND (SELECT count(*) FROM public.chat_messages
+       WHERE conversation_id = (
+         SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'
+       )) = 0,
+  'Unrelated Agency could inspect Deal Chat'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.ensure_deal_conversation('20000000-0000-0000-0000-000000000801')$$,
+  ARRAY['42501'],
+  'Unrelated Agency provisioned Deal Chat'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.send_deal_message(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'),
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_two_org'),
+      'Cross-organization message')$$,
+  ARRAY['42501'],
+  'Unrelated Agency sent a Deal message'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_cross_organization_denial', 'pass');
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'admin_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.conversations
+   WHERE deal_id = '20000000-0000-0000-0000-000000000801') = 1
+  AND (SELECT count(*) FROM public.chat_messages
+       WHERE conversation_id = (
+         SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'
+       )) = 3,
+  'Platform Admin inspection did not follow the canonical Deal policy'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.send_deal_message(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'),
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org'),
+      'Admin impersonation')$$,
+  ARRAY['42501'],
+  'Platform Admin gained marketplace sender authority'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_admin_inspection_only', 'pass');
+
+UPDATE public.organization_memberships
+SET status = 'suspended'
+WHERE user_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_user')
+  AND organization_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_org');
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.conversations
+   WHERE deal_id = '20000000-0000-0000-0000-000000000801') = 0,
+  'Inactive Supplier membership retained Deal Chat read access'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.send_deal_message(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'),
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_org'),
+      'Inactive member message')$$,
+  ARRAY['42501'],
+  'Inactive Supplier membership retained Deal Chat send access'
+);
+RESET ROLE;
+UPDATE public.organization_memberships
+SET status = 'active'
+WHERE user_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_user')
+  AND organization_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_org');
+INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_inactive_member_denial', 'pass');
+
+UPDATE public.organization_memberships
+SET membership_role = 'viewer'
+WHERE user_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_user')
+  AND organization_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org');
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.send_deal_message(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'),
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org'),
+      'Viewer message')$$,
+  ARRAY['42501'],
+  'Viewer gained commercial Deal Chat send authority'
+);
+RESET ROLE;
+UPDATE public.organization_memberships
+SET membership_role = 'owner'
+WHERE user_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_user')
+  AND organization_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org');
+INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_role_boundary', 'pass');
+
+SET LOCAL ROLE anon;
+SELECT set_config('request.jwt.claim.sub', '', true);
+SELECT pg_temp.assert_denied(
+  $$SELECT count(*) FROM public.conversations$$,
+  ARRAY['42501'],
+  'Anonymous caller could inspect Deal conversations'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT count(*) FROM public.chat_messages$$,
+  ARRAY['42501'],
+  'Anonymous caller could inspect Deal messages'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.ensure_deal_conversation('20000000-0000-0000-0000-000000000801')$$,
+  ARRAY['42501'],
+  'Anonymous caller executed Deal Chat provisioning'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_anonymous_denial', 'pass');
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+UPDATE public.chat_messages
+SET body = 'Tampered message'
+WHERE conversation_id = (
+  SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'
+);
+DELETE FROM public.chat_messages
+WHERE conversation_id = (
+  SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'
+);
+RESET ROLE;
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.chat_messages
+   WHERE conversation_id = (
+     SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'
+   )) = 3
+  AND EXISTS (
+    SELECT 1 FROM public.chat_messages
+    WHERE conversation_id = (
+      SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'
+    )
+      AND body = '<script>alert("safe text")</script>'
+  ),
+  'Ordinary participant changed immutable Deal message history'
+);
+INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_immutability', 'pass');
+
+UPDATE public.deals
+SET status = 'cancelled'
+WHERE id = '20000000-0000-0000-0000-000000000801';
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.send_deal_message(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_chat_conversation'),
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org'),
+      'Cancelled Deal message')$$,
+  ARRAY['55000'],
+  'Cancelled Deal Chat remained writable'
+);
+RESET ROLE;
+
+INSERT INTO public.deals (
+  id, buyer_organization_id, supplier_organization_id, status, created_by
+)
+SELECT
+  '20000000-0000-0000-0000-000000000802',
+  buyer.value,
+  supplier.value,
+  'closed',
+  creator.value
+FROM deal_offer_fixture_context buyer
+JOIN deal_offer_fixture_context supplier ON supplier.key = 'supplier_one_org'
+JOIN deal_offer_fixture_context creator ON creator.key = 'agency_one_user'
+WHERE buyer.key = 'agency_one_org';
+INSERT INTO public.conversations (deal_id)
+VALUES ('20000000-0000-0000-0000-000000000802');
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.send_deal_message(
+      (SELECT id FROM public.conversations
+       WHERE deal_id = '20000000-0000-0000-0000-000000000802'),
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org'),
+      'Closed Deal message')$$,
+  ARRAY['55000'],
+  'Closed Deal Chat remained writable'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_terminal_read_only', 'pass');
+
+INSERT INTO public.deals (
+  id, buyer_organization_id, supplier_organization_id, status, created_by
+)
+SELECT
+  '20000000-0000-0000-0000-000000000803',
+  buyer.value,
+  supplier.value,
+  'agreed',
+  creator.value
+FROM deal_offer_fixture_context buyer
+JOIN deal_offer_fixture_context supplier ON supplier.key = 'supplier_one_org'
+JOIN deal_offer_fixture_context creator ON creator.key = 'agency_one_user'
+WHERE buyer.key = 'agency_one_org';
+INSERT INTO public.conversations (deal_id)
+VALUES ('20000000-0000-0000-0000-000000000803');
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT public.send_deal_message(
+  (SELECT id FROM public.conversations
+   WHERE deal_id = '20000000-0000-0000-0000-000000000803'),
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org'),
+  'Agreed Deal operational clarification'
+);
+RESET ROLE;
+SELECT pg_temp.assert_true(
+  EXISTS (
+    SELECT 1
+    FROM public.chat_messages message
+    JOIN public.conversations conversation ON conversation.id = message.conversation_id
+    WHERE conversation.deal_id = '20000000-0000-0000-0000-000000000803'
+      AND message.body = 'Agreed Deal operational clarification'
+  ),
+  'Agreed Deal Chat rejected an authorized operational clarification'
+);
+INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_agreed_writable', 'pass');
+
+-- The evolved schema retains the V2 participant-based direct message contract.
+INSERT INTO public.conversations (
+  id, rfq_id, hotel_id, organizer_id, hotel_owner_id
+)
+SELECT
+  '20000000-0000-0000-0000-000000000901',
+  rfq.value,
+  hotel.value,
+  organizer.value,
+  hotel_owner.value
+FROM deal_offer_fixture_context rfq
+JOIN deal_offer_fixture_context hotel ON hotel.key = 'hotel_one'
+JOIN deal_offer_fixture_context organizer ON organizer.key = 'agency_one_user'
+JOIN deal_offer_fixture_context hotel_owner ON hotel_owner.key = 'supplier_one_user'
+WHERE rfq.key = 'rfq_one';
+INSERT INTO public.conversation_participants (conversation_id, user_id, role)
+VALUES
+  (
+    '20000000-0000-0000-0000-000000000901',
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+    'organizer'
+  ),
+  (
+    '20000000-0000-0000-0000-000000000901',
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+    'hotel'
+  );
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+INSERT INTO public.chat_messages (conversation_id, sender_id, body)
+VALUES (
+  '20000000-0000-0000-0000-000000000901',
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  'Legacy V2 message remains available'
+);
+SELECT pg_temp.assert_true(
+  EXISTS (
+    SELECT 1 FROM public.chat_messages
+    WHERE conversation_id = '20000000-0000-0000-0000-000000000901'
+      AND sender_organization_id IS NULL
+      AND body = 'Legacy V2 message remains available'
+  ),
+  'Agency could not use the legacy V2 message contract'
+);
+RESET ROLE;
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  EXISTS (
+    SELECT 1 FROM public.chat_messages
+    WHERE conversation_id = '20000000-0000-0000-0000-000000000901'
+      AND body = 'Legacy V2 message remains available'
+  ),
+  'Supplier could not read the legacy V2 message'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_v2_messaging_regression', 'pass');
+
 SELECT json_agg(
   json_build_object('fixture', fixture, 'result', result)
   ORDER BY fixture

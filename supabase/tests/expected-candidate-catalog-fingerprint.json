@@ -1,13 +1,13 @@
 [
   {
     "category": "application_column_grants",
-    "objectCount": 1525,
-    "definitionMd5": "a793da8529517de5565360e3a71d3905"
+    "objectCount": 1535,
+    "definitionMd5": "45140e0eb1fff94b7de240bd2372073f"
   },
   {
     "category": "application_routine_grants",
-    "objectCount": 30,
-    "definitionMd5": "e9ce3246d5b3327fe6cccaeac922d2e0"
+    "objectCount": 33,
+    "definitionMd5": "d4c29462f4e18878255d12d5852b2b48"
   },
   {
     "category": "application_table_grants",
@@ -16,13 +16,13 @@
   },
   {
     "category": "columns",
-    "objectCount": 413,
-    "definitionMd5": "dcfed4ee7ad320638fd6d186e39085e4"
+    "objectCount": 415,
+    "definitionMd5": "38a4b6f782820c20b860b8270a85addc"
   },
   {
     "category": "constraints",
-    "objectCount": 158,
-    "definitionMd5": "7d4d63618e2aa4cdc72db95dd10bbb2d"
+    "objectCount": 163,
+    "definitionMd5": "d5a6895f7bacacd5e8666a8940fc3340"
   },
   { "category": "enums", "objectCount": 89, "definitionMd5": "5ee772bf5949e70e0f307e4bbb0060fc" },
   {
@@ -32,23 +32,23 @@
   },
   {
     "category": "functions",
-    "objectCount": 84,
-    "definitionMd5": "3c92654b15844f1f141ee2436fd3ebc0"
+    "objectCount": 88,
+    "definitionMd5": "8ca6ca763f4e3dd3c3fbbac80fc7b1fd"
   },
   {
     "category": "indexes",
-    "objectCount": 103,
-    "definitionMd5": "e27cf0616abc260936be088e0ec441d7"
+    "objectCount": 105,
+    "definitionMd5": "1de5b4d207e3e1fc027472cfb461d3f0"
   },
   {
     "category": "policies",
-    "objectCount": 156,
-    "definitionMd5": "aa6470115f99ca5664ea68cb4a971d28"
+    "objectCount": 158,
+    "definitionMd5": "e3bbc1f2215577280c0434f11f7f8f5d"
   },
   {
     "category": "relations",
     "objectCount": 40,
     "definitionMd5": "f7e3b319277dc40504fe0381559c45ef"
   },
-  { "category": "triggers", "objectCount": 71, "definitionMd5": "c616fdb59f6bd1500575bd9f751b0c77" }
+  { "category": "triggers", "objectCount": 72, "definitionMd5": "e7240ce05e928414d4dab395636fccb7" }
 ]

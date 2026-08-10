@@ -224,6 +224,7 @@ export type Database = {
           created_at: string
           id: string
           sender_id: string
+          sender_organization_id: string | null
         }
         Insert: {
           attachments?: Json
@@ -232,6 +233,7 @@ export type Database = {
           created_at?: string
           id?: string
           sender_id: string
+          sender_organization_id?: string | null
         }
         Update: {
           attachments?: Json
@@ -240,6 +242,7 @@ export type Database = {
           created_at?: string
           id?: string
           sender_id?: string
+          sender_organization_id?: string | null
         }
         Relationships: [
           {
@@ -247,6 +250,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_sender_organization_id_fkey"
+            columns: ["sender_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -327,41 +337,51 @@ export type Database = {
       conversations: {
         Row: {
           created_at: string
-          hotel_id: string
-          hotel_owner_id: string
+          deal_id: string | null
+          hotel_id: string | null
+          hotel_owner_id: string | null
           id: string
           last_message_at: string
           last_message_preview: string | null
-          organizer_id: string
+          organizer_id: string | null
           quote_id: string | null
-          rfq_id: string
+          rfq_id: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
-          hotel_id: string
-          hotel_owner_id: string
+          deal_id?: string | null
+          hotel_id?: string | null
+          hotel_owner_id?: string | null
           id?: string
           last_message_at?: string
           last_message_preview?: string | null
-          organizer_id: string
+          organizer_id?: string | null
           quote_id?: string | null
-          rfq_id: string
+          rfq_id?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
-          hotel_id?: string
-          hotel_owner_id?: string
+          deal_id?: string | null
+          hotel_id?: string | null
+          hotel_owner_id?: string | null
           id?: string
           last_message_at?: string
           last_message_preview?: string | null
-          organizer_id?: string
+          organizer_id?: string | null
           quote_id?: string | null
-          rfq_id?: string
+          rfq_id?: string | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "conversations_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: true
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "conversations_hotel_id_fkey"
             columns: ["hotel_id"]
@@ -2195,6 +2215,7 @@ export type Database = {
         }
         Returns: string
       }
+      ensure_deal_conversation: { Args: { _deal_id: string }; Returns: string }
       expire_deal_offer: { Args: { _offer_id: string }; Returns: Json }
       get_my_admin_access: { Args: never; Returns: Json }
       has_enterprise_role: {
@@ -2219,6 +2240,10 @@ export type Database = {
       }
       is_agency_rfq_eligible: { Args: { _user_id: string }; Returns: boolean }
       is_conversation_participant: {
+        Args: { _conv: string; _user: string }
+        Returns: boolean
+      }
+      is_deal_conversation_participant: {
         Args: { _conv: string; _user: string }
         Returns: boolean
       }
@@ -2279,6 +2304,14 @@ export type Database = {
         Returns: undefined
       }
       reject_deal_offer: { Args: { _offer_id: string }; Returns: Json }
+      send_deal_message: {
+        Args: {
+          _body: string
+          _conversation_id: string
+          _sender_organization_id: string
+        }
+        Returns: Json
+      }
       submit_initial_deal_offer: {
         Args: {
           _amount: number
