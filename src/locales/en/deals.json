@@ -67,6 +67,46 @@
       "title": "Protected participant context",
       "description": "Only information already authorized by the Deal and its source request is shown. Contact details remain protected."
     },
+    "contact": {
+      "loading": "Loading approved business contact",
+      "locked": {
+        "title": "Contact details are protected",
+        "description": "Approved business contact details become available to both Deal participants after an Offer Version is accepted."
+      },
+      "unavailable": {
+        "title": "Contact details are unavailable",
+        "description": "This Deal did not reach an agreement that authorizes contact reveal, or your role cannot access the projection."
+      },
+      "revealed": {
+        "title": "Business contact revealed",
+        "description": "Agreement authorized this Deal-scoped business contact projection. Use it only for this transaction."
+      },
+      "email": "Business email",
+      "phone": "Business phone",
+      "whatsapp": "Business WhatsApp",
+      "address": "Business address",
+      "noFields": "No optional business contact fields are available.",
+      "retry": "Try again",
+      "actions": {
+        "copy": "Copy {{field}}",
+        "email": "Email business contact",
+        "call": "Call business contact",
+        "whatsapp": "Open business WhatsApp"
+      },
+      "feedback": {
+        "copied": "{{field}} copied.",
+        "copyFailed": "The contact value could not be copied."
+      },
+      "error": {
+        "title": "Business contact is unavailable",
+        "backend_unavailable": "Contact reveal is not enabled in this environment.",
+        "network": "The contact projection could not be loaded. Check your connection and try again.",
+        "permission": "This business contact is not available to your active organization role.",
+        "stale": "The Deal changed while contact access was being checked.",
+        "state_changed": "The approved business contact projection is not currently available.",
+        "unknown": "The approved business contact could not be loaded safely."
+      }
+    },
     "chat": {
       "title": "Private Deal chat",
       "description": "Clarify operational details without changing the structured commercial record.",
@@ -84,6 +124,11 @@
       "readOnly": {
         "title": "Chat is read-only",
         "description": "Messages remain available as Deal history, but your current role or Deal state does not permit sending."
+      },
+      "privacy": {
+        "locked": "Do not share phone numbers, email addresses, WhatsApp details, or personal contacts before agreement. Contact details unlock only after an Offer Version is accepted.",
+        "revealed": "Approved business contact details are now available in the Deal contact section. They are not posted into message history.",
+        "commercial": "Commercial changes belong in a new Offer Version, not in chat."
       },
       "composer": {
         "label": "Message",
@@ -140,7 +185,7 @@
     "confirm": {
       "accept": {
         "title": "Accept this offer?",
-        "description": "Acceptance locks this exact Offer Version and moves the Deal to Agreed. It does not create a Booking.",
+        "description": "Acceptance locks this exact Offer Version, moves the Deal to Agreed, and reveals approved business contact details to both participants. It does not create a Booking.",
         "competitors": "Every other actionable offer for this Deal will be rejected automatically in the same atomic operation."
       },
       "reject": {

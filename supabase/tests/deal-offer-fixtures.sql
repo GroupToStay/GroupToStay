@@ -10,7 +10,7 @@ CREATE TEMP TABLE deal_offer_fixture_context (
   key text PRIMARY KEY,
   value uuid NOT NULL
 );
-GRANT SELECT ON deal_offer_fixture_context TO authenticated;
+GRANT SELECT, INSERT ON deal_offer_fixture_context TO authenticated;
 
 CREATE TEMP TABLE deal_offer_v2_counts AS
 SELECT
@@ -156,6 +156,7 @@ BEGIN
       contact_person_position = 'Manager',
       contact_person_email = 'deal-contact@example.test',
       contact_person_phone = '+10000000000',
+      contact_person_whatsapp = '+10000000001',
       agency_type = 'travel',
       annual_group_bookings = '10',
       avg_rooms_per_booking = '5',
@@ -165,6 +166,34 @@ BEGIN
       billing_email = 'deal-billing@example.test',
       legal_agreements_accepted_at = now()
   WHERE id IN (_agency_one, _agency_two);
+
+  UPDATE public.profiles
+  SET company_name = CASE id
+        WHEN _supplier_one THEN 'Supplier Fixture Company One'
+        ELSE 'Supplier Fixture Company Two'
+      END,
+      contact_email = CASE id
+        WHEN _supplier_one THEN 'supplier-business-one@example.test'
+        ELSE 'supplier-business-two@example.test'
+      END,
+      phone_number = CASE id
+        WHEN _supplier_one THEN '+20000000001'
+        ELSE '+20000000002'
+      END,
+      business_address = CASE id
+        WHEN _supplier_one THEN 'Supplier Business Address One'
+        ELSE 'Supplier Business Address Two'
+      END
+  WHERE id IN (_supplier_one, _supplier_two);
+
+  UPDATE public.organizations
+  SET display_name = CASE legacy_owner_user_id
+      WHEN _agency_one THEN 'Deal Fixture Agency One'
+      WHEN _agency_two THEN 'Deal Fixture Agency Two'
+      WHEN _supplier_one THEN 'Supplier Fixture Company One'
+      ELSE 'Supplier Fixture Company Two'
+    END
+  WHERE legacy_owner_user_id IN (_agency_one, _agency_two, _supplier_one, _supplier_two);
 
   INSERT INTO public.hotels (id, owner_id, name, slug, city, country, address, status)
   VALUES
@@ -2003,6 +2032,290 @@ SELECT pg_temp.assert_true(
   'Agreed Deal Chat rejected an authorized operational clarification'
 );
 INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_agreed_writable', 'pass');
+
+-- Deal contact reveal is denied before agreement and created atomically by acceptance.
+INSERT INTO public.deals (
+  id, buyer_organization_id, supplier_organization_id, created_by
+)
+SELECT
+  '20000000-0000-0000-0000-000000000804',
+  buyer.value,
+  supplier.value,
+  creator.value
+FROM deal_offer_fixture_context buyer
+JOIN deal_offer_fixture_context supplier ON supplier.key = 'supplier_one_org'
+JOIN deal_offer_fixture_context creator ON creator.key = 'agency_one_user'
+WHERE buyer.key = 'agency_one_org';
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+INSERT INTO deal_offer_fixture_context (key, value)
+SELECT
+  'contact_reveal_offer',
+  (public.submit_initial_deal_offer(
+    '20000000-0000-0000-0000-000000000804',
+    9100,
+    'SAR',
+    now() + interval '10 days',
+    'Contact reveal fixture offer',
+    '20000000-0000-0000-0000-000000000805'
+  )->>'offer_id')::uuid;
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT * FROM public.get_deal_counterparty_contact(
+      '20000000-0000-0000-0000-000000000804'
+    )$$,
+  ARRAY['42501'],
+  'Agency retrieved Supplier contact before agreement'
+);
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.profiles
+   WHERE id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_user')) = 0,
+  'Agency gained direct access to the Supplier profile'
+);
+SELECT public.accept_deal_offer(
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'contact_reveal_offer')
+);
+SELECT public.accept_deal_offer(
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'contact_reveal_offer')
+);
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.deal_contact_reveals
+   WHERE deal_id = '20000000-0000-0000-0000-000000000804') = 0,
+  'Participant gained direct reveal-evidence table access'
+);
+SELECT pg_temp.assert_true(
+  contact.business_name = 'Supplier Fixture Company One'
+    AND contact.contact_name IS NULL
+    AND contact.email = 'supplier-business-one@example.test'
+    AND contact.phone = '+20000000001'
+    AND contact.whatsapp IS NULL
+    AND contact.address = 'Supplier Business Address One'
+    AND contact.organization_type = 'supplier'
+    AND contact.policy_version = 'deal-contact-v1'
+    AND to_jsonb(contact) - ARRAY[
+      'business_name', 'contact_name', 'email', 'phone', 'whatsapp', 'address',
+      'organization_type', 'revealed_at', 'policy_version'
+    ]::text[] = '{}'::jsonb,
+  'Agency contact projection is not the exact approved Supplier allowlist'
+)
+FROM public.get_deal_counterparty_contact(
+  '20000000-0000-0000-0000-000000000804'
+) contact;
+SELECT pg_temp.assert_denied(
+  $$UPDATE public.deal_contact_reveals
+    SET policy_version = 'tampered'
+    WHERE deal_id = '20000000-0000-0000-0000-000000000804'$$,
+  ARRAY['42501'],
+  'Participant changed immutable contact reveal evidence'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('contact_reveal_agency_projection', 'pass');
+
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.deal_contact_reveals
+   WHERE deal_id = '20000000-0000-0000-0000-000000000804'
+     AND accepted_offer_id = (
+       SELECT value FROM deal_offer_fixture_context WHERE key = 'contact_reveal_offer'
+     )
+     AND reveal_trigger = 'offer_accepted'
+     AND policy_version = 'deal-contact-v1') = 1
+  AND (SELECT count(*) FROM public.admin_audit_logs
+       WHERE action = 'deal.contact_revealed'
+         AND (new_state->>'deal_id')::uuid = '20000000-0000-0000-0000-000000000804') = 1
+  AND NOT EXISTS (
+    SELECT 1 FROM public.admin_audit_logs
+    WHERE action = 'deal.contact_revealed'
+      AND new_state::text ~* '(supplier-business-one@example.test|\\+20000000001)'
+  ),
+  'Reveal uniqueness or PII-free audit evidence is invalid'
+);
+INSERT INTO deal_offer_fixture_results VALUES ('contact_reveal_atomic_idempotency', 'pass');
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  contact.business_name = 'Deal Fixture Agency One'
+    AND contact.contact_name = 'Fixture Contact'
+    AND contact.email = 'deal-contact@example.test'
+    AND contact.phone = '+10000000000'
+    AND contact.whatsapp = '+10000000001'
+    AND contact.address = 'Fixture Address'
+    AND contact.organization_type = 'agency',
+  'Supplier contact projection does not use approved Agency business fields'
+)
+FROM public.get_deal_counterparty_contact(
+  '20000000-0000-0000-0000-000000000804'
+) contact;
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('contact_reveal_supplier_projection', 'pass');
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_two_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT * FROM public.get_deal_counterparty_contact(
+      '20000000-0000-0000-0000-000000000804'
+    )$$,
+  ARRAY['42501'],
+  'Unrelated Agency retrieved Deal contact'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'admin_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  (SELECT count(*) FROM public.deal_contact_reveals
+   WHERE deal_id = '20000000-0000-0000-0000-000000000804') = 1,
+  'Platform Admin could not inspect non-PII reveal evidence'
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT * FROM public.get_deal_counterparty_contact(
+      '20000000-0000-0000-0000-000000000804'
+    )$$,
+  ARRAY['42501'],
+  'Platform Admin impersonated a Deal participant for contact retrieval'
+);
+RESET ROLE;
+
+UPDATE public.organization_memberships
+SET status = 'suspended'
+WHERE user_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_user')
+  AND organization_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_org');
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT * FROM public.get_deal_counterparty_contact(
+      '20000000-0000-0000-0000-000000000804'
+    )$$,
+  ARRAY['42501'],
+  'Inactive Supplier membership retained contact access'
+);
+RESET ROLE;
+UPDATE public.organization_memberships
+SET status = 'active'
+WHERE user_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_user')
+  AND organization_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_org');
+
+SET LOCAL ROLE anon;
+SELECT set_config('request.jwt.claim.sub', '', true);
+SELECT pg_temp.assert_denied(
+  $$SELECT * FROM public.get_deal_counterparty_contact(
+      '20000000-0000-0000-0000-000000000804'
+    )$$,
+  ARRAY['42501'],
+  'Anonymous caller retrieved Deal contact'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('contact_reveal_authority_boundaries', 'pass');
+
+SELECT pg_temp.assert_true(
+  NOT EXISTS (
+    SELECT 1 FROM public.deal_contact_reveals
+    WHERE deal_id = '20000000-0000-0000-0000-000000000801'
+  ),
+  'Cancelled pre-agreement Deal created reveal evidence'
+);
+
+INSERT INTO public.deals (
+  id, buyer_organization_id, supplier_organization_id, created_by
+)
+SELECT
+  '20000000-0000-0000-0000-000000000806',
+  buyer.value,
+  supplier.value,
+  creator.value
+FROM deal_offer_fixture_context buyer
+JOIN deal_offer_fixture_context supplier ON supplier.key = 'supplier_one_org'
+JOIN deal_offer_fixture_context creator ON creator.key = 'agency_one_user'
+WHERE buyer.key = 'agency_one_org';
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+INSERT INTO deal_offer_fixture_context (key, value)
+SELECT
+  'failed_reveal_offer',
+  (public.submit_initial_deal_offer(
+    '20000000-0000-0000-0000-000000000806',
+    9200,
+    'SAR',
+    now() + interval '10 days',
+    'Withdrawn reveal fixture offer',
+    '20000000-0000-0000-0000-000000000807'
+  )->>'offer_id')::uuid;
+SELECT public.withdraw_deal_offer(
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'failed_reveal_offer')
+);
+RESET ROLE;
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.accept_deal_offer(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'failed_reveal_offer')
+    )$$,
+  ARRAY['55000'],
+  'Withdrawn Offer was accepted during reveal flow'
+);
+RESET ROLE;
+SELECT pg_temp.assert_true(
+  NOT EXISTS (
+    SELECT 1 FROM public.deal_contact_reveals
+    WHERE deal_id = '20000000-0000-0000-0000-000000000806'
+  ),
+  'Failed acceptance created reveal evidence'
+);
+INSERT INTO deal_offer_fixture_results VALUES ('contact_reveal_failure_rollback', 'pass');
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT public.close_deal('20000000-0000-0000-0000-000000000804');
+SELECT pg_temp.assert_true(
+  EXISTS (
+    SELECT 1 FROM public.get_deal_counterparty_contact(
+      '20000000-0000-0000-0000-000000000804'
+    )
+  ),
+  'Closed agreed Deal did not retain contact access'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('contact_reveal_closed_retention', 'pass');
 
 -- The evolved schema retains the V2 participant-based direct message contract.
 INSERT INTO public.conversations (

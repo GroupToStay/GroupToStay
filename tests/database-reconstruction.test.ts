@@ -144,13 +144,13 @@ RAISE EXCEPTION 'Approved city localization stable-key mismatch';
     expect(expected).toHaveLength(12);
     expect(expected.find((entry) => entry.category === "relations")).toEqual({
       category: "relations",
-      objectCount: 40,
-      definitionMd5: "f7e3b319277dc40504fe0381559c45ef",
+      objectCount: 41,
+      definitionMd5: "5c91e7b6039ddd1f478d8f7a1303e14f",
     });
     expect(expected.find((entry) => entry.category === "policies")).toEqual({
       category: "policies",
-      objectCount: 158,
-      definitionMd5: "e3bbc1f2215577280c0434f11f7f8f5d",
+      objectCount: 159,
+      definitionMd5: "ea520e3249e85ddb330c6c1c09e77dd2",
     });
     expect(runner).toContain("schema_fingerprint_mismatch");
     expect(runner).toContain("generated_type_drift");

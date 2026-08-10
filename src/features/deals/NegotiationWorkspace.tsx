@@ -25,7 +25,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { useApplicationLocale } from "@/lib/application-locale";
 import { cn } from "@/lib/utils";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -79,6 +78,7 @@ import {
   type CounterOfferInput,
 } from "@/features/deals/deal-workspace-service";
 import { DealChatPanel } from "@/features/deals/DealChatPanel";
+import { DealContactPanel } from "@/features/deals/DealContactPanel";
 
 export function NegotiationWorkspace({ dealId }: { dealId: string }) {
   const { t } = useTranslation("deals");
@@ -292,11 +292,7 @@ export function NegotiationWorkspace({ dealId }: { dealId: string }) {
 
         <aside className="space-y-6" aria-label={t("workspace.context.title")}>
           <ContextPanel snapshot={snapshot} formatDate={formatDate} />
-          <Alert className="border-primary/15 bg-primary/5">
-            <LockKeyhole className="h-4 w-4" aria-hidden="true" />
-            <AlertTitle>{t("workspace.privacy.title")}</AlertTitle>
-            <AlertDescription>{t("workspace.privacy.description")}</AlertDescription>
-          </Alert>
+          <DealContactPanel snapshot={snapshot} />
         </aside>
       </div>
     </div>
