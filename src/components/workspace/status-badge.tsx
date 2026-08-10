@@ -10,6 +10,7 @@ import {
   Send,
   XCircle,
   Handshake,
+  History,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,7 @@ const statusConfig = {
   rejected: { icon: XCircle, className: "border-error/20 bg-error/10 text-error" },
   shortlisted: { icon: Award, className: "border-gold/30 bg-gold/10 text-gold-foreground" },
   submitted: { icon: Send, className: "border-info/20 bg-info/10 text-info" },
+  superseded: { icon: History, className: "border-border bg-muted text-muted-foreground" },
   suspended: { icon: Ban, className: "border-error/20 bg-error/10 text-error" },
   verified: { icon: CheckCircle2, className: "border-success/20 bg-success/10 text-success" },
   viewed: { icon: Eye, className: "border-info/20 bg-info/10 text-info" },

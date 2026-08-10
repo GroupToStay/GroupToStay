@@ -6,14 +6,20 @@ import {
   classifyDealWorkspaceError,
   getDealActions,
   getOfferActions,
+  getOfferSubmittingSide,
+  groupOfferHistory,
   isDealId,
+  isLatestOfferVersion,
   resolveDealWorkspaceActor,
   selectCommercialOffer,
   type DealRow,
   type MembershipRow,
   type OfferRow,
 } from "../src/features/deals/deal-workspace-model";
-import { executeDealWorkspaceAction } from "../src/features/deals/deal-workspace-service";
+import {
+  executeCounterOffer,
+  executeDealWorkspaceAction,
+} from "../src/features/deals/deal-workspace-service";
 
 const deal: DealRow = {
   id: "10000000-0000-4000-8000-000000000001",
@@ -32,6 +38,10 @@ const submittedOffer: OfferRow = {
   id: "40000000-0000-4000-8000-000000000001",
   deal_id: deal.id,
   supplier_organization_id: deal.supplier_organization_id,
+  offer_thread_id: "50000000-0000-4000-8000-000000000001",
+  version_number: 1,
+  submitted_by_organization_id: deal.supplier_organization_id,
+  parent_offer_id: null,
   amount: 125000,
   currency: "SAR",
   valid_until: "2026-08-20T08:00:00.000Z",
@@ -93,6 +103,7 @@ describe("Negotiation Workspace v1", () => {
     expect(getOfferActions(deal, submittedOffer, buyer, new Date("2026-08-11"))).toEqual([
       "accept",
       "reject",
+      "counter",
     ]);
     expect(getOfferActions(deal, submittedOffer, supplier, new Date("2026-08-11"))).toEqual([
       "withdraw",
@@ -104,6 +115,38 @@ describe("Negotiation Workspace v1", () => {
     expect(getDealActions(deal, supplier)).toEqual([]);
   });
 
+  it("alternates counteroffer authority using immutable submitter identity", () => {
+    const buyer = resolveDealWorkspaceActor(deal, [
+      membership(deal.buyer_organization_id, "agent"),
+    ]);
+    const supplier = resolveDealWorkspaceActor(deal, [
+      membership(deal.supplier_organization_id, "reservations"),
+    ]);
+    const agencyCounter: OfferRow = {
+      ...submittedOffer,
+      id: "40000000-0000-4000-8000-000000000002",
+      parent_offer_id: submittedOffer.id,
+      version_number: 2,
+      submitted_by_organization_id: deal.buyer_organization_id,
+      amount: 120000,
+      created_at: "2026-08-10T10:00:00.000Z",
+      updated_at: "2026-08-10T10:00:00.000Z",
+    };
+    const history = [{ ...submittedOffer, status: "superseded" as const }, agencyCounter];
+
+    expect(getOfferSubmittingSide(deal, submittedOffer)).toBe("supplier");
+    expect(getOfferSubmittingSide(deal, agencyCounter)).toBe("buyer");
+    expect(isLatestOfferVersion(submittedOffer, history)).toBe(false);
+    expect(isLatestOfferVersion(agencyCounter, history)).toBe(true);
+    expect(getOfferActions(deal, history[0], buyer, new Date("2026-08-11"), history)).toEqual([]);
+    expect(getOfferActions(deal, agencyCounter, buyer, new Date("2026-08-11"), history)).toEqual(
+      [],
+    );
+    expect(getOfferActions(deal, agencyCounter, supplier, new Date("2026-08-11"), history)).toEqual(
+      ["reject", "counter"],
+    );
+  });
+
   it("handles expired and terminal Offers without reopening them", () => {
     const buyer = resolveDealWorkspaceActor(deal, [
       membership(deal.buyer_organization_id, "admin"),
@@ -113,10 +156,34 @@ describe("Negotiation Workspace v1", () => {
       "expire",
     ]);
 
-    for (const status of ["accepted", "rejected", "withdrawn", "expired"] as const) {
+    for (const status of ["accepted", "rejected", "withdrawn", "expired", "superseded"] as const) {
       expect(getOfferActions(deal, { ...submittedOffer, status }, buyer)).toEqual([]);
     }
     expect(getOfferActions({ ...deal, status: "agreed" }, submittedOffer, buyer)).toEqual([]);
+  });
+
+  it("groups immutable Offer Versions by thread in sequence order", () => {
+    const laterVersion: OfferRow = {
+      ...submittedOffer,
+      id: "40000000-0000-4000-8000-000000000002",
+      parent_offer_id: submittedOffer.id,
+      version_number: 2,
+      submitted_by_organization_id: deal.buyer_organization_id,
+      created_at: "2026-08-10T10:00:00.000Z",
+      updated_at: "2026-08-10T10:00:00.000Z",
+    };
+    const otherThread: OfferRow = {
+      ...submittedOffer,
+      id: "40000000-0000-4000-8000-000000000003",
+      offer_thread_id: "50000000-0000-4000-8000-000000000002",
+      created_at: "2026-08-10T11:00:00.000Z",
+      updated_at: "2026-08-10T11:00:00.000Z",
+    };
+
+    expect(groupOfferHistory([laterVersion, otherThread, submittedOffer])).toEqual([
+      { id: submittedOffer.offer_thread_id, offers: [submittedOffer, laterVersion] },
+      { id: otherThread.offer_thread_id, offers: [otherThread] },
+    ]);
   });
 
   it("selects accepted or current commercial terms while preserving empty history", () => {
@@ -145,12 +212,36 @@ describe("Negotiation Workspace v1", () => {
       "expire_deal_offer",
       "cancel_deal",
       "close_deal",
+      "counter_deal_offer",
     ]) {
       expect(service).toContain(`"${rpc}"`);
     }
     expect(service).toContain("supabase.rpc(rpc, args as never)");
     expect(service).not.toMatch(/\.from\(["'](?:deals|offers)["']\)\s*\.update/u);
     expect(service).not.toMatch(/\.from\(["'](?:deals|offers)["']\)\s*\.delete/u);
+  });
+
+  it("submits counteroffers only through the canonical structured command", async () => {
+    const rpcMock = vi.fn().mockResolvedValue({
+      data: { offer_id: crypto.randomUUID(), version_number: 2 },
+      error: null,
+    });
+    const input = {
+      parentOfferId: submittedOffer.id,
+      amount: 120000,
+      currency: "SAR",
+      validUntil: "2026-08-22T08:00:00.000Z",
+      notes: "Revised commercial terms",
+    };
+
+    await expect(executeCounterOffer(input, rpcMock)).resolves.toMatchObject({ version_number: 2 });
+    expect(rpcMock).toHaveBeenCalledWith({
+      _parent_offer_id: submittedOffer.id,
+      _amount: 120000,
+      _currency: "SAR",
+      _valid_until: "2026-08-22T08:00:00.000Z",
+      _notes: "Revised commercial terms",
+    });
   });
 
   it("dispatches every lifecycle command to its canonical Feature 3 RPC", async () => {
@@ -193,6 +284,9 @@ describe("Negotiation Workspace v1", () => {
     expect(route).toContain("isDealId(dealId)");
     expect(workspace).toContain('aria-live="polite"');
     expect(workspace).toContain("AlertDialog");
+    expect(workspace).toContain("CounterOfferDialog");
+    expect(workspace).toContain('type="submit"');
+    expect(workspace).toContain("event.preventDefault()");
     expect(workspace).toContain("min-h-11");
     expect(workspace).toContain("motion-reduce:animate-none");
     expect(workspace).toContain("actionMutation.isPending");

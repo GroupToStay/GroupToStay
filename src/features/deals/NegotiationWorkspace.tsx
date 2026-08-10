@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import {
   AlertTriangle,
   ArrowLeft,
+  ArrowRightLeft,
   Building2,
   CalendarDays,
   Check,
@@ -38,14 +39,30 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { EmptyState } from "@/components/empty-state";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/workspace/page-header";
 import { StatusBadge } from "@/components/workspace/status-badge";
 import { WorkspaceSection } from "@/components/workspace/section";
 import {
   classifyDealWorkspaceError,
+  getOfferSubmittingSide,
   getDealActions,
   getOfferActions,
+  groupOfferHistory,
+  isLatestOfferVersion,
   selectCommercialOffer,
   type DealWorkspaceAction,
   type DealWorkspaceErrorKind,
@@ -55,7 +72,9 @@ import {
 import {
   dealWorkspaceQueryKey,
   executeDealWorkspaceAction,
+  executeCounterOffer,
   loadDealWorkspace,
+  type CounterOfferInput,
 } from "@/features/deals/deal-workspace-service";
 
 export function NegotiationWorkspace({ dealId }: { dealId: string }) {
@@ -95,9 +114,38 @@ export function NegotiationWorkspace({ dealId }: { dealId: string }) {
     },
   });
 
+  const counterMutation = useMutation({
+    mutationFn: (input: CounterOfferInput) => executeCounterOffer(input),
+    onMutate: () => setAnnouncement(""),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: dealWorkspaceQueryKey(dealId, user?.id) });
+      const message = t("workspace.feedback.counter");
+      setAnnouncement(message);
+      toast.success(message);
+    },
+    onError: async (error) => {
+      const kind = classifyDealWorkspaceError(error);
+      const message = t(`workspace.errors.${kind}`);
+      if (kind === "stale" || kind === "state_changed") {
+        await queryClient.invalidateQueries({ queryKey: dealWorkspaceQueryKey(dealId, user?.id) });
+      }
+      setAnnouncement(message);
+      toast.error(message);
+    },
+  });
+
   async function runAction(action: DealWorkspaceAction, targetId: string) {
     try {
       await actionMutation.mutateAsync({ action, targetId });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async function submitCounter(input: CounterOfferInput) {
+    try {
+      await counterMutation.mutateAsync(input);
       return true;
     } catch {
       return false;
@@ -118,6 +166,7 @@ export function NegotiationWorkspace({ dealId }: { dealId: string }) {
   const snapshot = workspaceQuery.data;
   const commercialOffer = selectCommercialOffer(snapshot.offers);
   const dealActions = getDealActions(snapshot.deal, snapshot.actor);
+  const offerThreads = groupOfferHistory(snapshot.offers);
 
   return (
     <div className="space-y-7 pb-8">
@@ -176,18 +225,44 @@ export function NegotiationWorkspace({ dealId }: { dealId: string }) {
               description={t("workspace.offers.emptyDescription")}
             />
           ) : (
-            <div className="space-y-4" aria-label={t("workspace.offers.historyLabel")}>
-              {snapshot.offers.map((offer, index) => (
-                <OfferCard
-                  key={offer.id}
-                  offer={offer}
-                  position={snapshot.offers.length - index}
-                  deal={snapshot}
-                  pending={actionMutation.isPending}
-                  formatDateTime={formatDateTime}
-                  formatNumber={formatNumber}
-                  onAction={runAction}
-                />
+            <div className="space-y-6" aria-label={t("workspace.offers.historyLabel")}>
+              {offerThreads.map((thread, threadIndex) => (
+                <section
+                  key={thread.id}
+                  className="space-y-3"
+                  aria-labelledby={`offer-thread-${threadIndex + 1}`}
+                >
+                  <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
+                    <h3
+                      id={`offer-thread-${threadIndex + 1}`}
+                      className="text-sm font-semibold text-foreground"
+                    >
+                      {t("workspace.offers.threadNumber", { number: threadIndex + 1 })}
+                    </h3>
+                    <span className="text-xs text-muted-foreground">
+                      {t("workspace.offers.versionCount", { count: thread.offers.length })}
+                    </span>
+                  </div>
+                  <ol className="relative space-y-3 border-s border-border ps-4 sm:ps-5">
+                    {thread.offers.map((offer) => (
+                      <li key={offer.id} className="relative">
+                        <span
+                          className="absolute -start-[1.31rem] top-6 h-2.5 w-2.5 rounded-full border-2 border-background bg-muted-foreground sm:-start-[1.56rem]"
+                          aria-hidden="true"
+                        />
+                        <OfferCard
+                          offer={offer}
+                          deal={snapshot}
+                          pending={actionMutation.isPending || counterMutation.isPending}
+                          formatDateTime={formatDateTime}
+                          formatNumber={formatNumber}
+                          onAction={runAction}
+                          onCounter={submitCounter}
+                        />
+                      </li>
+                    ))}
+                  </ol>
+                </section>
               ))}
             </div>
           )}
@@ -315,24 +390,26 @@ function SummaryItem({
 
 function OfferCard({
   offer,
-  position,
   deal,
   pending,
   formatDateTime,
   formatNumber,
   onAction,
+  onCounter,
 }: {
   offer: OfferRow;
-  position: number;
   deal: DealWorkspaceSnapshot;
   pending: boolean;
   formatDateTime: (value: Date | string | number) => string;
   formatNumber: (value: number | string, options?: Intl.NumberFormatOptions) => string;
   onAction: (action: DealWorkspaceAction, targetId: string) => Promise<boolean>;
+  onCounter: (input: CounterOfferInput) => Promise<boolean>;
 }) {
   const { t } = useTranslation("deals");
-  const actions = getOfferActions(deal.deal, offer, deal.actor);
+  const actions = getOfferActions(deal.deal, offer, deal.actor, new Date(), deal.offers);
   const accepted = offer.status === "accepted";
+  const latest = isLatestOfferVersion(offer, deal.offers);
+  const submittingSide = getOfferSubmittingSide(deal.deal, offer);
   const amount = formatNumber(offer.amount, {
     style: "currency",
     currency: offer.currency,
@@ -341,11 +418,13 @@ function OfferCard({
   });
 
   return (
-    <article aria-labelledby={`offer-${position}-title`}>
+    <article aria-labelledby={`offer-${offer.id}-title`}>
       <Card
         className={cn(
           "overflow-hidden transition-colors",
           accepted && "border-success/40 bg-success/[0.03] ring-1 ring-success/15",
+          offer.status === "superseded" && "bg-muted/25",
+          latest && offer.status === "submitted" && "border-primary/35 ring-1 ring-primary/10",
         )}
       >
         <CardContent className="p-0">
@@ -353,9 +432,19 @@ function OfferCard({
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 id={`offer-${position}-title`} className="font-semibold text-foreground">
-                    {t("workspace.offers.offerNumber", { number: position })}
-                  </h3>
+                  <h4 id={`offer-${offer.id}-title`} className="font-semibold text-foreground">
+                    {t("workspace.offers.versionNumber", { number: offer.version_number })}
+                  </h4>
+                  {submittingSide ? (
+                    <Badge variant="outline" className="rounded-full">
+                      {t(`workspace.offers.submittedBy.${submittingSide}`)}
+                    </Badge>
+                  ) : null}
+                  {latest && offer.status === "submitted" ? (
+                    <Badge variant="secondary" className="rounded-full">
+                      {t("workspace.offers.current")}
+                    </Badge>
+                  ) : null}
                   <StatusBadge status={offer.status} />
                   {accepted ? (
                     <Badge className="gap-1 rounded-full bg-success text-white hover:bg-success">
@@ -398,15 +487,28 @@ function OfferCard({
               </p>
               {actions.length > 0 ? (
                 <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-                  {actions.map((action) => (
-                    <CommandConfirmation
-                      key={action}
-                      action={action}
-                      amount={amount}
-                      pending={pending}
-                      onConfirm={() => onAction(action, offer.id)}
-                    />
-                  ))}
+                  {actions.map((action) =>
+                    action === "counter" ? (
+                      <CounterOfferDialog
+                        key={action}
+                        offer={offer}
+                        amount={amount}
+                        submittingSide={submittingSide}
+                        pending={pending}
+                        onSubmit={onCounter}
+                      />
+                    ) : (
+                      <CommandConfirmation
+                        key={action}
+                        action={action}
+                        amount={amount}
+                        versionNumber={offer.version_number}
+                        submittingSide={submittingSide}
+                        pending={pending}
+                        onConfirm={() => onAction(action, offer.id)}
+                      />
+                    ),
+                  )}
                 </div>
               ) : null}
             </div>
@@ -476,6 +578,207 @@ function ContextRow({
   );
 }
 
+function toDateTimeLocalValue(value: string | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "";
+  const offset = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+}
+
+function CounterOfferDialog({
+  offer,
+  amount: formattedAmount,
+  submittingSide,
+  pending,
+  onSubmit,
+}: {
+  offer: OfferRow;
+  amount: string;
+  submittingSide: "buyer" | "supplier" | null;
+  pending: boolean;
+  onSubmit: (input: CounterOfferInput) => Promise<boolean>;
+}) {
+  const { t } = useTranslation("deals");
+  const [open, setOpen] = useState(false);
+  const [amount, setAmount] = useState(String(offer.amount));
+  const [currency, setCurrency] = useState(offer.currency);
+  const [validUntil, setValidUntil] = useState(toDateTimeLocalValue(offer.valid_until));
+  const [notes, setNotes] = useState(offer.notes ?? "");
+  const [formError, setFormError] = useState("");
+
+  function resetForm() {
+    setAmount(String(offer.amount));
+    setCurrency(offer.currency);
+    setValidUntil(toDateTimeLocalValue(offer.valid_until));
+    setNotes(offer.notes ?? "");
+    setFormError("");
+  }
+
+  function changeOpen(next: boolean) {
+    if (pending) return;
+    if (next) resetForm();
+    setOpen(next);
+  }
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pending) return;
+
+    const parsedAmount = Number(amount);
+    const normalizedCurrency = currency.trim().toUpperCase();
+    const parsedValidity = validUntil ? new Date(validUntil) : null;
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      setFormError(t("workspace.counter.errors.amount"));
+      return;
+    }
+    if (!/^[A-Z]{3}$/u.test(normalizedCurrency)) {
+      setFormError(t("workspace.counter.errors.currency"));
+      return;
+    }
+    if (
+      parsedValidity &&
+      (!Number.isFinite(parsedValidity.getTime()) || parsedValidity <= new Date())
+    ) {
+      setFormError(t("workspace.counter.errors.validity"));
+      return;
+    }
+    if (notes.trim().length > 5000) {
+      setFormError(t("workspace.counter.errors.notes"));
+      return;
+    }
+
+    setFormError("");
+    const succeeded = await onSubmit({
+      parentOfferId: offer.id,
+      amount: parsedAmount,
+      currency: normalizedCurrency,
+      validUntil: parsedValidity?.toISOString() ?? null,
+      notes: notes.trim() || null,
+    });
+    if (succeeded) setOpen(false);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={changeOpen}>
+      <DialogTrigger asChild>
+        <Button
+          type="button"
+          variant="gold"
+          className="min-h-11 min-w-0 sm:min-w-32"
+          disabled={pending}
+        >
+          <ArrowRightLeft className="h-4 w-4" aria-hidden="true" />
+          {t("workspace.actions.counter")}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-xl overflow-y-auto">
+        <form onSubmit={submit}>
+          <DialogHeader>
+            <DialogTitle>
+              {t("workspace.counter.title", { number: offer.version_number + 1 })}
+            </DialogTitle>
+            <DialogDescription>{t("workspace.counter.description")}</DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-5 space-y-5">
+            <div className="rounded-md border border-border bg-muted/40 p-4 text-sm">
+              <p className="font-medium text-foreground">{t("workspace.counter.previous")}</p>
+              <p className="mt-1 flex flex-wrap items-center gap-2 text-muted-foreground">
+                <bdi dir="ltr" className="font-semibold text-foreground">
+                  {formattedAmount}
+                </bdi>
+                <span aria-hidden="true">·</span>
+                <span>{t(`workspace.offers.submittedBy.${submittingSide ?? "unknown"}`)}</span>
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {t("workspace.counter.historyNotice")}
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor={`counter-amount-${offer.id}`}>
+                  {t("workspace.counter.amount")}
+                </Label>
+                <Input
+                  id={`counter-amount-${offer.id}`}
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  inputMode="decimal"
+                  value={amount}
+                  onChange={(event) => setAmount(event.target.value)}
+                  disabled={pending}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`counter-currency-${offer.id}`}>
+                  {t("workspace.counter.currency")}
+                </Label>
+                <Input
+                  id={`counter-currency-${offer.id}`}
+                  value={currency}
+                  onChange={(event) => setCurrency(event.target.value.toUpperCase())}
+                  maxLength={3}
+                  autoCapitalize="characters"
+                  dir="ltr"
+                  disabled={pending}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`counter-validity-${offer.id}`}>
+                {t("workspace.counter.validUntil")}
+              </Label>
+              <Input
+                id={`counter-validity-${offer.id}`}
+                type="datetime-local"
+                value={validUntil}
+                onChange={(event) => setValidUntil(event.target.value)}
+                disabled={pending}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={`counter-notes-${offer.id}`}>{t("workspace.counter.notes")}</Label>
+              <Textarea
+                id={`counter-notes-${offer.id}`}
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                maxLength={5000}
+                rows={4}
+                disabled={pending}
+              />
+            </div>
+
+            {formError ? (
+              <p className="text-sm font-medium text-error" role="alert">
+                {formError}
+              </p>
+            ) : null}
+          </div>
+
+          <DialogFooter className="mt-6">
+            <DialogClose asChild>
+              <Button type="button" variant="outline" className="min-h-11" disabled={pending}>
+                {t("workspace.actions.keepReviewing")}
+              </Button>
+            </DialogClose>
+            <Button type="submit" variant="gold" className="min-h-11" disabled={pending}>
+              <ArrowRightLeft className="h-4 w-4" aria-hidden="true" />
+              {pending ? t("workspace.actions.processing") : t("workspace.actions.submitCounter")}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 const commandIcons = {
   accept: Handshake,
   reject: X,
@@ -488,11 +791,15 @@ const commandIcons = {
 function CommandConfirmation({
   action,
   amount,
+  versionNumber,
+  submittingSide,
   pending,
   onConfirm,
 }: {
   action: DealWorkspaceAction;
   amount?: string;
+  versionNumber?: number;
+  submittingSide?: "buyer" | "supplier" | null;
   pending: boolean;
   onConfirm: () => Promise<boolean>;
 }) {
@@ -526,9 +833,19 @@ function CommandConfirmation({
           <AlertDialogDescription asChild>
             <div className="space-y-3">
               {amount ? (
-                <p className="text-lg font-semibold text-foreground">
-                  <bdi dir="ltr">{amount}</bdi>
-                </p>
+                <div className="space-y-1">
+                  {versionNumber ? (
+                    <p className="text-sm font-medium text-foreground">
+                      {t("workspace.offers.versionNumber", { number: versionNumber })}
+                      {submittingSide
+                        ? ` · ${t(`workspace.offers.submittedBy.${submittingSide}`)}`
+                        : ""}
+                    </p>
+                  ) : null}
+                  <p className="text-lg font-semibold text-foreground">
+                    <bdi dir="ltr">{amount}</bdi>
+                  </p>
+                </div>
               ) : null}
               <p>{t(`workspace.confirm.${action}.description`)}</p>
               {action === "accept" ? (

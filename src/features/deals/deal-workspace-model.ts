@@ -38,6 +38,12 @@ export type DealWorkspaceSnapshot = {
 };
 
 export type DealWorkspaceAction = "accept" | "reject" | "withdraw" | "expire" | "cancel" | "close";
+export type OfferWorkspaceAction = DealWorkspaceAction | "counter";
+export type OfferSubmittingSide = "buyer" | "supplier";
+export type OfferThreadHistory = {
+  id: string;
+  offers: OfferRow[];
+};
 
 export type DealWorkspaceErrorKind =
   "backend_unavailable" | "network" | "permission" | "stale" | "state_changed" | "unknown";
@@ -106,35 +112,89 @@ export function isOfferPastValidity(offer: OfferRow, now = new Date()) {
   return Number.isFinite(validUntil) && validUntil <= now.getTime();
 }
 
+export function getOfferSubmittingSide(deal: DealRow, offer: OfferRow): OfferSubmittingSide | null {
+  if (offer.submitted_by_organization_id === deal.buyer_organization_id) return "buyer";
+  if (offer.submitted_by_organization_id === deal.supplier_organization_id) return "supplier";
+  return null;
+}
+
+export function isLatestOfferVersion(offer: OfferRow, offers: OfferRow[]) {
+  return !offers.some(
+    (candidate) =>
+      candidate.offer_thread_id === offer.offer_thread_id &&
+      candidate.version_number > offer.version_number,
+  );
+}
+
 export function getOfferActions(
   deal: DealRow,
   offer: OfferRow,
   actor: DealWorkspaceActor,
   now = new Date(),
-): DealWorkspaceAction[] {
-  if (deal.status !== "active" || offer.status !== "submitted") return [];
+  offers: OfferRow[] = [offer],
+): OfferWorkspaceAction[] {
+  if (
+    deal.status !== "active" ||
+    offer.status !== "submitted" ||
+    !isLatestOfferVersion(offer, offers)
+  ) {
+    return [];
+  }
 
   const expired = isOfferPastValidity(offer, now);
-  if (canUseBuyerCommands(actor)) {
+  const submittedBy = getOfferSubmittingSide(deal, offer);
+  if (canUseBuyerCommands(actor) && submittedBy === "supplier") {
     return [
       ...(!expired ? (["accept"] as const) : []),
       "reject",
+      ...(!expired ? (["counter"] as const) : []),
       ...(expired ? (["expire"] as const) : []),
     ];
   }
-  if (canUseSupplierCommands(actor)) {
+  if (canUseSupplierCommands(actor) && submittedBy === "buyer") {
+    return [
+      "reject",
+      ...(!expired ? (["counter"] as const) : []),
+      ...(expired ? (["expire"] as const) : []),
+    ];
+  }
+  if (canUseSupplierCommands(actor) && submittedBy === "supplier") {
     return ["withdraw", ...(expired ? (["expire"] as const) : [])];
   }
   return [];
 }
 
 export function selectCommercialOffer(offers: OfferRow[]) {
+  const accepted = offers.find((offer) => offer.status === "accepted");
+  if (accepted) return accepted;
+
   return (
-    offers.find((offer) => offer.status === "accepted") ??
-    offers.find((offer) => offer.status === "submitted") ??
-    offers[0] ??
+    [...offers]
+      .filter((offer) => offer.status === "submitted")
+      .sort((left, right) => right.created_at.localeCompare(left.created_at))[0] ??
+    [...offers].sort((left, right) => right.created_at.localeCompare(left.created_at))[0] ??
     null
   );
+}
+
+export function groupOfferHistory(offers: OfferRow[]): OfferThreadHistory[] {
+  const grouped = new Map<string, OfferRow[]>();
+  for (const offer of offers) {
+    const threadOffers = grouped.get(offer.offer_thread_id) ?? [];
+    threadOffers.push(offer);
+    grouped.set(offer.offer_thread_id, threadOffers);
+  }
+
+  return [...grouped.entries()]
+    .map(([id, threadOffers]) => ({
+      id,
+      offers: threadOffers.sort((left, right) => left.version_number - right.version_number),
+    }))
+    .sort((left, right) => {
+      const leftCreated = left.offers[0]?.created_at ?? "";
+      const rightCreated = right.offers[0]?.created_at ?? "";
+      return leftCreated.localeCompare(rightCreated);
+    });
 }
 
 function getErrorCode(error: unknown) {

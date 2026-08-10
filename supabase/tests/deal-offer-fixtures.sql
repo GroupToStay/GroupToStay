@@ -975,6 +975,593 @@ SELECT pg_temp.assert_true(
 );
 INSERT INTO deal_offer_fixture_results VALUES ('workflow_audit_evidence', 'pass');
 
+-- Feature 5 Offer Thread and immutable Offer Version topology.
+INSERT INTO public.deals (
+  id, buyer_organization_id, supplier_organization_id, created_by
+)
+SELECT deal_id, buyer.value, supplier.value, creator.value
+FROM unnest(ARRAY[
+  '20000000-0000-0000-0000-000000000711'::uuid,
+  '20000000-0000-0000-0000-000000000712'::uuid,
+  '20000000-0000-0000-0000-000000000713'::uuid
+]) deal_id
+CROSS JOIN deal_offer_fixture_context buyer
+CROSS JOIN deal_offer_fixture_context supplier
+CROSS JOIN deal_offer_fixture_context creator
+WHERE buyer.key = 'agency_one_org'
+  AND supplier.key = 'supplier_one_org'
+  AND creator.key = 'agency_one_user';
+
+-- A user active on both Deal sides has no unambiguous commercial authority.
+INSERT INTO public.organization_memberships (
+  id, organization_id, user_id, membership_role, status, invited_by, joined_at
+)
+SELECT
+  '20000000-0000-0000-0000-000000000699',
+  supplier.value,
+  agency.value,
+  'sales',
+  'active',
+  supplier_user.value,
+  now()
+FROM deal_offer_fixture_context supplier
+CROSS JOIN deal_offer_fixture_context agency
+CROSS JOIN deal_offer_fixture_context supplier_user
+WHERE supplier.key = 'supplier_one_org'
+  AND agency.key = 'agency_one_user'
+  AND supplier_user.key = 'supplier_one_user';
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.submit_initial_deal_offer(
+      '20000000-0000-0000-0000-000000000711', 3000, 'USD',
+      '2099-01-01T00:00:00Z', 'Dual membership attempt',
+      '20000000-0000-0000-0000-000000000705')$$,
+  ARRAY['42501'],
+  'Dual-sided member received Supplier command authority'
+);
+RESET ROLE;
+
+DELETE FROM public.organization_memberships
+WHERE id = '20000000-0000-0000-0000-000000000699';
+INSERT INTO deal_offer_fixture_results VALUES ('revision_dual_membership_denial', 'pass');
+
+-- Only the participating Supplier may create the initial immutable version.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.submit_initial_deal_offer(
+      '20000000-0000-0000-0000-000000000711', 3000, 'USD',
+      '2099-01-01T00:00:00Z', 'Agency cannot submit the initial Offer',
+      '20000000-0000-0000-0000-000000000701')$$,
+  ARRAY['42501'],
+  'Agency submitted an initial Supplier Offer'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_two_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.submit_initial_deal_offer(
+      '20000000-0000-0000-0000-000000000711', 3000, 'USD',
+      '2099-01-01T00:00:00Z', 'Unrelated Supplier attempt',
+      '20000000-0000-0000-0000-000000000702')$$,
+  ARRAY['42501'],
+  'Unrelated Supplier submitted an initial Offer'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  NOT (public.submit_initial_deal_offer(
+    '20000000-0000-0000-0000-000000000711',
+    3000,
+    'usd',
+    '2099-01-01T00:00:00Z',
+    'Initial supplier terms',
+    '20000000-0000-0000-0000-000000000701'
+  ) ->> 'idempotent')::boolean,
+  'Initial Offer command unexpectedly reported a retry'
+);
+SELECT pg_temp.assert_true(
+  (public.submit_initial_deal_offer(
+    '20000000-0000-0000-0000-000000000711',
+    3000,
+    'usd',
+    '2099-01-01T00:00:00Z',
+    'Initial supplier terms',
+    '20000000-0000-0000-0000-000000000701'
+  ) ->> 'idempotent')::boolean,
+  'Initial Offer retry was not idempotent'
+);
+RESET ROLE;
+
+SELECT pg_temp.assert_true(
+  (SELECT count(*) = 1
+   FROM public.offer_threads
+   WHERE deal_id = '20000000-0000-0000-0000-000000000711')
+  AND (SELECT count(*) = 1
+       FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+         AND version_number = 1
+         AND amount = 3000
+         AND currency = 'USD'),
+  'Initial Offer retry created duplicate commercial history'
+);
+INSERT INTO deal_offer_fixture_results VALUES ('revision_initial_offer_idempotency', 'pass');
+
+-- Authenticated Suppliers cannot append or forge version history through direct INSERT.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT pg_temp.assert_forbidden(
+  $$INSERT INTO public.offers (
+      deal_id, supplier_organization_id, offer_thread_id, version_number,
+      submitted_by_organization_id, parent_offer_id, amount, currency,
+      valid_until, notes, status, created_by
+    )
+    SELECT
+      '20000000-0000-0000-0000-000000000711',
+      supplier.value,
+      offer.offer_thread_id,
+      2,
+      buyer.value,
+      offer.id,
+      2800,
+      'USD',
+      '2099-01-03T00:00:00Z',
+      'Forged direct counter',
+      'submitted',
+      actor.value
+    FROM public.offers offer
+    CROSS JOIN deal_offer_fixture_context supplier
+    CROSS JOIN deal_offer_fixture_context buyer
+    CROSS JOIN deal_offer_fixture_context actor
+    WHERE offer.deal_id = '20000000-0000-0000-0000-000000000711'
+      AND offer.version_number = 1
+      AND supplier.key = 'supplier_one_org'
+      AND buyer.key = 'agency_one_org'
+      AND actor.key = 'supplier_one_user'$$,
+  'Supplier appended forged Offer Version through direct INSERT'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('revision_direct_append_denial', 'pass');
+
+-- A party cannot counter its own latest Offer Version.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.counter_deal_offer(
+      (SELECT id FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+         AND version_number = 1),
+      2950, 'USD', '2099-01-02T00:00:00Z', 'Supplier own-counter attempt')$$,
+  ARRAY['55000'],
+  'Supplier countered its own latest Offer Version'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('revision_own_counter_denial', 'pass');
+
+-- Alternate Agency and Supplier counters without overwriting prior terms.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT public.counter_deal_offer(
+  (SELECT id FROM public.offers
+   WHERE deal_id = '20000000-0000-0000-0000-000000000711' AND version_number = 1),
+  2800, 'USD', '2099-01-03T00:00:00Z', 'Agency counter v2'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT public.counter_deal_offer(
+  (SELECT id FROM public.offers
+   WHERE deal_id = '20000000-0000-0000-0000-000000000711' AND version_number = 2),
+  2900, 'USD', '2099-01-04T00:00:00Z', 'Supplier counter v3'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT public.counter_deal_offer(
+  (SELECT id FROM public.offers
+   WHERE deal_id = '20000000-0000-0000-0000-000000000711' AND version_number = 3),
+  2825, 'USD', '2099-01-05T00:00:00Z', 'Agency counter v4'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT public.counter_deal_offer(
+  (SELECT id FROM public.offers
+   WHERE deal_id = '20000000-0000-0000-0000-000000000711' AND version_number = 4),
+  2875, 'USD', '2099-01-06T00:00:00Z', 'Supplier counter v5'
+);
+RESET ROLE;
+
+SELECT pg_temp.assert_true(
+  (SELECT count(*) = 5
+   FROM public.offers
+   WHERE deal_id = '20000000-0000-0000-0000-000000000711')
+  AND (SELECT array_agg(version_number ORDER BY version_number) = ARRAY[1,2,3,4,5]::bigint[]
+       FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000711')
+  AND (SELECT count(*) = 4
+       FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+         AND status = 'superseded')
+  AND (SELECT count(*) = 1
+       FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+         AND status = 'submitted'
+         AND version_number = 5),
+  'Alternating counters did not preserve a monotonic immutable history'
+);
+INSERT INTO deal_offer_fixture_results VALUES ('revision_unlimited_alternating_rounds', 'pass');
+
+-- Stale parents, unrelated organizations, and inactive memberships fail closed.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.counter_deal_offer(
+      (SELECT id FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+         AND version_number = 3),
+      2810, 'USD', '2099-01-07T00:00:00Z', 'Stale parent attempt')$$,
+  ARRAY['40001', '55000'],
+  'Agency countered a stale parent Offer Version'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_two_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.counter_deal_offer(
+      (SELECT id FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+         AND version_number = 5),
+      2800, 'USD', '2099-01-07T00:00:00Z', 'Unrelated Agency attempt')$$,
+  ARRAY['42501'],
+  'Unrelated Agency countered another organization Deal'
+);
+RESET ROLE;
+
+UPDATE public.organization_memberships
+SET status = 'suspended'
+WHERE user_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_user')
+  AND organization_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org');
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.counter_deal_offer(
+      (SELECT id FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+         AND version_number = 5),
+      2800, 'USD', '2099-01-07T00:00:00Z', 'Inactive Agency attempt')$$,
+  ARRAY['42501'],
+  'Inactive Agency membership retained counteroffer authority'
+);
+RESET ROLE;
+
+UPDATE public.organization_memberships
+SET status = 'active'
+WHERE user_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_user')
+  AND organization_id = (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org');
+INSERT INTO deal_offer_fixture_results VALUES ('revision_authority_boundaries', 'pass');
+
+-- A second same-sequence response fails atomically and leaves no partial child or audit event.
+DO $$
+DECLARE
+  _thread_id uuid;
+  _parent_id uuid;
+  _failed boolean := false;
+  _state text;
+BEGIN
+  SELECT offer_thread_id, id INTO _thread_id, _parent_id
+  FROM public.offers
+  WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+    AND version_number = 5;
+
+  BEGIN
+    INSERT INTO public.offers (
+      deal_id, supplier_organization_id, offer_thread_id, version_number,
+      submitted_by_organization_id, parent_offer_id, amount, currency,
+      valid_until, notes, status, created_by
+    )
+    SELECT
+      '20000000-0000-0000-0000-000000000711',
+      supplier.value,
+      _thread_id,
+      6,
+      buyer.value,
+      _parent_id,
+      2800,
+      'USD',
+      '2099-01-07T00:00:00Z',
+      'First simultaneous-style child',
+      'submitted',
+      creator.value
+    FROM deal_offer_fixture_context supplier
+    CROSS JOIN deal_offer_fixture_context buyer
+    CROSS JOIN deal_offer_fixture_context creator
+    WHERE supplier.key = 'supplier_one_org'
+      AND buyer.key = 'agency_one_org'
+      AND creator.key = 'agency_one_user';
+
+    INSERT INTO public.offers (
+      deal_id, supplier_organization_id, offer_thread_id, version_number,
+      submitted_by_organization_id, parent_offer_id, amount, currency,
+      valid_until, notes, status, created_by
+    )
+    SELECT
+      '20000000-0000-0000-0000-000000000711',
+      supplier.value,
+      _thread_id,
+      6,
+      buyer.value,
+      _parent_id,
+      2790,
+      'USD',
+      '2099-01-07T00:00:00Z',
+      'Second simultaneous-style child',
+      'submitted',
+      creator.value
+    FROM deal_offer_fixture_context supplier
+    CROSS JOIN deal_offer_fixture_context buyer
+    CROSS JOIN deal_offer_fixture_context creator
+    WHERE supplier.key = 'supplier_one_org'
+      AND buyer.key = 'agency_one_org'
+      AND creator.key = 'agency_one_user';
+  EXCEPTION WHEN OTHERS THEN
+    _failed := true;
+    _state := SQLSTATE;
+  END;
+
+  PERFORM pg_temp.assert_true(
+    _failed
+      AND _state = '23505'
+      AND (SELECT count(*) = 0
+           FROM public.offers
+           WHERE offer_thread_id = _thread_id AND version_number = 6)
+      AND (SELECT count(*) = 0
+           FROM public.admin_audit_logs
+           WHERE action = 'offer.version_submitted'
+             AND entity_id IN (
+               SELECT id::text FROM public.offers
+               WHERE offer_thread_id = _thread_id AND version_number = 6
+             )),
+    'Offer Version sequence uniqueness did not roll back a duplicate child transaction'
+  );
+END;
+$$;
+INSERT INTO deal_offer_fixture_results VALUES ('revision_concurrency_sequence', 'pass');
+
+-- Commercial lineage and terms remain immutable after every revision.
+DO $$
+DECLARE
+  _failed boolean := false;
+  _state text;
+BEGIN
+  BEGIN
+    UPDATE public.offers
+    SET amount = 1, version_number = 99
+    WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+      AND version_number = 1;
+  EXCEPTION WHEN OTHERS THEN
+    _failed := true;
+    _state := SQLSTATE;
+  END;
+  PERFORM pg_temp.assert_true(
+    _failed
+      AND _state = 'P0001'
+      AND (SELECT amount = 3000 AND version_number = 1
+           FROM public.offers
+           WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+             AND version_number = 1),
+    'Historical Offer Version commercial terms or lineage were mutable'
+  );
+END;
+$$;
+INSERT INTO deal_offer_fixture_results VALUES ('revision_history_immutability', 'pass');
+
+-- Buyer acceptance targets the latest Supplier version and freezes the Deal atomically.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT public.accept_deal_offer(
+  (SELECT id FROM public.offers
+   WHERE deal_id = '20000000-0000-0000-0000-000000000711' AND version_number = 5)
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.counter_deal_offer(
+      (SELECT id FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+         AND version_number = 5),
+      2800, 'USD', '2099-01-08T00:00:00Z', 'Counter after agreement')$$,
+  ARRAY['55000'],
+  'Counteroffer was submitted after Deal agreement'
+);
+RESET ROLE;
+
+SELECT pg_temp.assert_true(
+  (SELECT status = 'agreed'
+   FROM public.deals
+   WHERE id = '20000000-0000-0000-0000-000000000711')
+  AND (SELECT count(*) = 1
+       FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+         AND status = 'accepted'
+         AND version_number = 5)
+  AND (SELECT count(*) = 4
+       FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+         AND status = 'superseded'),
+  'Version-specific acceptance did not preserve history or produce one winner'
+);
+INSERT INTO deal_offer_fixture_results VALUES ('revision_atomic_acceptance', 'pass');
+
+-- A completed Supplier withdrawal wins over a later counter attempt without partial state.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT public.submit_initial_deal_offer(
+  '20000000-0000-0000-0000-000000000712',
+  4100,
+  'USD',
+  '2099-02-01T00:00:00Z',
+  'Withdrawal race offer',
+  '20000000-0000-0000-0000-000000000703'
+);
+SELECT public.withdraw_deal_offer(
+  (SELECT id FROM public.offers
+   WHERE deal_id = '20000000-0000-0000-0000-000000000712' AND version_number = 1)
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_denied(
+  $$SELECT public.counter_deal_offer(
+      (SELECT id FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000712'
+         AND version_number = 1),
+      4000, 'USD', '2099-02-02T00:00:00Z', 'Late counter after withdrawal')$$,
+  ARRAY['55000'],
+  'Counteroffer succeeded after Supplier withdrawal'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('revision_counter_withdraw_race', 'pass');
+
+-- Cancelled Deals reject current versions and do not accept new counters.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT public.submit_initial_deal_offer(
+  '20000000-0000-0000-0000-000000000713',
+  5100,
+  'USD',
+  '2099-03-01T00:00:00Z',
+  'Cancellation fixture offer',
+  '20000000-0000-0000-0000-000000000704'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT public.cancel_deal('20000000-0000-0000-0000-000000000713');
+SELECT pg_temp.assert_denied(
+  $$SELECT public.counter_deal_offer(
+      (SELECT id FROM public.offers
+       WHERE deal_id = '20000000-0000-0000-0000-000000000713'
+         AND version_number = 1),
+      5000, 'USD', '2099-03-02T00:00:00Z', 'Counter after cancellation')$$,
+  ARRAY['55000'],
+  'Counteroffer succeeded after Deal cancellation'
+);
+RESET ROLE;
+INSERT INTO deal_offer_fixture_results VALUES ('revision_terminal_deal_denial', 'pass');
+
+SELECT pg_temp.assert_true(
+  (SELECT count(*) = 5
+   FROM public.admin_audit_logs log
+   JOIN public.offers offer ON offer.id::text = log.entity_id
+   WHERE offer.deal_id = '20000000-0000-0000-0000-000000000711'
+     AND log.action = 'offer.version_submitted')
+  AND (SELECT count(*) = 4
+       FROM public.admin_audit_logs log
+       JOIN public.offers offer ON offer.id::text = log.entity_id
+       WHERE offer.deal_id = '20000000-0000-0000-0000-000000000711'
+         AND log.action = 'offer.status_changed'
+         AND log.new_state ->> 'status' = 'superseded')
+  AND (SELECT count(*) = 4
+       FROM public.admin_audit_logs log
+       JOIN public.offer_threads thread ON thread.id::text = log.entity_id
+       WHERE thread.deal_id = '20000000-0000-0000-0000-000000000711'
+         AND log.action = 'offer_thread.version_advanced')
+  AND NOT EXISTS (
+    SELECT 1
+    FROM public.admin_audit_logs log
+    WHERE log.entity_id IN (
+      SELECT id::text FROM public.offers
+      WHERE deal_id = '20000000-0000-0000-0000-000000000711'
+    )
+      AND log.metadata::text ~* '@|phone|email|contact'
+  ),
+  'Offer revision audit evidence is incomplete or contains contact identity data'
+);
+INSERT INTO deal_offer_fixture_results VALUES ('revision_audit_evidence', 'pass');
+
 SELECT pg_temp.assert_true(
   current_counts.rfqs = baseline.rfqs
     AND current_counts.invitations = baseline.invitations
