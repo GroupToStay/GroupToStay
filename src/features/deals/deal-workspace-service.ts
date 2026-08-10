@@ -1,0 +1,105 @@
+import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+import {
+  resolveDealWorkspaceActor,
+  type DealSourceHotel,
+  type DealSourceRfq,
+  type DealWorkspaceAction,
+  type DealWorkspaceSnapshot,
+  type MembershipRow,
+} from "@/features/deals/deal-workspace-model";
+
+export const dealWorkspaceQueryKey = (dealId: string, userId?: string | null) => [
+  "deal-workspace",
+  dealId,
+  userId ?? "anonymous",
+];
+
+export async function loadDealWorkspace(
+  dealId: string,
+  userId: string,
+): Promise<DealWorkspaceSnapshot | null> {
+  const { data: deal, error: dealError } = await supabase
+    .from("deals")
+    .select("*")
+    .eq("id", dealId)
+    .maybeSingle();
+
+  if (dealError) throw dealError;
+  if (!deal) return null;
+
+  const [offersResult, membershipsResult, rfqResult, hotelResult] = await Promise.all([
+    supabase.from("offers").select("*").eq("deal_id", deal.id).order("created_at", {
+      ascending: false,
+    }),
+    supabase
+      .from("organization_memberships")
+      .select("organization_id, membership_role, status")
+      .eq("user_id", userId)
+      .in("organization_id", [deal.buyer_organization_id, deal.supplier_organization_id]),
+    deal.source_rfq_id
+      ? supabase
+          .from("rfqs")
+          .select(
+            "title, destination_city, destination_country, check_in, check_out, guests_count, rooms_needed",
+          )
+          .eq("id", deal.source_rfq_id)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+    deal.source_hotel_id
+      ? supabase
+          .from("hotels")
+          .select("name, city, country, star_rating")
+          .eq("id", deal.source_hotel_id)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+  ]);
+
+  if (offersResult.error) throw offersResult.error;
+  if (membershipsResult.error) throw membershipsResult.error;
+
+  const memberships = (membershipsResult.data ?? []) as MembershipRow[];
+  return {
+    actor: resolveDealWorkspaceActor(deal, memberships),
+    deal,
+    offers: offersResult.data ?? [],
+    // Source context is enhancement-only. Its own RLS decides whether it is visible.
+    sourceRfq: rfqResult.error ? null : (rfqResult.data as DealSourceRfq | null),
+    sourceHotel: hotelResult.error ? null : (hotelResult.data as DealSourceHotel | null),
+  };
+}
+
+type DealCommandResult = Database["public"]["Functions"]["accept_deal_offer"]["Returns"];
+
+export const dealWorkspaceCommands = {
+  accept: ["accept_deal_offer", "_offer_id"],
+  reject: ["reject_deal_offer", "_offer_id"],
+  withdraw: ["withdraw_deal_offer", "_offer_id"],
+  expire: ["expire_deal_offer", "_offer_id"],
+  cancel: ["cancel_deal", "_deal_id"],
+  close: ["close_deal", "_deal_id"],
+} as const satisfies Record<DealWorkspaceAction, readonly [string, string]>;
+
+type DealCommandRpc = (typeof dealWorkspaceCommands)[DealWorkspaceAction][0];
+type DealCommandResponse = {
+  data: DealCommandResult | null;
+  error: unknown;
+};
+type DealCommandInvoker = (
+  rpc: DealCommandRpc,
+  args: Record<string, string>,
+) => PromiseLike<DealCommandResponse>;
+
+const invokeDealCommand: DealCommandInvoker = (rpc, args) => supabase.rpc(rpc, args as never);
+
+export async function executeDealWorkspaceAction(
+  action: DealWorkspaceAction,
+  targetId: string,
+  invoke: DealCommandInvoker = invokeDealCommand,
+): Promise<DealCommandResult> {
+  const [rpc, argument] = dealWorkspaceCommands[action];
+  const result = await invoke(rpc, { [argument]: targetId });
+
+  if (result.error) throw result.error;
+  return result.data!;
+}

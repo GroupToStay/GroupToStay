@@ -9,6 +9,7 @@ import {
   Eye,
   Send,
   XCircle,
+  Handshake,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils";
 const statusConfig = {
   accepted: { icon: CheckCircle2, className: "border-success/20 bg-success/10 text-success" },
   active: { icon: CheckCircle2, className: "border-success/20 bg-success/10 text-success" },
+  agreed: { icon: Handshake, className: "border-gold/30 bg-gold/10 text-gold-foreground" },
   approved: { icon: CheckCircle2, className: "border-success/20 bg-success/10 text-success" },
   awarded: { icon: Award, className: "border-gold/30 bg-gold/10 text-gold-foreground" },
   cancelled: { icon: Ban, className: "border-error/20 bg-error/10 text-error" },

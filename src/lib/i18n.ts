@@ -32,6 +32,7 @@ export const I18N_NAMESPACES = [
   "subscriptions",
   "buttons",
   "legacy",
+  "deals",
 ] as const;
 
 const localeModules = import.meta.glob("../locales/*/*.json", {

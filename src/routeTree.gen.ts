@@ -36,6 +36,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedDealsDealIdRouteImport } from './routes/_authenticated/deals.$dealId'
 import { Route as AuthenticatedDashboardRfqsRouteImport } from './routes/_authenticated/dashboard.rfqs'
 import { Route as AuthenticatedDashboardQuotationsRouteImport } from './routes/_authenticated/dashboard.quotations'
 import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_authenticated/dashboard.profile'
@@ -203,6 +204,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedDealsDealIdRoute =
+  AuthenticatedDealsDealIdRouteImport.update({
+    id: '/deals/$dealId',
+    path: '/deals/$dealId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardRfqsRoute =
   AuthenticatedDashboardRfqsRouteImport.update({
     id: '/rfqs',
@@ -433,6 +440,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard/quotations': typeof AuthenticatedDashboardQuotationsRoute
   '/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
+  '/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/bookings/$id': typeof AuthenticatedDashboardBookingsIdRoute
@@ -486,6 +494,7 @@ export interface FileRoutesByTo {
   '/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard/quotations': typeof AuthenticatedDashboardQuotationsRoute
+  '/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/bookings/$id': typeof AuthenticatedDashboardBookingsIdRoute
@@ -547,6 +556,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/_authenticated/dashboard/quotations': typeof AuthenticatedDashboardQuotationsRoute
   '/_authenticated/dashboard/rfqs': typeof AuthenticatedDashboardRfqsRouteWithChildren
+  '/_authenticated/deals/$dealId': typeof AuthenticatedDealsDealIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/bookings/$id': typeof AuthenticatedDashboardBookingsIdRoute
@@ -608,6 +618,7 @@ export interface FileRouteTypes {
     | '/dashboard/profile'
     | '/dashboard/quotations'
     | '/dashboard/rfqs'
+    | '/deals/$dealId'
     | '/admin/'
     | '/dashboard/'
     | '/dashboard/bookings/$id'
@@ -661,6 +672,7 @@ export interface FileRouteTypes {
     | '/dashboard/notifications'
     | '/dashboard/profile'
     | '/dashboard/quotations'
+    | '/deals/$dealId'
     | '/admin'
     | '/dashboard'
     | '/dashboard/bookings/$id'
@@ -721,6 +733,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/profile'
     | '/_authenticated/dashboard/quotations'
     | '/_authenticated/dashboard/rfqs'
+    | '/_authenticated/deals/$dealId'
     | '/_authenticated/admin/'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/bookings/$id'
@@ -951,6 +964,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/deals/$dealId': {
+      id: '/_authenticated/deals/$dealId'
+      path: '/deals/$dealId'
+      fullPath: '/deals/$dealId'
+      preLoaderRoute: typeof AuthenticatedDealsDealIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard/rfqs': {
       id: '/_authenticated/dashboard/rfqs'
@@ -1340,12 +1360,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedDealsDealIdRoute: typeof AuthenticatedDealsDealIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedDealsDealIdRoute: AuthenticatedDealsDealIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -1,0 +1,141 @@
+{
+  "workspace": {
+    "metaTitle": "Negotiation workspace - GroupToStay",
+    "title": "Negotiation workspace",
+    "description": "Review the current commercial position and permitted next steps.",
+    "back": "Back to workspace",
+    "loading": "Loading negotiation workspace",
+    "notAvailable": "Not available",
+    "actor": {
+      "buyer": "Agency buyer",
+      "supplier": "Hotel supplier",
+      "inspector": "Read-only inspection"
+    },
+    "participants": {
+      "maskedSupplier": "Participating supplier"
+    },
+    "summary": {
+      "title": "Commercial summary",
+      "currentValue": "Current offer value",
+      "awaitingOffer": "Awaiting offer",
+      "dates": "Group dates",
+      "group": "Group size",
+      "groupValue": "{{guests}} guests · {{rooms}} rooms",
+      "property": "Property context"
+    },
+    "offers": {
+      "title": "Offer history",
+      "description": "Submitted terms are preserved as an immutable commercial record.",
+      "historyLabel": "Chronological offer history, newest first",
+      "emptyTitle": "No offers yet",
+      "emptyDescription": "The supplier has not submitted a commercial offer for this Deal.",
+      "offerNumber": "Offer {{number}}",
+      "selected": "Accepted offer",
+      "validUntil": "Valid until {{date}}",
+      "noExpiry": "No expiry date",
+      "noNotes": "No additional commercial notes.",
+      "immutable": "Submitted commercial terms are locked"
+    },
+    "context": {
+      "title": "Deal context",
+      "yourRole": "Your role",
+      "supplier": "Supplier context",
+      "created": "Deal opened",
+      "offers": "Offer activity",
+      "offerCount_zero": "No offers",
+      "offerCount_one": "{{count}} offer",
+      "offerCount_two": "{{count}} offers",
+      "offerCount_few": "{{count}} offers",
+      "offerCount_many": "{{count}} offers",
+      "offerCount_other": "{{count}} offers"
+    },
+    "privacy": {
+      "title": "Protected participant context",
+      "description": "Only information already authorized by the Deal and its source request is shown. Contact details remain protected."
+    },
+    "actions": {
+      "accept": "Accept offer",
+      "reject": "Reject offer",
+      "withdraw": "Withdraw offer",
+      "expire": "Mark expired",
+      "cancel": "Cancel Deal",
+      "close": "Close Deal",
+      "keepReviewing": "Keep reviewing",
+      "processing": "Processing…",
+      "retry": "Try again"
+    },
+    "confirm": {
+      "accept": {
+        "title": "Accept this offer?",
+        "description": "Acceptance moves this Deal to Agreed. It does not create a Booking.",
+        "competitors": "Every other submitted offer for this Deal will be rejected automatically in the same atomic operation."
+      },
+      "reject": {
+        "title": "Reject this offer?",
+        "description": "The offer will remain visible in the history as rejected and cannot be reopened in this workflow."
+      },
+      "withdraw": {
+        "title": "Withdraw this offer?",
+        "description": "The submitted terms will remain in the Deal history, but the Agency will no longer be able to accept them."
+      },
+      "expire": {
+        "title": "Mark this offer as expired?",
+        "description": "This action confirms that the server-authoritative validity time has passed."
+      },
+      "cancel": {
+        "title": "Cancel this Deal?",
+        "description": "The Deal will close without agreement and all submitted offers will be rejected atomically."
+      },
+      "close": {
+        "title": "Close this agreed Deal?",
+        "description": "This records the Deal as closed. It does not create or change a Booking."
+      }
+    },
+    "feedback": {
+      "accept": "Offer accepted and Deal moved to Agreed.",
+      "reject": "Offer rejected.",
+      "withdraw": "Offer withdrawn.",
+      "expire": "Offer marked as expired.",
+      "cancel": "Deal cancelled.",
+      "close": "Deal closed."
+    },
+    "errors": {
+      "backend_unavailable": "The Deal workspace is not enabled in this environment.",
+      "network": "The network connection was interrupted. Please try again.",
+      "permission": "This action is no longer available for your account.",
+      "stale": "The Deal changed while you were reviewing it. The latest state has been loaded.",
+      "state_changed": "This action is no longer valid. The latest Deal state has been loaded.",
+      "unknown": "The action could not be completed. Please try again."
+    },
+    "unavailable": {
+      "title": "Deal unavailable",
+      "description": "This Deal does not exist or is not available to your active organization."
+    },
+    "errorState": {
+      "backend_unavailable": {
+        "title": "Negotiation workspace is not enabled",
+        "description": "This environment does not yet provide the V3 Deal workspace. Existing GroupToStay workflows remain available."
+      },
+      "network": {
+        "title": "Connection interrupted",
+        "description": "We could not load the latest Deal state. Check your connection and try again."
+      },
+      "permission": {
+        "title": "Deal unavailable",
+        "description": "This Deal is not available to your active organization."
+      },
+      "stale": {
+        "title": "Deal updated",
+        "description": "The commercial state changed. Refresh to review the latest information."
+      },
+      "state_changed": {
+        "title": "Action no longer available",
+        "description": "The Deal changed before this action completed. Refresh to continue."
+      },
+      "unknown": {
+        "title": "Unable to load Deal",
+        "description": "The workspace could not be loaded safely. Please try again."
+      }
+    }
+  }
+}

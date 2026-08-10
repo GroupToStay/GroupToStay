@@ -1,0 +1,168 @@
+import type { Database } from "@/integrations/supabase/types";
+
+export type DealRow = Database["public"]["Tables"]["deals"]["Row"];
+export type OfferRow = Database["public"]["Tables"]["offers"]["Row"];
+export type MembershipRow = Pick<
+  Database["public"]["Tables"]["organization_memberships"]["Row"],
+  "membership_role" | "organization_id" | "status"
+>;
+
+export type DealSourceRfq = Pick<
+  Database["public"]["Tables"]["rfqs"]["Row"],
+  | "check_in"
+  | "check_out"
+  | "destination_city"
+  | "destination_country"
+  | "guests_count"
+  | "rooms_needed"
+  | "title"
+>;
+
+export type DealSourceHotel = Pick<
+  Database["public"]["Tables"]["hotels"]["Row"],
+  "city" | "country" | "name" | "star_rating"
+>;
+
+export type DealWorkspaceActor = {
+  side: "buyer" | "supplier" | "inspector";
+  role: MembershipRow["membership_role"] | null;
+  isActive: boolean;
+};
+
+export type DealWorkspaceSnapshot = {
+  actor: DealWorkspaceActor;
+  deal: DealRow;
+  offers: OfferRow[];
+  sourceHotel: DealSourceHotel | null;
+  sourceRfq: DealSourceRfq | null;
+};
+
+export type DealWorkspaceAction = "accept" | "reject" | "withdraw" | "expire" | "cancel" | "close";
+
+export type DealWorkspaceErrorKind =
+  "backend_unavailable" | "network" | "permission" | "stale" | "state_changed" | "unknown";
+
+const BUYER_COMMAND_ROLES = new Set<MembershipRow["membership_role"]>(["owner", "admin", "agent"]);
+const SUPPLIER_COMMAND_ROLES = new Set<MembershipRow["membership_role"]>([
+  "owner",
+  "admin",
+  "sales",
+  "reservations",
+]);
+
+export function isDealId(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(value);
+}
+
+export function resolveDealWorkspaceActor(
+  deal: DealRow,
+  memberships: MembershipRow[],
+): DealWorkspaceActor {
+  const buyer = memberships.find(
+    (membership) =>
+      membership.organization_id === deal.buyer_organization_id && membership.status === "active",
+  );
+  const supplier = memberships.find(
+    (membership) =>
+      membership.organization_id === deal.supplier_organization_id &&
+      membership.status === "active",
+  );
+
+  // A dual-sided membership is an invalid commercial authority context. Keep it read-only.
+  if (buyer && supplier) return { side: "inspector", role: null, isActive: false };
+  if (buyer) return { side: "buyer", role: buyer.membership_role, isActive: true };
+  if (supplier) return { side: "supplier", role: supplier.membership_role, isActive: true };
+  return { side: "inspector", role: null, isActive: false };
+}
+
+export function canUseBuyerCommands(actor: DealWorkspaceActor) {
+  return (
+    actor.side === "buyer" &&
+    actor.isActive &&
+    actor.role !== null &&
+    BUYER_COMMAND_ROLES.has(actor.role)
+  );
+}
+
+export function canUseSupplierCommands(actor: DealWorkspaceActor) {
+  return (
+    actor.side === "supplier" &&
+    actor.isActive &&
+    actor.role !== null &&
+    SUPPLIER_COMMAND_ROLES.has(actor.role)
+  );
+}
+
+export function getDealActions(deal: DealRow, actor: DealWorkspaceActor): DealWorkspaceAction[] {
+  if (!canUseBuyerCommands(actor)) return [];
+  if (deal.status === "active") return ["cancel"];
+  if (deal.status === "agreed") return ["close"];
+  return [];
+}
+
+export function isOfferPastValidity(offer: OfferRow, now = new Date()) {
+  if (!offer.valid_until) return false;
+  const validUntil = new Date(offer.valid_until).getTime();
+  return Number.isFinite(validUntil) && validUntil <= now.getTime();
+}
+
+export function getOfferActions(
+  deal: DealRow,
+  offer: OfferRow,
+  actor: DealWorkspaceActor,
+  now = new Date(),
+): DealWorkspaceAction[] {
+  if (deal.status !== "active" || offer.status !== "submitted") return [];
+
+  const expired = isOfferPastValidity(offer, now);
+  if (canUseBuyerCommands(actor)) {
+    return [
+      ...(!expired ? (["accept"] as const) : []),
+      "reject",
+      ...(expired ? (["expire"] as const) : []),
+    ];
+  }
+  if (canUseSupplierCommands(actor)) {
+    return ["withdraw", ...(expired ? (["expire"] as const) : [])];
+  }
+  return [];
+}
+
+export function selectCommercialOffer(offers: OfferRow[]) {
+  return (
+    offers.find((offer) => offer.status === "accepted") ??
+    offers.find((offer) => offer.status === "submitted") ??
+    offers[0] ??
+    null
+  );
+}
+
+function getErrorCode(error: unknown) {
+  if (!error || typeof error !== "object" || !("code" in error)) return null;
+  const code = (error as { code?: unknown }).code;
+  return typeof code === "string" ? code : null;
+}
+
+function getErrorMessage(error: unknown) {
+  if (!(error instanceof Error)) return "";
+  return error.message.toLowerCase();
+}
+
+export function classifyDealWorkspaceError(error: unknown): DealWorkspaceErrorKind {
+  const code = getErrorCode(error);
+  const message = getErrorMessage(error);
+
+  if (code === "PGRST205" || code === "42P01") return "backend_unavailable";
+  if (code === "42501" || code === "PGRST301") return "permission";
+  if (code === "40001") return "stale";
+  if (code === "55000") return "state_changed";
+  if (
+    error instanceof TypeError ||
+    message.includes("fetch") ||
+    message.includes("network") ||
+    message.includes("connection")
+  ) {
+    return "network";
+  }
+  return "unknown";
+}
