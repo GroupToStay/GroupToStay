@@ -14,6 +14,10 @@
     "participants": {
       "maskedSupplier": "Participating supplier"
     },
+    "tabs": {
+      "offers": "Offers",
+      "chat": "Chat"
+    },
     "summary": {
       "title": "Commercial summary",
       "currentValue": "Current offer value",
@@ -62,6 +66,47 @@
     "privacy": {
       "title": "Protected participant context",
       "description": "Only information already authorized by the Deal and its source request is shown. Contact details remain protected."
+    },
+    "chat": {
+      "title": "Private Deal chat",
+      "description": "Clarify operational details without changing the structured commercial record.",
+      "loading": "Loading private Deal chat",
+      "logLabel": "Private Deal message history",
+      "participants": {
+        "buyer": "Agency",
+        "supplier": "Supplier",
+        "unknown": "Deal participant"
+      },
+      "empty": {
+        "title": "No messages yet",
+        "description": "Start a private clarification with the other Deal participant. Offers and decisions remain in the commercial timeline."
+      },
+      "readOnly": {
+        "title": "Chat is read-only",
+        "description": "Messages remain available as Deal history, but your current role or Deal state does not permit sending."
+      },
+      "composer": {
+        "label": "Message",
+        "placeholder": "Write a private clarification…",
+        "privacy": "Keep contact details private. Commercial changes belong in a new Offer Version.",
+        "send": "Send",
+        "sending": "Sending…"
+      },
+      "feedback": {
+        "sent": "Message sent."
+      },
+      "retry": "Try again",
+      "errorState": {
+        "title": "Unable to load Deal chat"
+      },
+      "errors": {
+        "backend_unavailable": "Private Deal chat is not enabled in this environment.",
+        "network": "The connection was interrupted. Please try again.",
+        "permission": "Deal chat is no longer available for your account.",
+        "stale": "The conversation changed. The latest messages have been loaded.",
+        "state_changed": "The Deal changed and chat is now read-only.",
+        "unknown": "The message could not be completed safely. Please try again."
+      }
     },
     "actions": {
       "accept": "Accept offer",

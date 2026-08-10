@@ -14,6 +14,7 @@ import {
   History,
   Hotel,
   LockKeyhole,
+  MessageSquareText,
   ShieldCheck,
   Tag,
   Users,
@@ -53,6 +54,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/workspace/page-header";
 import { StatusBadge } from "@/components/workspace/status-badge";
 import { WorkspaceSection } from "@/components/workspace/section";
@@ -76,6 +78,7 @@ import {
   loadDealWorkspace,
   type CounterOfferInput,
 } from "@/features/deals/deal-workspace-service";
+import { DealChatPanel } from "@/features/deals/DealChatPanel";
 
 export function NegotiationWorkspace({ dealId }: { dealId: string }) {
   const { t } = useTranslation("deals");
@@ -214,59 +217,78 @@ export function NegotiationWorkspace({ dealId }: { dealId: string }) {
       />
 
       <div className="grid min-w-0 gap-7 xl:grid-cols-[minmax(0,1.55fr)_minmax(18rem,0.65fr)]">
-        <WorkspaceSection
-          title={t("workspace.offers.title")}
-          description={t("workspace.offers.description")}
-        >
-          {snapshot.offers.length === 0 ? (
-            <EmptyState
-              icon={History}
-              title={t("workspace.offers.emptyTitle")}
-              description={t("workspace.offers.emptyDescription")}
-            />
-          ) : (
-            <div className="space-y-6" aria-label={t("workspace.offers.historyLabel")}>
-              {offerThreads.map((thread, threadIndex) => (
-                <section
-                  key={thread.id}
-                  className="space-y-3"
-                  aria-labelledby={`offer-thread-${threadIndex + 1}`}
-                >
-                  <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
-                    <h3
-                      id={`offer-thread-${threadIndex + 1}`}
-                      className="text-sm font-semibold text-foreground"
+        <Tabs defaultValue="offers" className="min-w-0">
+          <TabsList className="mb-4 grid h-auto min-h-11 w-full grid-cols-2 p-1">
+            <TabsTrigger value="offers" className="min-h-11 gap-2">
+              <History className="h-4 w-4" aria-hidden="true" />
+              {t("workspace.tabs.offers")}
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="min-h-11 gap-2">
+              <MessageSquareText className="h-4 w-4" aria-hidden="true" />
+              {t("workspace.tabs.chat")}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="offers" className="mt-0">
+            <WorkspaceSection
+              title={t("workspace.offers.title")}
+              description={t("workspace.offers.description")}
+            >
+              {snapshot.offers.length === 0 ? (
+                <EmptyState
+                  icon={History}
+                  title={t("workspace.offers.emptyTitle")}
+                  description={t("workspace.offers.emptyDescription")}
+                />
+              ) : (
+                <div className="space-y-6" aria-label={t("workspace.offers.historyLabel")}>
+                  {offerThreads.map((thread, threadIndex) => (
+                    <section
+                      key={thread.id}
+                      className="space-y-3"
+                      aria-labelledby={`offer-thread-${threadIndex + 1}`}
                     >
-                      {t("workspace.offers.threadNumber", { number: threadIndex + 1 })}
-                    </h3>
-                    <span className="text-xs text-muted-foreground">
-                      {t("workspace.offers.versionCount", { count: thread.offers.length })}
-                    </span>
-                  </div>
-                  <ol className="relative space-y-3 border-s border-border ps-4 sm:ps-5">
-                    {thread.offers.map((offer) => (
-                      <li key={offer.id} className="relative">
-                        <span
-                          className="absolute -start-[1.31rem] top-6 h-2.5 w-2.5 rounded-full border-2 border-background bg-muted-foreground sm:-start-[1.56rem]"
-                          aria-hidden="true"
-                        />
-                        <OfferCard
-                          offer={offer}
-                          deal={snapshot}
-                          pending={actionMutation.isPending || counterMutation.isPending}
-                          formatDateTime={formatDateTime}
-                          formatNumber={formatNumber}
-                          onAction={runAction}
-                          onCounter={submitCounter}
-                        />
-                      </li>
-                    ))}
-                  </ol>
-                </section>
-              ))}
-            </div>
-          )}
-        </WorkspaceSection>
+                      <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
+                        <h3
+                          id={`offer-thread-${threadIndex + 1}`}
+                          className="text-sm font-semibold text-foreground"
+                        >
+                          {t("workspace.offers.threadNumber", { number: threadIndex + 1 })}
+                        </h3>
+                        <span className="text-xs text-muted-foreground">
+                          {t("workspace.offers.versionCount", { count: thread.offers.length })}
+                        </span>
+                      </div>
+                      <ol className="relative space-y-3 border-s border-border ps-4 sm:ps-5">
+                        {thread.offers.map((offer) => (
+                          <li key={offer.id} className="relative">
+                            <span
+                              className="absolute -start-[1.31rem] top-6 h-2.5 w-2.5 rounded-full border-2 border-background bg-muted-foreground sm:-start-[1.56rem]"
+                              aria-hidden="true"
+                            />
+                            <OfferCard
+                              offer={offer}
+                              deal={snapshot}
+                              pending={actionMutation.isPending || counterMutation.isPending}
+                              formatDateTime={formatDateTime}
+                              formatNumber={formatNumber}
+                              onAction={runAction}
+                              onCounter={submitCounter}
+                            />
+                          </li>
+                        ))}
+                      </ol>
+                    </section>
+                  ))}
+                </div>
+              )}
+            </WorkspaceSection>
+          </TabsContent>
+
+          <TabsContent value="chat" className="mt-0">
+            <DealChatPanel snapshot={snapshot} />
+          </TabsContent>
+        </Tabs>
 
         <aside className="space-y-6" aria-label={t("workspace.context.title")}>
           <ContextPanel snapshot={snapshot} formatDate={formatDate} />
