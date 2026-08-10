@@ -442,6 +442,51 @@ export type Database = {
         }
         Relationships: []
       }
+      deal_contact_reveals: {
+        Row: {
+          accepted_offer_id: string
+          created_at: string
+          deal_id: string
+          id: string
+          policy_version: string
+          reveal_trigger: string
+          revealed_at: string
+        }
+        Insert: {
+          accepted_offer_id: string
+          created_at?: string
+          deal_id: string
+          id?: string
+          policy_version?: string
+          reveal_trigger?: string
+          revealed_at?: string
+        }
+        Update: {
+          accepted_offer_id?: string
+          created_at?: string
+          deal_id?: string
+          id?: string
+          policy_version?: string
+          reveal_trigger?: string
+          revealed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_contact_reveals_accepted_offer_id_fkey"
+            columns: ["accepted_offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_contact_reveals_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: true
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deals: {
         Row: {
           buyer_organization_id: string
@@ -2217,6 +2262,20 @@ export type Database = {
       }
       ensure_deal_conversation: { Args: { _deal_id: string }; Returns: string }
       expire_deal_offer: { Args: { _offer_id: string }; Returns: Json }
+      get_deal_counterparty_contact: {
+        Args: { _deal_id: string }
+        Returns: {
+          address: string
+          business_name: string
+          contact_name: string
+          email: string
+          organization_type: string
+          phone: string
+          policy_version: string
+          revealed_at: string
+          whatsapp: string
+        }[]
+      }
       get_my_admin_access: { Args: never; Returns: Json }
       has_enterprise_role: {
         Args: { _role_slug: string; _user_id: string }
