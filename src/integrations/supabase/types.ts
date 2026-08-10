@@ -870,6 +870,44 @@ export type Database = {
         }
         Relationships: []
       }
+      offer_threads: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deal_id: string
+          id: string
+          latest_version_number: number
+          request_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deal_id: string
+          id?: string
+          latest_version_number?: number
+          request_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deal_id?: string
+          id?: string
+          latest_version_number?: number
+          request_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offer_threads_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       offers: {
         Row: {
           amount: number
@@ -879,10 +917,14 @@ export type Database = {
           deal_id: string
           id: string
           notes: string | null
+          offer_thread_id: string
+          parent_offer_id: string | null
           status: Database["public"]["Enums"]["offer_status"]
+          submitted_by_organization_id: string
           supplier_organization_id: string
           updated_at: string
           valid_until: string | null
+          version_number: number
         }
         Insert: {
           amount: number
@@ -892,10 +934,14 @@ export type Database = {
           deal_id: string
           id?: string
           notes?: string | null
+          offer_thread_id: string
+          parent_offer_id?: string | null
           status?: Database["public"]["Enums"]["offer_status"]
+          submitted_by_organization_id: string
           supplier_organization_id: string
           updated_at?: string
           valid_until?: string | null
+          version_number: number
         }
         Update: {
           amount?: number
@@ -905,10 +951,14 @@ export type Database = {
           deal_id?: string
           id?: string
           notes?: string | null
+          offer_thread_id?: string
+          parent_offer_id?: string | null
           status?: Database["public"]["Enums"]["offer_status"]
+          submitted_by_organization_id?: string
           supplier_organization_id?: string
           updated_at?: string
           valid_until?: string | null
+          version_number?: number
         }
         Relationships: [
           {
@@ -917,6 +967,27 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "deals"
             referencedColumns: ["id", "supplier_organization_id"]
+          },
+          {
+            foreignKeyName: "offers_parent_offer_fkey"
+            columns: ["parent_offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_submitted_by_organization_fkey"
+            columns: ["submitted_by_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_thread_deal_fkey"
+            columns: ["offer_thread_id", "deal_id"]
+            isOneToOne: false
+            referencedRelation: "offer_threads"
+            referencedColumns: ["id", "deal_id"]
           },
         ]
       }
@@ -2103,6 +2174,16 @@ export type Database = {
       }
       cancel_deal: { Args: { _deal_id: string }; Returns: Json }
       close_deal: { Args: { _deal_id: string }; Returns: Json }
+      counter_deal_offer: {
+        Args: {
+          _amount: number
+          _currency: string
+          _notes: string
+          _parent_offer_id: string
+          _valid_until: string
+        }
+        Returns: Json
+      }
       create_notification: {
         Args: {
           _body?: string
@@ -2176,6 +2257,17 @@ export type Database = {
         }
         Returns: string
       }
+      record_deal_offer_event: {
+        Args: {
+          _action: string
+          _entity_id: string
+          _entity_type: string
+          _metadata?: Json
+          _new_state?: Json
+          _previous_state?: Json
+        }
+        Returns: undefined
+      }
       record_deal_offer_transition: {
         Args: {
           _entity_id: string
@@ -2187,6 +2279,17 @@ export type Database = {
         Returns: undefined
       }
       reject_deal_offer: { Args: { _offer_id: string }; Returns: Json }
+      submit_initial_deal_offer: {
+        Args: {
+          _amount: number
+          _currency: string
+          _deal_id: string
+          _notes: string
+          _request_id: string
+          _valid_until: string
+        }
+        Returns: Json
+      }
       user_organization_role: {
         Args: { _organization_id: string }
         Returns: Database["public"]["Enums"]["organization_membership_role"]
@@ -2239,6 +2342,7 @@ export type Database = {
         | "rejected"
         | "withdrawn"
         | "expired"
+        | "superseded"
       organization_membership_role:
         | "owner"
         | "admin"
@@ -2446,6 +2550,7 @@ export const Constants = {
         "rejected",
         "withdrawn",
         "expired",
+        "superseded",
       ],
       organization_membership_role: [
         "owner",

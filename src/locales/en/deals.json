@@ -26,10 +26,20 @@
     "offers": {
       "title": "Offer history",
       "description": "Submitted terms are preserved as an immutable commercial record.",
-      "historyLabel": "Chronological offer history, newest first",
+      "historyLabel": "Chronological immutable offer history",
       "emptyTitle": "No offers yet",
       "emptyDescription": "The supplier has not submitted a commercial offer for this Deal.",
       "offerNumber": "Offer {{number}}",
+      "threadNumber": "Commercial thread {{number}}",
+      "versionNumber": "Offer version {{number}}",
+      "versionCount_one": "{{count}} version",
+      "versionCount_other": "{{count}} versions",
+      "submittedBy": {
+        "buyer": "Submitted by Agency",
+        "supplier": "Submitted by Supplier",
+        "unknown": "Submitted participant"
+      },
+      "current": "Current position",
       "selected": "Accepted offer",
       "validUntil": "Valid until {{date}}",
       "noExpiry": "No expiry date",
@@ -55,20 +65,38 @@
     },
     "actions": {
       "accept": "Accept offer",
+      "counter": "Counteroffer",
       "reject": "Reject offer",
       "withdraw": "Withdraw offer",
       "expire": "Mark expired",
       "cancel": "Cancel Deal",
       "close": "Close Deal",
       "keepReviewing": "Keep reviewing",
+      "submitCounter": "Submit counteroffer",
       "processing": "Processing…",
       "retry": "Try again"
+    },
+    "counter": {
+      "title": "Create offer version {{number}}",
+      "description": "Propose revised commercial terms. The server will verify that it is your turn before adding a new immutable version.",
+      "previous": "Previous commercial position",
+      "historyNotice": "The previous offer stays visible in the negotiation record.",
+      "amount": "Proposed amount",
+      "currency": "Currency code",
+      "validUntil": "Valid until",
+      "notes": "Commercial notes",
+      "errors": {
+        "amount": "Enter an amount greater than zero.",
+        "currency": "Enter a valid three-letter currency code.",
+        "validity": "Choose a future validity date and time.",
+        "notes": "Commercial notes cannot exceed 5,000 characters."
+      }
     },
     "confirm": {
       "accept": {
         "title": "Accept this offer?",
-        "description": "Acceptance moves this Deal to Agreed. It does not create a Booking.",
-        "competitors": "Every other submitted offer for this Deal will be rejected automatically in the same atomic operation."
+        "description": "Acceptance locks this exact Offer Version and moves the Deal to Agreed. It does not create a Booking.",
+        "competitors": "Every other actionable offer for this Deal will be rejected automatically in the same atomic operation."
       },
       "reject": {
         "title": "Reject this offer?",
@@ -93,6 +121,7 @@
     },
     "feedback": {
       "accept": "Offer accepted and Deal moved to Agreed.",
+      "counter": "Counteroffer submitted as a new immutable version.",
       "reject": "Offer rejected.",
       "withdraw": "Offer withdrawn.",
       "expire": "Offer marked as expired.",

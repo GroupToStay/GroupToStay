@@ -29,9 +29,12 @@ export async function loadDealWorkspace(
   if (!deal) return null;
 
   const [offersResult, membershipsResult, rfqResult, hotelResult] = await Promise.all([
-    supabase.from("offers").select("*").eq("deal_id", deal.id).order("created_at", {
-      ascending: false,
-    }),
+    supabase
+      .from("offers")
+      .select("*")
+      .eq("deal_id", deal.id)
+      .order("created_at", { ascending: true })
+      .order("version_number", { ascending: true }),
     supabase
       .from("organization_memberships")
       .select("organization_id, membership_role, status")
@@ -99,6 +102,45 @@ export async function executeDealWorkspaceAction(
 ): Promise<DealCommandResult> {
   const [rpc, argument] = dealWorkspaceCommands[action];
   const result = await invoke(rpc, { [argument]: targetId });
+
+  if (result.error) throw result.error;
+  return result.data!;
+}
+
+export type CounterOfferInput = {
+  parentOfferId: string;
+  amount: number;
+  currency: string;
+  validUntil: string | null;
+  notes: string | null;
+};
+
+type CounterOfferResult = Database["public"]["Functions"]["counter_deal_offer"]["Returns"];
+type CounterOfferArgs = {
+  _parent_offer_id: string;
+  _amount: number;
+  _currency: string;
+  _valid_until: string | null;
+  _notes: string | null;
+};
+type CounterOfferInvoker = (
+  args: CounterOfferArgs,
+) => PromiseLike<{ data: CounterOfferResult | null; error: unknown }>;
+
+const invokeCounterOffer: CounterOfferInvoker = (args) =>
+  supabase.rpc("counter_deal_offer", args as never);
+
+export async function executeCounterOffer(
+  input: CounterOfferInput,
+  invoke: CounterOfferInvoker = invokeCounterOffer,
+): Promise<CounterOfferResult> {
+  const result = await invoke({
+    _parent_offer_id: input.parentOfferId,
+    _amount: input.amount,
+    _currency: input.currency,
+    _valid_until: input.validUntil,
+    _notes: input.notes,
+  });
 
   if (result.error) throw result.error;
   return result.data!;
