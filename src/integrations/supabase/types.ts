@@ -2261,6 +2261,10 @@ export type Database = {
         Returns: string
       }
       ensure_deal_conversation: { Args: { _deal_id: string }; Returns: string }
+      ensure_deal_for_invitation: {
+        Args: { _invitation_id: string }
+        Returns: Json
+      }
       expire_deal_offer: { Args: { _offer_id: string }; Returns: Json }
       get_deal_counterparty_contact: {
         Args: { _deal_id: string }
@@ -2371,6 +2375,7 @@ export type Database = {
         }
         Returns: Json
       }
+      sourced_deal_id: { Args: { _invitation_id: string }; Returns: string }
       submit_initial_deal_offer: {
         Args: {
           _amount: number
