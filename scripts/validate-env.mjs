@@ -24,13 +24,18 @@ config({
 });
 
 const missing = [];
-const supabaseUrl = process.env.VITE_SUPABASE_URL?.trim();
+const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.VITE_SUPABASE_URL)?.trim();
 const publicKey =
-  process.env.VITE_SUPABASE_ANON_KEY?.trim() ?? process.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ??
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ??
+  process.env.VITE_SUPABASE_ANON_KEY?.trim() ??
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
 
-if (!supabaseUrl) missing.push("VITE_SUPABASE_URL");
+if (!supabaseUrl) missing.push("NEXT_PUBLIC_SUPABASE_URL (or VITE_SUPABASE_URL)");
 if (!publicKey) {
-  missing.push("VITE_SUPABASE_ANON_KEY or VITE_SUPABASE_PUBLISHABLE_KEY");
+  missing.push(
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY or VITE_SUPABASE_PUBLISHABLE_KEY)",
+  );
 }
 
 if (supabaseUrl) {

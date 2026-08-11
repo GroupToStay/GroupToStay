@@ -35,16 +35,18 @@ import {
 } from "lucide-react";
 import { RfqSharedFields, type RfqSharedValues } from "@/features/rfq/RfqSharedFields";
 import { sharedValuesToSearch } from "@/features/rfq/rfq-search-params";
-import heroImg from "@/assets/hero-lobby.jpg?w=1920&format=jpg&quality=78";
-import heroAvifSrcSet from "@/assets/hero-lobby.jpg?w=640;1024;1440;1920&format=avif&quality=55&as=srcset";
-import heroWebpSrcSet from "@/assets/hero-lobby.jpg?w=640;1024;1440;1920&format=webp&quality=72&as=srcset";
-import heroJpgSrcSet from "@/assets/hero-lobby.jpg?w=640;1024;1440;1920&format=jpg&quality=78&as=srcset";
+import heroImage from "@/assets/hero-lobby.jpg";
 import { formatDistanceToNow } from "date-fns";
 import { useApplicationLocale } from "@/lib/application-locale";
 import { fetchPublicCount, fetchPublicRows } from "@/integrations/supabase/public-rest";
 import { useAuth } from "@/hooks/use-auth";
 import { useRoles } from "@/hooks/use-role";
 import i18n from "@/lib/i18n";
+
+const heroImg = heroImage.src;
+const heroAvifSrcSet = heroImage.src;
+const heroWebpSrcSet = heroImage.src;
+const heroJpgSrcSet = heroImage.src;
 
 export const Route = createFileRoute("/")({
   head: () => ({

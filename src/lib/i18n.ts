@@ -8,6 +8,46 @@ import {
   SUPPORTED_APP_LANGUAGES,
 } from "@/lib/locale";
 import { applyNoTranslateAttributes } from "@/lib/translation-hardening";
+import arAdmin from "@/locales/ar/admin.json";
+import arAuth from "@/locales/ar/auth.json";
+import arButtons from "@/locales/ar/buttons.json";
+import arCommon from "@/locales/ar/common.json";
+import arCompany from "@/locales/ar/company.json";
+import arDashboard from "@/locales/ar/dashboard.json";
+import arDeals from "@/locales/ar/deals.json";
+import arErrors from "@/locales/ar/errors.json";
+import arForms from "@/locales/ar/forms.json";
+import arHotel from "@/locales/ar/hotel.json";
+import arLanding from "@/locales/ar/landing.json";
+import arLegacy from "@/locales/ar/legacy.json";
+import arLegal from "@/locales/ar/legal.json";
+import arNavigation from "@/locales/ar/navigation.json";
+import arNotifications from "@/locales/ar/notifications.json";
+import arPricing from "@/locales/ar/pricing.json";
+import arProfile from "@/locales/ar/profile.json";
+import arRfq from "@/locales/ar/rfq.json";
+import arSubscriptions from "@/locales/ar/subscriptions.json";
+import arValidation from "@/locales/ar/validation.json";
+import enAdmin from "@/locales/en/admin.json";
+import enAuth from "@/locales/en/auth.json";
+import enButtons from "@/locales/en/buttons.json";
+import enCommon from "@/locales/en/common.json";
+import enCompany from "@/locales/en/company.json";
+import enDashboard from "@/locales/en/dashboard.json";
+import enDeals from "@/locales/en/deals.json";
+import enErrors from "@/locales/en/errors.json";
+import enForms from "@/locales/en/forms.json";
+import enHotel from "@/locales/en/hotel.json";
+import enLanding from "@/locales/en/landing.json";
+import enLegacy from "@/locales/en/legacy.json";
+import enLegal from "@/locales/en/legal.json";
+import enNavigation from "@/locales/en/navigation.json";
+import enNotifications from "@/locales/en/notifications.json";
+import enPricing from "@/locales/en/pricing.json";
+import enProfile from "@/locales/en/profile.json";
+import enRfq from "@/locales/en/rfq.json";
+import enSubscriptions from "@/locales/en/subscriptions.json";
+import enValidation from "@/locales/en/validation.json";
 
 type TranslationResource = Record<string, unknown>;
 type LanguageResources = Record<string, TranslationResource>;
@@ -35,10 +75,52 @@ export const I18N_NAMESPACES = [
   "deals",
 ] as const;
 
-const localeModules = import.meta.glob("../locales/*/*.json", {
-  eager: true,
-  import: "default",
-}) as Record<string, TranslationResource>;
+const localeModules = {
+  ar: [
+    arCommon,
+    arNavigation,
+    arLanding,
+    arAuth,
+    arAdmin,
+    arDashboard,
+    arHotel,
+    arRfq,
+    arForms,
+    arValidation,
+    arErrors,
+    arNotifications,
+    arLegal,
+    arProfile,
+    arPricing,
+    arCompany,
+    arSubscriptions,
+    arButtons,
+    arLegacy,
+    arDeals,
+  ],
+  en: [
+    enCommon,
+    enNavigation,
+    enLanding,
+    enAuth,
+    enAdmin,
+    enDashboard,
+    enHotel,
+    enRfq,
+    enForms,
+    enValidation,
+    enErrors,
+    enNotifications,
+    enLegal,
+    enProfile,
+    enPricing,
+    enCompany,
+    enSubscriptions,
+    enButtons,
+    enLegacy,
+    enDeals,
+  ],
+} satisfies Record<string, TranslationResource[]>;
 
 function deepMerge(target: TranslationResource, source: TranslationResource) {
   Object.entries(source).forEach(([key, value]) => {
@@ -64,22 +146,13 @@ function deepMerge(target: TranslationResource, source: TranslationResource) {
 function buildResources() {
   const resources: Record<string, LanguageResources> = {};
 
-  Object.entries(localeModules).forEach(([modulePath, resource]) => {
-    const match = modulePath.match(/\/locales\/([^/]+)\/([^/]+)\.json$/);
-    if (!match) return;
-
-    const [, language, namespace] = match;
-    resources[language] ??= {};
-    resources[language][namespace] = resource;
-  });
-
-  Object.values(SUPPORTED_APP_LANGUAGES).forEach((language) => {
-    const languageResources = resources[language] ?? {};
-    languageResources.translation = I18N_NAMESPACES.reduce<TranslationResource>(
-      (merged, namespace) => deepMerge(merged, languageResources[namespace] ?? {}),
-      {},
-    );
-    resources[language] = languageResources;
+  Object.entries(localeModules).forEach(([language, modules]) => {
+    resources[language] = {
+      translation: modules.reduce<TranslationResource>(
+        (merged, resource) => deepMerge(merged, resource),
+        {},
+      ),
+    };
   });
 
   return resources;

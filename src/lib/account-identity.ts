@@ -1,5 +1,11 @@
 export type DisplayRole =
-  "admin" | "super_admin" | "assistant_admin" | "organizer" | "agency" | "hotel" | "visitor";
+  | "admin"
+  | "super_admin"
+  | "assistant_admin"
+  | "organizer"
+  | "agency"
+  | "hotel"
+  | "visitor";
 
 export function getInitials(value?: string | null) {
   const words = String(value ?? "")

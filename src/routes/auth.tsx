@@ -115,7 +115,7 @@ function Page() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) navigate({ to: safeAuthRedirect(search.redirect) as any });
+    if (user) navigate({ to: safeAuthRedirect(search.redirect as string | undefined) as any });
   }, [user, navigate, search.redirect]);
 
   function changeMode(nextMode: AuthMode) {

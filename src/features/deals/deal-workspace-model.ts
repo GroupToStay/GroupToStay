@@ -47,10 +47,19 @@ export type OfferThreadHistory = {
 };
 
 export type NegotiationAttention =
-  "your_action" | "waiting_counterparty" | "agreed" | "closed" | "cancelled";
+  | "your_action"
+  | "waiting_counterparty"
+  | "agreed"
+  | "closed"
+  | "cancelled";
 
 export type DealWorkspaceErrorKind =
-  "backend_unavailable" | "network" | "permission" | "stale" | "state_changed" | "unknown";
+  | "backend_unavailable"
+  | "network"
+  | "permission"
+  | "stale"
+  | "state_changed"
+  | "unknown";
 
 const BUYER_COMMAND_ROLES = new Set<MembershipRow["membership_role"]>(["owner", "admin", "agent"]);
 const SUPPLIER_COMMAND_ROLES = new Set<MembershipRow["membership_role"]>([

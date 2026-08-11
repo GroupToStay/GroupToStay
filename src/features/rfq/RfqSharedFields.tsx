@@ -29,7 +29,13 @@ export type RfqSharedValues = {
 };
 
 export type RfqSharedSection =
-  "destination" | "counts" | "dates" | "categories" | "accommodation" | "mealPlan" | "requirements";
+  | "destination"
+  | "counts"
+  | "dates"
+  | "categories"
+  | "accommodation"
+  | "mealPlan"
+  | "requirements";
 
 type Props = {
   value: RfqSharedValues;

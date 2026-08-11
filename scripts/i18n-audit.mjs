@@ -410,10 +410,10 @@ function isPropertyNameNode(node) {
   const parent = node.parent;
   return Boolean(
     parent &&
-    (ts.isPropertyAssignment(parent) ||
-      ts.isPropertyDeclaration(parent) ||
-      ts.isMethodDeclaration(parent)) &&
-    parent.name === node,
+      (ts.isPropertyAssignment(parent) ||
+        ts.isPropertyDeclaration(parent) ||
+        ts.isMethodDeclaration(parent)) &&
+      parent.name === node,
   );
 }
 
@@ -1456,43 +1456,43 @@ ${section(
     CATEGORIES.map((category) => [category, categoryCounts[category] ?? 0]),
   ),
 )}${section(
-    "Catalog Integrity",
-    table(
-      ["Check", "Findings"],
-      [
-        ["Missing English keys", catalogAudit.missingEnglish.length],
-        ["Missing Arabic keys", catalogAudit.missingArabic.length],
-        ["Duplicate JSON key definitions", catalogData.duplicateDefinitions.length],
-        ["Cross-namespace path collisions", catalogAudit.pathCollisions.length],
-        ["Invalid nesting", catalogData.invalidNesting.length],
-        ["UTF-8 BOM locale files", catalogData.byteOrderMarkFiles.length],
-        ["Broken static references", catalogAudit.brokenReferences.length],
-        ["Ambiguous merged-namespace references", catalogAudit.ambiguousReferences.length],
-        ["Namespace usage issues", catalogAudit.namespaceUsageIssues.length],
-        ["Interpolation mismatches", catalogAudit.interpolationIssues.length],
-        ["Pluralization issues", catalogAudit.pluralizationIssues.length],
-        ["Suspicious encoding values", catalogAudit.suspiciousEncoding.length],
-        ["Unused keys", catalogAudit.unusedKeys.length],
-      ],
-    ),
-  )}${section(
-    "Risk Assessment",
-    `**${riskLevel}**. ${
-      riskLevel === "HIGH"
-        ? "Broken references or catalog parse failures can expose raw keys or fallback copy at runtime."
-        : riskLevel === "MEDIUM"
-          ? "The catalogs are structurally usable, but remaining visible strings and catalog quality findings prevent complete bilingual coverage."
-          : "No material catalog or hardcoded-copy risk was detected."
-    }`,
-  )}${section(
-    "Phase 1.4B Recommendation",
-    userVisible.length === 0 &&
-      catalogAudit.missingEnglish.length === 0 &&
-      catalogAudit.missingArabic.length === 0 &&
-      catalogAudit.brokenReferences.length === 0
-      ? `Phase 1.4B localization coverage is complete. Keep \`pnpm i18n:audit\` in the quality gate and require every new user-visible string to ship with paired English and Arabic keys.`
-      : `Process USER_VISIBLE findings feature by feature, starting with high-volume pages. Resolve broken references and interpolation issues before translating additional copy. Keep TECHNICAL, INTERNAL_CONSTANT, ROUTES, QUERY_KEYS, DEVELOPER_ONLY, and THIRD_PARTY findings out of translation catalogs unless their runtime use is proven user-visible.`,
-  )}## Machine-Readable Inventory
+  "Catalog Integrity",
+  table(
+    ["Check", "Findings"],
+    [
+      ["Missing English keys", catalogAudit.missingEnglish.length],
+      ["Missing Arabic keys", catalogAudit.missingArabic.length],
+      ["Duplicate JSON key definitions", catalogData.duplicateDefinitions.length],
+      ["Cross-namespace path collisions", catalogAudit.pathCollisions.length],
+      ["Invalid nesting", catalogData.invalidNesting.length],
+      ["UTF-8 BOM locale files", catalogData.byteOrderMarkFiles.length],
+      ["Broken static references", catalogAudit.brokenReferences.length],
+      ["Ambiguous merged-namespace references", catalogAudit.ambiguousReferences.length],
+      ["Namespace usage issues", catalogAudit.namespaceUsageIssues.length],
+      ["Interpolation mismatches", catalogAudit.interpolationIssues.length],
+      ["Pluralization issues", catalogAudit.pluralizationIssues.length],
+      ["Suspicious encoding values", catalogAudit.suspiciousEncoding.length],
+      ["Unused keys", catalogAudit.unusedKeys.length],
+    ],
+  ),
+)}${section(
+  "Risk Assessment",
+  `**${riskLevel}**. ${
+    riskLevel === "HIGH"
+      ? "Broken references or catalog parse failures can expose raw keys or fallback copy at runtime."
+      : riskLevel === "MEDIUM"
+        ? "The catalogs are structurally usable, but remaining visible strings and catalog quality findings prevent complete bilingual coverage."
+        : "No material catalog or hardcoded-copy risk was detected."
+  }`,
+)}${section(
+  "Phase 1.4B Recommendation",
+  userVisible.length === 0 &&
+    catalogAudit.missingEnglish.length === 0 &&
+    catalogAudit.missingArabic.length === 0 &&
+    catalogAudit.brokenReferences.length === 0
+    ? `Phase 1.4B localization coverage is complete. Keep \`pnpm i18n:audit\` in the quality gate and require every new user-visible string to ship with paired English and Arabic keys.`
+    : `Process USER_VISIBLE findings feature by feature, starting with high-volume pages. Resolve broken references and interpolation issues before translating additional copy. Keep TECHNICAL, INTERNAL_CONSTANT, ROUTES, QUERY_KEYS, DEVELOPER_ONLY, and THIRD_PARTY findings out of translation catalogs unless their runtime use is proven user-visible.`,
+)}## Machine-Readable Inventory
 
 Every finding, classification reason, confidence level, catalog issue, and resolved translation reference is stored in [AuditReport.json](./AuditReport.json).
 `;

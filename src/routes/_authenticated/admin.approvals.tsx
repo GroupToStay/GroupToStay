@@ -75,10 +75,20 @@ type Subscription = Database["public"]["Tables"]["subscription_interest"]["Row"]
 type AuditLog = Database["public"]["Tables"]["admin_audit_logs"]["Row"];
 type AgencyEvent = Database["public"]["Tables"]["agency_verification_events"]["Row"];
 type ApprovalSource =
-  "agency_verification" | "hotel_verification" | "hotel_listing" | "subscription_request";
+  | "agency_verification"
+  | "hotel_verification"
+  | "hotel_listing"
+  | "subscription_request";
 type ApprovalDecision = "approve" | "reject" | "request_changes";
 type ApprovalSection =
-  "all" | "agency" | "hotel" | "subscriptions" | "documents" | "profiles" | "pending" | "manual";
+  | "all"
+  | "agency"
+  | "hotel"
+  | "subscriptions"
+  | "documents"
+  | "profiles"
+  | "pending"
+  | "manual";
 type ApprovalPriority = "normal" | "medium" | "high";
 
 type ApprovalItem = {

@@ -4,7 +4,11 @@ import { useAuth } from "./use-auth";
 import { hasCompleteAgencyVerificationProfile } from "@/lib/agency-verification";
 
 export type AgencyVerificationStatus =
-  "draft" | "submitted" | "pending_review" | "verified" | "rejected";
+  | "draft"
+  | "submitted"
+  | "pending_review"
+  | "verified"
+  | "rejected";
 
 export function useAgencyVerification() {
   const { user } = useAuth();
