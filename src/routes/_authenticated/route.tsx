@@ -22,9 +22,11 @@ import {
   Settings as SettingsIcon,
   Server,
   KeyRound,
+  Handshake,
 } from "lucide-react";
 import { WorkspaceShell, type WorkspaceNavGroup } from "@/components/workspace/workspace-shell";
 import { WorkspaceIdentity } from "@/components/workspace/workspace-identity";
+import { dealActivationEnabled } from "@/features/deals/deal-activation-config";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -166,6 +168,15 @@ function AuthLayout() {
             label: t("nav.groupRequests"),
             icon: Inbox,
           },
+          ...(dealActivationEnabled
+            ? [
+                {
+                  to: "/dashboard/negotiations",
+                  label: t("deals:activation.navigation"),
+                  icon: Handshake,
+                },
+              ]
+            : []),
           {
             to: "/dashboard/messages",
             label: t("dashboard.messagesTitle"),
@@ -224,6 +235,15 @@ function AuthLayout() {
             label: t("nav.myRequests"),
             icon: FileText,
           },
+          ...(dealActivationEnabled
+            ? [
+                {
+                  to: "/dashboard/negotiations",
+                  label: t("deals:activation.navigation"),
+                  icon: Handshake,
+                },
+              ]
+            : []),
           {
             to: "/dashboard/quotations",
             label: t("nav.receivedOffers"),

@@ -45,6 +45,8 @@ import { useApplicationLocale } from "@/lib/application-locale";
 import { PageHeader } from "@/components/workspace/page-header";
 import { StatusBadge } from "@/components/workspace/status-badge";
 import i18n from "@/lib/i18n";
+import { dealActivationEnabled } from "@/features/deals/deal-activation-config";
+import { DealActivationButton } from "@/features/deals/DealActivationButton";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invitations")({
   head: () => ({ meta: [{ title: i18n.t("hotelDash.meta.invitations") }] }),
@@ -98,6 +100,7 @@ function Page() {
       const rows = invs ?? [];
       const rfqIds = rows.map((r: any) => r.rfq_id).filter(Boolean);
       let quotes: any[] = [];
+      let deals: any[] = [];
       if (rfqIds.length > 0) {
         const { data: qs } = await supabase
           .from("quotes")
@@ -108,9 +111,21 @@ function Page() {
           .in("hotel_id", hotelIds);
         quotes = qs ?? [];
       }
+      if (dealActivationEnabled && rows.length > 0) {
+        const { data: dealRows, error: dealError } = await supabase
+          .from("deals")
+          .select("id, status, source_invitation_id")
+          .in(
+            "source_invitation_id",
+            rows.map((invitation: any) => invitation.id),
+          );
+        if (dealError) throw dealError;
+        deals = dealRows ?? [];
+      }
       return rows.map((inv: any) => ({
         ...inv,
         myQuote: quotes.find((q) => q.rfq_id === inv.rfq_id && q.hotel_id === inv.hotel_id) ?? null,
+        deal: deals.find((deal) => deal.source_invitation_id === inv.id) ?? null,
       }));
     },
   });
@@ -272,7 +287,21 @@ function InvitationCard({ inv, hotelName }: { inv: any; hotelName: string }) {
                 </div>
               </div>
             ) : null}
-            {quoteIsActive && rfqIsActive ? (
+            {inv.deal ? (
+              <DealActivationButton invitationId={inv.id} dealId={inv.deal.id} label="continue" />
+            ) : dealActivationEnabled && canSubmit ? (
+              <div className="flex flex-wrap justify-end gap-2">
+                <DealActivationButton invitationId={inv.id} label="start" />
+                <ConfirmationAction
+                  icon={XCircle}
+                  label={t("hotelDash.quoteManagement.decline")}
+                  title={t("hotelDash.quoteManagement.declineTitle")}
+                  description={t("hotelDash.quoteManagement.declineDescription")}
+                  pending={decline.isPending}
+                  onConfirm={() => decline.mutate()}
+                />
+              </div>
+            ) : quoteIsActive && rfqIsActive ? (
               <div className="flex flex-wrap justify-end gap-2">
                 <QuoteDialog rfq={rfq} hotelId={inv.hotel_id} quote={inv.myQuote} />
                 <ConfirmationAction

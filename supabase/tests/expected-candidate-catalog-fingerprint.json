@@ -6,8 +6,8 @@
   },
   {
     "category": "application_routine_grants",
-    "objectCount": 34,
-    "definitionMd5": "060b85dcee6f278fc278e6b740d222c9"
+    "objectCount": 35,
+    "definitionMd5": "97b7a19fb30a72f9d71982014d187674"
   },
   {
     "category": "application_table_grants",
@@ -32,8 +32,8 @@
   },
   {
     "category": "functions",
-    "objectCount": 92,
-    "definitionMd5": "e695965763fb26f16382c28b67372964"
+    "objectCount": 94,
+    "definitionMd5": "4d0a193d8e1f2ac2daa924a2106774b5"
   },
   {
     "category": "indexes",

@@ -90,8 +90,10 @@ DECLARE
   _hotel_two uuid := '20000000-0000-0000-0000-000000000102';
   _rfq_one uuid := '20000000-0000-0000-0000-000000000201';
   _rfq_two uuid := '20000000-0000-0000-0000-000000000202';
+  _rfq_activation uuid := '20000000-0000-0000-0000-000000000203';
   _invitation_one uuid := '20000000-0000-0000-0000-000000000301';
   _invitation_two uuid := '20000000-0000-0000-0000-000000000302';
+  _invitation_activation uuid := '20000000-0000-0000-0000-000000000303';
   _country_id uuid;
   _city_id uuid;
 BEGIN
@@ -217,12 +219,17 @@ BEGIN
     (
       _rfq_two, _agency_two, 'Deal fixture request two', 'Buyer Fixture City Two',
       'Fixture Country', _country_id, _city_id, current_date + 35, current_date + 38, 30, 15
+    ),
+    (
+      _rfq_activation, _agency_one, 'Activation journey request', 'Buyer Fixture City One',
+      'Fixture Country', _country_id, _city_id, current_date + 40, current_date + 43, 24, 12
     );
 
   INSERT INTO public.rfq_invitations (id, rfq_id, hotel_id)
   VALUES
     (_invitation_one, _rfq_one, _hotel_one),
-    (_invitation_two, _rfq_two, _hotel_two);
+    (_invitation_two, _rfq_two, _hotel_two),
+    (_invitation_activation, _rfq_activation, _hotel_one);
 
   INSERT INTO public.organization_memberships (
     id, organization_id, user_id, membership_role, status, invited_by, joined_at
@@ -253,8 +260,10 @@ BEGIN
     ('hotel_two', _hotel_two),
     ('rfq_one', _rfq_one),
     ('rfq_two', _rfq_two),
+    ('rfq_activation', _rfq_activation),
     ('invitation_one', _invitation_one),
     ('invitation_two', _invitation_two),
+    ('invitation_activation', _invitation_activation),
     ('deal_one', '20000000-0000-0000-0000-000000000401'),
     ('deal_two', '20000000-0000-0000-0000-000000000402'),
     ('offer_one', '20000000-0000-0000-0000-000000000501'),
@@ -2382,6 +2391,239 @@ SELECT pg_temp.assert_true(
 );
 RESET ROLE;
 INSERT INTO deal_offer_fixture_results VALUES ('deal_chat_v2_messaging_regression', 'pass');
+
+-- Feature 7.5 authenticated activation journey. It starts from a legacy invitation and uses only
+-- canonical V3 commands after Deal provisioning.
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+WITH activation AS (
+  SELECT public.ensure_deal_for_invitation(
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'invitation_activation')
+  ) AS result
+)
+INSERT INTO deal_offer_fixture_context (key, value)
+SELECT 'deal_activation', (result ->> 'deal_id')::uuid
+FROM activation;
+SELECT pg_temp.assert_true(
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_activation') =
+    (
+      SELECT (
+        substr(digest, 1, 8) || '-' || substr(digest, 9, 4) || '-5' ||
+        substr(digest, 14, 3) || '-8' || substr(digest, 18, 3) || '-' ||
+        substr(digest, 21, 12)
+      )::uuid
+      FROM (
+        SELECT md5(
+          'grouptostay:v3:deal:invitation:' ||
+          (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'invitation_activation')
+        ) AS digest
+      ) expected
+    ),
+  'Activation did not use the deterministic sourced Deal identity'
+);
+SELECT pg_temp.assert_true(
+  (
+    public.ensure_deal_for_invitation(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'invitation_activation')
+    ) ->> 'deal_id'
+  )::uuid = (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_activation'),
+  'Supplier retry created or returned a different Deal'
+);
+WITH initial_offer AS (
+  SELECT public.submit_initial_deal_offer(
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_activation'),
+    150000,
+    'SAR',
+    now() + interval '7 days',
+    'Activation journey initial offer',
+    '20000000-0000-0000-0000-000000000991'
+  ) AS result
+)
+INSERT INTO deal_offer_fixture_context (key, value)
+SELECT 'activation_offer_one', (result ->> 'offer_id')::uuid
+FROM initial_offer;
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  (
+    public.ensure_deal_for_invitation(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'invitation_activation')
+    ) ->> 'deal_id'
+  )::uuid = (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_activation'),
+  'Agency did not resolve the Supplier-provisioned Deal idempotently'
+);
+WITH agency_counter AS (
+  SELECT public.counter_deal_offer(
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'activation_offer_one'),
+    142000,
+    'SAR',
+    now() + interval '8 days',
+    'Activation journey Agency counteroffer'
+  ) AS result
+)
+INSERT INTO deal_offer_fixture_context (key, value)
+SELECT 'activation_offer_two', (result ->> 'offer_id')::uuid
+FROM agency_counter;
+WITH conversation AS (
+  SELECT public.ensure_deal_conversation(
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_activation')
+  ) AS conversation_id
+)
+INSERT INTO deal_offer_fixture_context (key, value)
+SELECT 'activation_conversation', conversation_id
+FROM conversation;
+SELECT public.send_deal_message(
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'activation_conversation'),
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'agency_one_org'),
+  'Agency clarification in the activated Deal'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+WITH supplier_counter AS (
+  SELECT public.counter_deal_offer(
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'activation_offer_two'),
+    145000,
+    'SAR',
+    now() + interval '9 days',
+    'Activation journey Supplier counteroffer'
+  ) AS result
+)
+INSERT INTO deal_offer_fixture_context (key, value)
+SELECT 'activation_offer_three', (result ->> 'offer_id')::uuid
+FROM supplier_counter;
+SELECT public.send_deal_message(
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'activation_conversation'),
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'supplier_one_org'),
+  'Supplier clarification in the activated Deal'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'agency_one_user'),
+  true
+);
+SELECT public.accept_deal_offer(
+  (SELECT value FROM deal_offer_fixture_context WHERE key = 'activation_offer_three')
+);
+SELECT pg_temp.assert_true(
+  EXISTS (
+    SELECT 1
+    FROM public.get_deal_counterparty_contact(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_activation')
+    ) contact
+    WHERE contact.organization_type = 'supplier'
+      AND contact.business_name = 'Supplier Fixture Company One'
+  ),
+  'Agency did not receive the approved Supplier contact after agreement'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_one_user'),
+  true
+);
+SELECT pg_temp.assert_true(
+  EXISTS (
+    SELECT 1
+    FROM public.get_deal_counterparty_contact(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_activation')
+    ) contact
+    WHERE contact.organization_type = 'agency'
+      AND contact.business_name = 'Deal Fixture Agency One'
+  ),
+  'Supplier did not receive the approved Agency contact after agreement'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'supplier_two_user'),
+  true
+);
+SELECT pg_temp.assert_forbidden(
+  $$SELECT public.ensure_deal_for_invitation(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'invitation_activation')
+    )$$,
+  'Unrelated Supplier activated another invitation'
+);
+RESET ROLE;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub',
+  (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'admin_user'),
+  true
+);
+SELECT pg_temp.assert_forbidden(
+  $$SELECT public.ensure_deal_for_invitation(
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'invitation_activation')
+    )$$,
+  'Platform Admin impersonated a marketplace participant during Deal activation'
+);
+RESET ROLE;
+
+SELECT pg_temp.assert_true(
+  (
+    SELECT count(*)
+    FROM public.deals
+    WHERE source_invitation_id =
+      (SELECT value FROM deal_offer_fixture_context WHERE key = 'invitation_activation')
+  ) = 1,
+  'Activation created duplicate Deals for one invitation'
+);
+SELECT pg_temp.assert_true(
+  (
+    SELECT count(*)
+    FROM public.admin_audit_logs
+    WHERE action = 'deal.activated_from_invitation'
+      AND entity_id =
+        (SELECT value::text FROM deal_offer_fixture_context WHERE key = 'deal_activation')
+  ) = 1,
+  'Deal activation audit evidence is missing or duplicated'
+);
+SELECT pg_temp.assert_true(
+  (SELECT status FROM public.deals WHERE id =
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_activation')) = 'agreed'
+  AND (SELECT count(*) FROM public.offers WHERE deal_id =
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_activation')) = 3
+  AND (SELECT count(*) FROM public.deal_contact_reveals WHERE deal_id =
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'deal_activation')) = 1
+  AND (SELECT count(*) FROM public.chat_messages WHERE conversation_id =
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'activation_conversation')) = 2,
+  'Activated Deal did not complete Offer, Chat, agreement, and reveal journey'
+);
+SELECT pg_temp.assert_true(
+  (SELECT status FROM public.rfq_invitations WHERE id =
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'invitation_activation')) = 'pending'
+  AND (SELECT count(*) FROM public.quotes WHERE rfq_id =
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'rfq_activation')) = 0
+  AND (SELECT count(*) FROM public.bookings WHERE rfq_id =
+    (SELECT value FROM deal_offer_fixture_context WHERE key = 'rfq_activation')) = 0,
+  'V2 invitation, quotation, or booking state changed during Deal activation journey'
+);
+INSERT INTO deal_offer_fixture_results VALUES ('deal_activation_idempotency_authority', 'pass');
+INSERT INTO deal_offer_fixture_results VALUES ('deal_activation_authenticated_end_to_end', 'pass');
 
 SELECT json_agg(
   json_build_object('fixture', fixture, 'result', result)

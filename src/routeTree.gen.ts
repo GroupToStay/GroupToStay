@@ -41,6 +41,7 @@ import { Route as AuthenticatedDashboardRfqsRouteImport } from './routes/_authen
 import { Route as AuthenticatedDashboardQuotationsRouteImport } from './routes/_authenticated/dashboard.quotations'
 import { Route as AuthenticatedDashboardProfileRouteImport } from './routes/_authenticated/dashboard.profile'
 import { Route as AuthenticatedDashboardNotificationsRouteImport } from './routes/_authenticated/dashboard.notifications'
+import { Route as AuthenticatedDashboardNegotiationsRouteImport } from './routes/_authenticated/dashboard.negotiations'
 import { Route as AuthenticatedDashboardMessagesRouteImport } from './routes/_authenticated/dashboard.messages'
 import { Route as AuthenticatedDashboardInvitationsRouteImport } from './routes/_authenticated/dashboard.invitations'
 import { Route as AuthenticatedDashboardHotelRouteImport } from './routes/_authenticated/dashboard.hotel'
@@ -232,6 +233,12 @@ const AuthenticatedDashboardNotificationsRoute =
   AuthenticatedDashboardNotificationsRouteImport.update({
     id: '/notifications',
     path: '/notifications',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardNegotiationsRoute =
+  AuthenticatedDashboardNegotiationsRouteImport.update({
+    id: '/negotiations',
+    path: '/negotiations',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardMessagesRoute =
@@ -436,6 +443,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/dashboard/messages': typeof AuthenticatedDashboardMessagesRouteWithChildren
+  '/dashboard/negotiations': typeof AuthenticatedDashboardNegotiationsRoute
   '/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard/quotations': typeof AuthenticatedDashboardQuotationsRoute
@@ -491,6 +499,7 @@ export interface FileRoutesByTo {
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/agency-profile': typeof AuthenticatedDashboardAgencyProfileRoute
   '/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
+  '/dashboard/negotiations': typeof AuthenticatedDashboardNegotiationsRoute
   '/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
   '/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/dashboard/quotations': typeof AuthenticatedDashboardQuotationsRoute
@@ -552,6 +561,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/hotel': typeof AuthenticatedDashboardHotelRouteWithChildren
   '/_authenticated/dashboard/invitations': typeof AuthenticatedDashboardInvitationsRoute
   '/_authenticated/dashboard/messages': typeof AuthenticatedDashboardMessagesRouteWithChildren
+  '/_authenticated/dashboard/negotiations': typeof AuthenticatedDashboardNegotiationsRoute
   '/_authenticated/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
   '/_authenticated/dashboard/profile': typeof AuthenticatedDashboardProfileRoute
   '/_authenticated/dashboard/quotations': typeof AuthenticatedDashboardQuotationsRoute
@@ -614,6 +624,7 @@ export interface FileRouteTypes {
     | '/dashboard/hotel'
     | '/dashboard/invitations'
     | '/dashboard/messages'
+    | '/dashboard/negotiations'
     | '/dashboard/notifications'
     | '/dashboard/profile'
     | '/dashboard/quotations'
@@ -669,6 +680,7 @@ export interface FileRouteTypes {
     | '/dashboard/admin'
     | '/dashboard/agency-profile'
     | '/dashboard/invitations'
+    | '/dashboard/negotiations'
     | '/dashboard/notifications'
     | '/dashboard/profile'
     | '/dashboard/quotations'
@@ -729,6 +741,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/hotel'
     | '/_authenticated/dashboard/invitations'
     | '/_authenticated/dashboard/messages'
+    | '/_authenticated/dashboard/negotiations'
     | '/_authenticated/dashboard/notifications'
     | '/_authenticated/dashboard/profile'
     | '/_authenticated/dashboard/quotations'
@@ -998,6 +1011,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/dashboard/notifications'
       preLoaderRoute: typeof AuthenticatedDashboardNotificationsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/negotiations': {
+      id: '/_authenticated/dashboard/negotiations'
+      path: '/negotiations'
+      fullPath: '/dashboard/negotiations'
+      preLoaderRoute: typeof AuthenticatedDashboardNegotiationsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/messages': {
@@ -1321,6 +1341,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardHotelRoute: typeof AuthenticatedDashboardHotelRouteWithChildren
   AuthenticatedDashboardInvitationsRoute: typeof AuthenticatedDashboardInvitationsRoute
   AuthenticatedDashboardMessagesRoute: typeof AuthenticatedDashboardMessagesRouteWithChildren
+  AuthenticatedDashboardNegotiationsRoute: typeof AuthenticatedDashboardNegotiationsRoute
   AuthenticatedDashboardNotificationsRoute: typeof AuthenticatedDashboardNotificationsRoute
   AuthenticatedDashboardProfileRoute: typeof AuthenticatedDashboardProfileRoute
   AuthenticatedDashboardQuotationsRoute: typeof AuthenticatedDashboardQuotationsRoute
@@ -1341,6 +1362,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardInvitationsRoute,
     AuthenticatedDashboardMessagesRoute:
       AuthenticatedDashboardMessagesRouteWithChildren,
+    AuthenticatedDashboardNegotiationsRoute:
+      AuthenticatedDashboardNegotiationsRoute,
     AuthenticatedDashboardNotificationsRoute:
       AuthenticatedDashboardNotificationsRoute,
     AuthenticatedDashboardProfileRoute: AuthenticatedDashboardProfileRoute,

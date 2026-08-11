@@ -36,7 +36,11 @@
       "offerNumber": "Offer {{number}}",
       "threadNumber": "Commercial thread {{number}}",
       "versionNumber": "Offer version {{number}}",
+      "versionCount_zero": "No versions",
       "versionCount_one": "{{count}} version",
+      "versionCount_two": "{{count}} versions",
+      "versionCount_few": "{{count}} versions",
+      "versionCount_many": "{{count}} versions",
       "versionCount_other": "{{count}} versions",
       "submittedBy": {
         "buyer": "Submitted by Agency",
@@ -182,6 +186,24 @@
         "notes": "Commercial notes cannot exceed 5,000 characters."
       }
     },
+    "initialOffer": {
+      "action": "Submit initial offer",
+      "title": "Submit the first offer",
+      "description": "Start this negotiation with structured commercial terms. The Agency can accept, reject, or counter them.",
+      "amount": "Total offer amount",
+      "currency": "Currency code",
+      "validUntil": "Valid until",
+      "notes": "Commercial notes",
+      "immutableNotice": "After submission, these terms remain immutable in the negotiation record. Revisions create a new Offer Version.",
+      "submit": "Submit offer",
+      "waiting": "The participating supplier will submit the first structured offer here.",
+      "errors": {
+        "amount": "Enter an amount greater than zero.",
+        "currency": "Enter a valid three-letter currency code.",
+        "validity": "Choose a future validity date and time.",
+        "notes": "Commercial notes cannot exceed 5,000 characters."
+      }
+    },
     "confirm": {
       "accept": {
         "title": "Accept this offer?",
@@ -210,6 +232,7 @@
       }
     },
     "feedback": {
+      "initialOffer": "Initial offer submitted. The Agency can now review the negotiation.",
       "accept": "Offer accepted and Deal moved to Agreed.",
       "counter": "Counteroffer submitted as a new immutable version.",
       "reject": "Offer rejected.",
@@ -255,6 +278,62 @@
         "title": "Unable to load Deal",
         "description": "The workspace could not be loaded safely. Please try again."
       }
+    }
+  },
+  "activation": {
+    "navigation": "Negotiations",
+    "dashboard": {
+      "title": "Active negotiations",
+      "description": "Continue structured offers, private chat, and Deal decisions."
+    },
+    "actions": {
+      "start": "Start negotiation",
+      "open": "Open negotiation",
+      "continue": "Continue negotiation",
+      "review": "Review offer",
+      "viewAll": "View negotiations",
+      "opening": "Opening negotiation..."
+    },
+    "feedback": {
+      "created": "Negotiation opened securely.",
+      "opened": "Negotiation loaded."
+    },
+    "attention": {
+      "your_action": "Your response required",
+      "waiting_counterparty": "Waiting for the other party",
+      "agreed": "Agreed",
+      "closed": "Closed",
+      "cancelled": "Cancelled"
+    },
+    "list": {
+      "metaTitle": "Active negotiations - GroupToStay",
+      "title": "Active negotiations",
+      "description": "Review every Deal available to your active organization and continue the next commercial step.",
+      "loading": "Loading negotiations",
+      "errorTitle": "Unable to load negotiations",
+      "emptyTitle": "No active negotiations yet",
+      "emptyDescription": "Eligible invitations will appear here after you start or receive a structured negotiation.",
+      "requestFallback": "Group accommodation request",
+      "lastActivity": "Last activity {{date}}",
+      "latestOffer": "Latest offer",
+      "awaitingOffer": "Awaiting supplier offer"
+    },
+    "legacy": {
+      "replacedByNegotiation": "This interaction is active in the structured Negotiation Workspace. The legacy quotation remains visible as historical context.",
+      "directNegotiationTitle": "Structured negotiation underway",
+      "directNegotiationDescription": "This supplier is negotiating through the Deal workspace, so no duplicate legacy quotation is required."
+    },
+    "unavailable": {
+      "title": "Negotiations are not enabled",
+      "description": "This environment is still using the existing GroupToStay quotation workflow."
+    },
+    "errors": {
+      "backend_unavailable": "Structured negotiations are not enabled in this environment.",
+      "network": "The connection was interrupted. Please try again.",
+      "permission": "This negotiation is not available to your active organization role.",
+      "stale": "The invitation changed. Reload the page and try again.",
+      "state_changed": "This invitation is no longer eligible for a new negotiation.",
+      "unknown": "The negotiation could not be opened safely. Please try again."
     }
   }
 }

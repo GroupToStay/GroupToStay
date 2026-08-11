@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Plus,
   Send,
+  Handshake,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -25,6 +26,7 @@ import { WorkspaceSection } from "@/components/workspace/section";
 import { QuickActions } from "@/components/workspace/quick-actions";
 import { TaskGrid } from "@/components/workspace/task-card";
 import i18n from "@/lib/i18n";
+import { dealActivationEnabled } from "@/features/deals/deal-activation-config";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({ meta: [{ title: i18n.t("dashboard.meta.title") }] }),
@@ -99,6 +101,18 @@ function OrganizerHome() {
   });
 
   const tasks = [
+    ...(dealActivationEnabled
+      ? [
+          {
+            id: "negotiations",
+            title: t("deals:activation.dashboard.title"),
+            description: t("deals:activation.dashboard.description"),
+            to: "/dashboard/negotiations",
+            icon: Handshake,
+            tone: "primary" as const,
+          },
+        ]
+      : []),
     {
       id: "active-rfqs",
       title: t("dashboard.tasks.agency.activeRfqs"),
@@ -137,6 +151,16 @@ function OrganizerHome() {
   ];
 
   const quickActions = [
+    ...(dealActivationEnabled
+      ? [
+          {
+            id: "negotiations",
+            label: t("deals:activation.navigation"),
+            to: "/dashboard/negotiations",
+            icon: Handshake,
+          },
+        ]
+      : []),
     {
       id: "new-rfq",
       label: t("dashboard.newRfq"),
@@ -305,6 +329,18 @@ function HotelHome() {
   });
 
   const tasks = [
+    ...(dealActivationEnabled
+      ? [
+          {
+            id: "negotiations",
+            title: t("deals:activation.dashboard.title"),
+            description: t("deals:activation.dashboard.description"),
+            to: "/dashboard/negotiations",
+            icon: Handshake,
+            tone: "primary" as const,
+          },
+        ]
+      : []),
     {
       id: "invitations",
       title: t("dashboard.tasks.hotel.invitations"),
@@ -343,6 +379,16 @@ function HotelHome() {
   ];
 
   const quickActions = [
+    ...(dealActivationEnabled
+      ? [
+          {
+            id: "negotiations",
+            label: t("deals:activation.navigation"),
+            to: "/dashboard/negotiations",
+            icon: Handshake,
+          },
+        ]
+      : []),
     {
       id: "review-invitations",
       label: t("dashboard.quickActions.hotel.reviewInvitations"),

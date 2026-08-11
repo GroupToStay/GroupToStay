@@ -44,7 +44,7 @@ export async function loadDealWorkspace(
       ? supabase
           .from("rfqs")
           .select(
-            "title, destination_city, destination_country, check_in, check_out, guests_count, rooms_needed",
+            "title, destination_city, destination_country, check_in, check_out, guests_count, rooms_needed, currency",
           )
           .eq("id", deal.source_rfq_id)
           .maybeSingle()
@@ -114,6 +114,48 @@ export type CounterOfferInput = {
   validUntil: string | null;
   notes: string | null;
 };
+
+export type InitialOfferInput = {
+  dealId: string;
+  amount: number;
+  currency: string;
+  validUntil: string | null;
+  notes: string | null;
+  requestId: string;
+};
+
+type InitialOfferResult = Database["public"]["Functions"]["submit_initial_deal_offer"]["Returns"];
+type InitialOfferArgs = {
+  _deal_id: string;
+  _amount: number;
+  _currency: string;
+  _valid_until: string | null;
+  _notes: string | null;
+  _request_id: string;
+};
+type InitialOfferInvoker = (
+  args: InitialOfferArgs,
+) => PromiseLike<{ data: InitialOfferResult | null; error: unknown }>;
+
+const invokeInitialOffer: InitialOfferInvoker = (args) =>
+  supabase.rpc("submit_initial_deal_offer", args as never);
+
+export async function executeInitialOffer(
+  input: InitialOfferInput,
+  invoke: InitialOfferInvoker = invokeInitialOffer,
+): Promise<InitialOfferResult> {
+  const result = await invoke({
+    _deal_id: input.dealId,
+    _amount: input.amount,
+    _currency: input.currency,
+    _valid_until: input.validUntil,
+    _notes: input.notes,
+    _request_id: input.requestId,
+  });
+
+  if (result.error) throw result.error;
+  return result.data!;
+}
 
 type CounterOfferResult = Database["public"]["Functions"]["counter_deal_offer"]["Returns"];
 type CounterOfferArgs = {

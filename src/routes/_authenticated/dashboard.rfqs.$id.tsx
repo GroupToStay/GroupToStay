@@ -32,6 +32,8 @@ import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/workspace/page-header";
 import { WorkspaceSection } from "@/components/workspace/section";
 import { StatusBadge } from "@/components/workspace/status-badge";
+import { dealActivationEnabled } from "@/features/deals/deal-activation-config";
+import { DealActivationButton } from "@/features/deals/DealActivationButton";
 
 export const Route = createFileRoute("/_authenticated/dashboard/rfqs/$id")({
   head: () => ({ meta: [{ title: i18n.t("dashboard.requests.detailMetaTitle") }] }),
@@ -72,7 +74,16 @@ function Page() {
         .select("*, hotels(name, city, country, star_rating)")
         .eq("rfq_id", id)
         .order("total_price", { ascending: true });
-      return { rfq, quotes: quotes ?? [] };
+      let deals: any[] = [];
+      if (dealActivationEnabled) {
+        const { data: dealRows, error: dealError } = await supabase
+          .from("deals")
+          .select("id, status, source_invitation_id, source_hotel_id")
+          .eq("source_rfq_id", id);
+        if (dealError) throw dealError;
+        deals = dealRows ?? [];
+      }
+      return { rfq, quotes: quotes ?? [], deals };
     },
   });
 
@@ -138,7 +149,11 @@ function Page() {
 
   if (isLoading) return <div className="text-muted-foreground">{t("common.loading")}</div>;
   if (!data) throw notFound();
-  const { rfq, quotes } = data;
+  const { rfq, quotes, deals } = data;
+  const quotedHotelIds = new Set(quotes.map((quote: any) => quote.hotel_id));
+  const negotiationsWithoutLegacyQuote = deals.filter(
+    (deal: any) => !quotedHotelIds.has(deal.source_hotel_id),
+  );
 
   return (
     <div className="space-y-6">
@@ -169,6 +184,14 @@ function Page() {
         meta={<StatusBadge status={rfq.status} />}
         actions={
           <>
+            {dealActivationEnabled ? (
+              <Button variant="gold" size="sm" asChild>
+                <Link to="/dashboard/negotiations">
+                  <MessageSquare className="h-4 w-4" />
+                  {t("deals:activation.actions.viewAll")}
+                </Link>
+              </Button>
+            ) : null}
             {["open", "quoting", "under_review"].includes(rfq.status) && (
               <Button variant="outline" size="sm" onClick={() => closeMut.mutate()}>
                 {t("dashboard.close")}
@@ -244,73 +267,119 @@ function Page() {
           </div>
         }
       >
-        {quotes.length === 0 ? (
-          <EmptyState icon={GitCompare} title={t("dashboard.noQuotesYet")} />
-        ) : (
-          <div className="space-y-3">
-            {quotes.map((q: any) => (
-              <Card key={q.id}>
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between gap-4 flex-wrap">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-lg font-semibold text-foreground">
-                          {q.hotels?.name ?? t("role.hotel")}
-                        </h3>
-                        <StatusBadge status={q.status} />
-                      </div>
-                      <div className="mt-1 text-sm text-muted-foreground flex items-center gap-3 flex-wrap">
-                        <span>
-                          {q.hotels?.city}, {q.hotels?.country}
-                        </span>
-                        <span className="flex text-gold">
-                          {Array.from({ length: q.hotels?.star_rating ?? 0 }).map((_, i) => (
-                            <Star key={i} className="h-3 w-3 fill-current" />
-                          ))}
-                        </span>
-                        <span>{t(`rfq.boards.${q.board_included}`)}</span>
-                      </div>
-                      <p className="text-sm mt-2">{q.notes}</p>
+        {negotiationsWithoutLegacyQuote.length > 0 ? (
+          <div className="mb-4 space-y-3">
+            {negotiationsWithoutLegacyQuote.map((deal: any) => (
+              <Card key={deal.id}>
+                <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-semibold text-foreground">
+                        {t("deals:activation.legacy.directNegotiationTitle")}
+                      </h3>
+                      <StatusBadge status={deal.status} />
                     </div>
-                    <div className="text-end">
-                      <div className="text-2xl font-semibold text-foreground tabular-nums">
-                        {q.currency} {formatNumber(q.total_price)}
-                      </div>
-                      {q.price_per_room_night && (
-                        <div className="text-xs text-muted-foreground">
-                          {q.currency} {q.price_per_room_night}
-                          {t("hotels.perNight")}
-                        </div>
-                      )}
-                      {["submitted", "viewed", "shortlisted"].includes(q.status) &&
-                        ["open", "quoting", "under_review"].includes(rfq.status) && (
-                          <div className="flex gap-2 justify-end mt-3">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() =>
-                                updateQuote.mutate({ qid: q.id, status: "shortlisted" })
-                              }
-                            >
-                              {t("dashboard.shortlist")}
-                            </Button>
-                            <Button size="sm" onClick={() => acceptQuote.mutate(q)}>
-                              {t("dashboard.accept")}
-                            </Button>
-                          </div>
-                        )}
-                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("deals:activation.legacy.directNegotiationDescription")}
+                    </p>
                   </div>
-                  <MessageThread
-                    rfqId={id}
-                    otherId={null}
-                    hotelName={q.hotels?.name ?? t("role.hotel")}
+                  <DealActivationButton
+                    invitationId={deal.source_invitation_id}
+                    dealId={deal.id}
+                    label="review"
                   />
                 </CardContent>
               </Card>
             ))}
           </div>
-        )}
+        ) : null}
+
+        {quotes.length === 0 && negotiationsWithoutLegacyQuote.length === 0 ? (
+          <EmptyState icon={GitCompare} title={t("dashboard.noQuotesYet")} />
+        ) : quotes.length > 0 ? (
+          <div className="space-y-3">
+            {quotes.map((q: any) => {
+              const deal = deals.find((candidate: any) => candidate.source_hotel_id === q.hotel_id);
+              return (
+                <Card key={q.id}>
+                  <CardContent className="p-5">
+                    <div className="flex items-start justify-between gap-4 flex-wrap">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-lg font-semibold text-foreground">
+                            {q.hotels?.name ?? t("role.hotel")}
+                          </h3>
+                          <StatusBadge status={q.status} />
+                        </div>
+                        <div className="mt-1 text-sm text-muted-foreground flex items-center gap-3 flex-wrap">
+                          <span>
+                            {q.hotels?.city}, {q.hotels?.country}
+                          </span>
+                          <span className="flex text-gold">
+                            {Array.from({ length: q.hotels?.star_rating ?? 0 }).map((_, i) => (
+                              <Star key={i} className="h-3 w-3 fill-current" />
+                            ))}
+                          </span>
+                          <span>{t(`rfq.boards.${q.board_included}`)}</span>
+                        </div>
+                        <p className="text-sm mt-2">{q.notes}</p>
+                      </div>
+                      <div className="text-end">
+                        <div className="text-2xl font-semibold text-foreground tabular-nums">
+                          {q.currency} {formatNumber(q.total_price)}
+                        </div>
+                        {q.price_per_room_night && (
+                          <div className="text-xs text-muted-foreground">
+                            {q.currency} {q.price_per_room_night}
+                            {t("hotels.perNight")}
+                          </div>
+                        )}
+                        {deal ? (
+                          <div className="mt-3 flex justify-end">
+                            <DealActivationButton
+                              invitationId={deal.source_invitation_id}
+                              dealId={deal.id}
+                              label="review"
+                            />
+                          </div>
+                        ) : (
+                          ["submitted", "viewed", "shortlisted"].includes(q.status) &&
+                          ["open", "quoting", "under_review"].includes(rfq.status) && (
+                            <div className="flex gap-2 justify-end mt-3">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  updateQuote.mutate({ qid: q.id, status: "shortlisted" })
+                                }
+                              >
+                                {t("dashboard.shortlist")}
+                              </Button>
+                              <Button size="sm" onClick={() => acceptQuote.mutate(q)}>
+                                {t("dashboard.accept")}
+                              </Button>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                    {deal ? (
+                      <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">
+                        {t("deals:activation.legacy.replacedByNegotiation")}
+                      </p>
+                    ) : (
+                      <MessageThread
+                        rfqId={id}
+                        otherId={null}
+                        hotelName={q.hotels?.name ?? t("role.hotel")}
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ) : null}
       </WorkspaceSection>
     </div>
   );
