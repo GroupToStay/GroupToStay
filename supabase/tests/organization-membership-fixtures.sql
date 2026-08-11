@@ -100,6 +100,24 @@ BEGIN
     'platform admin was incorrectly retained as a marketplace organization owner'
   );
 
+  PERFORM pg_temp.assert_true(
+    (SELECT agency_verification_status::text FROM public.profiles WHERE id = _agency_owner)
+      IN ('draft', 'rejected'),
+    'blank display-name fixture requires an editable agency profile'
+  );
+  PERFORM set_config('request.jwt.claim.sub', _agency_owner::text, true);
+  UPDATE public.profiles
+  SET trade_name = '', company_name = 'Fixture Agency'
+  WHERE id = _agency_owner;
+  PERFORM set_config('request.jwt.claim.sub', _admin::text, true);
+  DELETE FROM public.organization_memberships WHERE organization_id = _agency_org;
+  DELETE FROM public.organizations WHERE id = _agency_org;
+  PERFORM public.provision_legacy_organization(_agency_owner, 'agency');
+  PERFORM pg_temp.assert_true(
+    (SELECT display_name FROM public.organizations WHERE id = _agency_org) = 'Fixture Agency',
+    'blank profile fields bypassed the deterministic organization display-name fallback'
+  );
+
   BEGIN
     INSERT INTO public.organization_memberships (
       id, organization_id, user_id, membership_role, status, invited_by, joined_at
@@ -162,6 +180,7 @@ BEGIN
   );
 
   INSERT INTO organization_fixture_results VALUES ('provisioning_and_backfill', 'pass');
+  INSERT INTO organization_fixture_results VALUES ('blank_display_name_fallback', 'pass');
   INSERT INTO organization_fixture_results VALUES ('multiple_memberships', 'pass');
   INSERT INTO organization_fixture_results VALUES ('hotel_ownership_mapping', 'pass');
   INSERT INTO organization_fixture_results VALUES ('audit_events', 'pass');
