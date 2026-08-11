@@ -10,6 +10,7 @@ import { useApplicationLocale } from "@/lib/application-locale";
 import { PageHeader } from "@/components/workspace/page-header";
 import { StatusBadge } from "@/components/workspace/status-badge";
 import i18n from "@/lib/i18n";
+import { dealActivationEnabled } from "@/features/deals/deal-activation-config";
 
 export const Route = createFileRoute("/_authenticated/dashboard/quotations")({
   head: () => ({ meta: [{ title: i18n.t("dashboard.quotations.metaTitle") }] }),
@@ -36,8 +37,24 @@ function Page() {
         .select("*, hotels(name, city, country, star_rating)")
         .in("rfq_id", rfqIds)
         .order("created_at", { ascending: false });
+      let deals: any[] = [];
+      if (dealActivationEnabled) {
+        const { data: dealRows, error: dealError } = await supabase
+          .from("deals")
+          .select("id, source_rfq_id, source_hotel_id")
+          .in("source_rfq_id", rfqIds);
+        if (dealError) throw dealError;
+        deals = dealRows ?? [];
+      }
       const byId = new Map((rfqs ?? []).map((r) => [r.id, r]));
-      return (quotes ?? []).map((q: any) => ({ ...q, rfq: byId.get(q.rfq_id) }));
+      return (quotes ?? []).map((q: any) => ({
+        ...q,
+        rfq: byId.get(q.rfq_id),
+        deal:
+          deals.find(
+            (deal) => deal.source_rfq_id === q.rfq_id && deal.source_hotel_id === q.hotel_id,
+          ) ?? null,
+      }));
     },
   });
 
@@ -95,14 +112,25 @@ function Page() {
                     {q.currency} {formatNumber(q.total_price)}
                   </div>
                   <StatusBadge status={q.status} className="mt-2" />
-                  <Link
-                    to="/dashboard/rfqs/$id"
-                    params={{ id: q.rfq_id }}
-                    className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary"
-                  >
-                    {t("dashboard.details")}
-                    <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
-                  </Link>
+                  {q.deal ? (
+                    <Link
+                      to="/deals/$dealId"
+                      params={{ dealId: q.deal.id }}
+                      className="mt-2 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary"
+                    >
+                      {t("deals:activation.actions.review")}
+                      <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/dashboard/rfqs/$id"
+                      params={{ id: q.rfq_id }}
+                      className="mt-2 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary"
+                    >
+                      {t("dashboard.details")}
+                      <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                    </Link>
+                  )}
                 </div>
               </CardContent>
             </Card>

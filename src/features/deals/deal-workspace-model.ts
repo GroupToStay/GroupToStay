@@ -15,6 +15,7 @@ export type DealSourceRfq = Pick<
   | "destination_country"
   | "guests_count"
   | "rooms_needed"
+  | "currency"
   | "title"
 >;
 
@@ -44,6 +45,9 @@ export type OfferThreadHistory = {
   id: string;
   offers: OfferRow[];
 };
+
+export type NegotiationAttention =
+  "your_action" | "waiting_counterparty" | "agreed" | "closed" | "cancelled";
 
 export type DealWorkspaceErrorKind =
   "backend_unavailable" | "network" | "permission" | "stale" | "state_changed" | "unknown";
@@ -96,6 +100,14 @@ export function canUseSupplierCommands(actor: DealWorkspaceActor) {
     actor.isActive &&
     actor.role !== null &&
     SUPPLIER_COMMAND_ROLES.has(actor.role)
+  );
+}
+
+export function canSubmitInitialOffer(snapshot: DealWorkspaceSnapshot) {
+  return (
+    snapshot.deal.status === "active" &&
+    snapshot.offers.length === 0 &&
+    canUseSupplierCommands(snapshot.actor)
   );
 }
 
@@ -175,6 +187,34 @@ export function selectCommercialOffer(offers: OfferRow[]) {
     [...offers].sort((left, right) => right.created_at.localeCompare(left.created_at))[0] ??
     null
   );
+}
+
+export function selectLatestOfferVersion(offers: OfferRow[]) {
+  return (
+    [...offers].sort((left, right) => {
+      const createdOrder = right.created_at.localeCompare(left.created_at);
+      return createdOrder !== 0 ? createdOrder : right.version_number - left.version_number;
+    })[0] ?? null
+  );
+}
+
+export function getNegotiationAttention(
+  deal: DealRow,
+  latestOffer: OfferRow | null,
+  actor: DealWorkspaceActor,
+): NegotiationAttention {
+  if (deal.status === "agreed") return "agreed";
+  if (deal.status === "closed") return "closed";
+  if (deal.status === "cancelled") return "cancelled";
+
+  if (!latestOffer) {
+    return actor.side === "supplier" ? "your_action" : "waiting_counterparty";
+  }
+
+  if (latestOffer.status === "accepted") return "agreed";
+  const submittingSide = getOfferSubmittingSide(deal, latestOffer);
+  if (submittingSide === null || actor.side === "inspector") return "waiting_counterparty";
+  return submittingSide === actor.side ? "waiting_counterparty" : "your_action";
 }
 
 export function groupOfferHistory(offers: OfferRow[]): OfferThreadHistory[] {

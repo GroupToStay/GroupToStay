@@ -59,6 +59,7 @@ import { StatusBadge } from "@/components/workspace/status-badge";
 import { WorkspaceSection } from "@/components/workspace/section";
 import {
   classifyDealWorkspaceError,
+  canSubmitInitialOffer,
   getOfferSubmittingSide,
   getDealActions,
   getOfferActions,
@@ -74,11 +75,14 @@ import {
   dealWorkspaceQueryKey,
   executeDealWorkspaceAction,
   executeCounterOffer,
+  executeInitialOffer,
   loadDealWorkspace,
   type CounterOfferInput,
+  type InitialOfferInput,
 } from "@/features/deals/deal-workspace-service";
 import { DealChatPanel } from "@/features/deals/DealChatPanel";
 import { DealContactPanel } from "@/features/deals/DealContactPanel";
+import { InitialOfferDialog } from "@/features/deals/InitialOfferDialog";
 
 export function NegotiationWorkspace({ dealId }: { dealId: string }) {
   const { t } = useTranslation("deals");
@@ -137,6 +141,26 @@ export function NegotiationWorkspace({ dealId }: { dealId: string }) {
     },
   });
 
+  const initialOfferMutation = useMutation({
+    mutationFn: (input: InitialOfferInput) => executeInitialOffer(input),
+    onMutate: () => setAnnouncement(""),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: dealWorkspaceQueryKey(dealId, user?.id) });
+      const message = t("workspace.feedback.initialOffer");
+      setAnnouncement(message);
+      toast.success(message);
+    },
+    onError: async (error) => {
+      const kind = classifyDealWorkspaceError(error);
+      const message = t(`workspace.errors.${kind}`);
+      if (kind === "stale" || kind === "state_changed") {
+        await queryClient.invalidateQueries({ queryKey: dealWorkspaceQueryKey(dealId, user?.id) });
+      }
+      setAnnouncement(message);
+      toast.error(message);
+    },
+  });
+
   async function runAction(action: DealWorkspaceAction, targetId: string) {
     try {
       await actionMutation.mutateAsync({ action, targetId });
@@ -149,6 +173,15 @@ export function NegotiationWorkspace({ dealId }: { dealId: string }) {
   async function submitCounter(input: CounterOfferInput) {
     try {
       await counterMutation.mutateAsync(input);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async function submitInitialOffer(input: InitialOfferInput) {
+    try {
+      await initialOfferMutation.mutateAsync(input);
       return true;
     } catch {
       return false;
@@ -239,7 +272,20 @@ export function NegotiationWorkspace({ dealId }: { dealId: string }) {
                   icon={History}
                   title={t("workspace.offers.emptyTitle")}
                   description={t("workspace.offers.emptyDescription")}
-                />
+                >
+                  {canSubmitInitialOffer(snapshot) ? (
+                    <InitialOfferDialog
+                      dealId={snapshot.deal.id}
+                      defaultCurrency={snapshot.sourceRfq?.currency ?? "SAR"}
+                      pending={initialOfferMutation.isPending}
+                      onSubmit={submitInitialOffer}
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      {t("workspace.initialOffer.waiting")}
+                    </p>
+                  )}
+                </EmptyState>
               ) : (
                 <div className="space-y-6" aria-label={t("workspace.offers.historyLabel")}>
                   {offerThreads.map((thread, threadIndex) => (
@@ -269,7 +315,11 @@ export function NegotiationWorkspace({ dealId }: { dealId: string }) {
                             <OfferCard
                               offer={offer}
                               deal={snapshot}
-                              pending={actionMutation.isPending || counterMutation.isPending}
+                              pending={
+                                actionMutation.isPending ||
+                                counterMutation.isPending ||
+                                initialOfferMutation.isPending
+                              }
                               formatDateTime={formatDateTime}
                               formatNumber={formatNumber}
                               onAction={runAction}
