@@ -11,7 +11,7 @@ import {
 } from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   canonicalizeResolvedCityRows,

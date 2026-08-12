@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { AccessDenied } from "@/components/access-denied";
 import i18n from "@/lib/i18n";
@@ -15,6 +17,6 @@ export const Route = createFileRoute("/hotel-list")({
   component: HotelListAccessDenied,
 });
 
-function HotelListAccessDenied() {
+export function HotelListAccessDenied() {
   return <AccessDenied />;
 }

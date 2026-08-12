@@ -17,8 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     env:
-      VITE_SUPABASE_URL: https://atxecflhmphaqqkatjlm.supabase.co
-      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: https://atxecflhmphaqqkatjlm.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_V3_DEAL_ACTIVATION_ENABLED: "true"
 
     steps:
       - name: Checkout repository

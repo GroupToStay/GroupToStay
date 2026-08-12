@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link, Navigate, useNavigate, useSearch } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
@@ -48,10 +50,10 @@ export const Route = createFileRoute("/request-quote")({
   component: Page,
 });
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const search = useSearch({ from: "/request-quote" });
+  const search = validateRfqSearch(useSearch({ from: "/request-quote" }));
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isOrganizer, loading: rolesLoading } = useRoles();
   const [step, setStep] = useState(1);

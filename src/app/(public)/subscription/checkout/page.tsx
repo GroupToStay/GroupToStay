@@ -1,6 +1,5 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/subscription.checkout";
-export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+import { redirect } from "next/navigation";
+
+export default function SubscriptionCheckoutRedirect() {
+  redirect("/subscription/coming-soon");
 }

@@ -111,7 +111,8 @@ export function RouterOutletProvider({
 }
 
 export function Outlet({ children }: { children?: ReactNode }) {
-  return children ?? useContext(OutletContext);
+  const outlet = useContext(OutletContext);
+  return children ?? outlet;
 }
 
 export function redirect({

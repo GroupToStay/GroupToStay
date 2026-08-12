@@ -1,6 +1,8 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/_authenticated/dashboard.quotations";
+import type { Metadata } from "next";
+import { Page as RoutePage } from "@/routes/_authenticated/dashboard.quotations";
+
+export const metadata: Metadata = { title: "Quotations" };
+
 export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+  return <RoutePage />;
 }

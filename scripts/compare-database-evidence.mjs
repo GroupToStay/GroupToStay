@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { basename, join, relative, resolve } from "node:path";
+import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));

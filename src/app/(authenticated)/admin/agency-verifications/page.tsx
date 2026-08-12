@@ -1,6 +1,10 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/_authenticated/admin.agency-verifications";
-export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+import type { Metadata } from "next";
+import { Page as AgencyVerifications } from "@/routes/_authenticated/admin.agency-verifications";
+import { requireAdminPermission } from "@/lib/auth/server-authorization";
+
+export const metadata: Metadata = { title: "Agency verifications | GroupToStay" };
+
+export default async function AgencyVerificationsPage() {
+  await requireAdminPermission("manage_agencies");
+  return <AgencyVerifications />;
 }

@@ -1,6 +1,12 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/requests.index";
+import type { Metadata } from "next";
+import { Page as RoutePage } from "@/routes/requests.index";
+
+export const metadata: Metadata = {
+  title: "Group requests",
+  alternates: { canonical: "/requests" },
+  openGraph: { url: "https://group-to-stay.vercel.app/requests" },
+};
+
 export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+  return <RoutePage />;
 }

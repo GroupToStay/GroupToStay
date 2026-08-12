@@ -24,18 +24,20 @@ config({
 });
 
 const missing = [];
-const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.VITE_SUPABASE_URL)?.trim();
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const publicKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() ??
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ??
-  process.env.VITE_SUPABASE_ANON_KEY?.trim() ??
-  process.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
+const dealActivationFlag = process.env.NEXT_PUBLIC_V3_DEAL_ACTIVATION_ENABLED?.trim();
 
-if (!supabaseUrl) missing.push("NEXT_PUBLIC_SUPABASE_URL (or VITE_SUPABASE_URL)");
+if (!supabaseUrl) missing.push("NEXT_PUBLIC_SUPABASE_URL");
 if (!publicKey) {
-  missing.push(
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY (or VITE_SUPABASE_ANON_KEY or VITE_SUPABASE_PUBLISHABLE_KEY)",
-  );
+  missing.push("NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
+}
+if (!dealActivationFlag) missing.push("NEXT_PUBLIC_V3_DEAL_ACTIVATION_ENABLED");
+if (dealActivationFlag && !["true", "false"].includes(dealActivationFlag.toLowerCase())) {
+  console.error("[env] NEXT_PUBLIC_V3_DEAL_ACTIVATION_ENABLED must be true or false.");
+  process.exit(1);
 }
 
 if (supabaseUrl) {
@@ -44,11 +46,11 @@ if (supabaseUrl) {
     if (parsed.protocol !== "https:") throw new Error("Supabase URL must use HTTPS.");
     const expectedHost = `${projectId}.supabase.co`;
     if (parsed.hostname !== expectedHost) {
-      console.error(`[env] VITE_SUPABASE_URL must target ${expectedHost}.`);
+      console.error(`[env] NEXT_PUBLIC_SUPABASE_URL must target ${expectedHost}.`);
       process.exit(1);
     }
   } catch {
-    console.error("[env] VITE_SUPABASE_URL must be a valid HTTPS URL.");
+    console.error("[env] NEXT_PUBLIC_SUPABASE_URL must be a valid HTTPS URL.");
     process.exit(1);
   }
 }

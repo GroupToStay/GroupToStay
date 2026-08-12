@@ -1,6 +1,12 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/trust";
+import type { Metadata } from "next";
+import { TrustPage as RoutePage } from "@/routes/trust";
+
+export const metadata: Metadata = {
+  title: "Trust and safety",
+  alternates: { canonical: "/trust" },
+  openGraph: { url: "https://group-to-stay.vercel.app/trust" },
+};
+
 export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+  return <RoutePage />;
 }

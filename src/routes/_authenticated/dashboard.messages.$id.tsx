@@ -1,4 +1,7 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,9 +54,9 @@ type Conversation = {
   hotels?: { name: string | null; city?: string | null } | null;
 };
 
-function ChatPage() {
+export function ChatPage() {
   const { t } = useTranslation();
-  const { id } = Route.useParams();
+  const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { avatarUrl, displayName } = useAccountIdentity();
   const userId = user?.id;

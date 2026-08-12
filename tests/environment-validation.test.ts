@@ -10,9 +10,10 @@ let emptyWorkingDirectory: string;
 
 function runEnvironmentCheck(values: Record<string, string> = {}) {
   const env = { ...process.env };
-  delete env.VITE_SUPABASE_URL;
-  delete env.VITE_SUPABASE_ANON_KEY;
-  delete env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  delete env.NEXT_PUBLIC_SUPABASE_URL;
+  delete env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  delete env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  delete env.NEXT_PUBLIC_V3_DEAL_ACTIVATION_ENABLED;
 
   return spawnSync(process.execPath, [scriptPath], {
     cwd: emptyWorkingDirectory,
@@ -34,14 +35,16 @@ describe("build environment validation", () => {
     const result = runEnvironmentCheck();
 
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain("VITE_SUPABASE_URL");
-    expect(result.stderr).toContain("VITE_SUPABASE_ANON_KEY or VITE_SUPABASE_PUBLISHABLE_KEY");
+    expect(result.stderr).toContain("NEXT_PUBLIC_SUPABASE_URL");
+    expect(result.stderr).toContain("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+    expect(result.stderr).toContain("NEXT_PUBLIC_V3_DEAL_ACTIVATION_ENABLED");
   });
 
   it("accepts the Supabase anonymous key", () => {
     const result = runEnvironmentCheck({
-      VITE_SUPABASE_URL: expectedUrl,
-      VITE_SUPABASE_ANON_KEY: "public-anon-key",
+      NEXT_PUBLIC_SUPABASE_URL: expectedUrl,
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "public-anon-key",
+      NEXT_PUBLIC_V3_DEAL_ACTIVATION_ENABLED: "true",
     });
 
     expect(result.status).toBe(0);
@@ -50,8 +53,9 @@ describe("build environment validation", () => {
 
   it("accepts the Supabase publishable key as an alternative", () => {
     const result = runEnvironmentCheck({
-      VITE_SUPABASE_URL: expectedUrl,
-      VITE_SUPABASE_PUBLISHABLE_KEY: "public-publishable-key",
+      NEXT_PUBLIC_SUPABASE_URL: expectedUrl,
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "public-publishable-key",
+      NEXT_PUBLIC_V3_DEAL_ACTIVATION_ENABLED: "false",
     });
 
     expect(result.status).toBe(0);
@@ -59,11 +63,34 @@ describe("build environment validation", () => {
 
   it("rejects a different Supabase project", () => {
     const result = runEnvironmentCheck({
-      VITE_SUPABASE_URL: "https://divgqjlotvmlmkzjtlzw.supabase.co",
-      VITE_SUPABASE_ANON_KEY: "public-anon-key",
+      NEXT_PUBLIC_SUPABASE_URL: "https://divgqjlotvmlmkzjtlzw.supabase.co",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "public-anon-key",
+      NEXT_PUBLIC_V3_DEAL_ACTIVATION_ENABLED: "true",
     });
 
     expect(result.status).toBe(1);
     expect(result.stderr).toContain("atxecflhmphaqqkatjlm.supabase.co");
+  });
+
+  it("rejects legacy Vite variables instead of producing a misconfigured Next bundle", () => {
+    const result = runEnvironmentCheck({
+      VITE_SUPABASE_URL: expectedUrl,
+      VITE_SUPABASE_ANON_KEY: "legacy-key",
+      VITE_V3_DEAL_ACTIVATION_ENABLED: "true",
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("NEXT_PUBLIC_SUPABASE_URL");
+  });
+
+  it("rejects an invalid V3 activation flag", () => {
+    const result = runEnvironmentCheck({
+      NEXT_PUBLIC_SUPABASE_URL: expectedUrl,
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "public-anon-key",
+      NEXT_PUBLIC_V3_DEAL_ACTIVATION_ENABLED: "enabled",
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("must be true or false");
   });
 });

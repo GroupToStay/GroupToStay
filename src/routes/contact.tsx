@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
@@ -20,7 +22,7 @@ export const Route = createFileRoute("/contact")({
   component: Page,
 });
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   const [sending, setSending] = useState(false);
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {

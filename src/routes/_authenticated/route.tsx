@@ -1,6 +1,7 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+"use client";
+
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { supabase } from "@/integrations/supabase/client";
 import { useRoles } from "@/hooks/use-role";
 import { SiteHeader } from "@/components/site-header";
 import { useUnreadMessageCount } from "@/hooks/use-unread-messages";
@@ -30,17 +31,10 @@ import { dealActivationEnabled } from "@/features/deals/deal-activation-config";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) {
-      throw redirect({ to: "/auth", reloadDocument: true });
-    }
-    return { user: data.user };
-  },
   component: AuthLayout,
 });
 
-function AuthLayout() {
+export function AuthLayout() {
   const { t } = useTranslation();
   const { isHotel, isAdmin, isOrganizer, loading: rolesLoading, permissions } = useRoles();
   const unread = useUnreadMessageCount();

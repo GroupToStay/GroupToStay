@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Server } from "lucide-react";
@@ -10,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/hotel/pms")({
   component: Page,
 });
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   return (
     <div className="max-w-3xl space-y-6">

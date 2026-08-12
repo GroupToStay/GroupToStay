@@ -1,4 +1,7 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
+import { useParams } from "next/navigation";
 
 import { EmptyState } from "@/components/empty-state";
 import { ShieldCheck } from "lucide-react";
@@ -12,8 +15,8 @@ export const Route = createFileRoute("/_authenticated/deals/$dealId")({
   component: DealWorkspaceRoute,
 });
 
-function DealWorkspaceRoute() {
-  const { dealId } = Route.useParams();
+export function DealWorkspaceRoute() {
+  const { dealId } = useParams<{ dealId: string }>();
   const { t } = useTranslation("deals");
 
   if (!isDealId(dealId)) {

@@ -1,6 +1,12 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/hotel-list";
+import type { Metadata } from "next";
+import { HotelListAccessDenied as RoutePage } from "@/routes/hotel-list";
+
+export const metadata: Metadata = {
+  title: "Hotel directory",
+  alternates: { canonical: "/hotel-list" },
+  openGraph: { url: "https://group-to-stay.vercel.app/hotel-list" },
+};
+
 export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+  return <RoutePage />;
 }

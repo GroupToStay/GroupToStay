@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
@@ -19,7 +21,7 @@ export const Route = createFileRoute("/terms")({
   component: Page,
 });
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   const { formatDate } = useApplicationLocale();
   const prohibitedItems = t("legal.terms.sections.prohibited.items", {

@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -75,7 +77,7 @@ const tabOptionKeys: { value: Tab; labelKey: string }[] = [
   { value: "all", labelKey: "admin.groupRequests.filters.allStatus" },
 ];
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>("pending");

@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -8,7 +10,6 @@ import {
   Building2,
   CheckCircle2,
   Clock3,
-  CreditCard,
   Eye,
   FileCheck2,
   FileText,
@@ -115,7 +116,7 @@ const sectionKeys: { value: ApprovalSection; labelKey: string }[] = [
   { value: "manual", labelKey: "admin.approvals.sections.manual" },
 ];
 
-function ApprovalCenter() {
+export function ApprovalCenter() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [section, setSection] = useState<ApprovalSection>("pending");

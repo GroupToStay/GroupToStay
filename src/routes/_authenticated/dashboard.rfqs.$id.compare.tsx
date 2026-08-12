@@ -1,4 +1,7 @@
+"use client";
+
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,8 +21,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/rfqs/$id/compare
   component: Page,
 });
 
-function Page() {
-  const { id } = Route.useParams();
+export function Page() {
+  const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();

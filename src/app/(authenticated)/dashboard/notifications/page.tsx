@@ -1,6 +1,8 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/_authenticated/dashboard.notifications";
+import type { Metadata } from "next";
+import { NotificationsPage as RoutePage } from "@/routes/_authenticated/dashboard.notifications";
+
+export const metadata: Metadata = { title: "Notifications" };
+
 export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+  return <RoutePage />;
 }

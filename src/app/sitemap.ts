@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
 
-const baseUrl = "https://groupstay-connect.lovable.app";
+const baseUrl = "https://group-to-stay.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const monthly = ["/how-it-works", "/for-hotels", "/pricing", "/about", "/contact"];
-  const yearly = ["/trust", "/privacy", "/terms", "/cookies", "/auth"];
+  const yearly = ["/trust", "/privacy", "/terms", "/cookies"];
 
   return [
     { url: baseUrl, changeFrequency: "weekly", priority: 1 },

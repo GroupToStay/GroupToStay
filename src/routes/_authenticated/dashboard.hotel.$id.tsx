@@ -1,4 +1,7 @@
+"use client";
+
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
@@ -57,8 +60,8 @@ function HotelNotFound() {
   return <div className="text-muted-foreground">{t("hotelDash.errors.notFound")}</div>;
 }
 
-function Page() {
-  const { id } = Route.useParams();
+export function Page() {
+  const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();

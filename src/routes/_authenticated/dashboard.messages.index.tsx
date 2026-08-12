@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -30,7 +32,7 @@ type ConvRow = {
   participation?: { last_read_at: string }[];
 };
 
-function MessagesIndex() {
+export function MessagesIndex() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const userId = user?.id;

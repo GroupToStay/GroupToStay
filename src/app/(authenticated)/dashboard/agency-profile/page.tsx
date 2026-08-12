@@ -1,6 +1,8 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/_authenticated/dashboard.agency-profile";
+import type { Metadata } from "next";
+import { Page as RoutePage } from "@/routes/_authenticated/dashboard.agency-profile";
+
+export const metadata: Metadata = { title: "Agency profile" };
+
 export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+  return <RoutePage />;
 }

@@ -21,7 +21,6 @@ import {
   getSafeEmailHref,
   getSafePhoneHref,
   getSafeWhatsAppHref,
-  type DealCounterpartyContact,
 } from "@/features/deals/deal-contact-model";
 import {
   dealContactQueryKey,

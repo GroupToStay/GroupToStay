@@ -10,7 +10,6 @@ import {
   EllipsisVertical,
   RotateCcw,
   Shield,
-  Users,
   XCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -56,7 +58,7 @@ type RoleCatalog = {
   roles: EnterpriseRole[];
 };
 
-function RolesAndPermissions() {
+export function RolesAndPermissions() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { access } = useAdminAccess();

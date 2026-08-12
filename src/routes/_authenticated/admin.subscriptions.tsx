@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { CreditCard, Lock } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -12,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/admin/subscriptions")({
   component: Page,
 });
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   return (
     <div className="space-y-6">

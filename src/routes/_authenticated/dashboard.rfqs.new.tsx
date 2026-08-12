@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useRoles } from "@/hooks/use-role";
@@ -6,7 +8,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/rfqs/new")({
   component: Page,
 });
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   const { isOrganizer, isHotel, isAdmin, loading } = useRoles();
   if (loading) return <div className="text-muted-foreground">{t("common.loading")}</div>;

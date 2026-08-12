@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -57,7 +59,7 @@ function slugify(s: string) {
     .slice(0, 80);
 }
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();

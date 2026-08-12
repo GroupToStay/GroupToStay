@@ -1,6 +1,8 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/_authenticated/dashboard.rfqs.$id.compare";
+import type { Metadata } from "next";
+import { Page as RoutePage } from "@/routes/_authenticated/dashboard.rfqs.$id.compare";
+
+export const metadata: Metadata = { title: "Compare offers" };
+
 export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+  return <RoutePage />;
 }

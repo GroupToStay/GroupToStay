@@ -1,4 +1,7 @@
+"use client";
+
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,9 +43,9 @@ export const Route = createFileRoute("/requests/$id")({
   ),
 });
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
-  const { id } = Route.useParams();
+  const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { isHotel, isOrganizer } = useRoles();
 

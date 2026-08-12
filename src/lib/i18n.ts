@@ -76,51 +76,51 @@ export const I18N_NAMESPACES = [
 ] as const;
 
 const localeModules = {
-  ar: [
-    arCommon,
-    arNavigation,
-    arLanding,
-    arAuth,
-    arAdmin,
-    arDashboard,
-    arHotel,
-    arRfq,
-    arForms,
-    arValidation,
-    arErrors,
-    arNotifications,
-    arLegal,
-    arProfile,
-    arPricing,
-    arCompany,
-    arSubscriptions,
-    arButtons,
-    arLegacy,
-    arDeals,
-  ],
-  en: [
-    enCommon,
-    enNavigation,
-    enLanding,
-    enAuth,
-    enAdmin,
-    enDashboard,
-    enHotel,
-    enRfq,
-    enForms,
-    enValidation,
-    enErrors,
-    enNotifications,
-    enLegal,
-    enProfile,
-    enPricing,
-    enCompany,
-    enSubscriptions,
-    enButtons,
-    enLegacy,
-    enDeals,
-  ],
-} satisfies Record<string, TranslationResource[]>;
+  ar: {
+    common: arCommon,
+    navigation: arNavigation,
+    landing: arLanding,
+    auth: arAuth,
+    admin: arAdmin,
+    dashboard: arDashboard,
+    hotel: arHotel,
+    rfq: arRfq,
+    forms: arForms,
+    validation: arValidation,
+    errors: arErrors,
+    notifications: arNotifications,
+    legal: arLegal,
+    profile: arProfile,
+    pricing: arPricing,
+    company: arCompany,
+    subscriptions: arSubscriptions,
+    buttons: arButtons,
+    legacy: arLegacy,
+    deals: arDeals,
+  },
+  en: {
+    common: enCommon,
+    navigation: enNavigation,
+    landing: enLanding,
+    auth: enAuth,
+    admin: enAdmin,
+    dashboard: enDashboard,
+    hotel: enHotel,
+    rfq: enRfq,
+    forms: enForms,
+    validation: enValidation,
+    errors: enErrors,
+    notifications: enNotifications,
+    legal: enLegal,
+    profile: enProfile,
+    pricing: enPricing,
+    company: enCompany,
+    subscriptions: enSubscriptions,
+    buttons: enButtons,
+    legacy: enLegacy,
+    deals: enDeals,
+  },
+} satisfies Record<string, Record<(typeof I18N_NAMESPACES)[number], TranslationResource>>;
 
 function deepMerge(target: TranslationResource, source: TranslationResource) {
   Object.entries(source).forEach(([key, value]) => {
@@ -148,8 +148,9 @@ function buildResources() {
 
   Object.entries(localeModules).forEach(([language, modules]) => {
     resources[language] = {
-      translation: modules.reduce<TranslationResource>(
-        (merged, resource) => deepMerge(merged, resource),
+      ...modules,
+      translation: Object.values(modules).reduce<TranslationResource>(
+        (merged, resource) => deepMerge(merged, resource as TranslationResource),
         {},
       ),
     };
@@ -162,8 +163,9 @@ function buildResources() {
 // the fallback for first visits and unsupported locale values.
 if (!i18n.isInitialized) {
   i18n.use(initReactI18next).init({
+    initAsync: false,
     resources: buildResources(),
-    lng: "en", // deterministic first render — client hydration matches server
+    lng: "en", // deterministic first render; client hydration matches the server
     fallbackLng: "en",
     defaultNS: "translation",
     ns: ["translation", ...I18N_NAMESPACES],

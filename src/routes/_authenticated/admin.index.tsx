@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -32,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminHome,
 });
 
-function AdminHome() {
+export function AdminHome() {
   const { t } = useTranslation();
   const { hasPermission } = useAdminAccess();
   const { data: stats } = useQuery({

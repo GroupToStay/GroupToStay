@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +9,6 @@ import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
   ArrowRight,
   Building2,
@@ -30,7 +31,6 @@ import {
   BadgeCheck,
   TimerReset,
   Lock,
-  Quote as QuoteIcon,
   ArrowUpRight,
 } from "lucide-react";
 import { RfqSharedFields, type RfqSharedValues } from "@/features/rfq/RfqSharedFields";
@@ -61,10 +61,10 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: i18n.t("landing.meta.ogDescription"),
       },
-      { property: "og:url", content: "https://groupstay-connect.lovable.app/" },
+      { property: "og:url", content: "https://group-to-stay.vercel.app/" },
     ],
     links: [
-      { rel: "canonical", href: "https://groupstay-connect.lovable.app/" },
+      { rel: "canonical", href: "https://group-to-stay.vercel.app/" },
       {
         rel: "preload",
         as: "image",
@@ -86,7 +86,7 @@ export const Route = createFileRoute("/")({
           provider: { "@type": "Organization", name: "GroupToStay" },
           areaServed: i18n.t("landing.schema.areaServed"),
           description: i18n.t("landing.schema.description"),
-          url: "https://groupstay-connect.lovable.app/",
+          url: "https://group-to-stay.vercel.app/",
         }),
       },
     ],
@@ -108,7 +108,7 @@ function useLandingSession() {
   };
 }
 
-function Landing() {
+export function Landing() {
   const { t } = useTranslation();
   const { user, accessToken, isHotel, isAdmin, isOrganizer, rolesLoading } = useLandingSession();
 

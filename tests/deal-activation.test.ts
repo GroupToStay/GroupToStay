@@ -179,7 +179,8 @@ describe("V2 to V3 Deal activation", () => {
     );
     const workspace = readFileSync(resolve("src/features/deals/NegotiationWorkspace.tsx"), "utf8");
 
-    expect(flag).toContain('VITE_V3_DEAL_ACTIVATION_ENABLED ?? "false"');
+    expect(flag).toContain("NEXT_PUBLIC_V3_DEAL_ACTIVATION_ENABLED");
+    expect(flag).not.toContain("VITE_V3_DEAL_ACTIVATION_ENABLED");
     expect(list).toContain('createFileRoute("/_authenticated/dashboard/negotiations")');
     expect(list).not.toContain("source_invitation_id}");
     expect(invitations).toContain("<DealActivationButton");

@@ -1,6 +1,12 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/privacy";
+import type { Metadata } from "next";
+import { Page as RoutePage } from "@/routes/privacy";
+
+export const metadata: Metadata = {
+  title: "Privacy policy",
+  alternates: { canonical: "/privacy" },
+  openGraph: { url: "https://group-to-stay.vercel.app/privacy" },
+};
+
 export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+  return <RoutePage />;
 }

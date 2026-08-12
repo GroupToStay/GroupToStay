@@ -1,4 +1,7 @@
+"use client";
+
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,7 +42,7 @@ export const Route = createFileRoute("/hotels/$id")({
           })
           .slice(0, 300)
       : i18n.t("hotels.detailOgDescription");
-    const canonical = `https://groupstay-connect.lovable.app/hotels/${params.id}`;
+    const canonical = `https://group-to-stay.vercel.app/hotels/${params.id}`;
     return {
       meta: [
         { title },
@@ -96,8 +99,8 @@ function ErrorView() {
   );
 }
 
-function Page() {
-  const { id } = Route.useParams();
+export function Page() {
+  const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
   const { isAdmin, isHotel, loading: rolesLoading } = useRoles();
   const { loading: authLoading } = useAuth();

@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Children, cloneElement, isValidElement, useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -66,7 +68,7 @@ const EMPLOYEES = ["1-10", "11-50", "51-200", "200+"];
 
 type Profile = Record<string, any>;
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   const { user, loading: authLoading } = useAuth();
   const { isOrganizer, isAdmin, isHotel, loading: rolesLoading } = useRoles();

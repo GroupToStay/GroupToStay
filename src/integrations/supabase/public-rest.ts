@@ -1,12 +1,12 @@
 function getSupabasePublicConfig() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.NEXT_PUBLIC_VITE_SUPABASE_URL;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key =
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!url || !key) {
     const missing = [
-      ...(!url ? ["VITE_SUPABASE_URL"] : []),
-      ...(!key ? ["VITE_SUPABASE_ANON_KEY or VITE_SUPABASE_PUBLISHABLE_KEY"] : []),
+      ...(!url ? ["NEXT_PUBLIC_SUPABASE_URL"] : []),
+      ...(!key ? ["NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"] : []),
     ];
     throw new Error(`Missing Supabase environment variable(s): ${missing.join(", ")}.`);
   }

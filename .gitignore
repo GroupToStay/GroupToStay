@@ -30,6 +30,7 @@ supabase/.branches/
 
 # Vercel build output and local project metadata
 .vercel/
+public/build-metadata.json
 
 # Wrangler / Cloudflare
 .wrangler/
@@ -48,3 +49,6 @@ supabase/.branches/
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
+.env*

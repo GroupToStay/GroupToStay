@@ -1,6 +1,8 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/_authenticated/settings";
+import type { Metadata } from "next";
+import { SettingsPage as RoutePage } from "@/routes/_authenticated/settings";
+
+export const metadata: Metadata = { title: "Settings" };
+
 export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+  return <RoutePage />;
 }

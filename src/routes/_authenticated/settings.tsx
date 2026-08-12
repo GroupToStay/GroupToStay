@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useId, useState } from "react";
@@ -49,10 +51,10 @@ const TAB_ICONS = {
   security: Lock,
 } satisfies Record<SettingsTab, typeof UserIcon>;
 
-function SettingsPage() {
+export function SettingsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { tab } = Route.useSearch();
+  const { tab } = parseSettingsSearch(Route.useSearch());
   const { user } = useAuth();
   const { isHotel, isAdmin } = useRoles();
   const { avatarUrl, displayName, role } = useAccountIdentity();

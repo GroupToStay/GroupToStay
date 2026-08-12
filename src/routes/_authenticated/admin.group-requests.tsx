@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -111,7 +113,7 @@ const sortOptionKeys: { value: SortKey; labelKey: string }[] = [
   { value: "destination", labelKey: "admin.groupRequests.sort.destination" },
 ];
 
-function Page() {
+export function Page() {
   const qc = useQueryClient();
   const { t } = useTranslation();
   const { compare, language } = useApplicationLocale();

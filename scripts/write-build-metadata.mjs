@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -146,16 +146,7 @@ export function writeBuildMetadata({
   const context = resolveContext(repositoryRoot, env);
   const shortSha = context.sha.slice(0, 12);
   const localOutputDirectory = resolve(repositoryRoot, ".output/public");
-  const vercelOutputDirectory = resolve(repositoryRoot, ".vercel/output/static");
-
-  if (
-    context.vercel &&
-    (!existsSync(vercelOutputDirectory) || !statSync(vercelOutputDirectory).isDirectory())
-  ) {
-    throw new Error(
-      "[provenance] Vercel output is missing .vercel/output/static; refusing to create an unexpected deployment structure.",
-    );
-  }
+  const nextPublicDirectory = resolve(repositoryRoot, "public");
 
   const metadata = {
     version: packageJson.version || `${packageJson.name}-${shortSha}`,
@@ -169,11 +160,9 @@ export function writeBuildMetadata({
   const serialized = `${JSON.stringify(metadata, null, 2)}\n`;
 
   mkdirSync(localOutputDirectory, { recursive: true });
+  mkdirSync(nextPublicDirectory, { recursive: true });
   writeFileSync(resolve(localOutputDirectory, "build-metadata.json"), serialized, "utf8");
-
-  if (context.vercel) {
-    writeFileSync(resolve(vercelOutputDirectory, "build-metadata.json"), serialized, "utf8");
-  }
+  writeFileSync(resolve(nextPublicDirectory, "build-metadata.json"), serialized, "utf8");
 
   return metadata;
 }

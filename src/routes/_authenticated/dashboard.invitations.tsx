@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -64,7 +66,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/invitations")({
   component: Page,
 });
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
 

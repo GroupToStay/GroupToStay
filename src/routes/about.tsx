@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PublicPageHero, PublicPageLayout } from "@/components/public-page";
@@ -16,14 +18,14 @@ export const Route = createFileRoute("/about")({
         property: "og:description",
         content: i18n.t("about.ogDescription"),
       },
-      { property: "og:url", content: "https://groupstay-connect.lovable.app/about" },
+      { property: "og:url", content: "https://group-to-stay.vercel.app/about" },
     ],
-    links: [{ rel: "canonical", href: "https://groupstay-connect.lovable.app/about" }],
+    links: [{ rel: "canonical", href: "https://group-to-stay.vercel.app/about" }],
   }),
   component: Page,
 });
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   return (
     <PublicPageLayout>

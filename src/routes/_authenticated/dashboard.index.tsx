@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
@@ -33,7 +35,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
   component: Page,
 });
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   const { isHotel, isAdmin, loading } = useRoles();
 

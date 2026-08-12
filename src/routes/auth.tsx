@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, useNavigate, useSearch, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
@@ -72,10 +74,10 @@ export const Route = createFileRoute("/auth")({
   component: Page,
 });
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const search = useSearch({ from: "/auth" });
+  const search = parseAuthSearch(useSearch({ from: "/auth" }));
   const { user } = useAuth();
   const { data: countries = [] } = useCountries();
   const mode = search.mode ?? "signin";

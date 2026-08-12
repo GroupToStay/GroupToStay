@@ -6,7 +6,11 @@
       "!**/.next",
       "!**/node_modules",
       "!**/pnpm-lock.yaml",
+      "!artifacts",
+      "!.output",
+      "!public/build-metadata.json",
       "!src/routeTree.gen.ts",
+      "!src/integrations/supabase/types.ts",
       "!supabase/migration-archive"
     ]
   },
@@ -21,9 +25,11 @@
     "rules": {
       "preset": "none",
       "correctness": {
-        "noUnusedImports": "warn",
+        "noUnusedImports": "error",
         "noUnusedVariables": "off",
-        "noUnreachable": "error"
+        "noUnreachable": "error",
+        "useExhaustiveDependencies": "warn",
+        "useHookAtTopLevel": "error"
       },
       "suspicious": {
         "noDebugger": "error",

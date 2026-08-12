@@ -1,6 +1,12 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/request-quote";
+import type { Metadata } from "next";
+import { Page as RoutePage } from "@/routes/request-quote";
+
+export const metadata: Metadata = {
+  title: "Request a quote",
+  alternates: { canonical: "/request-quote" },
+  openGraph: { url: "https://group-to-stay.vercel.app/request-quote" },
+};
+
 export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+  return <RoutePage />;
 }

@@ -1,6 +1,7 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/_authenticated/admin.settings";
-export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+import { redirect } from "next/navigation";
+import { requireAdminPermission } from "@/lib/auth/server-authorization";
+
+export default async function AdminSettingsRedirect() {
+  await requireAdminPermission("manage_settings");
+  redirect("/settings?tab=profile");
 }

@@ -1,6 +1,10 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/_authenticated/admin.subscription-interest";
-export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+import type { Metadata } from "next";
+import { Page as SubscriptionInterest } from "@/routes/_authenticated/admin.subscription-interest";
+import { requireAdminPermission } from "@/lib/auth/server-authorization";
+
+export const metadata: Metadata = { title: "Subscription interest | GroupToStay" };
+
+export default async function SubscriptionInterestPage() {
+  await requireAdminPermission("manage_subscriptions");
+  return <SubscriptionInterest />;
 }

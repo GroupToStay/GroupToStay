@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
-  ShieldCheck,
   Building2,
   CheckCircle2,
   XCircle,

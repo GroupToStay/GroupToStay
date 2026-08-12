@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PublicPageHero, PublicPageLayout } from "@/components/public-page";
@@ -44,7 +46,7 @@ function Section({
   );
 }
 
-function TrustPage() {
+export function TrustPage() {
   const { t } = useTranslation();
   const sections = [
     { key: "authentication", icon: UserCheck },

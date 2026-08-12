@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Bell, CheckCheck, Trash2 } from "lucide-react";
@@ -14,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/notifications")(
   component: NotificationsPage,
 });
 
-function NotificationsPage() {
+export function NotificationsPage() {
   const { t } = useTranslation();
   const { items, loading, unreadCount, markRead, markAllRead, remove } = useNotifications(100);
   const { formatDateTime } = useApplicationLocale();

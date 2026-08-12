@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -24,9 +26,9 @@ export const Route = createFileRoute("/pricing")({
         property: "og:description",
         content: i18n.t("pricing.meta.ogDescription"),
       },
-      { property: "og:url", content: "https://groupstay-connect.lovable.app/pricing" },
+      { property: "og:url", content: "https://group-to-stay.vercel.app/pricing" },
     ],
-    links: [{ rel: "canonical", href: "https://groupstay-connect.lovable.app/pricing" }],
+    links: [{ rel: "canonical", href: "https://group-to-stay.vercel.app/pricing" }],
   }),
   component: Page,
 });
@@ -39,7 +41,7 @@ type Plan = {
   audience: "organizer" | "hotel";
 };
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { isOrganizer, isHotel, isAdmin, loading } = useRoles();

@@ -1,6 +1,8 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/_authenticated/dashboard.bookings.$id";
+import type { Metadata } from "next";
+import { BookingDetailPage as RoutePage } from "@/routes/_authenticated/dashboard.bookings.$id";
+
+export const metadata: Metadata = { title: "Booking details" };
+
 export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+  return <RoutePage />;
 }

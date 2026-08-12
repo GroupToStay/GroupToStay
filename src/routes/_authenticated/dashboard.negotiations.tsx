@@ -1,3 +1,5 @@
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Clock3, Handshake, Hotel, MapPin } from "lucide-react";
@@ -27,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/negotiations")({
   component: NegotiationsPage,
 });
 
-function NegotiationsPage() {
+export function NegotiationsPage() {
   const { t } = useTranslation("deals");
   const { user } = useAuth();
   const { formatNumber, formatDateTime } = useApplicationLocale();

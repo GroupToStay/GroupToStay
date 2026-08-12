@@ -1,6 +1,10 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/_authenticated/admin.hotel-listings";
-export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+import type { Metadata } from "next";
+import { Page as HotelListings } from "@/routes/_authenticated/admin.hotel-listings";
+import { requireAdminPermission } from "@/lib/auth/server-authorization";
+
+export const metadata: Metadata = { title: "Hotel listings | GroupToStay" };
+
+export default async function HotelListingsPage() {
+  await requireAdminPermission("manage_hotels");
+  return <HotelListings />;
 }

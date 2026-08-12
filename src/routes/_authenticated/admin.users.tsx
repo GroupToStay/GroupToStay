@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -136,7 +138,7 @@ const accountFilterKeys: { value: "all" | AccountStatus; labelKey: string }[] = 
   { value: "disabled", labelKey: "status.disabled" },
 ];
 
-function Page() {
+export function Page() {
   const qc = useQueryClient();
   const { t } = useTranslation();
   const { avatarUrl: currentAvatarUrl, user: currentUser } = useAccountIdentity();

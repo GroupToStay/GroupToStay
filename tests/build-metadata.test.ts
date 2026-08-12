@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -114,9 +114,8 @@ describe("build metadata", () => {
     ).toThrow("GitHub Actions builds requires a Git branch/ref");
   });
 
-  it("writes identical metadata into the existing Vercel static artifact", () => {
+  it("writes identical metadata into the Next public artifact", () => {
     const repositoryRoot = createRepository();
-    mkdirSync(join(repositoryRoot, ".vercel/output/static"), { recursive: true });
 
     const metadata = writeBuildMetadata({
       repositoryRoot,
@@ -129,15 +128,15 @@ describe("build metadata", () => {
         VERCEL_GIT_COMMIT_SHA: sha,
         VERCEL_GIT_COMMIT_REF: branch,
         VERCEL_TOKEN: "must-never-be-serialized",
-        VITE_SUPABASE_URL: "https://must-never-be-serialized.invalid",
-        VITE_SUPABASE_ANON_KEY: "must-never-be-serialized",
+        NEXT_PUBLIC_SUPABASE_URL: "https://must-never-be-serialized.invalid",
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: "must-never-be-serialized",
       },
       now: timestamp,
       nodeVersion: "v22.22.2",
     });
 
     const localMetadata = readMetadata(join(repositoryRoot, ".output/public/build-metadata.json"));
-    const vercelPath = join(repositoryRoot, ".vercel/output/static/build-metadata.json");
+    const vercelPath = join(repositoryRoot, "public/build-metadata.json");
     const vercelMetadata = readMetadata(vercelPath);
     const serialized = readFileSync(vercelPath, "utf8");
 
@@ -156,7 +155,6 @@ describe("build metadata", () => {
 
   it("rejects a Vercel build without the trusted Git SHA", () => {
     const repositoryRoot = createRepository();
-    mkdirSync(join(repositoryRoot, ".vercel/output/static"), { recursive: true });
 
     expect(() =>
       writeBuildMetadata({
@@ -175,7 +173,6 @@ describe("build metadata", () => {
 
   it("rejects a Vercel build without the trusted Git branch", () => {
     const repositoryRoot = createRepository();
-    mkdirSync(join(repositoryRoot, ".vercel/output/static"), { recursive: true });
 
     expect(() =>
       writeBuildMetadata({
@@ -194,7 +191,6 @@ describe("build metadata", () => {
 
   it("rejects a manual Vercel build even when generic build provenance is present", () => {
     const repositoryRoot = createRepository();
-    mkdirSync(join(repositoryRoot, ".vercel/output/static"), { recursive: true });
 
     expect(() =>
       writeBuildMetadata({
@@ -209,22 +205,24 @@ describe("build metadata", () => {
     ).toThrow("requires GitHub integration provenance for GroupToStay/GroupToStay");
   });
 
-  it("rejects Vercel mode when Nitro did not create the expected static output", () => {
+  it("does not require the removed Nitro output structure", () => {
     const repositoryRoot = createRepository();
 
-    expect(() =>
-      writeBuildMetadata({
-        repositoryRoot,
-        env: {
-          VERCEL: "1",
-          VERCEL_ENV: "preview",
-          VERCEL_GIT_PROVIDER: "github",
-          VERCEL_GIT_REPO_OWNER: "GroupToStay",
-          VERCEL_GIT_REPO_SLUG: "GroupToStay",
-          VERCEL_GIT_COMMIT_SHA: sha,
-          VERCEL_GIT_COMMIT_REF: branch,
-        },
-      }),
-    ).toThrow("refusing to create an unexpected deployment structure");
+    const metadata = writeBuildMetadata({
+      repositoryRoot,
+      env: {
+        VERCEL: "1",
+        VERCEL_ENV: "preview",
+        VERCEL_GIT_PROVIDER: "github",
+        VERCEL_GIT_REPO_OWNER: "GroupToStay",
+        VERCEL_GIT_REPO_SLUG: "GroupToStay",
+        VERCEL_GIT_COMMIT_SHA: sha,
+        VERCEL_GIT_COMMIT_REF: branch,
+      },
+      now: timestamp,
+      nodeVersion: "v22.22.2",
+    });
+
+    expect(readMetadata(join(repositoryRoot, "public/build-metadata.json"))).toEqual(metadata);
   });
 });

@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -77,7 +79,7 @@ const statusOptionKeys: { value: CompanyStatus; labelKey: string }[] = [
   { value: "rejected", labelKey: "status.rejected" },
 ];
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
   const qc = useQueryClient();
   const [status, setStatus] = useState<CompanyStatus>("pending");

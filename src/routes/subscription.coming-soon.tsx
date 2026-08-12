@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteHeader } from "@/components/site-header";
@@ -44,9 +46,15 @@ const PLANS = [
   },
 ];
 
-function Page() {
+export function Page() {
   const { t } = useTranslation();
-  const search = Route.useSearch();
+  const rawSearch = Route.useSearch();
+  const search: Search = {
+    plan:
+      rawSearch.plan === "professional" || rawSearch.plan === "featured"
+        ? rawSearch.plan
+        : undefined,
+  };
   const [waitlistPlan, setWaitlistPlan] = useState<"professional" | "featured" | null>(
     search.plan ?? null,
   );

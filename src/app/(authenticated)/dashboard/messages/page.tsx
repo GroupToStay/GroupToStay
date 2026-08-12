@@ -1,6 +1,8 @@
-"use client";
-import { LegacyRoutePage } from "@/app/legacy-route-page";
-import { Route } from "@/routes/_authenticated/dashboard.messages.index";
+import type { Metadata } from "next";
+import { MessagesIndex as RoutePage } from "@/routes/_authenticated/dashboard.messages.index";
+
+export const metadata: Metadata = { title: "Messages" };
+
 export default function Page() {
-  return <LegacyRoutePage route={Route} />;
+  return <RoutePage />;
 }

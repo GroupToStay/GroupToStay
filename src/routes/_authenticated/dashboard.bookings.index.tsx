@@ -1,3 +1,5 @@
+"use client";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -16,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/bookings/")({
   component: BookingsPage,
 });
 
-function BookingsPage() {
+export function BookingsPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { formatDate, formatNumber } = useApplicationLocale();
