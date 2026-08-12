@@ -403,18 +403,24 @@ BEGIN
 
   SELECT
     NULLIF(btrim(COALESCE(profile.legal_company_name, profile.company_name, profile.org_name, '')), ''),
-    NULLIF(btrim(COALESCE(
-      profile.trade_name,
-      profile.company_name,
-      profile.org_name,
-      profile.legal_company_name,
-      profile.full_name,
+    COALESCE(
+      NULLIF(btrim(profile.trade_name), ''),
+      NULLIF(btrim(profile.company_name), ''),
+      NULLIF(btrim(profile.org_name), ''),
+      NULLIF(btrim(profile.legal_company_name), ''),
+      NULLIF(btrim(profile.full_name), ''),
       CASE _organization_type
         WHEN 'agency' THEN 'Agency account'
-        ELSE (SELECT hotel.name FROM public.hotels hotel WHERE hotel.owner_id = _user_id ORDER BY hotel.created_at, hotel.id LIMIT 1)
+        ELSE NULLIF(btrim((
+          SELECT hotel.name
+          FROM public.hotels hotel
+          WHERE hotel.owner_id = _user_id
+          ORDER BY hotel.created_at, hotel.id
+          LIMIT 1
+        )), '')
       END,
       CASE _organization_type WHEN 'agency' THEN 'Agency account' ELSE 'Supplier account' END
-    )), ''),
+    ),
     profile.country_id,
     profile.account_status = 'active'
   INTO _legal_name, _display_name, _country_id, _account_active

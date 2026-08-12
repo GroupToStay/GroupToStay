@@ -20,6 +20,13 @@ describe("organization and membership foundation", () => {
     expect(migration).not.toMatch(/DROP (TABLE|COLUMN)\b/iu);
   });
 
+  it("skips blank profile fields when deriving an organization display name", () => {
+    expect(migration).toContain("NULLIF(btrim(profile.trade_name), '')");
+    expect(migration).toContain("NULLIF(btrim(profile.company_name), '')");
+    expect(migration).toContain("NULLIF(btrim(profile.full_name), '')");
+    expect(migration).toContain("ELSE 'Supplier account' END");
+  });
+
   it("keeps platform and organization authority separate", () => {
     expect(migration).toContain("public.organization_membership_role");
     expect(migration).toContain("public.validate_organization_membership_role");
