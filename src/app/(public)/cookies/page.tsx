@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo";
 import { Page as RoutePage } from "@/routes/cookies";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "Cookie policy",
-  alternates: { canonical: "/cookies" },
-  openGraph: { url: "https://group-to-stay.vercel.app/cookies" },
-};
+  description: "Learn how GroupToStay uses cookies and similar technologies.",
+  path: "/cookies",
+});
 
 export default function Page() {
   return <RoutePage />;

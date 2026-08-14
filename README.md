@@ -1,12 +1,12 @@
 # GroupToStay
 
-GroupToStay is a B2B accommodation RFQ marketplace built with TanStack Start, React, Vite, pnpm, and Supabase.
+GroupToStay is a B2B accommodation RFQ marketplace built with Next.js, React, pnpm, and Supabase.
 
 ## Environment
 
 Use the repository-pinned runtime versions:
 
-- Node.js: `22.23.1`
+- Node.js: `24.15.0`
 - pnpm: `11.7.0`
 
 The Node version is declared in `.nvmrc`, `.node-version`, and `package.json` engines. The package manager is declared in `package.json` as `pnpm@11.7.0`.
@@ -18,6 +18,15 @@ pnpm install
 ```
 
 ## Development
+
+Create a local environment file before starting the app:
+
+```bash
+cp .env.example .env.local
+```
+
+Then replace the placeholder Supabase key in `.env.local` with the external project's current
+publishable or anon key. Do not use a service-role key.
 
 ```bash
 pnpm dev
@@ -57,8 +66,7 @@ pnpm build
 
 ## Vercel Test Deployment
 
-Use the `Other` framework preset. Nitro detects Vercel during the build and emits the Vercel
-Build Output API automatically, so leave the Output Directory setting empty.
+Next.js is detected by Vercel automatically, so leave the Output Directory setting empty.
 
 - Install command: `pnpm install --frozen-lockfile`
 - Build command: `pnpm build`
@@ -67,8 +75,8 @@ Build Output API automatically, so leave the Output Directory setting empty.
 For the test deployment, add these variables to the Vercel Preview environment only:
 
 ```text
-VITE_SUPABASE_URL=https://atxecflhmphaqqkatjlm.supabase.co
-VITE_SUPABASE_ANON_KEY=<external Supabase anon or publishable key>
+NEXT_PUBLIC_SUPABASE_URL=https://atxecflhmphaqqkatjlm.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<external Supabase anon or publishable key>
 ```
 
 Copy the current publishable or anon key from the external Supabase project's API settings. Do not

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import { createSupabaseServerClient } from "@/integrations/supabase/server";
+import { createPageMetadata, SITE_URL, serializeJsonLd } from "@/lib/seo";
 import { Page as RoutePage } from "@/routes/hotels.$id";
 
 type PageProps = { params: Promise<{ id: string }> };
 
-const productionUrl = "https://group-to-stay.vercel.app";
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const getApprovedHotel = cache(async (id: string) => {
@@ -28,18 +28,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description =
     hotel?.description?.slice(0, 300) ?? "View an approved GroupToStay hotel property.";
 
-  return {
+  return createPageMetadata({
     title,
     description,
-    alternates: { canonical: canonicalPath },
-    openGraph: {
-      type: "website",
-      title,
-      description,
-      url: `${productionUrl}${canonicalPath}`,
-      images: hotel?.cover_image ? [hotel.cover_image] : undefined,
-    },
-  };
+    path: canonicalPath,
+    images: hotel?.cover_image ? [hotel.cover_image] : undefined,
+    index: Boolean(hotel),
+  });
 }
 
 export default async function Page({ params }: PageProps) {
@@ -61,14 +56,14 @@ export default async function Page({ params }: PageProps) {
           addressLocality: hotel.city ?? undefined,
           addressCountry: hotel.country ?? undefined,
         },
-        url: `${productionUrl}/hotels/${encodeURIComponent(id)}`,
+        url: `${SITE_URL}/hotels/${encodeURIComponent(id)}`,
       }
     : null;
 
   return (
     <>
       {structuredData ? (
-        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+        <script type="application/ld+json">{serializeJsonLd(structuredData)}</script>
       ) : null}
       <RoutePage />
     </>

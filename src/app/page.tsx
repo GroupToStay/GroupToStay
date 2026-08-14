@@ -1,24 +1,24 @@
-import type { Metadata } from "next";
+import { createPageMetadata, SITE_NAME, SITE_URL, serializeJsonLd } from "@/lib/seo";
 import { Landing } from "@/routes/index";
 
-export const metadata: Metadata = {
-  title: "GroupToStay | One request. Multiple hotel offers.",
+export const metadata = createPageMetadata({
+  title: "Group hotel booking made simple",
   description:
     "Request group accommodation once, compare verified hotel offers, and negotiate securely.",
-  alternates: { canonical: "/" },
-};
+  path: "/",
+});
 
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "GroupToStay",
-  url: "https://group-to-stay.vercel.app",
+  name: SITE_NAME,
+  url: SITE_URL,
 };
 
 export default function HomePage() {
   return (
     <>
-      <script type="application/ld+json">{JSON.stringify(organizationSchema)}</script>
+      <script type="application/ld+json">{serializeJsonLd(organizationSchema)}</script>
       <Landing />
     </>
   );

@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo";
 import { Page as RoutePage } from "@/routes/reset-password";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "Reset password",
-  alternates: { canonical: "/reset-password" },
-  openGraph: { url: "https://group-to-stay.vercel.app/reset-password" },
-};
+  description: "Reset the password for your GroupToStay account.",
+  path: "/reset-password",
+  index: false,
+});
 
 export default function Page() {
   return <RoutePage />;

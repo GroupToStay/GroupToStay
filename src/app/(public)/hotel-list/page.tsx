@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo";
 import { HotelListAccessDenied as RoutePage } from "@/routes/hotel-list";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "Hotel directory",
-  alternates: { canonical: "/hotel-list" },
-  openGraph: { url: "https://group-to-stay.vercel.app/hotel-list" },
-};
+  description: "GroupToStay hotel directory access.",
+  path: "/hotel-list",
+  index: false,
+});
 
 export default function Page() {
   return <RoutePage />;

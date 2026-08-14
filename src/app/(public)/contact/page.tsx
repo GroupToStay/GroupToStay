@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo";
 import { Page as RoutePage } from "@/routes/contact";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  alternates: { canonical: "/contact" },
-  openGraph: { url: "https://group-to-stay.vercel.app/contact" },
-};
+export const metadata = createPageMetadata({
+  title: "Contact us",
+  description:
+    "Contact the GroupToStay team for help with group accommodation requests or hotel partnerships.",
+  path: "/contact",
+});
 
 export default function Page() {
   return <RoutePage />;

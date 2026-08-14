@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo";
 import { TrustPage as RoutePage } from "@/routes/trust";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "Trust and safety",
-  alternates: { canonical: "/trust" },
-  openGraph: { url: "https://group-to-stay.vercel.app/trust" },
-};
+  description:
+    "Learn how GroupToStay protects group organizers, hotels, accounts, and marketplace data.",
+  path: "/trust",
+});
 
 export default function Page() {
   return <RoutePage />;

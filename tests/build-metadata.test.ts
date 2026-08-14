@@ -42,7 +42,7 @@ describe("build metadata", () => {
         GITHUB_REF_NAME: "2/merge",
       },
       now: timestamp,
-      nodeVersion: "v22.23.1",
+      nodeVersion: "v24.15.0",
     });
 
     expect(metadata).toEqual({
@@ -51,7 +51,7 @@ describe("build metadata", () => {
       branch,
       environment: "CI",
       timestamp: timestamp.toISOString(),
-      node: "v22.23.1",
+      node: "v24.15.0",
       pnpm: "11.7.0",
     });
     expect(Object.keys(metadata)).toEqual(approvedMetadataFields);
@@ -72,7 +72,7 @@ describe("build metadata", () => {
         GITHUB_REF_NAME: branch,
       },
       now: timestamp,
-      nodeVersion: "v22.23.1",
+      nodeVersion: "v24.15.0",
     });
 
     expect(metadata.branch).toBe(branch);
@@ -90,7 +90,7 @@ describe("build metadata", () => {
         GITHUB_REF_NAME: `  ${branch}  `,
       },
       now: timestamp,
-      nodeVersion: "v22.23.1",
+      nodeVersion: "v24.15.0",
     });
 
     expect(metadata.branch).toBe(branch);
@@ -109,7 +109,7 @@ describe("build metadata", () => {
           GITHUB_REF_NAME: "   ",
         },
         now: timestamp,
-        nodeVersion: "v22.23.1",
+        nodeVersion: "v24.15.0",
       }),
     ).toThrow("GitHub Actions builds requires a Git branch/ref");
   });
@@ -132,7 +132,7 @@ describe("build metadata", () => {
         NEXT_PUBLIC_SUPABASE_ANON_KEY: "must-never-be-serialized",
       },
       now: timestamp,
-      nodeVersion: "v22.22.2",
+      nodeVersion: "v24.15.0",
     });
 
     const localMetadata = readMetadata(join(repositoryRoot, ".output/public/build-metadata.json"));
@@ -147,7 +147,7 @@ describe("build metadata", () => {
       sha,
       branch,
       environment: "Preview",
-      node: "v22.22.2",
+      node: "v24.15.0",
       pnpm: "11.7.0",
     });
     expect(serialized).not.toContain("must-never-be-serialized");
@@ -220,9 +220,33 @@ describe("build metadata", () => {
         VERCEL_GIT_COMMIT_REF: branch,
       },
       now: timestamp,
-      nodeVersion: "v22.22.2",
+      nodeVersion: "v24.15.0",
     });
 
     expect(readMetadata(join(repositoryRoot, "public/build-metadata.json"))).toEqual(metadata);
+  });
+
+  it("rejects Node versions below the supported Node 24 baseline", () => {
+    const repositoryRoot = createRepository();
+
+    expect(() =>
+      writeBuildMetadata({
+        repositoryRoot,
+        env: { BUILD_GIT_SHA: sha, BUILD_GIT_BRANCH: branch },
+        nodeVersion: "v24.14.0",
+      }),
+    ).toThrow("Node.js v24.14.0 does not satisfy >=24.15.0 <25");
+  });
+
+  it("rejects unsupported future Node major versions", () => {
+    const repositoryRoot = createRepository();
+
+    expect(() =>
+      writeBuildMetadata({
+        repositoryRoot,
+        env: { BUILD_GIT_SHA: sha, BUILD_GIT_BRANCH: branch },
+        nodeVersion: "v25.0.0",
+      }),
+    ).toThrow("Node.js v25.0.0 does not satisfy >=24.15.0 <25");
   });
 });

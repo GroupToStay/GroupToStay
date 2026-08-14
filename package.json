@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@11.7.0",
   "engines": {
-    "node": ">=22.22.2 <23",
+    "node": ">=24.15.0 <25",
     "pnpm": "11.7.0"
   },
   "scripts": {
@@ -28,10 +28,10 @@
     "test:rls": "vitest run tests/rls"
   },
   "dependencies": {
-    "@fontsource/inter": "^5.2.8",
+    "@fontsource/inter": "^5.3.0",
     "@fontsource/playfair-display": "^5.2.8",
     "@fontsource/tajawal": "^5.2.7",
-    "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-accordion": "^1.2.15",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",
     "@radix-ui/react-avatar": "^1.1.11",
@@ -68,7 +68,7 @@
     "i18next": "^26.3.1",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.575.0",
-    "next": "^16.1.6",
+    "next": "^16.3.1",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.0",
@@ -92,6 +92,6 @@
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.10"
   }
 }

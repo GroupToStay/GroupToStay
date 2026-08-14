@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/seo";
 import { Page as RoutePage } from "@/routes/auth";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "Sign in",
-  alternates: { canonical: "/auth" },
-  openGraph: { url: "https://group-to-stay.vercel.app/auth" },
-};
+  description: "Sign in to your GroupToStay account.",
+  path: "/auth",
+  index: false,
+});
 
 export default function Page() {
   return <RoutePage />;

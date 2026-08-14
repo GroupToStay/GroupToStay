@@ -65,14 +65,14 @@ function requireCanonicalVercelGitSource(env) {
   }
 }
 
-function requireCompatibleNode(value, vercel) {
+function requireCompatibleNode(value) {
   const match = /^v(\d+)\.(\d+)\.(\d+)$/.exec(value ?? "");
   if (!match) {
     throw new Error("[provenance] Build stopped because the Node.js version is invalid.");
   }
 
   const version = match.slice(1).map(Number);
-  const minimum = vercel ? [22, 22, 2] : [22, 23, 1];
+  const minimum = [24, 15, 0];
   const meetsMinimum = version.every((part, index) => {
     const previousPartsMatch = version
       .slice(0, index)
@@ -80,9 +80,8 @@ function requireCompatibleNode(value, vercel) {
     return !previousPartsMatch || part >= minimum[index];
   });
 
-  if (version[0] !== 22 || !meetsMinimum) {
-    const required = vercel ? ">=22.22.2 <23" : ">=22.23.1 <23";
-    throw new Error(`[provenance] Node.js ${value} does not satisfy ${required}.`);
+  if (version[0] !== 24 || !meetsMinimum) {
+    throw new Error(`[provenance] Node.js ${value} does not satisfy >=24.15.0 <25.`);
   }
 
   return value;
@@ -154,7 +153,7 @@ export function writeBuildMetadata({
     branch: context.branch,
     environment: context.environment,
     timestamp: now.toISOString(),
-    node: requireCompatibleNode(nodeVersion, context.vercel),
+    node: requireCompatibleNode(nodeVersion),
     pnpm: readPnpmVersion(packageJson),
   };
   const serialized = `${JSON.stringify(metadata, null, 2)}\n`;
